@@ -1,0 +1,7 @@
+<!DOCTYPE Workspace SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpw.dtd">
+<Workspace Version="10.0" VendorName="SlickEdit">
+	<Projects>
+		<Project File="nRF5_SDK14.vpj"/>
+		<Project File="nrf_test.vpj"/>
+	</Projects>
+</Workspace>
