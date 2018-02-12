@@ -146,7 +146,7 @@ CFLAGS += --std=gnu99
 CFLAGS += -nostdlib
 CFLAGS += $(WARNING_FLAGS)
 CFLAGS += $(ARM_GCC_FLAGS)
-CFLAGS += -g
+CFLAGS += -g3
 
 ###
 # GNU C++ Language compiler options
@@ -155,20 +155,31 @@ CXXFLAGS += -std=c++14
 CXXFLAGS += -nostdlib
 CXXFLAGS += $(WARNING_FLAGS)
 CXXFLAGS += $(ARM_GCC_FLAGS)
-CXXFLAGS += -g
+CXXFLAGS += -g3
 CXXFLAGS += -fno-rtti
 CXXFLAGS += -fno-exceptions
 
 ###
 # GNU/ARM Assembler flags
+# -x assembler-with-cpp option enforces C language pre-processing directives
+#    within the .s file.
 ###
 ASFLAGS += $(ARM_FLAGS)
+ASFLAGS += -g3
+ASFLAGS += -x assembler-with-cpp
+
+###
+# Note that the startup file gcc_startup_nrf52.s will accept
+# __STACK_SIZE and __HEAP_SIZE as compile time definitions.
+#
+# If not specified then the hard-coded defaults are used:
+# stack size: 8192 bytes
+# heap  size:    0 bytes.
+###
+# ASFLAGS += -D__HEAP_SIZE=0
+# ASFLAGS += -D__STACK_SIZE=8192
 
 ### Uknown / obsolete options. todo: figure them out or delete them.
-# ASFLAGS += -g3
-# ASFLAGS += -x assembler-with-cpp
-# ASFLAGS += -D__HEAP_SIZE=0
-# ASFLAGS += -D__STACK_SIZE=2048
 
 ###
 # Configure the linker
@@ -177,7 +188,6 @@ ASFLAGS += $(ARM_FLAGS)
 # This allows the linker to dump unused functions and data.
 # use newlib in nano version
 ###
-
 LDFLAGS += -Xlinker -Map=$(BUILD_PATH)/$(TARGET_NAME).map
 LDFLAGS += $(LINKER_PATHS) -T $(LINKER_SCRIPT)
 LDFLAGS += --specs=nano.specs -lc -lnosys
