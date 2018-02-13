@@ -22,8 +22,8 @@ VERBOSE				?= @
 NORDIC_DEVICE			?= NRF52
 SOFT_DEVICE			?= s132
 SOFT_DEVICE_PATH		:= $(SDK_ROOT)/components/softdevice/$(SOFT_DEVICE)/hex
-SOFT_DEVICE_HEX_FILE		:= $(shell find $(SOFT_DEVICE_PATH) -iname '*.hex')
-SWD_SPEED			:= $(SWD_SPEED)
+SOFT_DEVICE_HEX_FILE		:= $(shell find -L $(SOFT_DEVICE_PATH) -iname '*.hex')
+SWD_SPEED			:= 4000
 
 ###
 # Writing to FLASH is controlled via the Nordic Non-volatile Memory Controller (NVMC).
@@ -72,7 +72,7 @@ endif
 ###
 JLINK_OPTS	+= -device $(NORDIC_DEVICE)
 JLINK_OPTS	+= -if swd
-JLINK_OPTS	+= -speed 4000
+JLINK_OPTS	+= -speed $(SWD_SPEED)
 
 ###
 # Segger GDB Server
