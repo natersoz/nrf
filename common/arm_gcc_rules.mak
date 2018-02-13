@@ -75,18 +75,6 @@ vpath %.c  $(V_PATHS)
 vpath %.cc $(V_PATHS)
 vpath %.s  $(V_PATHS)
 
-# The complete list of C Language directories: source files + header files.
-# Using remduplicates insures that the directory only gets used once.
-# Not that it is necessary but it does clean things up.
-I_PATHS += $(call remduplicates, $(INCLUDE_PATHS) $(V_PATHS))
-
-# The include path statement used by the compiler.
-INCLUDE_PATHS := $(addprefix -I, $(I_PATHS))
-
-# The linker search paths allows the linker to seach for libraries.
-# This is not commonly used. Prefere to specify link libraries with their path.
-LINKER_PATHS  := $(addprefix -L, $(LD_PATHS))
-
 # Common Optimization flags, C and C++
 ifeq ("$(BUILD_TYPE)", "Debug")
 	OPT_FLAGS = -Os
@@ -179,8 +167,6 @@ ASFLAGS += -x assembler-with-cpp
 # ASFLAGS += -D__HEAP_SIZE=0
 # ASFLAGS += -D__STACK_SIZE=8192
 
-### Uknown / obsolete options. todo: figure them out or delete them.
-
 ###
 # Configure the linker
 #
@@ -194,6 +180,26 @@ LDFLAGS += --specs=nano.specs -lc -lnosys
 LDFLAGS += $(ARM_FLAGS)
 LDFLAGS += $(OPT_FLAGS)
 LDFLAGS += -Wl,--gc-sections
+
+###
+# Use the LD_PATHS to allow the linker to bring in common linker scripts
+# The assumption is that projects are at the saem dieectory level as common.
+###
+LD_PATHS += ../common
+
+### Configuration complete. Only place transforms and rules below here.
+
+# The complete list of C Language directories: source files + header files.
+# Using remduplicates insures that the directory only gets used once.
+# Not that it is necessary but it does clean things up.
+I_PATHS += $(call remduplicates, $(INCLUDE_PATHS) $(V_PATHS))
+
+# The include path statement used by the compiler.
+INCLUDE_PATHS := $(addprefix -I, $(I_PATHS))
+
+# The linker search paths allows the linker to seach for libraries.
+# This is not commonly used. Prefere to specify link libraries with their path.
+LINKER_PATHS  := $(addprefix -L, $(LD_PATHS))
 
 ###
 # Replace source file paths with their build target object files.

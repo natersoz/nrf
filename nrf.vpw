@@ -2,6 +2,6 @@
 <Workspace Version="10.0" VendorName="SlickEdit">
 	<Projects>
 		<Project File="nRF5_SDK14.vpj"/>
-		<Project File="nrf_test.vpj"/>
+		<Project File="spi_master/nrf_spi_master.vpj"/>
 	</Projects>
 </Workspace>
