@@ -175,7 +175,7 @@ ASFLAGS += -x assembler-with-cpp
 # use newlib in nano version
 ###
 LDFLAGS += -Xlinker -Map=$(BUILD_PATH)/$(TARGET_NAME).map
-LDFLAGS += $(LINKER_PATHS) -T $(LINKER_SCRIPT)
+LDFLAGS += $(LINKER_PATHS)
 LDFLAGS += --specs=nano.specs -lc -lnosys
 LDFLAGS += $(ARM_FLAGS)
 LDFLAGS += $(OPT_FLAGS)
@@ -246,9 +246,9 @@ $(BUILD_PATH)/%.s.o: %.s
 	$(VERBOSE)$(CC) $(ASFLAGS) $(INCLUDE_PATHS) -c -o $@ $<
 
 # Link
-$(BUILD_PATH)/$(TARGET_NAME).out: $(OBJECT_FILES)
+$(BUILD_PATH)/$(TARGET_NAME).out: $(OBJECT_FILES) $(LIBS) $(LINKER_SCRIPT)
 	@echo Linking target: $@
-	$(VERBOSE)$(CC) $(LDFLAGS) $(OBJECT_FILES) $(LIBS) -o $@
+	$(VERBOSE)$(CC) $(LDFLAGS) $(OBJECT_FILES) $(LIBS) -T $(LINKER_SCRIPT) -o $@
 	$(VERBOSE)$(SIZE) $@
 
 ## Create binary .bin file from the .out file
