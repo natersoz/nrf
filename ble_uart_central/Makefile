@@ -60,6 +60,7 @@ SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c
 SOURCE_FILES += ./main.c
+SOURCE_FILES += ../common/gcc_startup_nrf52.s
 
 # Include folders common to all targets
 INCLUDE_PATHS =
