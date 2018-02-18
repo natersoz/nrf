@@ -80,7 +80,6 @@ INCLUDE_PATHS += $(SDK_ROOT)/external/segger_rtt
 INCLUDE_PATHS +=  ./config
 
 # Libraries can be added here, includes path: path/filename.a
-# todo : unused so far.
 LIB_FILES +=
 
 # C flags common to all Nordic targets
