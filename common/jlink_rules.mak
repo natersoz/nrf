@@ -23,7 +23,7 @@ NORDIC_DEVICE			?= NRF52
 SOFT_DEVICE			?= s132
 SOFT_DEVICE_PATH		:= $(SDK_ROOT)/components/softdevice/$(SOFT_DEVICE)/hex
 SOFT_DEVICE_HEX_FILE		:= $(shell find -L $(SOFT_DEVICE_PATH) -iname '*.hex')
-SWD_SPEED			:= 4000
+SWD_SPEED			:= 96000
 
 ###
 # Writing to FLASH is controlled via the Nordic Non-volatile Memory Controller (NVMC).
@@ -88,7 +88,7 @@ JLINK_GDB_OPTS	+= -swoport 2332
 JLINK_GDB_OPTS	+= -telnetport 2333
 JLINK_GDB_OPTS	+= -vd
 JLINK_GDB_OPTS	+= -noir
-JLINK_GDB_OPTS	+= -localhostonly 0
+JLINK_GDB_OPTS	+= -localhostonly 1
 JLINK_GDB_OPTS	+= -strict
 JLINK_GDB_OPTS	+= -timeout 0
 
@@ -187,12 +187,11 @@ $(BUILD_PATH)/flash_app_invalid.jlink:
 
 jlink-help:
 	@printf "targets:\n"
-	@printf "\tflash-all       : flash the build target and softdevice\n"
-	@printf "\tflash           : flash just the build target (app or bootloader)\n"
-	@printf "\tflash-softdevice: Flash the softdevice run-time\n"
-	@printf "\tflash-erase:    : Erase flash\n"
+	@printf "\tflash-all       : Flash the build target and softdevice\n"
+	@printf "\tflash           : Flash the build target\n"
+	@printf "\tflash-softdevice: Flash the softdevice\n"
+	@printf "\tflash-erase:    : Erase the program flash\n"
 	@printf "\tflash-erase-all : Erase all flash using special Nordic registers\n"
-	@printf "\tflash-app-valid : Mark the Nordic application flash bits are valid\n"
 	@printf "\trun-debug       : Start the gdb server - resets the device\n"
 	@printf "\n"
 

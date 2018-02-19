@@ -1,0 +1,37 @@
+#!/bin/sh
+# File: jlink-nrf
+# Connect to an NRF 52 using jlink
+
+OS_NAME=`uname`
+
+if [ "$OS_NAME" = "Darwin" ] ; then
+
+	if [ "$TMPDIR" = "" ] ; then
+		TMPDIR=~/.temp
+	fi
+	TEMP=$TMPDIR
+
+	if [ ! -d $TEMP ] ; then
+		echo "error: temprorary environment variable TEMP: $TEMP "
+		echo "    TEMP: $TEMP"
+		echo "is not a directory or does not exist"
+		exit -1
+	fi
+
+	SEGGER_JLINK_ROOT=/Applications/SEGGER/JLink
+	SUDO=
+
+elif [ "$OS_NAME" = "Linux" ] ; then
+
+	SEGGER_JLINK_ROOT=/opt/JLink
+	SUDO=sudo
+
+fi
+
+JLINK_EXE="$SEGGER_JLINK_ROOT/JLinkExe"
+JLINK_OPTS="-device NRF52 -if swd -speed 96000"
+
+echo $JLINK_EXE $JLINK_OPTS
+$SUDO $JLINK_EXE $JLINK_OPTS
+
+
