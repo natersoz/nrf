@@ -162,9 +162,9 @@ ASFLAGS += -x assembler-with-cpp
 #
 # If not specified then the hard-coded defaults are used:
 # stack size: 8192 bytes
-# heap  size:    0 bytes.
+# heap  size: 8192 bytes.
 ###
-# ASFLAGS += -D__HEAP_SIZE=0
+# ASFLAGS += -D__HEAP_SIZE=8192
 # ASFLAGS += -D__STACK_SIZE=8192
 
 ###

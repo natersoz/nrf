@@ -15,68 +15,43 @@ BUILD_TYPE	?= Debug
 
 # Source files common to all targets
 SOURCE_FILES =
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_backend_rtt.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_backend_serial.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_backend_uart.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_default_backends.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_frontend.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_str_formatter.c
 SOURCE_FILES += $(SDK_ROOT)/components/boards/boards.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/button/app_button.c
+# SOURCE_FILES += $(SDK_ROOT)/components/libraries/button/app_button.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_weak.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/scheduler/app_scheduler.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/timer/app_timer.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/nrf_assert.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/balloc/nrf_balloc.c
-SOURCE_FILES += $(SDK_ROOT)/external/fprintf/nrf_fprintf.c
-SOURCE_FILES += $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_memobj/nrf_memobj.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/timer/app_timer.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c
 SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
-SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c
+# SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c
 SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/spi_master/nrf_drv_spi.c
-SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp_nfc.c
-SOURCE_FILES += $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c
-SOURCE_FILES += $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c
-SOURCE_FILES += $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c
-SOURCE_FILES += $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.S
+# SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c
 SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
-SOURCE_FILES += ./main.c
+SOURCE_FILES += ./main.cc
 SOURCE_FILES += ../common/gcc_startup_nrf52.s
+
+SOURCE_FILES += ../utilities/format_conversion.cc
+SOURCE_FILES += ../utilities/int_to_string.cc
+SOURCE_FILES += ../utilities/vwritef.cc
+SOURCE_FILES += ../utilities/write_data.cc
+SOURCE_FILES += ../utilities/std_stubs.cc
+SOURCE_FILES += ../logger/logger.cc
+SOURCE_FILES += ../logger/segger_rtt_output_stream.cc
+SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
 
 # Include folders common to all targets
 INCLUDE_PATHS =
 INCLUDE_PATHS += $(SDK_ROOT)/components
 INCLUDE_PATHS += $(SDK_ROOT)/components/boards
 INCLUDE_PATHS += $(SDK_ROOT)/components/device
-INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/common
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/delay
-INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/gpiote
+# INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/gpiote
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/hal
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/spi_master
-INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/uart
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/atomic
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/balloc
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/bsp
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/button
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/experimental_log
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/experimental_log/src
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/experimental_memobj
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/experimental_section_vars
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/scheduler
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/strerror
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/timer
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/util
-INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain
+# INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/atomic
+# INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/button
 INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
-INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/gcc
-INCLUDE_PATHS += $(SDK_ROOT)/external/fprintf
-INCLUDE_PATHS += $(SDK_ROOT)/external/segger_rtt
 INCLUDE_PATHS +=  ./config
 
 # Libraries can be added here, includes path: path/filename.a
@@ -93,6 +68,7 @@ NORDIC_DEFS += -DSWI_DISABLE0
 
 # For now only C files use Nordic specific compile time symbols.
 CFLAGS      += $(NORDIC_DEFS)
+CXXFLAGS    += $(NORDIC_DEFS)
 ASFLAGS     += $(NORDIC_DEFS)
 
 .PHONY:  all relink clean info

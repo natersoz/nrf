@@ -1,5 +1,5 @@
 ###
-# nrf/Makefile
+# nrf/unit_tests/Makefile
 # Top level Makefile to call all of the others.
 ###
 
@@ -19,32 +19,31 @@ else
 	MAKE_JOBS :=
 endif
 
-sub_make_files	= $(shell find . -maxdepth 2 -name Makefile -not -wholename ./Makefile)
-sub_make_dirs	= $(patsubst %/Makefile,%,$(sub_make_files))
+sub_make_files	= $(shell ls *.mak)
 
 .PHONY:  all relink clean info
 
 all:
-	@for make_dir in $(sub_make_dirs); do		\
-		printf "make -C $$make_dir: $@\n";	\
-		make -C $$make_dir $@ $(MAKE_JOBS);	\
+	@for make_file in $(sub_make_files); do		\
+		printf "make -C $$make_file: $@\n";	\
+		make -f $$make_file $@ $(MAKE_JOBS);	\
 	done
 
 relink:
-	@for make_dir in $(sub_make_dirs); do		\
-		printf "make -C $$make_dir: $@\n";	\
-		make -C $$make_dir $@ $(MAKE_JOBS);	\
+	@for make_file in $(sub_make_files); do		\
+		printf "make -C $$make_file: $@\n";	\
+		make -f $$make_file $@ $(MAKE_JOBS);	\
 	done
 
 clean:
-	@for make_dir in $(sub_make_dirs); do		\
-		printf "make -C $$make_dir: $@\n";	\
-		make -C $$make_dir $@;			\
+	@for make_file in $(sub_make_files); do		\
+		printf "make -C $$make_file: $@\n";	\
+		make -f $$make_file $@;			\
 	done
 
 info:
 	@printf "sub_make_files        = $(sub_make_files)\n"
-	@printf "sub_make_dirs         = $(sub_make_dirs)\n"
+	@printf "sub_make_files         = $(sub_make_files)\n"
 	@printf "NUMBER_OF_PROCESSORS  = $(NUMBER_OF_PROCESSORS)\n"
 	@printf "MAKE_JOBS             = $(MAKE_JOBS)\n"
 

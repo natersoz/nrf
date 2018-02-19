@@ -9,7 +9,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdnrf_test"
+        OutputFile="%bdunit_tests"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -20,8 +20,7 @@
                 Deletable="0"
                 OutputExts="*.o"
                 SaveOption="SaveCurrent"
-                RunFromDir="%rw"
-                ClearProcessBuffer="1">
+                RunFromDir="%rw">
                 <Exec CmdLine='g++ -c %xup  %defd -g -o "%bd%n%oe" %i "%f"'/>
             </Target>
             <Target
@@ -135,7 +134,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdnrf_test"
+        OutputFile="%bdunit_tests"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -146,8 +145,7 @@
                 Deletable="0"
                 OutputExts="*.o"
                 SaveOption="SaveCurrent"
-                RunFromDir="%rw"
-                ClearProcessBuffer="1">
+                RunFromDir="%rw">
                 <Exec CmdLine='g++ -c %xup %defd -o "%bd%n%oe" %i "%f"'/>
             </Target>
             <Target
@@ -258,30 +256,29 @@
     </Config>
     <Files>
         <Folder
-            Name="Bitmaps"
-            Filters="*.bmp"
-            GUID="{AC07CD14-98FE-4C89-93AF-44B8B026F6BF}"/>
+            Name="Source Files"
+            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
+            GUID="{692A7CBC-9741-41F8-A446-F11368B5C6DB}">
+            <F N="test_int_to_string.cc"/>
+        </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{91F2D494-C4C3-471B-B6CC-D5CC719A7D33}"/>
-        <Folder
-            Name="Other Files"
-            Filters=""
-            GUID="{3BD9C09A-D6C8-4112-83FC-39184535F415}"/>
+            GUID="{298FC710-007C-4822-BB01-D66ACD1B4E46}"/>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"
-            GUID="{4D2908E6-4344-4C2A-AB10-6FC0EF63080A}"/>
+            GUID="{D183D527-3D8D-4BC0-98A6-2D169526A1EF}"/>
         <Folder
-            Name="Source Files"
-            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{FB39745A-1D07-4994-9A6A-30571BE75A92}"/>
-        <F N="gcc_startup_nrf52.s"/>
-        <F N="main.c"/>
-        <F
-            N="Makefile"
-            Type="Makefile"/>
-        <F N="nrf_spi_master.ld"/>
+            Name="Bitmaps"
+            Filters="*.bmp"
+            GUID="{5C60F9D0-B05A-4094-8262-D7FDAFB22DE1}"/>
+        <Folder
+            Name="Other Files"
+            Filters=""
+            GUID="{743CBA0B-F163-4B61-8E3F-E71D72A85CF1}">
+            <F N="Makefile"/>
+            <F N="test_int_to_string.mak"/>
+        </Folder>
     </Files>
 </Project>

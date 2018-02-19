@@ -9,7 +9,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdnrf_test"
+        OutputFile="%bdutilities"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -20,8 +20,7 @@
                 Deletable="0"
                 OutputExts="*.o"
                 SaveOption="SaveCurrent"
-                RunFromDir="%rw"
-                ClearProcessBuffer="1">
+                RunFromDir="%rw">
                 <Exec CmdLine='g++ -c %xup  %defd -g -o "%bd%n%oe" %i "%f"'/>
             </Target>
             <Target
@@ -33,7 +32,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='g++ %xup -g -o "%o" %f %libs'/>
+                <Exec CmdLine='ar -rs %xup "%o" %f'/>
             </Target>
             <Target
                 Name="Build"
@@ -62,7 +61,7 @@
                 Deletable="0"
                 SaveOption="SaveNone"
                 RunFromDir="%rw">
-                <Exec CmdLine='vsdebugio -prog "%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="Execute"
@@ -73,7 +72,7 @@
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
                 RunFromDir="%rw">
-                <Exec CmdLine='"%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="dash"
@@ -127,7 +126,7 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="Executable"/>
+                Value="StaticLibrary"/>
         </List>
     </Config>
     <Config
@@ -135,7 +134,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdnrf_test"
+        OutputFile="%bdutilities"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -146,8 +145,7 @@
                 Deletable="0"
                 OutputExts="*.o"
                 SaveOption="SaveCurrent"
-                RunFromDir="%rw"
-                ClearProcessBuffer="1">
+                RunFromDir="%rw">
                 <Exec CmdLine='g++ -c %xup %defd -o "%bd%n%oe" %i "%f"'/>
             </Target>
             <Target
@@ -159,7 +157,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='g++ %xup -o "%o" %f %libs'/>
+                <Exec CmdLine='ar -rs %xup "%o" %f'/>
             </Target>
             <Target
                 Name="Build"
@@ -188,7 +186,7 @@
                 Deletable="0"
                 SaveOption="SaveNone"
                 RunFromDir="%rw">
-                <Exec CmdLine='vsdebugio -prog "%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="Execute"
@@ -199,7 +197,7 @@
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
                 RunFromDir="%rw">
-                <Exec CmdLine='"%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="dash"
@@ -253,35 +251,43 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="Executable"/>
+                Value="StaticLibrary"/>
         </List>
     </Config>
     <Files>
         <Folder
-            Name="Bitmaps"
-            Filters="*.bmp"
-            GUID="{AC07CD14-98FE-4C89-93AF-44B8B026F6BF}"/>
+            Name="Source Files"
+            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
+            GUID="{6BB44251-229E-4D80-975E-AF6EF065AFE8}">
+            <F N="format_conversion.cc"/>
+            <F N="int_to_string.cc"/>
+            <F N="std_stubs.cc"/>
+            <F N="vwritef.cc"/>
+            <F N="write_data.cc"/>
+        </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{91F2D494-C4C3-471B-B6CC-D5CC719A7D33}"/>
-        <Folder
-            Name="Other Files"
-            Filters=""
-            GUID="{3BD9C09A-D6C8-4112-83FC-39184535F415}"/>
+            GUID="{8483D48C-17AD-40B2-8C55-E43E03F2B80F}">
+            <F N="bit_manip.h"/>
+            <F N="float_to_string.h"/>
+            <F N="format_conversion.h"/>
+            <F N="int_to_string.h"/>
+            <F N="stream.h"/>
+            <F N="vwritef.h"/>
+            <F N="write_data.h"/>
+        </Folder>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"
-            GUID="{4D2908E6-4344-4C2A-AB10-6FC0EF63080A}"/>
+            GUID="{5928E62F-FDA7-42F8-A6A7-299E63E91B7E}"/>
         <Folder
-            Name="Source Files"
-            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{FB39745A-1D07-4994-9A6A-30571BE75A92}"/>
-        <F N="gcc_startup_nrf52.s"/>
-        <F N="main.c"/>
-        <F
-            N="Makefile"
-            Type="Makefile"/>
-        <F N="nrf_spi_master.ld"/>
+            Name="Bitmaps"
+            Filters="*.bmp"
+            GUID="{F46B08ED-956F-46F8-B14D-DCB44B16CA2B}"/>
+        <Folder
+            Name="Other Files"
+            Filters=""
+            GUID="{2E768021-52E4-47DA-99C7-C5AD80372455}"/>
     </Files>
 </Project>
