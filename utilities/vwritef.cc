@@ -1,5 +1,6 @@
 /**
  * @file vwritef.h
+ * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  * A variable argument printf like writer interface.
  *
  * @todo not implemented:

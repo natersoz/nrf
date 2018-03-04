@@ -1,5 +1,6 @@
 ###
 # File: arm_gcc_rules.mak
+# @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 #
 # Makefile definitions and rules for the ARM GCC toolchain.
 # There are some Nordic specifics in here.

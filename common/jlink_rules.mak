@@ -1,5 +1,6 @@
 ###
 # File: jlink_rules.mak
+# @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 # Makefile rules for executing JLinkExe commands.
 #
 # Parameters:

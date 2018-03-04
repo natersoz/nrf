@@ -1,5 +1,6 @@
 ###
 # nrf/unit_tests/Makefile
+# copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 # Top level Makefile to call all of the others.
 ###
 

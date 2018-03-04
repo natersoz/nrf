@@ -1,5 +1,6 @@
 /**
  * @file test_int_to_string.cc
+ * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
 #include "int_to_string.h"

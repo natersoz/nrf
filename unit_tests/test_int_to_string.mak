@@ -1,5 +1,6 @@
 ###
 # nrf/unit_tests/test_int_to_string.mak
+# @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 ###
 
 VERBOSE		?= @
