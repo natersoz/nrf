@@ -1,5 +1,7 @@
 /**
  * @file format_conversion.h
+ * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
+ * A format conversion object for use in parsing printf format strings.
  */
 
 #pragma once

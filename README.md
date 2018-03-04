@@ -1,5 +1,7 @@
 natersoz/nrf project
 ====================
+Copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
+
 
 This project is a starting point for working with the Nordic NRF52
 PCA10040 development boards.

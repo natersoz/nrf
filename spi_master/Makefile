@@ -1,5 +1,6 @@
 ###
 # Makefile for testing Nordic nRF52 SPI interface.
+# @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 ###
 
 SDK_ROOT := ../sdk

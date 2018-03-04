@@ -1,5 +1,6 @@
 ###
 # nrf/unit_tests/test_write_data/Makefile
+# copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 ###
 
 VERBOSE		?= @

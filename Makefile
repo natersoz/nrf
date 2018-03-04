@@ -1,6 +1,7 @@
 ###
 # nrf/Makefile
 # Top level Makefile to call all of the others.
+# Copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 ###
 
 OS_NAME=$(shell uname)

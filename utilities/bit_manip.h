@@ -1,5 +1,7 @@
 /**
  * @file bit_manip.h
+ * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
+ * A bit manipulation set of functions.
  */
 
 #pragma once

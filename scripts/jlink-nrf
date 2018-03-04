@@ -1,5 +1,6 @@
 #!/bin/sh
 # File: jlink-nrf
+# copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 # Connect to an NRF 52 using jlink
 
 OS_NAME=`uname`
