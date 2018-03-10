@@ -63,8 +63,15 @@ SDK directory contents and notes
 
 	Should have a look at this.
 
+### sdk/components/libraries/fstorage
 
+	nrf_fstorage_sd.c
+		Softdevice based FLASH storage
 
+	nrf_fstorage_nvmc.c
+		Simpler, Non-volatile memory controller direct FLASH storage
 
+### sdk/components/libraries/balloc
 
+	A fixed size block allocator.
 
