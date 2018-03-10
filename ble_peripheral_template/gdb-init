@@ -1,0 +1,5 @@
+target remote localhost:2331
+file _build/nrf_ble_peripheral.out
+load
+monitor reset
+
