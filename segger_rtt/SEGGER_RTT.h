@@ -58,7 +58,7 @@
 ---------------------------END-OF-HEADER------------------------------
 File    : SEGGER_RTT.h
 Purpose : Implementation of SEGGER real-time transfer which allows
-          real-time communication on targets which support debugger 
+          real-time communication on targets which support debugger
           memory accesses while the CPU is running.
 Revision: $Rev: 6849 $
 ----------------------------------------------------------------------
@@ -87,26 +87,28 @@ Revision: $Rev: 6849 $
 // Description for a circular buffer (also called "ring buffer")
 // which is used as up-buffer (T->H)
 //
-typedef struct {
-  const     char*    sName;         // Optional name. Standard names so far are: "Terminal", "SysView", "J-Scope_t4i4"
-            char*    pBuffer;       // Pointer to start of buffer
-            unsigned SizeOfBuffer;  // Buffer size in bytes. Note that one byte is lost, as this implementation does not fill up the buffer in order to avoid the problem of being unable to distinguish between full and empty.
-            unsigned WrOff;         // Position of next item to be written by either target.
-  volatile  unsigned RdOff;         // Position of next item to be read by host. Must be volatile since it may be modified by host.
-            unsigned Flags;         // Contains configuration flags
+typedef struct
+{
+    const     char         *sName;         // Optional name. Standard names so far are: "Terminal", "SysView", "J-Scope_t4i4"
+    char                   *pBuffer;       // Pointer to start of buffer
+    unsigned               SizeOfBuffer;  // Buffer size in bytes. Note that one byte is lost, as this implementation does not fill up the buffer in order to avoid the problem of being unable to distinguish between full and empty.
+    unsigned               WrOff;         // Position of next item to be written by either target.
+    volatile  unsigned     RdOff;         // Position of next item to be read by host. Must be volatile since it may be modified by host.
+    unsigned               Flags;         // Contains configuration flags
 } SEGGER_RTT_BUFFER_UP;
 
 //
 // Description for a circular buffer (also called "ring buffer")
 // which is used as down-buffer (H->T)
 //
-typedef struct {
-  const     char*    sName;         // Optional name. Standard names so far are: "Terminal", "SysView", "J-Scope_t4i4"
-            char*    pBuffer;       // Pointer to start of buffer
-            unsigned SizeOfBuffer;  // Buffer size in bytes. Note that one byte is lost, as this implementation does not fill up the buffer in order to avoid the problem of being unable to distinguish between full and empty.
-  volatile  unsigned WrOff;         // Position of next item to be written by host. Must be volatile since it may be modified by host.
-            unsigned RdOff;         // Position of next item to be read by target (down-buffer).
-            unsigned Flags;         // Contains configuration flags
+typedef struct
+{
+    const     char         *sName;         // Optional name. Standard names so far are: "Terminal", "SysView", "J-Scope_t4i4"
+    char                   *pBuffer;       // Pointer to start of buffer
+    unsigned               SizeOfBuffer;  // Buffer size in bytes. Note that one byte is lost, as this implementation does not fill up the buffer in order to avoid the problem of being unable to distinguish between full and empty.
+    volatile  unsigned     WrOff;         // Position of next item to be written by host. Must be volatile since it may be modified by host.
+    unsigned               RdOff;         // Position of next item to be read by target (down-buffer).
+    unsigned               Flags;         // Contains configuration flags
 } SEGGER_RTT_BUFFER_DOWN;
 
 //
@@ -114,12 +116,13 @@ typedef struct {
 // as well as the configuration for each buffer
 //
 //
-typedef struct {
-  char                    acID[16];                                 // Initialized to "SEGGER RTT"
-  int                     MaxNumUpBuffers;                          // Initialized to SEGGER_RTT_MAX_NUM_UP_BUFFERS (type. 2)
-  int                     MaxNumDownBuffers;                        // Initialized to SEGGER_RTT_MAX_NUM_DOWN_BUFFERS (type. 2)
-  SEGGER_RTT_BUFFER_UP    aUp[SEGGER_RTT_MAX_NUM_UP_BUFFERS];       // Up buffers, transferring information up from target via debug probe to host
-  SEGGER_RTT_BUFFER_DOWN  aDown[SEGGER_RTT_MAX_NUM_DOWN_BUFFERS];   // Down buffers, transferring information down from host via debug probe to target
+typedef struct
+{
+    char                   acID[16];                                 // Initialized to "SEGGER RTT"
+    int                    MaxNumUpBuffers;                          // Initialized to SEGGER_RTT_MAX_NUM_UP_BUFFERS (type. 2)
+    int                    MaxNumDownBuffers;                        // Initialized to SEGGER_RTT_MAX_NUM_DOWN_BUFFERS (type. 2)
+    SEGGER_RTT_BUFFER_UP   aUp[SEGGER_RTT_MAX_NUM_UP_BUFFERS];       // Up buffers, transferring information up from target via debug probe to host
+    SEGGER_RTT_BUFFER_DOWN aDown[SEGGER_RTT_MAX_NUM_DOWN_BUFFERS];   // Down buffers, transferring information down from host via debug probe to target
 } SEGGER_RTT_CB;
 
 /*********************************************************************
@@ -137,31 +140,32 @@ extern SEGGER_RTT_CB _SEGGER_RTT;
 **********************************************************************
 */
 #ifdef __cplusplus
-  extern "C" {
+extern "C"
+{
 #endif
-int          SEGGER_RTT_AllocDownBuffer         (const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags);
-int          SEGGER_RTT_AllocUpBuffer           (const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags);
-int          SEGGER_RTT_ConfigUpBuffer          (unsigned BufferIndex, const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags);
-int          SEGGER_RTT_ConfigDownBuffer        (unsigned BufferIndex, const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags);
-int          SEGGER_RTT_GetKey                  (void);
-unsigned     SEGGER_RTT_HasData                 (unsigned BufferIndex);
-int          SEGGER_RTT_HasKey                  (void);
-void         SEGGER_RTT_Init                    (void);
-unsigned     SEGGER_RTT_Read                    (unsigned BufferIndex,       void* pBuffer, unsigned BufferSize);
-unsigned     SEGGER_RTT_ReadNoLock              (unsigned BufferIndex,       void* pData,   unsigned BufferSize);
-int          SEGGER_RTT_SetNameDownBuffer       (unsigned BufferIndex, const char* sName);
-int          SEGGER_RTT_SetNameUpBuffer         (unsigned BufferIndex, const char* sName);
-int          SEGGER_RTT_SetFlagsDownBuffer      (unsigned BufferIndex, unsigned Flags);
-int          SEGGER_RTT_SetFlagsUpBuffer        (unsigned BufferIndex, unsigned Flags);
-int          SEGGER_RTT_WaitKey                 (void);
-unsigned     SEGGER_RTT_Write                   (unsigned BufferIndex, const void* pBuffer, unsigned NumBytes);
-unsigned     SEGGER_RTT_WriteNoLock             (unsigned BufferIndex, const void* pBuffer, unsigned NumBytes);
-unsigned     SEGGER_RTT_WriteSkipNoLock         (unsigned BufferIndex, const void* pBuffer, unsigned NumBytes);
-unsigned     SEGGER_RTT_WriteString             (unsigned BufferIndex, const char* s);
-void         SEGGER_RTT_WriteWithOverwriteNoLock(unsigned BufferIndex, const void* pBuffer, unsigned NumBytes);
-unsigned     SEGGER_RTT_PutChar                 (unsigned BufferIndex, char c);
-unsigned     SEGGER_RTT_PutCharSkip             (unsigned BufferIndex, char c);
-unsigned     SEGGER_RTT_PutCharSkipNoLock       (unsigned BufferIndex, char c);
+int          SEGGER_RTT_AllocDownBuffer(const char *sName, void *pBuffer, unsigned BufferSize, unsigned Flags);
+int          SEGGER_RTT_AllocUpBuffer(const char *sName, void *pBuffer, unsigned BufferSize, unsigned Flags);
+int          SEGGER_RTT_ConfigUpBuffer(unsigned BufferIndex, const char *sName, void *pBuffer, unsigned BufferSize, unsigned Flags);
+int          SEGGER_RTT_ConfigDownBuffer(unsigned BufferIndex, const char *sName, void *pBuffer, unsigned BufferSize, unsigned Flags);
+int          SEGGER_RTT_GetKey(void);
+unsigned     SEGGER_RTT_HasData(unsigned BufferIndex);
+int          SEGGER_RTT_HasKey(void);
+void         SEGGER_RTT_Init(void);
+unsigned     SEGGER_RTT_Read(unsigned BufferIndex,       void *pBuffer, unsigned BufferSize);
+unsigned     SEGGER_RTT_ReadNoLock(unsigned BufferIndex,       void *pData,   unsigned BufferSize);
+int          SEGGER_RTT_SetNameDownBuffer(unsigned BufferIndex, const char *sName);
+int          SEGGER_RTT_SetNameUpBuffer(unsigned BufferIndex, const char *sName);
+int          SEGGER_RTT_SetFlagsDownBuffer(unsigned BufferIndex, unsigned Flags);
+int          SEGGER_RTT_SetFlagsUpBuffer(unsigned BufferIndex, unsigned Flags);
+int          SEGGER_RTT_WaitKey(void);
+unsigned     SEGGER_RTT_Write(unsigned BufferIndex, const void *pBuffer, unsigned NumBytes);
+unsigned     SEGGER_RTT_WriteNoLock(unsigned BufferIndex, const void *pBuffer, unsigned NumBytes);
+unsigned     SEGGER_RTT_WriteSkipNoLock(unsigned BufferIndex, const void *pBuffer, unsigned NumBytes);
+unsigned     SEGGER_RTT_WriteString(unsigned BufferIndex, const char *s);
+void         SEGGER_RTT_WriteWithOverwriteNoLock(unsigned BufferIndex, const void *pBuffer, unsigned NumBytes);
+unsigned     SEGGER_RTT_PutChar(unsigned BufferIndex, char c);
+unsigned     SEGGER_RTT_PutCharSkip(unsigned BufferIndex, char c);
+unsigned     SEGGER_RTT_PutCharSkipNoLock(unsigned BufferIndex, char c);
 //
 // Function macro for performance optimization
 //
@@ -173,8 +177,8 @@ unsigned     SEGGER_RTT_PutCharSkipNoLock       (unsigned BufferIndex, char c);
 *
 **********************************************************************
 */
-int     SEGGER_RTT_SetTerminal        (char TerminalId);
-int     SEGGER_RTT_TerminalOut        (char TerminalId, const char* s);
+int     SEGGER_RTT_SetTerminal(char TerminalId);
+int     SEGGER_RTT_TerminalOut(char TerminalId, const char *s);
 
 /*********************************************************************
 *
@@ -182,9 +186,9 @@ int     SEGGER_RTT_TerminalOut        (char TerminalId, const char* s);
 *
 **********************************************************************
 */
-int SEGGER_RTT_printf(unsigned BufferIndex, const char * sFormat, ...);
+int SEGGER_RTT_printf(unsigned BufferIndex, const char *sFormat, ...);
 #ifdef __cplusplus
-  }
+}
 #endif
 
 /*********************************************************************
