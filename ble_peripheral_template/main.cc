@@ -742,8 +742,7 @@ int main(void)
     // Enter main loop.
     for (;;)
     {
-//        if (NRF_LOG_PROCESS() == false)
-        // @todo add RTT get for bytes pending read/write.
+        if (rtt_os.write_pending() == 0)
         {
             __WFE();
         }

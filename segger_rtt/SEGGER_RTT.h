@@ -67,6 +67,7 @@ Revision: $Rev: 6849 $
 #ifndef SEGGER_RTT_H
 #define SEGGER_RTT_H
 
+#include <stddef.h>
 #include "SEGGER_RTT_Conf.h"
 
 /*********************************************************************
@@ -166,6 +167,14 @@ void         SEGGER_RTT_WriteWithOverwriteNoLock(unsigned BufferIndex, const voi
 unsigned     SEGGER_RTT_PutChar(unsigned BufferIndex, char c);
 unsigned     SEGGER_RTT_PutCharSkip(unsigned BufferIndex, char c);
 unsigned     SEGGER_RTT_PutCharSkipNoLock(unsigned BufferIndex, char c);
+
+// nat: Additonal functions
+size_t       SEGGER_RTT_WritePending(unsigned BufferIndex);
+size_t       SEGGER_RTT_WriteAvail(unsigned BufferIndex);
+
+size_t       SEGGER_RTT_ReadPending(unsigned BufferIndex);
+size_t       SEGGER_RTT_ReadAvail(unsigned BufferIndex);
+
 //
 // Function macro for performance optimization
 //
