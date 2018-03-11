@@ -15,9 +15,19 @@ size_t segger_rtt_output_stream::write(void const *buffer, size_t length)
     return SEGGER_RTT_Write(this->rtt_buffer_index_, buffer, length);
 }
 
+size_t segger_rtt_output_stream::write_pending()
+{
+    return SEGGER_RTT_WritePending(this->rtt_buffer_index_);
+}
+
+size_t segger_rtt_output_stream::write_avail()
+{
+    return SEGGER_RTT_WritePending(this->rtt_buffer_index_);
+}
+
 void segger_rtt_output_stream::flush()
 {
-    while (SEGGER_RTT_HasData(this->rtt_buffer_index_) > 0)
+    while (this->write_pending() > 0)
     {
         /// @todo a timeout should be used here.
     }

@@ -18,6 +18,8 @@ public:
     input_stream& operator=(input_stream const& other)  = default;
 
     virtual size_t read(void *buffer, size_t length)    = 0;
+    virtual size_t read_pending()                       = 0;
+    virtual size_t read_avail()                         = 0;
 };
 
 class output_stream
@@ -30,6 +32,8 @@ public:
     output_stream& operator=(output_stream const& other)    = default;
 
     virtual size_t write(void const *buffer, size_t length) = 0;
+    virtual size_t write_pending()                          = 0;
+    virtual size_t write_avail()                            = 0;
     virtual void   flush()                                  = 0;
 };
 

@@ -1892,5 +1892,62 @@ int SEGGER_RTT_TerminalOut(char TerminalId, const char *s)
     return Status;
 }
 
+size_t SEGGER_RTT_WritePending(unsigned BufferIndex)
+{
+    size_t write_pending = 0u;
+
+    if (BufferIndex < (unsigned)_SEGGER_RTT.MaxNumDownBuffers)
+    {
+        if (BufferIndex > 0u)
+        {
+            SEGGER_RTT_LOCK();
+            unsigned int const rd_off = _SEGGER_RTT.aUp[BufferIndex].RdOff;
+            unsigned int const wr_off = _SEGGER_RTT.aUp[BufferIndex].WrOff;
+
+            write_pending = (wr_off >= rd_off) ? wr_off - rd_off
+                                               : rd_off - wr_off;
+            SEGGER_RTT_UNLOCK();
+        }
+    }
+
+    return write_pending;
+}
+
+size_t SEGGER_RTT_WriteAvail(unsigned BufferIndex)
+{
+    size_t const write_pending = SEGGER_RTT_WritePending(BufferIndex);
+    size_t const write_size    = _SEGGER_RTT.aUp[BufferIndex].SizeOfBuffer;
+    size_t const write_avail   = (write_size - write_pending) - 1u;
+    return write_avail;
+}
+
+size_t SEGGER_RTT_ReadPending(unsigned BufferIndex)
+{
+    size_t read_pending = 0u;
+
+    if (BufferIndex < (unsigned)_SEGGER_RTT.MaxNumDownBuffers)
+    {
+        if (BufferIndex > 0u)
+        {
+            SEGGER_RTT_LOCK();
+            unsigned int const rd_off = _SEGGER_RTT.aDown[BufferIndex].RdOff;
+            unsigned int const wr_off = _SEGGER_RTT.aDown[BufferIndex].WrOff;
+
+            read_pending = (wr_off >= rd_off) ? wr_off - rd_off
+                                              : rd_off - wr_off;
+            SEGGER_RTT_UNLOCK();
+        }
+    }
+
+    return read_pending;
+}
+
+size_t SEGGER_RTT_ReadAvail(unsigned BufferIndex)
+{
+    size_t const read_pending = SEGGER_RTT_WritePending(BufferIndex);
+    size_t const read_size    = _SEGGER_RTT.aDown[BufferIndex].SizeOfBuffer;
+    size_t const read_avail   = (read_size - read_pending) - 1u;
+    return read_avail;
+}
 
 /*************************** End of file ****************************/

@@ -19,7 +19,9 @@ public:
     segger_rtt_output_stream& operator=(segger_rtt_output_stream const& other) = delete;
 
     virtual size_t write(void const *buffer, size_t length) override;
-    virtual void   flush() override;
+    virtual size_t write_pending()                          override;
+    virtual size_t write_avail()                            override;
+    virtual void   flush()                                  override;
 
 private:
     unsigned short int rtt_buffer_index_;
