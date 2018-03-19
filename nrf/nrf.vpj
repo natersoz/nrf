@@ -9,7 +9,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdutilities"
+        OutputFile="%bdnrf.dylib"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -32,7 +32,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='ar -rs %xup "%o" %f'/>
+                <Exec CmdLine='g++ %xup -g -o "%o" %f %libs -shared -fPIC'/>
             </Target>
             <Target
                 Name="Build"
@@ -126,7 +126,7 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="StaticLibrary"/>
+                Value="SharedLibrary"/>
         </List>
     </Config>
     <Config
@@ -134,7 +134,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdutilities"
+        OutputFile="%bdnrf.dylib"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -157,7 +157,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='ar -rs %xup "%o" %f'/>
+                <Exec CmdLine='g++ %xup -o "%o" %f %libs -shared -fPIC'/>
             </Target>
             <Target
                 Name="Build"
@@ -251,45 +251,47 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="StaticLibrary"/>
+                Value="SharedLibrary"/>
         </List>
     </Config>
     <Files>
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{6BB44251-229E-4D80-975E-AF6EF065AFE8}">
-            <F N="format_conversion.cc"/>
-            <F N="int_to_string.cc"/>
-            <F N="std_stubs.cc"/>
-            <F N="vwritef.cc"/>
-            <F N="write_data.cc"/>
-            <F N="project_assert.cc"/>
+            GUID="{18DB9CA9-1726-4AE2-9BF4-AB222BC7CB47}">
+            <F N="gcc_stubs.cc"/>
+            <F N="spim.cc"/>
+            <F N="spim_debug.cc"/>
+            <F N="spis.cc"/>
+            <F N="spis_debug.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{8483D48C-17AD-40B2-8C55-E43E03F2B80F}">
-            <F N="bit_manip.h"/>
-            <F N="float_to_string.h"/>
-            <F N="format_conversion.h"/>
-            <F N="int_to_string.h"/>
-            <F N="stream.h"/>
-            <F N="vwritef.h"/>
-            <F N="write_data.h"/>
-            <F N="project_assert.h"/>
+            GUID="{F2BBEFB1-8641-4D44-B0BE-06CA5703ED7D}">
+            <F N="arm_utilities.h"/>
+            <F N="nrf_assert.h"/>
+            <F N="nrf_cmsis.h"/>
+            <F N="nrf_log.h"/>
+            <F N="nrf_log_ctrl.h"/>
+            <F N="nrf_log_default_backends.h"/>
+            <F N="spi_common.h"/>
+            <F N="spim.h"/>
+            <F N="spim_debug.h"/>
+            <F N="spis.h"/>
+            <F N="spis_debug.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"
-            GUID="{5928E62F-FDA7-42F8-A6A7-299E63E91B7E}"/>
+            GUID="{E4A5804B-A2A1-47D1-BC15-F805C24289E2}"/>
         <Folder
             Name="Bitmaps"
             Filters="*.bmp"
-            GUID="{F46B08ED-956F-46F8-B14D-DCB44B16CA2B}"/>
+            GUID="{E65E73B3-55DC-4D87-903F-D77AF5582C54}"/>
         <Folder
             Name="Other Files"
             Filters=""
-            GUID="{2E768021-52E4-47DA-99C7-C5AD80372455}"/>
+            GUID="{299E2501-57E5-428D-A9E3-83121E9A6E8A}"/>
     </Files>
 </Project>

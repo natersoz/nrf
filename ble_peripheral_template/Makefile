@@ -15,6 +15,21 @@ BUILD_TYPE	?= Debug
 
 # Source files common to all targets
 SOURCE_FILES =
+SOURCE_FILES += ./main.cc
+SOURCE_FILES += ../nrf/gcc_startup_nrf52.s
+SOURCE_FILES += ../nrf/gcc_stubs.cc
+
+SOURCE_FILES += ../utilities/project_assert.cc
+SOURCE_FILES += ../utilities/format_conversion.cc
+SOURCE_FILES += ../utilities/int_to_string.cc
+SOURCE_FILES += ../utilities/vwritef.cc
+SOURCE_FILES += ../utilities/write_data.cc
+SOURCE_FILES += ../utilities/std_stubs.cc
+SOURCE_FILES += ../logger/logger.cc
+SOURCE_FILES += ../logger/logger_c.cc
+SOURCE_FILES += ../logger/segger_rtt_output_stream.cc
+SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
+
 SOURCE_FILES += $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_advdata.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_params.c
@@ -60,21 +75,7 @@ SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/sdk_mapped_flags.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c
-SOURCE_FILES += $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.S
 SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
-
-SOURCE_FILES += ./main.cc
-SOURCE_FILES += ../common/gcc_startup_nrf52.s
-
-SOURCE_FILES += ../utilities/format_conversion.cc
-SOURCE_FILES += ../utilities/int_to_string.cc
-SOURCE_FILES += ../utilities/vwritef.cc
-SOURCE_FILES += ../utilities/write_data.cc
-SOURCE_FILES += ../utilities/std_stubs.cc
-SOURCE_FILES += ../logger/logger.cc
-SOURCE_FILES += ../logger/segger_rtt_output_stream.cc
-SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
-
 
 # Include folders common to all targets
 INCLUDE_PATHS =
@@ -188,22 +189,27 @@ INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
 INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/gcc
 INCLUDE_PATHS += ./config
 
-# Libraries can be added here, includes path: path/filename.a
 LIB_FILES +=
 
-# C flags common to all Nordic targets
-NORDIC_DEFS += -DBOARD_PCA10040
-NORDIC_DEFS += -DCONFIG_GPIO_AS_PINRESET
-NORDIC_DEFS += -DFLOAT_ABI_HARD
-NORDIC_DEFS += -DNRF52
-NORDIC_DEFS += -DNRF52832_XXAA
-NORDIC_DEFS += -DNRF52_PAN_74
-NORDIC_DEFS += -DSWI_DISABLE0
-NORDIC_DEFS += -DNRF_SD_BLE_API_VERSION=5
-NORDIC_DEFS += -DS132
-NORDIC_DEFS += -DSOFTDEVICE_PRESENT
+# Nordic specific compiler definitions
+# NRF52840_XXAA		One of these types must be defined
+# NRF52832_XXAA		<- Only testing with this one to start.
+# NRF52832_XXAB
+# NRF52810_XXAA		Does not have FPU
+# NRF51
+#
+NORDIC_DEFS += -D NRF52832_XXAA
+NORDIC_DEFS += -D BOARD_PCA10040
+NORDIC_DEFS += -D FLOAT_ABI_HARD
 
-CFLAGS      += $(NORDIC_DEFS)
+NORDIC_DEFS += -D NRF_SD_BLE_API_VERSION=5
+NORDIC_DEFS += -D S132
+NORDIC_DEFS += -D SOFTDEVICE_PRESENT
+
+NORDIC_DEFS += -D CONFIG_GPIO_AS_PINRESET
+NORDIC_DEFS += -D SWI_DISABLE0
+
+CXXFLAGS    += $(NORDIC_DEFS)
 CFLAGS      += $(NORDIC_DEFS)
 CXXFLAGS    += $(NORDIC_DEFS)
 
@@ -241,6 +247,6 @@ info:
 	@echo "DEPEND_FILES       = $(DEPEND_FILES)"
 	@echo
 
-include ../common/arm_gcc_rules.mak
-include ../common/jlink_rules.mak
+include ../make_rules/arm_gcc_rules.mak
+include ../make_rules/jlink_rules.mak
 

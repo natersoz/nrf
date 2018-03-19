@@ -14,11 +14,21 @@ BUILD_PATH = _build
 BUILD_TYPE	?= Debug
 
 SOURCE_FILES =
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_backend_rtt.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_backend_serial.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_default_backends.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_frontend.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_str_formatter.c
+SOURCE_FILES += ./main.c
+SOURCE_FILES += ../nrf/gcc_startup_nrf52.s
+SOURCE_FILES += ../nrf/gcc_stubs.cc
+
+SOURCE_FILES += ../utilities/project_assert.cc
+SOURCE_FILES += ../utilities/format_conversion.cc
+SOURCE_FILES += ../utilities/int_to_string.cc
+SOURCE_FILES += ../utilities/vwritef.cc
+SOURCE_FILES += ../utilities/write_data.cc
+SOURCE_FILES += ../utilities/std_stubs.cc
+SOURCE_FILES += ../logger/logger.cc
+SOURCE_FILES += ../logger/logger_c.cc
+SOURCE_FILES += ../logger/segger_rtt_output_stream.cc
+SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
+
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/button/app_button.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_weak.c
@@ -31,8 +41,6 @@ SOURCE_FILES += $(SDK_ROOT)/components/libraries/hardfault/hardfault_implementat
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/nrf_assert.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/atomic_fifo/nrf_atfifo.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/balloc/nrf_balloc.c
-SOURCE_FILES += $(SDK_ROOT)/external/fprintf/nrf_fprintf.c
-SOURCE_FILES += $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_memobj/nrf_memobj.c
@@ -49,23 +57,17 @@ SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp_nfc.c
-SOURCE_FILES += $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c
-SOURCE_FILES += $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c
-SOURCE_FILES += $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_advdata.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_params.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_state.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_srv_common.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c
-SOURCE_FILES += $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.S
 SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/ble_services/ble_nus/ble_nus.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c
-SOURCE_FILES += ./main.c
-SOURCE_FILES += ../common/gcc_startup_nrf52.s
 
 INCLUDE_PATHS =
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/comp
@@ -78,13 +80,11 @@ INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/usbd/class/cdc/acm
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/usbd/class/hid/generic
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/usbd/class/msc
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/usbd/class/hid
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/experimental_log
 INCLUDE_PATHS += $(SDK_ROOT)/components/ble/ble_services/ble_gls
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/fstorage
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/i2s
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/mutex
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/gpiote
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/experimental_log/src
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/gpiote
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/fifo
 INCLUDE_PATHS += $(SDK_ROOT)/components/boards
@@ -109,7 +109,6 @@ INCLUDE_PATHS += $(SDK_ROOT)/components/softdevice/s132/headers
 INCLUDE_PATHS += $(SDK_ROOT)/components/ble/ble_services/ble_ans_c
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/slip
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/mem_manager
-INCLUDE_PATHS += $(SDK_ROOT)/external/segger_rtt
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/usbd/class/cdc
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/hal
 INCLUDE_PATHS += $(SDK_ROOT)/components/ble/ble_services/ble_nus_c
@@ -184,19 +183,25 @@ INCLUDE_PATHS += ./config
 
 LIB_FILES +=
 
-# C flags common to Nordic targets
-NORDIC_DEFS += -DBOARD_PCA10040
-NORDIC_DEFS += -DCONFIG_GPIO_AS_PINRESET
-NORDIC_DEFS += -DFLOAT_ABI_HARD
-NORDIC_DEFS += -DNRF52
-NORDIC_DEFS += -DNRF52832_XXAA
-NORDIC_DEFS += -DNRF52_PAN_74
-NORDIC_DEFS += -DNRF_SD_BLE_API_VERSION=5
-NORDIC_DEFS += -DS132
-NORDIC_DEFS += -DSOFTDEVICE_PRESENT
-NORDIC_DEFS += -DSWI_DISABLE0
+# Nordic specific compiler definitions
+# NRF52840_XXAA		One of these types must be defined
+# NRF52832_XXAA		<- Only testing with this one to start.
+# NRF52832_XXAB
+# NRF52810_XXAA		Does not have FPU
+# NRF51
+#
+NORDIC_DEFS += -D NRF52832_XXAA
+NORDIC_DEFS += -D BOARD_PCA10040
+NORDIC_DEFS += -D FLOAT_ABI_HARD
 
-# For now only C files use Nordic specific compile time symbols.
+NORDIC_DEFS += -D NRF_SD_BLE_API_VERSION=5
+NORDIC_DEFS += -D S132
+NORDIC_DEFS += -D SOFTDEVICE_PRESENT
+
+NORDIC_DEFS += -D CONFIG_GPIO_AS_PINRESET
+NORDIC_DEFS += -D SWI_DISABLE0
+
+CXXFLAGS    += $(NORDIC_DEFS)
 CFLAGS      += $(NORDIC_DEFS)
 ASFLAGS     += $(NORDIC_DEFS)
 
@@ -234,6 +239,6 @@ info:
 	@echo "DEPEND_FILES       = $(DEPEND_FILES)"
 	@echo
 
-include ../common/arm_gcc_rules.mak
-include ../common/jlink_rules.mak
+include ../make_rules/arm_gcc_rules.mak
+include ../make_rules/jlink_rules.mak
 

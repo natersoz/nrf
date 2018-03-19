@@ -78,10 +78,10 @@ vpath %.s  $(V_PATHS)
 
 # Common Optimization flags, C and C++
 ifeq ("$(BUILD_TYPE)", "Debug")
-	OPT_FLAGS = -Os
-	OPT_FLAGS += "-D NDEBUG"
+	OPT_FLAGS = -O0
 else
 	OPT_FLAGS = -Os
+	OPT_FLAGS += "-D NDEBUG"
 	OPT_FLAGS += -flto
 endif
 
@@ -186,14 +186,14 @@ LDFLAGS += -Wl,--gc-sections
 # Use the LD_PATHS to allow the linker to bring in common linker scripts
 # The assumption is that projects are at the saem dieectory level as common.
 ###
-LD_PATHS += ../common
+LD_PATHS += ../nrf
 
 ### Configuration complete. Only place transforms and rules below here.
 
 # The complete list of C Language directories: source files + header files.
 # Using remduplicates insures that the directory only gets used once.
 # Not that it is necessary but it does clean things up.
-I_PATHS += $(call remduplicates, $(INCLUDE_PATHS) $(V_PATHS))
+I_PATHS = $(call remduplicates, $(V_PATHS) $(INCLUDE_PATHS) )
 
 # The include path statement used by the compiler.
 INCLUDE_PATHS := $(addprefix -I, $(I_PATHS))
@@ -289,6 +289,9 @@ arm-gcc-info:
 	@echo
 	@echo "V_PATHS = "
 	@echo $(V_PATHS)	| tr ' ' '\n\t'
+	@echo
+	@echo "I_PATHS = "
+	@echo $(I_PATHS)	| tr ' ' '\n\t'
 	@echo
 	@echo "INCLUDE_PATHS = "
 	@echo $(INCLUDE_PATHS)	| tr ' ' '\n\t'

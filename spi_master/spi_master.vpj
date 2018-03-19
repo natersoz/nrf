@@ -264,7 +264,15 @@
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{91F2D494-C4C3-471B-B6CC-D5CC719A7D33}"/>
+            GUID="{91F2D494-C4C3-471B-B6CC-D5CC719A7D33}">
+            <Folder
+                Name="config"
+                AutoCustom="1"
+                GUID="{50D2CC4B-A3F2-4085-ABB7-AF7007B8B425}">
+                <F N="config/sdk_config.h"/>
+            </Folder>
+            <F N="spi_master.h"/>
+        </Folder>
         <Folder
             Name="Other Files"
             Filters=""
@@ -276,7 +284,10 @@
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{FB39745A-1D07-4994-9A6A-30571BE75A92}"/>
+            GUID="{FB39745A-1D07-4994-9A6A-30571BE75A92}">
+            <F N="main.cc"/>
+            <F N="spi_master.cc"/>
+        </Folder>
         <F N="gcc_startup_nrf52.s"/>
         <F N="main.c"/>
         <F
