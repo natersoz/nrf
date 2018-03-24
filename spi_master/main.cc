@@ -4,6 +4,8 @@
 
 #include "spim.h"
 #include "spis.h"
+#include "timer_observer.h"
+
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
 #include "boards.h"
@@ -18,6 +20,15 @@ enum TEST_MODE
 {
     TEST_MODE_ASYNC,        /// Test SPIM with asynchonous call back completion.
     TEST_MODE_BLOCKING,     /// Test SPIM waiting on spim_transfer to block.
+};
+
+class timer_test: public timer_observer
+{
+public:
+    timer_test(expiration_type type, uint32_t expiry_ticks) :
+        timer_observer(type, expiry_ticks) {}
+
+    void expiration_notify() override;
 };
 
 enum TEST_MODE const spim_test_mode = TEST_MODE_ASYNC;
@@ -38,6 +49,13 @@ static segger_rtt_output_stream rtt_os;
 
 static bool volatile spim_xfer_done = false;
 static bool volatile spis_xfer_done = false;
+
+void timer_test::expiration_notify()
+{
+    bsp_board_led_invert(BSP_BOARD_LED_3);
+    logger &logger = logger::instance();
+    logger.info("expiration_notify: cc: %u", this->cc_index_get());
+}
 
 static void mem_fill_ramp(void *buffer,
                           uint8_t init_value,
@@ -90,7 +108,7 @@ void spis_event_handler(void* context, struct spis_event_t const *event)
     memcpy(spis_tx_buffer, spis_rx_buffer, event->tx_amount);
 }
 
-int main(void)
+int main()
 {
     bsp_board_leds_init();
     app_timer_init();
@@ -128,6 +146,11 @@ int main(void)
         .mode           = SPI_MODE_0,
         .shift_order    = SPI_SHIFT_ORDER_MSB_FIRST
     };
+
+    timer_observable timer_test_observable(0u);
+    timer_test timer_test(timer_observer::expiration_type::continuous,
+                          timer_test_observable.ticks_per_second());
+    timer_test_observable.attach(timer_test);
 
     spi_port_t spim_port = 0u;
     spi_port_t spis_port = 1u;

@@ -264,6 +264,7 @@
             <F N="spim_debug.cc"/>
             <F N="spis.cc"/>
             <F N="spis_debug.cc"/>
+            <F N="timer.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -280,6 +281,7 @@
             <F N="spim_debug.h"/>
             <F N="spis.h"/>
             <F N="spis_debug.h"/>
+            <F N="timer.h"/>
         </Folder>
         <Folder
             Name="Resource Files"

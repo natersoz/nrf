@@ -14,6 +14,9 @@ BUILD_PATH = _build
 # Set for Debug or Release build types.
 BUILD_TYPE	?= Debug
 
+# Path to boot installation. Using 1.65.1
+BOOST_ROOT=/usr/local/boost
+
 # It is important to list the more specialized source files first.
 # The ordering of searching for files - especially include files -
 # is dependent on which is listed first.
@@ -26,6 +29,8 @@ SOURCE_FILES += ../nrf/spim.cc
 SOURCE_FILES += ../nrf/spis.cc
 SOURCE_FILES += ../nrf/spim_debug.cc
 SOURCE_FILES += ../nrf/spis_debug.cc
+SOURCE_FILES += ../nrf/timer.cc
+SOURCE_FILES += ../nrf/timer_observer.cc
 SOURCE_FILES += ../nrf/gcc_startup_nrf52.s
 SOURCE_FILES += ../nrf/gcc_stubs.cc
 
@@ -55,6 +60,7 @@ SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
 
 # Include folders:
 INCLUDE_PATHS += ./config/
+INCLUDE_PATHS += $(BOOST_ROOT)/include
 INCLUDE_PATHS += $(SDK_ROOT)/components
 INCLUDE_PATHS += $(SDK_ROOT)/components/boards
 INCLUDE_PATHS += $(SDK_ROOT)/components/device
@@ -85,6 +91,7 @@ NORDIC_DEFS += -D SWI_DISABLE0
 
 NORDIC_DEFS += -D SPIM0_ENABLED
 NORDIC_DEFS += -D SPIS1_ENABLED
+NORDIC_DEFS += -D TIMER0_ENABLED
 
 CXXFLAGS    += $(NORDIC_DEFS)
 CFLAGS      += $(NORDIC_DEFS)
