@@ -6,8 +6,9 @@
 		<Project File="ble_uart_central/ble_uart_central.vpj"/>
 		<Project File="ble_uart_peripheral/ble_uart_peripheral.vpj"/>
 		<Project File="logger/logger.vpj"/>
+		<Project File="nrf/nrf.vpj"/>
 		<Project File="nRF5_SDK14.vpj"/>
-		<Project File="spi_master/nrf_spi_master.vpj"/>
+		<Project File="spi_master/spi_master.vpj"/>
 		<Project File="unit_tests/unit_tests.vpj"/>
 		<Project File="utilities/utilities.vpj"/>
 	</Projects>

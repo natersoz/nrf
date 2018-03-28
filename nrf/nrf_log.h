@@ -12,6 +12,7 @@ extern "C" {
 #endif
 
 #define NRF_LOG_MODULE_REGISTER()
+#define NRF_LOG_INIT(time_callback)             logger_init()
 
 /// @todo modules like nrf_drv_gpiote.c should not depend on
 /// nrf_log.h for this definition.

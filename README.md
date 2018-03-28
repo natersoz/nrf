@@ -15,7 +15,22 @@ LICENSING
 Noridc SDK Version:
 -------------------
 + Nordic SDK Version = `nRF5_SDK_14.2.0_17b948a`
-+ Set as symlink at top level dir.
++ Set as symlink at top level dir:
+
+		$ ln -s <path to Nordic SDK> sdk
+
+Nordic SDK Changes:
+-------------------
++ ./components/libraries/util/app_error_weak.c:
+	Add:
+	#include "app_util_platform.h"
+
++ mv ../sdk/components/libraries/util/nrf_assert.h:
+	renamed: ../sdk/components/libraries/util/nrf_assert-orig.h
+	To avoid inclusion, replaced with ../nrf/nrf_assert.h
+
++ nrf_atfifo.h
+	#include "sdk_errors.h"
 
 Nordic Development Boards:
 --------------------------
@@ -29,13 +44,17 @@ Nordic Development Boards:
 		nRF52832-QFAB     32 kB   256 kB
 		nRF52832-CIAA     64 kB   512 kB
 
-### nRf52 Development board PCA10056
+### nRF52 Development board PCA10056
 + `nRF52840`
 + Softdevice: `S140`, includes BLE 5 protocol updates.
 + Memory
 
 		Variant           RAM     FLASH
 		nRF52840-QIAA    256 kB  1024 kB <-- PCA10056 board.
+
+### [nRF52 device comparision](http://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.nrf52%2Fdita%2Fnrf52%2Fnrf52_series.html)
+
+	At present, just dealing with nRF52832.
 
 Nordic Compiler Options:
 ------------------------

@@ -1,5 +1,5 @@
 target remote localhost:2331
-file _build/nrf_spi_master.out
+file _build/spi_master.out
 load
 monitor reset
 
