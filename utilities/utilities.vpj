@@ -264,6 +264,7 @@
             <F N="std_stubs.cc"/>
             <F N="vwritef.cc"/>
             <F N="write_data.cc"/>
+            <F N="project_assert.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -276,6 +277,7 @@
             <F N="stream.h"/>
             <F N="vwritef.h"/>
             <F N="write_data.h"/>
+            <F N="project_assert.h"/>
         </Folder>
         <Folder
             Name="Resource Files"

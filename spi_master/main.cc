@@ -1,119 +1,201 @@
 /**
- * Copyright (c) 2015 - 2017, Nordic Semiconductor ASA
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form, except as embedded into a Nordic
- *    Semiconductor ASA integrated circuit in a product or a software update for
- *    such product, must reproduce the above copyright notice, this list of
- *    conditions and the following disclaimer in the documentation and/or other
- *    materials provided with the distribution.
- *
- * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
- *    contributors may be used to endorse or promote products derived from this
- *    software without specific prior written permission.
- *
- * 4. This software, with or without modification, must only be used with a
- *    Nordic Semiconductor ASA integrated circuit.
- *
- * 5. Any software provided in binary form under this license must not be reverse
- *    engineered, decompiled, modified and/or disassembled.
- *
- * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
- * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * @file spi_master/main.cc
  */
 
-#include "nrf_drv_spi.h"
-#include "app_util_platform.h"
+#include "spim.h"
+#include "spis.h"
+#include "timer_observer.h"
+
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
 #include "boards.h"
-#include "app_error.h"
+#include "app_timer.h"
 
 #include "logger.h"
 #include "segger_rtt_output_stream.h"
 
 #include <string.h>
 
-// nRF SPI driver instantiation
-#define SPI_INSTANCE  0
-static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(SPI_INSTANCE);
-static volatile bool spi_xfer_done;
+enum TEST_MODE
+{
+    TEST_MODE_ASYNC,        /// Test SPIM with asynchonous call back completion.
+    TEST_MODE_BLOCKING,     /// Test SPIM waiting on spim_transfer to block.
+};
 
-#define TEST_STRING "Nordic"
-static uint8_t       m_tx_buf[] = TEST_STRING;              /**< TX buffer. */
-static uint8_t       m_rx_buf[sizeof(TEST_STRING) + 1];     /**< RX buffer. */
-static const uint8_t m_length = sizeof(m_tx_buf);           /**< Transfer length. */
+class timer_test: public timer_observer
+{
+public:
+    timer_test(expiration_type type, uint32_t expiry_ticks) :
+        timer_observer(type, expiry_ticks) {}
+
+    void expiration_notify() override;
+};
+
+enum TEST_MODE const spim_test_mode = TEST_MODE_ASYNC;
+
+static dma_size_t const spim_tx_length = 8u;
+static uint8_t spim_tx_buffer[spim_tx_length];
+
+static dma_size_t const spim_rx_length = 8u;
+static uint8_t spim_rx_buffer[spim_rx_length];
+
+static dma_size_t const spis_tx_length = 8u;
+static uint8_t spis_tx_buffer[spis_tx_length];
+
+static dma_size_t const spis_rx_length = 8u;
+static uint8_t spis_rx_buffer[spis_rx_length];
 
 static segger_rtt_output_stream rtt_os;
 
-void spi_event_handler(nrf_drv_spi_evt_t const *p_event, void *p_context)
+static bool volatile spim_xfer_done = false;
+static bool volatile spis_xfer_done = false;
+
+void timer_test::expiration_notify()
 {
-    spi_xfer_done = true;
+    bsp_board_led_invert(BSP_BOARD_LED_3);
+    logger &logger = logger::instance();
+    logger.info("expiration_notify: cc: %u", this->cc_index_get());
+}
+
+static void mem_fill_ramp(void *buffer,
+                          uint8_t init_value,
+                          uint8_t step_value,
+                          size_t buffer_length)
+{
+    uint8_t *ptr = reinterpret_cast<uint8_t *>(buffer);
+    uint8_t value = init_value;
+    for ( ; buffer_length > 0; --buffer_length)
+    {
+        *ptr++ = value;
+        value += step_value;
+    }
+}
+
+void spim_event_handler(void* context)
+{
+    bsp_board_led_invert(BSP_BOARD_LED_2);
     logger &logger = logger::instance();
 
-    logger.info("Transfer completed.");
-    if (m_rx_buf[0] != 0)
+    logger.info("SPIM transfer completed.");
+    spim_xfer_done = true;
+    if (spim_rx_buffer[0u] != 0u)
     {
-        logger.info("Received:");
+        logger.info("SPIM received:");
         logger.write_data(logger::level::info,
-                          m_rx_buf,
-                          sizeof(m_rx_buf),
+                          spim_rx_buffer,
+                          spim_rx_length,
                           true,
                           write_data::data_prefix::address);
     }
 }
 
-int main(void)
+void spis_event_handler(void* context, struct spis_event_t const *event)
 {
-    ret_code_t ret_code = NRF_SUCCESS;
+    bsp_board_led_invert(BSP_BOARD_LED_1);
+
+    logger &logger = logger::instance();
+
+    logger.info("SPIS transfer completed.");
+    spis_xfer_done = true;
+
+    logger.info("SPIS received:");
+    logger.write_data(logger::level::info,
+                      spis_rx_buffer,
+                      event->rx_amount,
+                      true,
+                      write_data::data_prefix::address);
+
+    memcpy(spis_tx_buffer, spis_rx_buffer, event->tx_amount);
+}
+
+int main()
+{
     bsp_board_leds_init();
+    app_timer_init();
 
     logger& logger = logger::instance();
     logger.set_level(logger::level::debug);
     logger.set_output_stream(rtt_os);
 
-    logger.info("SPI example.");
+    logger.info("SPIM init");
 
-    nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG;
-    spi_config.ss_pin   = SPI_SS_PIN;
-    spi_config.miso_pin = SPI_MISO_PIN;
-    spi_config.mosi_pin = SPI_MOSI_PIN;
-    spi_config.sck_pin  = SPI_SCK_PIN;
+    struct spi_config_t const spim_config = {
+        .sck_pin        =  11u,
+        .mosi_pin       =  12u,
+        .miso_pin       =  13u,
+        .ss_pin         =  14u,
+        .irq_priority   =   7u,
+        .orc            = 0xFFu,            // over-run char value.
+        .output_drive   = NRF_GPIO_PIN_S0S1,
+        .input_pull     = NRF_GPIO_PIN_NOPULL,
+        .frequency      = SPI_FREQUENCY_FREQUENCY_M4,
+        .mode           = SPI_MODE_0,
+        .shift_order    = SPI_SHIFT_ORDER_MSB_FIRST
+    };
 
-    ret_code = nrf_drv_spi_init(&spi, &spi_config, spi_event_handler, NULL);
-    if (ret_code != NRF_SUCCESS)
+    struct spi_config_t const spis_config = {
+        .sck_pin        =   6u,
+        .mosi_pin       =   7u,
+        .miso_pin       =   8u,
+        .ss_pin         =   5u,
+        .irq_priority   =   7u,
+        .orc            = 0xFFu,            // over-run char value.
+        .output_drive   = NRF_GPIO_PIN_S0S1,
+        .input_pull     = NRF_GPIO_PIN_NOPULL,
+        .frequency      = 0u,
+        .mode           = SPI_MODE_0,
+        .shift_order    = SPI_SHIFT_ORDER_MSB_FIRST
+    };
+
+    timer_observable timer_test_observable(0u);
+    timer_test timer_test(timer_observer::expiration_type::continuous,
+                          timer_test_observable.ticks_per_second());
+    timer_test_observable.attach(timer_test);
+
+    spi_port_t spim_port = 0u;
+    spi_port_t spis_port = 1u;
+
+    enum spi_result_t spim_result = spim_init(spim_port, &spim_config);
+    enum spi_result_t spis_result = spis_init(spis_port, &spis_config);
+
+    if (spim_result != SPI_RESULT_SUCCESS)
     {
-        logger.error("nrf_drv_spi_init() failed: %d\n", ret_code);
+        logger.error("spim_init() failed: %d\n", spim_result);
     }
 
-    while (1)
+    if (spis_result != SPI_RESULT_SUCCESS)
     {
-        // Reset rx buffer and transfer done flag
-        memset(m_rx_buf, 0, m_length);
-        spi_xfer_done = false;
+        logger.error("spis_init() failed: %d\n", spis_result);
+    }
 
-        ret_code = nrf_drv_spi_transfer(&spi,
-                                        m_tx_buf,
-                                        m_length,
-                                        m_rx_buf,
-                                        m_length);
+    uint8_t ramp_start_value = 0u;
+    while (true)
+    {
+        spim_xfer_done = false;
 
-        while (!spi_xfer_done)
+        spis_enable_transfer(spis_port,
+                             spis_tx_buffer,     spis_tx_length,
+                             spis_rx_buffer,     spis_rx_length,
+                             spis_event_handler, nullptr);
+
+        nrf_delay_ms(5u);
+
+        mem_fill_ramp(spim_tx_buffer, ramp_start_value, 1u, spim_tx_length);
+        ramp_start_value += spim_tx_length;
+
+        enum spi_result_t spim_result = spim_transfer(
+            spim_port,
+            spim_tx_buffer, spim_tx_length,
+            spim_rx_buffer, spim_rx_length,
+            (spim_test_mode == TEST_MODE_ASYNC)
+                ? spim_event_handler
+                : nullptr,
+            nullptr,
+            0u);
+
+        ASSERT(spim_result == SPI_RESULT_SUCCESS);
+
+        while ((not spim_xfer_done) && (spim_test_mode == TEST_MODE_ASYNC))
         {
             __WFE();
         }
@@ -121,6 +203,6 @@ int main(void)
         logger.flush();
 
         bsp_board_led_invert(BSP_BOARD_LED_0);
-        nrf_delay_ms(200);
+        nrf_delay_ms(200u);
     }
 }
