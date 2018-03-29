@@ -112,7 +112,7 @@ void spis_event_handler(void* context, struct spis_event_t const *event)
 
 int main()
 {
-    led_board_init();
+    leds_board_init();
     app_timer_init();
 
     logger& logger = logger::instance();

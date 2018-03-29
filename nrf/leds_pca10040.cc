@@ -47,7 +47,7 @@ void led_init(led_index_t led_index)
     led_state_set(led_index, false);
 }
 
-void led_board_init(void)
+void leds_board_init(void)
 {
     for (led_index_t led_index = 0u; led_index < led_count; ++led_index)
     {

@@ -20,7 +20,7 @@ bool led_state_get(led_index_t led_index);
 void led_state_set(led_index_t led_index, bool enable);
 void led_state_toggle(led_index_t led_index);
 void led_init(led_index_t led_index);
-void led_board_init(void);
+void leds_board_init(void);
 
 #ifdef __cplusplus
 }
