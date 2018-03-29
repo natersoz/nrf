@@ -48,11 +48,8 @@ SOURCE_FILES += ../logger/segger_rtt_output_stream.cc
 SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
 
 # SDK source files:
-#SOURCE_FILES += $(SDK_ROOT)/components/boards/boards.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/timer/app_timer.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c
 SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c
 SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
 
@@ -66,13 +63,12 @@ INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/mdk
 INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/hal
 INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/drivers
 INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/drivers/include
-
-
 INCLUDE_PATHS += $(SDK_ROOT)/components
 INCLUDE_PATHS += $(SDK_ROOT)/components/boards
 INCLUDE_PATHS += $(SDK_ROOT)/components/device
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/delay
-INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/hal
+INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/util
+INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/strerror
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd
 INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
 
