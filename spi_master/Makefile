@@ -31,6 +31,7 @@ SOURCE_FILES += ../nrf/spim_debug.cc
 SOURCE_FILES += ../nrf/spis_debug.cc
 SOURCE_FILES += ../nrf/timer.cc
 SOURCE_FILES += ../nrf/timer_observer.cc
+SOURCE_FILES += ../nrf/leds_pca10040.cc
 SOURCE_FILES += ../nrf/gcc_startup_nrf52.s
 SOURCE_FILES += ../nrf/gcc_stubs.cc
 
@@ -46,25 +47,37 @@ SOURCE_FILES += ../logger/segger_rtt_output_stream.cc
 SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
 
 # SDK source files:
-SOURCE_FILES += $(SDK_ROOT)/components/boards/boards.c
+#SOURCE_FILES += $(SDK_ROOT)/components/boards/boards.c
 # SOURCE_FILES += $(SDK_ROOT)/components/libraries/button/app_button.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error.c
 #SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_weak.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/timer/app_timer.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c
-SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
-SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c
+SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c
+
+#SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
+#SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c
 # SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c
-SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
+SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
 
 # Include folders:
 INCLUDE_PATHS += ./config/
 INCLUDE_PATHS += $(BOOST_ROOT)/include
+INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/templates/nRF52832
+INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/templates
+INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx
+INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/mdk
+INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/hal
+INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/drivers
+INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/drivers/include
+
+
 INCLUDE_PATHS += $(SDK_ROOT)/components
 INCLUDE_PATHS += $(SDK_ROOT)/components/boards
 INCLUDE_PATHS += $(SDK_ROOT)/components/device
-INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/delay
+INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/delay
+# INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/delay
 # INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/gpiote
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/hal
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd
