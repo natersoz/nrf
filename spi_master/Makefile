@@ -32,6 +32,7 @@ SOURCE_FILES += ../nrf/spis_debug.cc
 SOURCE_FILES += ../nrf/timer.cc
 SOURCE_FILES += ../nrf/timer_observer.cc
 SOURCE_FILES += ../nrf/leds_pca10040.cc
+SOURCE_FILES += ../nrf/buttons_pca10040.cc
 SOURCE_FILES += ../nrf/gcc_startup_nrf52.s
 SOURCE_FILES += ../nrf/gcc_stubs.cc
 
@@ -48,17 +49,11 @@ SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
 
 # SDK source files:
 #SOURCE_FILES += $(SDK_ROOT)/components/boards/boards.c
-# SOURCE_FILES += $(SDK_ROOT)/components/libraries/button/app_button.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error.c
-#SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_weak.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/timer/app_timer.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c
 SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c
-
-#SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
-#SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c
-# SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c
 SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
 
 # Include folders:
@@ -77,13 +72,8 @@ INCLUDE_PATHS += $(SDK_ROOT)/components
 INCLUDE_PATHS += $(SDK_ROOT)/components/boards
 INCLUDE_PATHS += $(SDK_ROOT)/components/device
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/delay
-# INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/delay
-# INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/gpiote
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/hal
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd
-# INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/spi_master
-# INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/atomic
-# INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/button
 INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
 
 LIB_FILES +=
