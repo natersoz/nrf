@@ -10,6 +10,7 @@
 #include "nrf_gpio.h"
 #include "nrf_log.h"
 #include "logger.h"
+#include "project_assert.h"
 
 /**
  * @struct spim_control_block_t

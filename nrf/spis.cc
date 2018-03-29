@@ -10,10 +10,13 @@
 #include "arm_utilities.h"
 #include "nrf_gpio.h"
 #include "nrf_gpiote.h"
+#include "nrfx_gpiote.h"
+#include "nrfx_errors.h"
 #include "nrf_log.h"
 #include "logger.h"
 
-#include "nrf_drv_gpiote.h"
+
+#include "project_assert.h"
 
 /**
  * SPI slave notes:
@@ -255,7 +258,7 @@ static void spis_clear_events(struct spis_control_block_t* spis_control)
  * @param pin The pin that was triggered.
  * @param action The transition polarity.
  */
-static void csn_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
+static void csn_event_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
     (void) pin;
     (void) action;
@@ -347,8 +350,8 @@ enum spi_result_t spis_init(spi_port_t                 spi_port,
 
     spis_control->state = SPIS_STATE_INIT;
 
-    (void) nrf_drv_gpiote_init();
-    static nrf_drv_gpiote_in_config_t const csn_gpiote_config =
+    (void) nrfx_gpiote_init();
+    static nrfx_gpiote_in_config_t const csn_gpiote_config =
     {
         .sense          = NRF_GPIOTE_POLARITY_HITOLO,
         .pull           = NRF_GPIO_PIN_NOPULL,      /// @todo should this be the same as ss_pin pull value?
@@ -356,12 +359,12 @@ enum spi_result_t spis_init(spi_port_t                 spi_port,
         .hi_accuracy    = true,
     };
 
-    ret_code_t const gpiote_err_code = nrf_drv_gpiote_in_init(spi_config->ss_pin,
-                                                              &csn_gpiote_config,
-                                                              csn_event_handler);
-    if (gpiote_err_code != NRF_SUCCESS)
+    ret_code_t const gpiote_err_code = nrfx_gpiote_in_init(spi_config->ss_pin,
+                                                           &csn_gpiote_config,
+                                                           csn_event_handler);
+    if (gpiote_err_code != NRFX_SUCCESS)
     {
-        NRF_LOG_ERROR("%s, nrf_drv_gpiote_in_init failed: %d", __func__, gpiote_err_code);
+        NRF_LOG_ERROR("%s: nrf_drv_gpiote_in_init failed: 0x%x", __func__, gpiote_err_code);
         ASSERT(0);
     }
 
@@ -369,7 +372,7 @@ enum spi_result_t spis_init(spi_port_t                 spi_port,
 
     // ---- This is all interrupt enabling.
     // ---- Move to spis_buffers_set().
-    nrf_drv_gpiote_in_event_enable(spi_config->ss_pin, true);
+    nrfx_gpiote_in_event_enable(spi_config->ss_pin, true);
 
     spis_control->spis_registers->INTENSET = (SPIS_INTENSET_ACQUIRED_Msk |
                                               SPIS_INTENSET_END_Msk      |

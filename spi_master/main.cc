@@ -5,14 +5,16 @@
 #include "spim.h"
 #include "spis.h"
 #include "timer_observer.h"
+#include "leds.h"
 
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
-#include "boards.h"
+// #include "boards.h"
 #include "app_timer.h"
 
 #include "logger.h"
 #include "segger_rtt_output_stream.h"
+#include "project_assert.h"
 
 #include <string.h>
 
@@ -52,7 +54,7 @@ static bool volatile spis_xfer_done = false;
 
 void timer_test::expiration_notify()
 {
-    bsp_board_led_invert(BSP_BOARD_LED_3);
+    led_state_toggle(3u);
     logger &logger = logger::instance();
     logger.info("expiration_notify: cc: %u", this->cc_index_get());
 }
@@ -73,7 +75,7 @@ static void mem_fill_ramp(void *buffer,
 
 void spim_event_handler(void* context)
 {
-    bsp_board_led_invert(BSP_BOARD_LED_2);
+    led_state_toggle(2u);
     logger &logger = logger::instance();
 
     logger.info("SPIM transfer completed.");
@@ -91,7 +93,7 @@ void spim_event_handler(void* context)
 
 void spis_event_handler(void* context, struct spis_event_t const *event)
 {
-    bsp_board_led_invert(BSP_BOARD_LED_1);
+    led_state_toggle(1u);
 
     logger &logger = logger::instance();
 
@@ -110,7 +112,7 @@ void spis_event_handler(void* context, struct spis_event_t const *event)
 
 int main()
 {
-    bsp_board_leds_init();
+    led_board_init();
     app_timer_init();
 
     logger& logger = logger::instance();
@@ -202,7 +204,7 @@ int main()
 
         logger.flush();
 
-        bsp_board_led_invert(BSP_BOARD_LED_0);
+        led_state_toggle(0u);
         nrf_delay_ms(200u);
     }
 }

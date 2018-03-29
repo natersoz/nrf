@@ -14,7 +14,7 @@ LICENSING
 
 Noridc SDK Version:
 -------------------
-+ Nordic SDK Version = `nRF5_SDK_14.2.0_17b948a`
++ Nordic SDK Version = `nRF5_SDK_15.0.0_a53641a`
 + Set as symlink at top level dir:
 
 		$ ln -s <path to Nordic SDK> sdk
