@@ -375,3 +375,19 @@ uint32_t timer::ticks_per_second() const
     return timer_ticks_per_second(this->timer_instance_);
 }
 
+uint32_t timer::usec_to_ticks(uint32_t usec) const
+{
+    uint64_t usec64 = usec;
+    usec64 *= this->ticks_per_second();
+    usec64 /= 1000u * 1000u;
+    return static_cast<uint32_t>(usec64);
+}
+
+uint32_t timer::msec_to_ticks(uint32_t msec) const
+{
+    uint64_t msec64 = msec;
+    msec64 *= this->ticks_per_second();
+    msec64 /= 1000u;
+    return static_cast<uint32_t>(msec64);
+}
+

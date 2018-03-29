@@ -39,8 +39,7 @@ public:
     timer_observer& operator=(timer_observer const&)  = delete;
     timer_observer& operator=(timer_observer&&)       = delete;
 
-    timer_observer(expiration_type  type,
-                   uint32_t         expiry_ticks);
+    timer_observer(expiration_type type, uint32_t expiry_ticks);
 
     /**
      * When the timer_observer expiration interval completes this function
@@ -52,6 +51,7 @@ public:
 
     void expiration_set(uint32_t ticks_expire, expiration_type);
     void expiration_set(uint32_t ticks_expire);
+    void expiration_restart();
 
     uint32_t        expiration_get_ticks() const { return this->ticks_expiration; }
     expiration_type expiration_get_type()  const { return this->expiry_type; }

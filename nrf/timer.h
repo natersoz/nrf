@@ -87,6 +87,8 @@ public:
     void     cc_disable(cc_index_t cc_index);
 
     uint32_t ticks_per_second() const;
+    uint32_t usec_to_ticks(uint32_t usec) const;
+    uint32_t msec_to_ticks(uint32_t msec) const;
 
     virtual void event_notify(cc_index_t cc_index, uint32_t cc_count) = 0;
 

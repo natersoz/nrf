@@ -46,6 +46,11 @@ void timer_observer::expiration_set(uint32_t ticks_expire)
     this->ticks_remaining  = ticks_expire;
 }
 
+void timer_observer::expiration_restart()
+{
+    this->ticks_remaining = this->ticks_expiration;
+}
+
 bool timer_observer::operator==(timer_observer const& other) const
 {
     // Since timer_observable is not copyable in any form, the means for
