@@ -93,13 +93,13 @@ JLINK_GDB_OPTS	+= -localhostonly 1
 JLINK_GDB_OPTS	+= -strict
 JLINK_GDB_OPTS	+= -timeout 0
 
-.PHONY: run-debug flash-all flash flash-softdevice flash-erase flash-erase-all flash-app-valid flash-app-invalid jlink-help
+.PHONY: gdb-server flash-all flash flash-softdevice flash-erase flash-erase-all flash-app-valid flash-app-invalid jlink-help
 
 ###
-# run-debug does not have any dependencies since you may
+# gdb-server does not have any dependencies since you may
 # want to attach to the debugger without resetting the target.
 ###
-run-debug:
+gdb-server:
 	$(SUDO) $(JLINK_GDB_SERVER) $(JLINK_OPTS) $(JLINK_GDB_OPTS)
 
 ###
