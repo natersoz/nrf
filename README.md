@@ -102,6 +102,31 @@ ARM GCC Compiler:
 
   `alias gdb-arm='/usr/local/gcc-arm-none-eabi/bin/arm-none-eabi-gdb --quiet'`
 
+Nordic S132 Softdevice
+----------------------
+The S132 Softdevice Specification describes which peripherals:
+
+	+ Must be accessed through the SoftDevice API (restricted).
+    + Must not be used when the SoftDevice is active (blocked).
+
+	CLOCK								Restricted
+	POWER								Restricted
+	BPROT								Restricted
+	RADIO								Blocked
+	TIMER0								Blocked
+	TEMP								Restricted
+	RNG									Restricted
+	ECB									Restricted
+	CCM									Restricted
+	AAR									Blocked
+	EGU1/SWI1/Radio Notification		Restricted
+	EGU2/SWI2/SoftDevice Event			Blocked
+	EGU4/SWI4							Blocked
+	EGU5/SWI5							Blocked
+	FICR								Blocked
+	UICR								Restricted
+	NVIC								Restricted
+
 
 Debugging and Flashing nRF5x:
 -----------------------------

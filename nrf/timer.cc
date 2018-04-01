@@ -245,7 +245,7 @@ void timer_cc_set(timer_instance_t  timer_instance,
     ASSERT(cc_index < timer_control->cc_count);
 
     timer_control->registers->CC[cc_index] = timer_ticks;
-    timer_control->registers->INTENSET    |= (1u << cc_index) << TIMER_INTENSET_COMPARE0_Pos;
+    timer_control->registers->INTENSET     = (1u << cc_index) << TIMER_INTENSET_COMPARE0_Pos;
 }
 
 uint32_t timer_cc_get(timer_instance_t timer_instance, cc_index_t cc_index)
@@ -274,7 +274,7 @@ void timer_cc_disable(timer_instance_t timer_instance,
     struct timer_control_block_t* const timer_control = timer_control_block(timer_instance);
     ASSERT(timer_control);
 
-    timer_control->registers->INTENCLR |= (1u << cc_index) << TIMER_INTENCLR_COMPARE0_Pos;
+    timer_control->registers->INTENCLR = (1u << cc_index) << TIMER_INTENCLR_COMPARE0_Pos;
 }
 
 uint32_t timer_ticks_per_second(timer_instance_t timer_instance)

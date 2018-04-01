@@ -271,20 +271,6 @@
                 GUID="{50D2CC4B-A3F2-4085-ABB7-AF7007B8B425}">
                 <F N="config/sdk_config.h"/>
             </Folder>
-            <F N="spi_master.h"/>
-            <F N="../nrf/spim.h"/>
-            <F N="../nrf/spis_debug.h"/>
-            <F N="../nrf/spi_common.h"/>
-            <F N="../nrf/spim_debug.h"/>
-            <F N="../nrf/nrf_cmsis.h"/>
-            <F N="../nrf/nrf_log_ctrl.h"/>
-            <F N="../nrf/nrf_log.h"/>
-            <F N="../nrf/timer_observer.h"/>
-            <F N="../nrf/timer.h"/>
-            <F N="../nrf/nrf_assert.h"/>
-            <F N="../nrf/nrf_log_default_backends.h"/>
-            <F N="../nrf/spis.h"/>
-            <F N="../nrf/arm_utilities.h"/>
         </Folder>
         <Folder
             Name="Other Files"
@@ -297,21 +283,11 @@
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{FB39745A-1D07-4994-9A6A-30571BE75A92}">
-            <F N="spi_master.cc"/>
-            <F N="../nrf/spim_debug.cc"/>
-            <F N="../nrf/spim.cc"/>
-            <F N="../nrf/timer_observer.cc"/>
-            <F N="../nrf/spis_debug.cc"/>
-            <F N="../nrf/timer.cc"/>
-            <F N="../nrf/spis.cc"/>
-            <F N="../nrf/gcc_stubs.cc"/>
-        </Folder>
+            GUID="{FB39745A-1D07-4994-9A6A-30571BE75A92}"></Folder>
         <F N="gcc_startup_nrf52.s"/>
         <F N="main.c"/>
         <F
             N="Makefile"
             Type="Makefile"/>
-        <F N="nrf_spi_master.ld"/>
     </Files>
 </Project>

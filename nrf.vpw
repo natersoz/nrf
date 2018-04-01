@@ -10,6 +10,7 @@
 		<Project File="nRF5_SDK14.vpj"/>
 		<Project File="../../nRF/SDK/nRF5_SDK_15.0.0_a53641a/nRF5_SDK15.vpj"/>
 		<Project File="spi_test/spi_test.vpj"/>
+		<Project File="timer_test/timer_test.vpj"/>
 		<Project File="unit_tests/unit_tests.vpj"/>
 		<Project File="utilities/utilities.vpj"/>
 	</Projects>
