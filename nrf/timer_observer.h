@@ -8,6 +8,7 @@
 #pragma once
 
 #include "timer.h"
+#include "logger.h"
 #include <array>
 #include <boost/intrusive/list.hpp>
 
@@ -19,12 +20,6 @@ class timer_observer: public boost::intrusive::list_base_hook<>
 
 public:
     static cc_index_t const cc_index_unassigned = -1;
-
-    /// If the ticks_remaining count is within this value the timer is expired.
-    /// This is to avoid the situation where the waiting for another update
-    /// call into update_tick_count() would be a worse estimate for timer
-    /// expiration than expiring in the current cycle.
-    static int32_t const epsilon = 10u;
 
     enum class expiration_type
     {
@@ -49,52 +44,74 @@ public:
 
     bool is_attached() const { return this->is_linked(); }
 
+    /** @{
+     * Set the expiration time in timer ticks and the expiration type.
+     * @note The value UINT32_MAX is prohibited and will cause and ASSERT failure.
+     *
+     * @param ticks_expire The number of ticks to wait until the
+     * expiration_notify() event is triggered.
+     * @param expiration_type continuous or one-shot.
+     */
     void expiration_set(uint32_t ticks_expire, expiration_type);
     void expiration_set(uint32_t ticks_expire);
-    void expiration_restart();
+    void expiration_set();
+    /** @{ */
 
-    uint32_t        expiration_get_ticks() const { return this->ticks_expiration; }
-    expiration_type expiration_get_type()  const { return this->expiry_type; }
+    /// @{ Expiration determination, also with expiration types
+    bool has_expired() const;
+    bool one_shot_has_expired() const;
+    bool continuous_has_expired() const;
+    /// @}
 
-    cc_index_t cc_index_get() const { return this->cc_index; }
+    uint32_t        expiration_get_ticks() const { return this->ticks_expiration_; }
+    expiration_type expiration_get_type()  const { return this->expiration_type_; }
+
+    cc_index_t cc_index_get() const { return this->cc_index_; }
 
     bool operator==(timer_observer const& other) const;
+
+protected:  /// @todo For now protected for use in debugging.
+    /// The timer_observable to which this oberser is attached.
+    /// If null then the observer is unattached.
+    timer_observable *observable_;
 
 private:
     /// The timer comarator to assign this observer to.
     /// This value will be assiged by timer_observable when
     /// the observer is attached.
-    timer::cc_index_t cc_index;
+    timer::cc_index_t cc_index_;
 
     /// Single shot or continuous.
-    expiration_type expiry_type;
+    expiration_type expiration_type_;
 
     /// The ticks value set for determining when the timer_observer expires.
-    uint32_t ticks_expiration;
+    uint32_t ticks_expiration_;
 
     /// The number of ticks remaining before the timer observer expires.
-    uint32_t ticks_remaining;
+    uint32_t ticks_remaining_;
 
-    timer_observable *observable;
-
-    /**
-     * @note If expired then ticks remaining should be ticks_expiration.
-     */
-    uint32_t get_ticks_remaining() const;
+    /// The observer has expired, but the expiration_notify()
+    /// has not yet been called.
+    bool is_expired_;
 
     /**
      * Update the ticks_remaining value.
      *
      * @param ticks_delta The number of ticks since the last update.
      *
-     * @return bool true if the timer observer has expired.
-     * false if the timer is still counting down.
+     * @return int32_t The ticks remaining before expiration.
+     * If the timer observer has expired this value will be < timer::epsilon.
+     * Negative values can be returned for expirations occurring late.
      */
-    void update_tick_count(uint32_t ticks_delta);
+    int32_t update_tick_count(uint32_t ticks_delta);
+
+    void expiration_reset();
 };
 
 class timer_observable : public timer
 {
+    friend class timer_observer;
+
 public:
     virtual ~timer_observable() override;
 
@@ -139,10 +156,14 @@ private:
     };
 
     /// For each timer comparator a cc_association instance.
-    std::array<cc_association, cc_index_limit> cc_assoc;
+    std::array<cc_association, cc_index_limit> cc_assoc_;
 
     /// Used distribute observers across the comparator array.
-    cc_index_t cc_index_attach;
+    cc_index_t cc_index_attach_;
+
+    logger& logger_;
+
+    void observer_ticks_update(timer_observer& observer);
 
     /**
      * When an event fires or when a new observers is added this function
@@ -152,11 +173,13 @@ private:
      * @param cc_count The comparator count which either triggered the event
      *                 or the counter value at the time of insertion.
      *
-     * @return uint32_t The counter value increase from the current value
-     *                  for which the next event should be triggered.
+     * @return uint32_t The number of ticks remaining within a specific
+     *                  comparator index grouping of observers.
+     *                  aka: The next event expiration tick count.
      */
-    uint32_t ticks_update(cc_index_t cc_index, uint32_t cc_count);
+    int32_t ticks_update(cc_index_t cc_index, uint32_t cc_count);
 
+    /** The total number of timer observers attached. */
     size_t attached_count() const;
 };
 

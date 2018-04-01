@@ -61,6 +61,12 @@ void timer_enable_interrupt(timer_instance_t timer_instance);
 class timer
 {
 public:
+    /// If the ticks_remaining count is within this value the timer is expired.
+    /// This is to avoid the situation where the waiting for another update
+    /// call into update_tick_count() would be a worse estimate for timer
+    /// expiration than expiring in the current cycle.
+    static int32_t const epsilon = 10u;
+
     typedef uint8_t cc_index_t;
 
     cc_index_t const cc_count;
@@ -92,7 +98,7 @@ public:
 
     virtual void event_notify(cc_index_t cc_index, uint32_t cc_count) = 0;
 
-private:
+protected:
     timer_instance_t timer_instance_;
 };
 

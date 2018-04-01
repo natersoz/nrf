@@ -7,11 +7,13 @@
 
 #pragma once
 
+#include "rtc.h"
+#include "stream.h"
+#include "write_data.h"
+
 #include <cstdarg>
 #include <cstddef>
 #include <type_traits>
-#include "stream.h"
-#include "write_data.h"
 
 class logger
 {
@@ -29,7 +31,7 @@ public:
     logger& operator=(logger const& other)  = delete;
 
     static logger& instance();
-    logger(): os_(nullptr), log_level_(level::warning) {}
+    logger(): os_(nullptr), rtc_(nullptr), log_level_(level::warning) {}
 /*
     logger(output_stream& os,
            level log_level = level::warning)
@@ -61,8 +63,17 @@ public:
         this->log_level_ = log_level;
     }
 
+    void set_rtc(rtc &rtc)
+    {
+        this->rtc_ = &rtc;
+    }
+
 private:
     output_stream   *os_;
+    rtc             *rtc_;
     level           log_level_;
+
+    size_t log_time();
+
 };
 
