@@ -9,7 +9,6 @@
 
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
-// #include "boards.h"
 #include "app_timer.h"
 
 #include "logger.h"
@@ -18,22 +17,23 @@
 
 #include <string.h>
 
-enum TEST_MODE
-{
-    TEST_MODE_ASYNC,        /// Test SPIM with asynchonous call back completion.
-    TEST_MODE_BLOCKING,     /// Test SPIM waiting on spim_transfer to block.
-};
-
-class timer_test: public timer_observer
+class timer_spis_prepare: public timer_observer
 {
 public:
-    timer_test(expiration_type type, uint32_t expiry_ticks) :
+    timer_spis_prepare(expiration_type type, uint32_t expiry_ticks) :
         timer_observer(type, expiry_ticks) {}
 
     void expiration_notify() override;
 };
 
-enum TEST_MODE const spim_test_mode = TEST_MODE_ASYNC;
+class timer_spim_send: public timer_observer
+{
+public:
+    timer_spim_send(expiration_type type, uint32_t expiry_ticks) :
+        timer_observer(type, expiry_ticks) {}
+
+    void expiration_notify() override;
+};
 
 static dma_size_t const spim_tx_length = 8u;
 static uint8_t spim_tx_buffer[spim_tx_length];
@@ -52,12 +52,17 @@ static segger_rtt_output_stream rtt_os;
 static bool volatile spim_xfer_done = false;
 static bool volatile spis_xfer_done = false;
 
-void timer_test::expiration_notify()
-{
-    led_state_toggle(3u);
-    logger &logger = logger::instance();
-    logger.info("expiration_notify: cc: %u", this->cc_index_get());
-}
+static uint8_t ramp_start_value = 0u;
+
+static spi_port_t const spim_port = 0u;
+static spi_port_t const spis_port = 1u;
+
+static timer_observable timer_test_observable(0u);
+static timer_spis_prepare timer_spis(timer_observer::expiration_type::continuous,
+                                     timer_test_observable.ticks_per_second());
+
+static timer_spim_send timer_spim(timer_observer::expiration_type::one_shot,
+                                  timer_test_observable.msec_to_ticks(2u));
 
 static void mem_fill_ramp(void *buffer,
                           uint8_t init_value,
@@ -110,6 +115,41 @@ void spis_event_handler(void* context, struct spis_event_t const *event)
     memcpy(spis_tx_buffer, spis_rx_buffer, event->tx_amount);
 }
 
+void timer_spis_prepare::expiration_notify()
+{
+    led_state_toggle(3u);
+    logger &logger = logger::instance();
+    logger.info("timer_spis_prepare: expiry: cc: %u", this->cc_index_get());
+
+    spim_xfer_done = false;
+
+    spis_enable_transfer(spis_port,
+                         spis_tx_buffer,     spis_tx_length,
+                         spis_rx_buffer,     spis_rx_length,
+                         spis_event_handler, nullptr);
+
+    mem_fill_ramp(spim_tx_buffer, ramp_start_value, 1u, spim_tx_length);
+    ramp_start_value += spim_tx_length;
+
+    timer_spim.expiration_restart();
+}
+
+void timer_spim_send::expiration_notify()
+{
+    logger &logger = logger::instance();
+    logger.info("timer_spim_send: expiry: cc: %u", this->cc_index_get());
+
+    enum spi_result_t spim_result = spim_transfer(
+        spim_port,
+        spim_tx_buffer, spim_tx_length,
+        spim_rx_buffer, spim_rx_length,
+        spim_event_handler,
+        nullptr,
+        0u);
+
+    ASSERT(spim_result == SPI_RESULT_SUCCESS);
+}
+
 int main()
 {
     leds_board_init();
@@ -120,6 +160,8 @@ int main()
     logger.set_output_stream(rtt_os);
 
     logger.info("SPIM init");
+    logger.info("timer spim: %8u ticks", timer_spim.expiration_get_ticks());
+    logger.info("timer spis: %8u ticks", timer_spis.expiration_get_ticks());
 
     struct spi_config_t const spim_config = {
         .sck_pin        =  11u,
@@ -149,13 +191,8 @@ int main()
         .shift_order    = SPI_SHIFT_ORDER_MSB_FIRST
     };
 
-    timer_observable timer_test_observable(0u);
-    timer_test timer_test(timer_observer::expiration_type::continuous,
-                          timer_test_observable.ticks_per_second());
-    timer_test_observable.attach(timer_test);
-
-    spi_port_t spim_port = 0u;
-    spi_port_t spis_port = 1u;
+    timer_test_observable.attach(timer_spis);
+    timer_test_observable.attach(timer_spim);
 
     enum spi_result_t spim_result = spim_init(spim_port, &spim_config);
     enum spi_result_t spis_result = spis_init(spis_port, &spis_config);
@@ -170,41 +207,11 @@ int main()
         logger.error("spis_init() failed: %d\n", spis_result);
     }
 
-    uint8_t ramp_start_value = 0u;
     while (true)
     {
-        spim_xfer_done = false;
-
-        spis_enable_transfer(spis_port,
-                             spis_tx_buffer,     spis_tx_length,
-                             spis_rx_buffer,     spis_rx_length,
-                             spis_event_handler, nullptr);
-
-        nrf_delay_ms(5u);
-
-        mem_fill_ramp(spim_tx_buffer, ramp_start_value, 1u, spim_tx_length);
-        ramp_start_value += spim_tx_length;
-
-        enum spi_result_t spim_result = spim_transfer(
-            spim_port,
-            spim_tx_buffer, spim_tx_length,
-            spim_rx_buffer, spim_rx_length,
-            (spim_test_mode == TEST_MODE_ASYNC)
-                ? spim_event_handler
-                : nullptr,
-            nullptr,
-            0u);
-
-        ASSERT(spim_result == SPI_RESULT_SUCCESS);
-
-        while ((not spim_xfer_done) && (spim_test_mode == TEST_MODE_ASYNC))
-        {
-            __WFE();
-        }
+        __WFE();
 
         logger.flush();
-
         led_state_toggle(0u);
-        nrf_delay_ms(200u);
     }
 }
