@@ -6,7 +6,7 @@
 SDK_ROOT := ../sdk
 
 # The executable name
-TARGET_NAME = spi_master
+TARGET_NAME = spi_test
 
 # Where the compiled files are built.
 BUILD_PATH = _build
