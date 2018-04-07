@@ -11,6 +11,7 @@ struct rtc_control_block_t
     NRF_RTC_Type            *registers;
     IRQn_Type               irq_type;
     cc_index_t              cc_count;
+    uint64_t                counter_extend;
     rtc_event_handler_t     handler;
     void                    *context;
 };
@@ -23,6 +24,7 @@ static struct rtc_control_block_t rtc_instance_0 =
     .registers              = NRF_RTC0,
     .irq_type               = RTC0_IRQn,
     .cc_count               = 4u,
+    .counter_extend         = 0u,
     .handler                = nullptr,
     .context                = nullptr,
 };
@@ -42,6 +44,7 @@ static struct rtc_control_block_t rtc_instance_1 =
     .registers              = NRF_RTC1,
     .irq_type               = RTC1_IRQn,
     .cc_count               = 4u,
+    .counter_extend         = 0u,
     .handler                = nullptr,
     .context                = nullptr,
 };
@@ -61,6 +64,7 @@ static struct rtc_control_block_t rtc_instance_2 =
     .registers              = NRF_RTC2,
     .irq_type               = RTC2_IRQn,
     .cc_count               = 4u,
+    .counter_extend         = 0u,
     .handler                = nullptr,
     .context                = nullptr,
 };
@@ -92,6 +96,9 @@ static uint32_t const prescaler_max = (1u << 11u);
 /// This matches the RTC prescaler value on reset.
 static uint32_t const prescaler_default = 0u;
 
+/// The RTC counter bit width.
+static size_t const rtc_counter_width = 24u;
+
 static struct rtc_control_block_t* const rtc_control_block(rtc_instance_t rtc_instance)
 {
     if (rtc_instance < sizeof(rtc_instances) / sizeof(rtc_instances[0]))
@@ -112,6 +119,13 @@ static void rtc_clear_compare_event(struct rtc_control_block_t* rtc_control,
     (void) dummy;
 }
 
+static void rtc_clear_overflow_event(struct rtc_control_block_t* rtc_control)
+{
+    rtc_control->registers->EVENTS_OVRFLW = 0u;
+    volatile uint32_t dummy = rtc_control->registers->EVENTS_OVRFLW;
+    (void) dummy;
+}
+
 void rtc_init(rtc_instance_t        rtc_instance,
               uint32_t              prescaler,
               uint8_t               irq_priority,
@@ -125,8 +139,9 @@ void rtc_init(rtc_instance_t        rtc_instance,
     ASSERT(rtc_control->registers->TASKS_START == 0u);
     ASSERT(handler);
 
-    uint32_t const prescaler_reg_value  = ((prescaler - 1u) << TIMER_PRESCALER_PRESCALER_Pos);
+    uint32_t const prescaler_reg_value  = ((prescaler - 1u) << RTC_PRESCALER_PRESCALER_Pos);
 
+    rtc_control->counter_extend         = 0u;
     rtc_control->handler                = handler;
     rtc_control->context                = context;
     rtc_control->registers->PRESCALER   = prescaler_reg_value;
@@ -134,6 +149,7 @@ void rtc_init(rtc_instance_t        rtc_instance,
     rtc_control->registers->TASKS_CLEAR = 1u;
     rtc_control->registers->INTENCLR    = UINT32_MAX;
 
+    rtc_clear_overflow_event(rtc_control);
     for (cc_index_t cc_index = 0u; cc_index < rtc_control->cc_count; ++cc_index)
     {
         rtc_clear_compare_event(rtc_control, cc_index);
@@ -160,7 +176,7 @@ void rtc_start(rtc_instance_t rtc_instance)
     struct rtc_control_block_t* const rtc_control = rtc_control_block(rtc_instance);
     ASSERT(rtc_control);
 
-//    rtc_control->registers->INTENSET    = 1u;
+    rtc_control->registers->INTENSET    = 1u << RTC_INTENSET_OVRFLW_Pos;
     rtc_control->registers->TASKS_START = 1u;
 }
 
@@ -189,7 +205,7 @@ void rtc_cc_set(rtc_instance_t  rtc_instance,
     ASSERT(cc_index < rtc_control->cc_count);
 
     rtc_control->registers->CC[cc_index] = rtc_ticks;
-    rtc_control->registers->INTENSET     = (1u << cc_index) << TIMER_INTENSET_COMPARE0_Pos;
+    rtc_control->registers->INTENSET     = (1u << cc_index) << RTC_INTENSET_COMPARE0_Pos;
 }
 
 uint32_t rtc_cc_get(rtc_instance_t rtc_instance, cc_index_t cc_index)
@@ -210,13 +226,23 @@ uint32_t rtc_cc_get_count(rtc_instance_t rtc_instance, cc_index_t cc_index)
     return rtc_count;
 }
 
+uint64_t rtc_get_count_ext(rtc_instance_t rtc_instance)
+{
+    struct rtc_control_block_t* const rtc_control = rtc_control_block(rtc_instance);
+    ASSERT(rtc_control);
+
+    uint32_t const rtc_count     = rtc_control->registers->COUNTER;
+    uint64_t const rtc_count_ext = rtc_control->counter_extend + rtc_count;
+    return rtc_count_ext;
+}
+
 void rtc_cc_disable(rtc_instance_t  rtc_instance,
                     cc_index_t      cc_index)
 {
     struct rtc_control_block_t* const rtc_control = rtc_control_block(rtc_instance);
     ASSERT(rtc_control);
 
-    rtc_control->registers->INTENCLR = (1u << cc_index) << TIMER_INTENCLR_COMPARE0_Pos;
+    rtc_control->registers->INTENCLR = (1u << cc_index) << RTC_INTENCLR_COMPARE0_Pos;
 }
 
 uint32_t rtc_ticks_per_second(rtc_instance_t rtc_instance)
@@ -238,6 +264,14 @@ void rtc_enable_interrupt(rtc_instance_t rtc_instance)
 
 static void irq_handler_rtc(rtc_control_block_t *rtc_control)
 {
+    // Handle the overflow event first so that observers will get
+    // notified with the extended count value.
+    if (rtc_control->registers->EVENTS_OVRFLW)
+    {
+        rtc_control->counter_extend += (1u << rtc_counter_width);
+        rtc_clear_overflow_event(rtc_control);
+    }
+
     for (cc_index_t cc_index = 0u; cc_index < rtc_control->cc_count; ++cc_index)
     {
         if (rtc_control->registers->EVENTS_COMPARE[cc_index])
@@ -307,6 +341,16 @@ uint32_t rtc::cc_get_count(cc_index_t cc_index) const
 uint32_t rtc::cc_get_count() const
 {
     return rtc_cc_get_count(this->rtc_instance_, 0u);
+}
+
+uint32_t rtc::get_count_extend_32() const
+{
+    return static_cast<uint32_t>(this->get_count_extend_64());
+}
+
+uint64_t rtc::get_count_extend_64() const
+{
+    return rtc_get_count_ext(this->rtc_instance_);
 }
 
 void rtc::cc_disable(cc_index_t cc_index)

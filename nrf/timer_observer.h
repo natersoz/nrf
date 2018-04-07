@@ -14,12 +14,17 @@
 
 class timer_observable;
 
+/**
+ * @class timer_observer
+ * This is the part of the timer class intended to be used by a timer client.
+ * In the user's class override the event_notify method for timer notifications.
+ */
 class timer_observer
 {
     friend class timer_observable;
 
 public:
-    static cc_index_t const cc_index_unassigned = -1;
+    static cc_index_t const cc_index_unassigned = static_cast<cc_index_t>(-1);
 
     enum class expiration_type
     {
@@ -34,7 +39,7 @@ public:
     timer_observer& operator=(timer_observer const&)  = delete;
     timer_observer& operator=(timer_observer&&)       = delete;
 
-    timer_observer(expiration_type type, uint32_t expiry_ticks);
+    timer_observer(expiration_type type, uint32_t expiration_ticks);
 
     /**
      * When the timer_observer expiration interval completes this function
@@ -68,36 +73,38 @@ public:
 
     cc_index_t cc_index_get() const { return this->cc_index_; }
 
+    timer_observable const* observable() const { return this->observable_; }
+
     bool operator==(timer_observer const& other) const;
 
-protected:  /// @todo For now protected for use in debugging.
+private:
     /// The timer_observable to which this oberser is attached.
     /// If null then the observer is unattached.
     timer_observable * volatile observable_;
 
-private:
     /// Alias the list hood class to something a little
     using list_hook = boost::intrusive::list_member_hook<>;
 
+    /// @todo needs volatile
     list_hook hook_;
 
     /// The timer comarator to assign this observer to.
     /// This value will be assiged by timer_observable when
     /// the observer is attached.
-    timer::cc_index_t cc_index_;
+    timer::cc_index_t volatile cc_index_;
 
     /// Single shot or continuous.
-    expiration_type expiration_type_;
+    expiration_type volatile expiration_type_;
 
     /// The ticks value set for determining when the timer_observer expires.
-    uint32_t ticks_expiration_;
+    uint32_t volatile ticks_expiration_;
 
     /// The number of ticks remaining before the timer observer expires.
-    uint32_t ticks_remaining_;
+    uint32_t volatile ticks_remaining_;
 
     /// The observer has expired, but the expiration_notify()
     /// has not yet been called.
-    bool is_expired_;
+    bool volatile is_expired_;
 
     /**
      * Update the ticks_remaining value.
@@ -127,12 +134,29 @@ public:
     timer_observable& operator=(timer_observable const &) = delete;
     timer_observable& operator=(timer_observable&&)       = delete;
 
+    /**
+     * Attach a timer_observable to a Nordic TIMER peripheral by specifying
+     * the timer_instance [0:4] associated with [TIMER0:TIMER4].
+     * The preprpcessor definition -D TIMERn will need to be set for the
+     * ISR handler to hook correctly (otherwise link-time error).
+     *
+     * @param timer_instance Specifies the specific peripheral to use.
+     * @param prescaler_exp  Specify the HFCLK / N prescaler value.
+     * @param irq_priority   The NVIC priority.
+     */
     timer_observable(timer_instance_t  timer_instance,
                      uint8_t           prescaler_exp = 4u,
                      uint8_t           irq_priority  = 7u);
 
     virtual void event_notify(cc_index_t cc_index, uint32_t cc_count) override;
 
+    /** @{
+     * Attache and detach observers to observables.
+     * When attached to observers are active.
+     * To deactive an observer, detach it.
+     *
+     * @param observer The observer to attach to an observable.
+     */
     void attach(timer_observer& observer);
     void detach(timer_observer& observer);
 
@@ -160,7 +184,7 @@ private:
 
         /// The last tick count for which all nodes within the observer_list
         /// have been updated.
-        uint32_t last_ticks_count;
+        uint32_t volatile last_ticks_count;
     };
 
     /// For each timer comparator a cc_association instance.
@@ -171,6 +195,13 @@ private:
 
     logger& logger_;
 
+    /**
+     * When the observable gets attached or the observable is attached and
+     * the expiration is changed this function is called to get the observer
+     * expiration ticks remaining count into the comparator count down.
+     *
+     * @param observer The observer whose expirations are being changed.
+     */
     void observer_ticks_update(timer_observer& observer);
 
     /**

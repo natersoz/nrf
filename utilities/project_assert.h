@@ -12,7 +12,8 @@
 extern "C" {
 #endif
 
-void assertion_failed(char const*  func_name,
+void assertion_failed(char const*  file_name,
+                      char const*  func_name,
                       size_t       line_no,
                       char const*  condition);
 
@@ -21,7 +22,7 @@ void assertion_failed(char const*  func_name,
 #else
     #define ASSERT(condition)                                     \
         if (!(condition)) {                                       \
-            assertion_failed(__func__, __LINE__, #condition);     \
+            assertion_failed(__FILE__, __func__, __LINE__, #condition);     \
         }
 #endif
 

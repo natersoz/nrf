@@ -3,12 +3,10 @@
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  *
  * Wrap a timer peripheral to proivde a simpler interface.
- * @todo @bug Need volatiles & thread safety.
  */
 
 #include "timer_observer.h"
 #include "project_assert.h"
-#include <algorithm>
 
 timer_observer::~timer_observer()
 {
@@ -19,12 +17,12 @@ timer_observer::~timer_observer()
 }
 
 timer_observer::timer_observer(expiration_type  type,
-                               uint32_t         expiry_ticks)
+                               uint32_t         expiration_ticks)
     : observable_(nullptr),
       cc_index_(cc_index_unassigned),
       expiration_type_(type),
-      ticks_expiration_(expiry_ticks),
-      ticks_remaining_(expiry_ticks),
+      ticks_expiration_(expiration_ticks),
+      ticks_remaining_(expiration_ticks),
       is_expired_(false)
 {
 }
@@ -169,13 +167,19 @@ void timer_observable::attach(timer_observer& observer)
     // If the cc_index was not already assigned to the observer
     // then attempt to evenly distribute the observers across the
     // comparators attached to the timer.
-    observer.cc_index_          = this->cc_index_attach_;
-    observer.cc_index_          = 0u;                       /// @todo debug only
-    this->cc_index_attach_     += 1u;
-    if (this->cc_index_attach_ >= this->cc_count)
+    if (observer.cc_index_get() == timer_observer::cc_index_unassigned)
     {
-        this->cc_index_attach_ = 0u;
+        observer.cc_index_          = this->cc_index_attach_;
+        this->cc_index_attach_     += 1u;
+        if (this->cc_index_attach_ >= this->cc_count)
+        {
+            this->cc_index_attach_ = 0u;
+        }
     }
+
+#if 0   // Debug/testing only: set to '1' to force observers onto CC[0]
+    observer.cc_index_ = 0u;
+#endif
 
     this->observer_ticks_update(observer);
     this->cc_assoc_[observer.cc_index_].observer_list.push_back(observer);
@@ -188,6 +192,11 @@ void timer_observable::attach(timer_observer& observer)
     this->logger_.debug("attach[%d]:---, this: 0x%p", observer.cc_index_, &observer);
 }
 
+/**
+ * @note Don't set the observer.cc_index_ = cc_index_unassigned here.
+ * The distribution seems to work better if an observer stays
+ * assigned to a specific observable during its lifetime.
+ */
 void timer_observable::detach(timer_observer& observer)
 {
     ASSERT(observer.is_attached());
@@ -204,7 +213,6 @@ void timer_observable::detach(timer_observer& observer)
     }
 
     observer.observable_ = nullptr;
-    observer.cc_index_   = timer_observer::cc_index_unassigned;
 }
 
 void timer_observable::observer_ticks_update(timer_observer& observer)
@@ -219,7 +227,8 @@ void timer_observable::observer_ticks_update(timer_observer& observer)
                         observer.cc_index_, timer_count, ticks_delta);
 
     observer.expiration_reset();
-    ticks_delta = std::min(ticks_delta, observer.ticks_expiration_);
+    ticks_delta = (ticks_delta < observer.ticks_expiration_)?
+                   ticks_delta : observer.ticks_expiration_;
     this->cc_set(observer.cc_index_, timer_count + ticks_delta);
 
     this->logger_.debug("oticks[%d]: count : %10u + delta: %8u = %10u / %10u",
