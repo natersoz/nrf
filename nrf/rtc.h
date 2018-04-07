@@ -56,6 +56,8 @@ uint32_t rtc_cc_get(rtc_instance_t rtc_instance, cc_index_t cc_index);
 
 uint32_t rtc_cc_get_count(rtc_instance_t rtc_instance);
 
+uint64_t rtc_get_count_ext(rtc_instance_t rtc_instance);
+
 void rtc_cc_disable(rtc_instance_t rtc_instance, cc_index_t cc_index);
 
 uint32_t rtc_ticks_per_second(rtc_instance_t rtc_instance);
@@ -69,7 +71,10 @@ void rtc_enable_interrupt(rtc_instance_t rtc_instance);
 class rtc
 {
 public:
-    typedef uint8_t cc_index_t;
+    using uint8_t = cc_index_t;
+
+    /// The bit-wdith of the counter.
+    static size_t const counter_width = 24u;
 
     cc_index_t const cc_count;
 
@@ -93,6 +98,8 @@ public:
     uint32_t cc_get(cc_index_t) const;
     uint32_t cc_get_count(cc_index_t cc_index) const;
     uint32_t cc_get_count() const;
+    uint32_t get_count_extend_32() const;
+    uint64_t get_count_extend_64() const;
     void     cc_disable(cc_index_t cc_index);
 
     uint32_t ticks_per_second() const;
@@ -102,7 +109,8 @@ public:
     virtual void event_notify(cc_index_t cc_index, uint32_t cc_count) {};
 
 private:
-    rtc_instance_t rtc_instance_;
+    rtc_instance_t  rtc_instance_;
+    uint64_t        rtc_counter_extension;
 };
 
 #endif

@@ -61,11 +61,20 @@ void timer_enable_interrupt(timer_instance_t timer_instance);
 class timer
 {
 public:
-    /// If the ticks_remaining count is within this value the timer is expired.
-    /// This is to avoid the situation where the waiting for another update
-    /// call into update_tick_count() would be a worse estimate for timer
-    /// expiration than expiring in the current cycle.
-    static int32_t const epsilon = 10u;
+    /// The bit-wdith of the counter.
+    static size_t const counter_width = 32u;
+
+    /**
+     * If the ticks_remaining count is within this value the timer is expired.
+     * This is to avoid the situation where the waiting for another update
+     * call into update_tick_count() would be a worse estimate for timer
+     * expiration than expiring in the current cycle.
+     *
+     * Using the timer_test application 6 timers are hooked up to a single
+     * comparator. An epsilon value of 500u was most accurate and large enough
+     * to not missing interrupts.
+     */
+    static int32_t const epsilon = 500u;
 
     typedef uint8_t cc_index_t;
 
@@ -96,9 +105,21 @@ public:
     uint32_t usec_to_ticks(uint32_t usec) const;
     uint32_t msec_to_ticks(uint32_t msec) const;
 
-    virtual void event_notify(cc_index_t cc_index, uint32_t cc_count) = 0;
+    /**
+     * The timer notificaiton virtual method for receiving callbacks when
+     * timer comaprator events happen. The default case is to do nothing.
+     * Doing nothing allows for a simple polling timer within inheritance.
+     *
+     * @param cc_index The comparator index which triggered the event callback.
+     * @param cc_count The comparator value at the time of the callback.
+     */
+    virtual void event_notify(cc_index_t cc_index, uint32_t cc_count)
+    {
+        (void) cc_index;
+        (void) cc_count;
+    };
 
-protected:
+private:
     timer_instance_t timer_instance_;
 };
 

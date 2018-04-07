@@ -14,12 +14,11 @@ logger& logger::instance()
     return logger_instance;
 }
 
-static uint32_t rtc_ticks_to_msec(uint32_t ticks, uint32_t const ticks_per_sec)
+static uint64_t rtc_ticks_to_msec(uint64_t ticks, uint32_t const ticks_per_sec)
 {
-    uint64_t msec = ticks;
-    msec *= 1000u;
-    msec /= ticks_per_sec;
-    return static_cast<uint32_t>(msec);
+    ticks *= 1000u;
+    ticks /= ticks_per_sec;
+    return ticks;
 }
 
 size_t logger::error(char const *fmt, ...)
@@ -174,9 +173,9 @@ size_t logger::log_time()
 {
     if (this->rtc_)
     {
-        uint32_t const timer_ticks = this->rtc_->cc_get_count();
-        uint32_t const timer_msec  = rtc_ticks_to_msec(timer_ticks, this->rtc_->ticks_per_second());
-        return writef(*this->os_, "%6u.%03u ", timer_msec / 1000u, timer_msec % 1000u);
+        uint64_t const timer_ticks = this->rtc_->get_count_extend_64();
+        uint64_t const timer_msec  = rtc_ticks_to_msec(timer_ticks, this->rtc_->ticks_per_second());
+        return writef(*this->os_, "%6llu.%03llu ", timer_msec / 1000u, timer_msec % 1000u);
     }
 
     return 0u;
