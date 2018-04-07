@@ -10,12 +10,6 @@
 #include "project_assert.h"
 #include <algorithm>
 
-/**
- * @note Since timer_observer inherits from boost::intrusive::list and
- * auto-unlink is enabled then the list hook dtor will unlink the node from
- * the list for us. Do not do it here (static_asserts, which is nice).
- * @see http://www.boost.org/doc/libs/1_64_0/doc/html/intrusive/auto_unlink_hooks.html
- */
 timer_observer::~timer_observer()
 {
     if (this->observable_)
@@ -166,7 +160,7 @@ void timer_observable::event_notify(cc_index_t cc_index, uint32_t cc_count)
 
 void timer_observable::attach(timer_observer& observer)
 {
-    ASSERT(not observer.is_linked());
+    ASSERT(not observer.is_attached());
 
     observer.observable_ = this;
 
@@ -196,7 +190,7 @@ void timer_observable::attach(timer_observer& observer)
 
 void timer_observable::detach(timer_observer& observer)
 {
-    ASSERT(observer.is_linked());
+    ASSERT(observer.is_attached());
 
     this->cc_assoc_[observer.cc_index_].observer_list.remove(observer);
     if (this->cc_assoc_[observer.cc_index_].observer_list.size() == 0u)

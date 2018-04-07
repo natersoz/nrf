@@ -14,7 +14,7 @@
 
 class timer_observable;
 
-class timer_observer: public boost::intrusive::list_base_hook<>
+class timer_observer
 {
     friend class timer_observable;
 
@@ -42,7 +42,7 @@ public:
      */
     virtual void expiration_notify() = 0;
 
-    bool is_attached() const { return this->is_linked(); }
+    bool is_attached() const { return bool(this->observable_); }
 
     /** @{
      * Set the expiration time in timer ticks and the expiration type.
@@ -73,9 +73,14 @@ public:
 protected:  /// @todo For now protected for use in debugging.
     /// The timer_observable to which this oberser is attached.
     /// If null then the observer is unattached.
-    timer_observable *observable_;
+    timer_observable * volatile observable_;
 
 private:
+    /// Alias the list hood class to something a little
+    using list_hook = boost::intrusive::list_member_hook<>;
+
+    list_hook hook_;
+
     /// The timer comarator to assign this observer to.
     /// This value will be assiged by timer_observable when
     /// the observer is attached.
@@ -139,8 +144,11 @@ private:
     /// @note Do not call the hook method unlink().
     /// Always call timer_observable::detach() to keep the attached count correct.
     using timer_observer_list =
-        boost::intrusive::list<timer_observer,
-                               boost::intrusive::constant_time_size<true> >;
+        boost::intrusive::list<
+            timer_observer,
+            boost::intrusive::member_hook<timer_observer,
+                                          boost::intrusive::list_member_hook< >,
+                                          &timer_observer::hook_> >;
     /**
      * @struct cc_association
      * Information associated with each timer comparator.
