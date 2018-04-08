@@ -26,6 +26,8 @@
 #include "ble_conn_state.h"
 #include "nrf_ble_gatt.h"
 
+#include "nrf_ble_qwr.h"
+#include "nrf_pwr_mgmt.h"
 
 #include "logger.h"
 #include "segger_rtt_output_stream.h"
@@ -33,13 +35,12 @@
 #include "nrf_log_ctrl.h"
 
 
-#define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2    /**< Reply when unsupported features are requested. */
 
 #define DEVICE_NAME                     "Nordic_Template"                       /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME               "NordicSemiconductor"                   /**< Manufacturer. Will be passed to Device Information Service. */
 #define APP_ADV_INTERVAL                300                                     /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
-#define APP_ADV_TIMEOUT_IN_SECONDS      180                                     /**< The advertising timeout in units of seconds. */
 
+#define APP_ADV_DURATION                18000                                   /**< The advertising duration (180 seconds) in units of 10 milliseconds. */
 #define APP_BLE_OBSERVER_PRIO           3                                       /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 #define APP_BLE_CONN_CFG_TAG            1                                       /**< A tag identifying the SoftDevice BLE configuration. */
 
@@ -65,6 +66,7 @@
 
 
 NRF_BLE_GATT_DEF(m_gatt);                                                       /**< GATT module instance. */
+NRF_BLE_QWR_DEF(m_qwr);                                                         /**< Context for the Queued Write module.*/
 BLE_ADVERTISING_DEF(m_advertising);                                             /**< Advertising module instance. */
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
@@ -144,7 +146,7 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
         {
             // Run garbage collection on the flash.
             err_code = fds_gc();
-            if (err_code == FDS_ERR_BUSY || err_code == FDS_ERR_NO_SPACE_IN_QUEUES)
+            if (err_code == FDS_ERR_NO_SPACE_IN_QUEUES)
             {
                 // Retry.
             }
@@ -157,12 +159,6 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
         case PM_EVT_PEERS_DELETE_SUCCEEDED:
         {
             advertising_start(false);
-        } break;
-
-        case PM_EVT_LOCAL_DB_CACHE_APPLY_FAILED:
-        {
-            // The local database has likely changed, send service changed indications.
-            pm_local_database_has_changed();
         } break;
 
         case PM_EVT_PEER_DATA_UPDATE_FAILED:
@@ -193,6 +189,8 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
         case PM_EVT_PEER_DATA_UPDATE_SUCCEEDED:
         case PM_EVT_PEER_DELETE_SUCCEEDED:
         case PM_EVT_LOCAL_DB_CACHE_APPLIED:
+        case PM_EVT_LOCAL_DB_CACHE_APPLY_FAILED:
+            // This can happen when the local DB has changed.
         case PM_EVT_SERVICE_CHANGED_IND_SENT:
         case PM_EVT_SERVICE_CHANGED_IND_CONFIRMED:
         default:
@@ -266,6 +264,19 @@ static void gatt_init(void)
 }
 
 
+/**@brief Function for handling Queued Write Module errors.
+ *
+ * @details A pointer to this function will be passed to each service which may need to inform the
+ *          application about an error.
+ *
+ * @param[in]   nrf_error   Error code containing information about what went wrong.
+ */
+static void nrf_qwr_error_handler(uint32_t nrf_error)
+{
+    APP_ERROR_HANDLER(nrf_error);
+}
+
+
 /**@brief Function for handling the YYY Service events.
  * YOUR_JOB implement a service handler function depending on the event the service you are using can generate
  *
@@ -296,8 +307,16 @@ static void on_yys_evt(ble_yy_service_t     * p_yy_service,
  */
 static void services_init(void)
 {
+    ret_code_t         err_code;
+    nrf_ble_qwr_init_t qwr_init = {0};
+
+    // Initialize Queued Write Module.
+    qwr_init.error_handler = nrf_qwr_error_handler;
+
+    err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
+    APP_ERROR_CHECK(err_code);
+
     /* YOUR_JOB: Add code to initialize the services used by the application.
-       ret_code_t                         err_code;
        ble_xxs_init_t                     xxs_init;
        ble_yys_init_t                     yys_init;
 
@@ -459,9 +478,10 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             err_code = bsp_indication_set(BSP_INDICATE_CONNECTED);
             APP_ERROR_CHECK(err_code);
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
+            err_code = nrf_ble_qwr_conn_handle_assign(&m_qwr, m_conn_handle);
+            APP_ERROR_CHECK(err_code);
             break;
 
-#ifndef S140
         case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
         {
             NRF_LOG_DEBUG("PHY update request.");
@@ -473,7 +493,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
             APP_ERROR_CHECK(err_code);
         } break;
-#endif
 
         case BLE_GATTC_EVT_TIMEOUT:
             // Disconnect on GATT Client timeout event.
@@ -490,40 +509,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                                              BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
             APP_ERROR_CHECK(err_code);
             break;
-
-        case BLE_EVT_USER_MEM_REQUEST:
-            err_code = sd_ble_user_mem_reply(p_ble_evt->evt.gattc_evt.conn_handle, NULL);
-            APP_ERROR_CHECK(err_code);
-            break;
-
-        case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
-        {
-            ble_gatts_evt_rw_authorize_request_t  req;
-            ble_gatts_rw_authorize_reply_params_t auth_reply;
-
-            req = p_ble_evt->evt.gatts_evt.params.authorize_request;
-
-            if (req.type != BLE_GATTS_AUTHORIZE_TYPE_INVALID)
-            {
-                if ((req.request.write.op == BLE_GATTS_OP_PREP_WRITE_REQ)     ||
-                    (req.request.write.op == BLE_GATTS_OP_EXEC_WRITE_REQ_NOW) ||
-                    (req.request.write.op == BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL))
-                {
-                    if (req.type == BLE_GATTS_AUTHORIZE_TYPE_WRITE)
-                    {
-                        auth_reply.type = BLE_GATTS_AUTHORIZE_TYPE_WRITE;
-                    }
-                    else
-                    {
-                        auth_reply.type = BLE_GATTS_AUTHORIZE_TYPE_READ;
-                    }
-                    auth_reply.params.write.gatt_status = APP_FEATURE_NOT_SUPPORTED;
-                    err_code = sd_ble_gatts_rw_authorize_reply(p_ble_evt->evt.gatts_evt.conn_handle,
-                                                               &auth_reply);
-                    APP_ERROR_CHECK(err_code);
-                }
-            }
-        } break; // BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST
 
         default:
             // No implementation needed.
@@ -662,7 +647,7 @@ static void advertising_init(void)
 
     init.config.ble_adv_fast_enabled  = true;
     init.config.ble_adv_fast_interval = APP_ADV_INTERVAL;
-    init.config.ble_adv_fast_timeout  = APP_ADV_TIMEOUT_IN_SECONDS;
+    init.config.ble_adv_fast_timeout  = APP_ADV_DURATION;
 
     init.evt_handler = on_adv_evt;
 
@@ -682,13 +667,35 @@ static void buttons_leds_init(bool * p_erase_bonds)
     ret_code_t err_code;
     bsp_event_t startup_event;
 
-    err_code = bsp_init(BSP_INIT_LED | BSP_INIT_BUTTONS, bsp_event_handler);
+    err_code = bsp_init(BSP_INIT_LEDS | BSP_INIT_BUTTONS, bsp_event_handler);
     APP_ERROR_CHECK(err_code);
 
     err_code = bsp_btn_ble_init(NULL, &startup_event);
     APP_ERROR_CHECK(err_code);
 
     *p_erase_bonds = (startup_event == BSP_EVENT_CLEAR_BONDING_DATA);
+}
+
+/**@brief Function for initializing power management.
+ */
+static void power_management_init(void)
+{
+    ret_code_t err_code;
+    err_code = nrf_pwr_mgmt_init();
+    APP_ERROR_CHECK(err_code);
+}
+
+
+/**@brief Function for handling the idle state (main loop).
+ *
+ * @details If there is no pending log operation, then sleep until next the next event occurs.
+ */
+static void idle_state_handle(void)
+{
+    if (NRF_LOG_PROCESS() == false)
+    {
+        nrf_pwr_mgmt_run();
+    }
 }
 
 
@@ -699,7 +706,7 @@ static void advertising_start(bool erase_bonds)
     if (erase_bonds == true)
     {
         delete_bonds();
-        // Advertising is started by PM_EVT_PEERS_DELETED_SUCEEDED evetnt
+        // Advertising is started by PM_EVT_PEERS_DELETED_SUCEEDED event
     }
     else
     {
@@ -725,6 +732,7 @@ int main(void)
     // Initialize.
     timers_init();
     buttons_leds_init(&erase_bonds);
+    power_management_init();
     ble_stack_init();
     gap_params_init();
     gatt_init();
@@ -742,6 +750,7 @@ int main(void)
     // Enter main loop.
     for (;;)
     {
+        idle_state_handle();        /// @todo what does this do?
         if (rtt_os.write_pending() == 0)
         {
             __WFE();
@@ -749,7 +758,3 @@ int main(void)
     }
 }
 
-
-/**
- * @}
- */

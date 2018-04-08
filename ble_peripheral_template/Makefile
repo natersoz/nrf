@@ -5,7 +5,7 @@
 SDK_ROOT := ../sdk
 
 # The executable name
-TARGET_NAME = nrf_ble_peripheral
+TARGET_NAME = ble_peripheral_template
 
 # Where the compiled files are built.
 BUILD_PATH = _build
@@ -16,8 +16,8 @@ BUILD_TYPE	?= Debug
 # Source files common to all targets
 SOURCE_FILES =
 SOURCE_FILES += ./main.cc
-SOURCE_FILES += ../nrf/gcc_startup_nrf52.s
-SOURCE_FILES += ../nrf/gcc_stubs.cc
+SOURCE_FILES += ../nordic/gcc_startup_nrf52.s
+SOURCE_FILES += ../nordic/gcc_stubs.cc
 
 SOURCE_FILES += ../utilities/project_assert.cc
 SOURCE_FILES += ../utilities/format_conversion.cc
@@ -36,6 +36,7 @@ SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_params.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_state.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_srv_common.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c
+SOURCE_FILES += $(SDK_ROOT)/components/ble/nrf_ble_qwr/nrf_ble_qwr.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/gatt_cache_manager.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/gatts_cache_manager.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/id_manager.c
@@ -47,39 +48,51 @@ SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/pm_buffer.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/pm_mutex.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/security_dispatcher.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/security_manager.c
-SOURCE_FILES += $(SDK_ROOT)/components/boards/boards.c
-SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/clock/nrf_drv_clock.c
-SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
-SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c
-SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c
+
+# SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c
+
+
+# components/drivers_nrf/clock/nrf_drv_clock.c
+# SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
+SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c
+# components/drivers_nrf/gpiote/nrf_drv_gpiote.c
+# SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c
+
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/atomic_fifo/nrf_atfifo.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp_nfc.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/button/app_button.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/crc16/crc16.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_section_vars/nrf_section_iter.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/fds/fds.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c
+#SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/hardfault/hardfault_implementation.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/pwr_mgmt/nrf_pwr_mgmt.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/scheduler/app_scheduler.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/timer/app_timer.c
+#SOURCE_FILES += $(SDK_ROOT)/components/libraries/timer/app_timer.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_weak.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_handler_gcc.c
+#SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_weak.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/nrf_assert.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/sdk_mapped_flags.c
+#SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/nrf_assert.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c
-SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
+SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
+#components/toolchain/system_nrf52.c
 
 # Include folders common to all targets
-INCLUDE_PATHS =
+INCLUDE_PATHS += ../nordic
+INCLUDE_PATHS += ../logger
+INCLUDE_PATHS += ../utilities
+INCLUDE_PATHS += ../segger_rtt
+INCLUDE_PATHS +=  ./config
+
+INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx
+INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/mdk
+INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/hal
+
 INCLUDE_PATHS += $(SDK_ROOT)/components
+INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/drivers/include
 INCLUDE_PATHS += $(SDK_ROOT)/components/ble/ble_advertising
 INCLUDE_PATHS += $(SDK_ROOT)/components/ble/ble_dtm
 INCLUDE_PATHS += $(SDK_ROOT)/components/ble/ble_racp
@@ -139,6 +152,7 @@ INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/usbd
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/wdt
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/atomic
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/atomic_fifo
+INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/atomic_flags
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/balloc
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/bsp
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/button
@@ -148,6 +162,7 @@ INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/crc32
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/csense
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/csense_drv
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/ecc
+INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/experimental_log
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/experimental_memobj
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/experimental_section_vars
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/fds
@@ -187,7 +202,12 @@ INCLUDE_PATHS += $(SDK_ROOT)/components/softdevice/s132/headers/nrf52
 INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain
 INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
 INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/gcc
-INCLUDE_PATHS += ./config
+
+###
+# Use the LD_PATHS to allow the linker to bring in common linker scripts
+# The assumption is that projects are at the saem dieectory level as common.
+###
+LD_PATHS   = ../nordic
 
 LIB_FILES +=
 
