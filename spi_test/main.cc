@@ -52,7 +52,7 @@ static spi_port_t const spis_port = 1u;
 
 static timer_observable timer_test_observable(1u);
 static timer_spis_prepare timer_spis(timer_observer::expiration_type::continuous,
-                                     timer_test_observable.ticks_per_second() / 5u);
+                                     timer_test_observable.msec_to_ticks(10));
 
 static void mem_fill_ramp(void *buffer,
                           uint8_t init_value,
