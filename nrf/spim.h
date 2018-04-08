@@ -1,5 +1,7 @@
 /**
  * @file spim.h
+ * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
+ *
  * Perform transfers from the Noric device acting as a SPI master using DMA.
  */
 
@@ -25,26 +27,26 @@ enum spim_flags_t
     SPIM_FLAG_HOLD_XFER = (1u << 2u),
 
     /// Flag indicating that the transfer will be executed multiple times.
+    /// @note @todo This value is not used.
     SPIM_FLAG_REPEATED_XFER = (1u << 3u)
 };
 
 /**
- * Initialize the SPIM control block. This is the Nordic SPI master using DMA.
+ * Initialze the SPIM device driver for use.
  *
- * @note MISO pin has pull down enabled.
+ * @param spi_port    The specific SPIM perhipheral number to use.
+ * @note              The compiler flag -D SPIMn_ENABLED must be set,
+ *                    where 'n' is the specific peripheral intended for use.
+ * @param spim_config The SPI configuration block.
+ * @note              This is used by the driver for initialization.
+ *                    It is not kept by the driver and can be discarded
+ *                    after initialization.
  *
- * @param spim_config   Pointer to the structure with the initial configuration.
- *
- * @param context       A user supplied context pointer.
- *                      When events are received the user supplied event handler
- *                      will receive this context within the event.
- *                      The SPIM does not modify the context.
- * @todo Move the user supplied context param to the spim_transfer() function.
- *
- * @retval NRF_SUCCESS             If initialization was successful.
- * @retval NRF_ERROR_INVALID_STATE If the driver was already initialized.
+ * @return enum spi_result_t The success or failure code.
+ *              The initialization never fails with a result code but will
+ *              trap the error with an ASSERT().
+ *              @todo remove the result codes if they are never used.
  */
-
 enum spi_result_t spim_init(spi_port_t                  spi_port,
                             struct spi_config_t const*  spim_config);
 
@@ -57,80 +59,24 @@ enum spi_result_t spim_init(spi_port_t                  spi_port,
 void spim_deinit(spi_port_t spi_port);
 
 /**
- * @brief Function for starting the SPI data transfer with additional option flags.
- *
- * Function enables customizing the transfer by using option flags.
- *
- * Additional options are provided using the flags parameter:
- *
- * - @ref NRF_DRV_SPI_FLAG_TX_POSTINC and
- *   @ref NRF_DRV_SPI_FLAG_RX_POSTINC
- *        Post-incrementation of buffer addresses.
- *
- * - @ref NRF_DRV_SPI_FLAG_HOLD_XFER
- *        Driver is not starting the transfer.
- *        Use this flag if the transfer is triggered externally by PPI.
- *   @ref nrf_drv_spi_start_task_get() to get the address of the start task.
- *
- * - @ref NRF_DRV_SPI_FLAG_NO_XFER_EVT_HANDLER: No interrupt nor user event
- *        handler callback after transfer completion.
- *        If used, the driver does not set the instance into busy state,
- *        so you must ensure that the next transfers are set up when SPIM
- *        is not active.
- *
- *   @ref nrf_drv_spi_end_event_get() function can be used to detect end of
- *        transfer. Used together with NRF_DRV_SPI_FLAG_REPEATED_XFER to
- *        prepare a sequence of SPI transfers without interruptions.
- *
- * - @ref NRF_DRV_SPI_FLAG_REPEATED_XFER: Prepare for repeated transfers.
- *        You can set up a number of transfers that will be triggered externally
- *        (for example by PPI). An example is a TXRX transfer with the options
- *        NRF_DRV_SPI_FLAG_RX_POSTINC.
- *
- *   @ref NRF_DRV_SPI_FLAG_NO_XFER_EVT_HANDLER, and
- *   @ref NRF_DRV_SPI_FLAG_REPEATED_XFER.
- *        After the transfer is set up, a set of transfers can be triggered by
- *        PPI that will read, for example, the same register of an external
- *        component and put it into a RAM buffer without any interrupts.
- *
- *   @ref nrf_drv_spi_end_event_get() can be used to get the address of the
- *   END event, which can be used to count the number of transfers.
- *   If NRF_DRV_SPI_FLAG_REPEATED_XFER is used, the driver does not set the
- *   instance into busy state, so you must ensure that the next
- *   transfers are set up when SPIM is not active.
- *
- * @param spi_port
- * @param xfer_desc
- * @param handler   Event handler provided by the user.
- *                  If NULL, transfers will be performed in blocking mode.
- * @param flags     Transfer options (0 for default settings).
- *
- */
-
-/**
  * @brief SPIM (master) event handler type.
  */
 typedef void (* spim_event_handler_t) (void *context);
 
 /**
- * Function for starting the asynchronous SPI master data transfer using DMA.
+ * Start the SPIM data transfer using DMA.
+ * Nordic DMA requires that the buffers being transferred be in RAM.
  *
- * @note Data buffers to be transferred must be in RAM due to a DMA limiitation.
+ * @param spi_port  The SPIM peripheral to perform the data transfer.
+ * @param tx_buffer
+ * @param tx_length
+ * @param rx_buffer
+ * @param rx_length
+ * @param handler
+ * @param context
+ * @param flags
  *
- * @param spim_control
- * @param tx_buffer     Pointer to the transmit buffer.
- *                      NULL if there is nothing to send.
- * @param tx_length     Length of the transmit buffer in bytes.
- * @param rx_buffer     Pointer to the receive buffer.
- *                      NULL if there is nothing to receive.
- * @param rx_length     Length of the receive buffer in bytes.
- *
- * @retval NRF_SUCCESS            If the operation was successful.
- * @retval NRF_ERROR_BUSY         If a previously started transfer has not finished
- *                                yet.
- * @retval NRF_ERROR_INVALID_ADDR If the provided buffers are not placed in the Data
- *                                RAM region.
- * @todo Move the user suppplied context to this function.
+ * @return enum spi_result_t
  */
 enum spi_result_t spim_transfer(spi_port_t              spi_port,
                                 void const*             tx_buffer,
@@ -142,33 +88,9 @@ enum spi_result_t spim_transfer(spi_port_t              spi_port,
                                 uint32_t                flags);
 
 /**
- * @brief Function for returning the address of a SPIM start task.
+ * Abort a tranfer in progress.
  *
- * This function should be used if @ref nrf_drv_spi_xfer was called with the flag @ref NRF_DRV_SPI_FLAG_HOLD_XFER.
- * In that case, the transfer is not started by the driver, but it must be started externally by PPI.
- *
- * @param  p_instance Pointer to the driver instance structure.
- *
- * @return     Start task address.
- */
-uint32_t spi_start_task_get(spi_port_t spi_port);
-
-/**
- * @brief Function for returning the address of a END SPIM event.
- *
- * A END event can be used to detect the end of a transfer if the @ref NRF_DRV_SPI_FLAG_NO_XFER_EVT_HANDLER
- * option is used.
- *
- * @param  p_instance Pointer to the driver instance structure.
- *
- * @return     END event address.
- */
-uint32_t spi_end_event_get(spi_port_t spi_port);
-
-/**
- * @brief Function for aborting ongoing transfer.
- *
- * @param  p_instance Pointer to the driver instance structure.
+ * @param spi_port The SPIM peripheral which is being aborted.
  */
 void spim_abort_transfer(spi_port_t spi_port);
 

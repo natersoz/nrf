@@ -21,8 +21,9 @@ typedef void (* rtc_event_handler_t) (void          *context,
                                       uint32_t      cc_count);
 
 /**
- *
- *
+ * Initialize the RTC module.
+ * @note The clock module LFCLK is not initialized here and needs
+ * to be performed separately.
  *
  * @param rtc_instance
  * @param prescaler The valid prescaler range is >= 1, <= prescaler_max;

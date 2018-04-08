@@ -1,6 +1,8 @@
 /**
  * @file spi_common.h
+ * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  *
+ * Common data types for both the SPIM and SPIS driver modules.
  */
 
 #pragma once

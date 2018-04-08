@@ -1,15 +1,16 @@
 /**
  * @file spim.c
+ * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
+ *
  * Perform transfers from the Noric device acting as a SPI master using DMA.
  */
 
 #include "spim.h"
 #include "spim_debug.h"
+#include "logger.h"
 
 #include "arm_utilities.h"
 #include "nrf_gpio.h"
-#include "nrf_log.h"
-#include "logger.h"
 #include "project_assert.h"
 
 /**
@@ -300,7 +301,6 @@ enum spi_result_t spim_init(spi_port_t                 spi_port,
 
     spim_control->transfer_in_progress = false;
 
-    NRF_LOG_INFO("%s: result: %d", __func__, result_code);
     return result_code;
 }
 
@@ -328,10 +328,6 @@ enum spi_result_t spim_transfer(spi_port_t              spi_port,
     ASSERT(spim_control);
     ASSERT(spim_is_initialized(spim_control));
 
-    NRF_LOG_INFO("Transfer tx_len:%d, rx_len:%d.", tx_length, rx_length);
-    NRF_LOG_DEBUG("Tx data:");
-    NRF_LOG_HEXDUMP_DEBUG(tx_buffer, tx_length);
-
     // If buffer pointers are not null then their length must not be zero
     // and they must be RAM based.
     if (tx_buffer != nullptr)
@@ -351,7 +347,8 @@ enum spi_result_t spim_transfer(spi_port_t              spi_port,
     if (spim_control->transfer_in_progress)
     {
         result = SPI_RESULT_TRANSFER_BUSY;
-        NRF_LOG_WARNING("%s, error: %d", __func__, result);
+        logger &logger = logger.instance();
+        logger.error("%s, error: %d", __func__, result);
         return result;
     }
 
@@ -465,7 +462,6 @@ static void irq_handler_spim(struct spim_control_block_t* const spim_control)
     if (spim_control->spim_registers->EVENTS_END)
     {
         spim_clear_EVENTS_END(spim_control);
-        NRF_LOG_DEBUG("SPIM: Event: NRF_SPIM_EVENT_END.");
         finish_transfer(spim_control);
     }
 }

@@ -1,6 +1,7 @@
 /**
  * @file write_data.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
+ *
  * Write data chunks to a stream (for debugging).
  */
 

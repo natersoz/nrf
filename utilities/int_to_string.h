@@ -1,6 +1,7 @@
 /**
  * @file int_to_string.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
+ *
  * Integer to string conversions.
  */
 
