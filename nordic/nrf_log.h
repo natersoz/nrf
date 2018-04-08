@@ -24,6 +24,11 @@ extern "C" {
 #define NRF_LOG_INFO(   fmt, ...)               logger_write(logger_level_info,    fmt, ##__VA_ARGS__)
 #define NRF_LOG_DEBUG(  fmt, ...)               logger_write(logger_level_debug,   fmt, ##__VA_ARGS__)
 
+#define NRF_LOG_INST_ERROR(  p_inst,...)        logger_write(logger_level_error,   __VA_ARGS__)
+#define NRF_LOG_INST_WARNING(p_inst,...)        logger_write(logger_level_warning, __VA_ARGS__)
+#define NRF_LOG_INST_INFO(   p_inst,...)        logger_write(logger_level_info,    __VA_ARGS__)
+#define NRF_LOG_INST_DEBUG(  p_inst,...)        logger_write(logger_level_debug,   __VA_ARGS__)
+
 #define NRF_LOG_HEXDUMP_ERROR(   p_data, len)   logger_write_data(logger_level_error,   p_data, len, false, data_prefix_address)
 #define NRF_LOG_HEXDUMP_WARNING( p_data, len)   logger_write_data(logger_level_warning, p_data, len, false, data_prefix_address)
 #define NRF_LOG_HEXDUMP_INFO(    p_data, len)   logger_write_data(logger_level_info,    p_data, len, false, data_prefix_address)
