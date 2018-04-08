@@ -37,16 +37,16 @@ public:
     void expiration_notify() override;
 };
 
-static dma_size_t const spim_tx_length = 8u;
+static dma_size_t const spim_tx_length = 64u;
 static uint8_t spim_tx_buffer[spim_tx_length];
 
-static dma_size_t const spim_rx_length = 8u;
+static dma_size_t const spim_rx_length = 64u;
 static uint8_t spim_rx_buffer[spim_rx_length];
 
-static dma_size_t const spis_tx_length = 8u;
+static dma_size_t const spis_tx_length = 64u;
 static uint8_t spis_tx_buffer[spis_tx_length];
 
-static dma_size_t const spis_rx_length = 8u;
+static dma_size_t const spis_rx_length = 64u;
 static uint8_t spis_rx_buffer[spis_rx_length];
 
 static segger_rtt_output_stream rtt_os;
