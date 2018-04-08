@@ -182,18 +182,12 @@ LDFLAGS += $(ARM_FLAGS)
 LDFLAGS += $(OPT_FLAGS)
 LDFLAGS += -Wl,--gc-sections
 
-###
-# Use the LD_PATHS to allow the linker to bring in common linker scripts
-# The assumption is that projects are at the saem dieectory level as common.
-###
-LD_PATHS += ../nrf
-
 ### Configuration complete. Only place transforms and rules below here.
 
 # The complete list of C Language directories: source files + header files.
 # Using remduplicates insures that the directory only gets used once.
 # Not that it is necessary but it does clean things up.
-I_PATHS = $(call remduplicates, $(V_PATHS) $(INCLUDE_PATHS) )
+I_PATHS = $(call remduplicates, $(INCLUDE_PATHS) )
 
 # The include path statement used by the compiler.
 INCLUDE_PATHS := $(addprefix -I, $(I_PATHS))

@@ -25,18 +25,18 @@ BOOST_ROOT=/usr/local/boost
 SOURCE_FILES =
 SOURCE_FILES += ./main.cc
 
-SOURCE_FILES += ../nrf/buttons_pca10040.cc
-SOURCE_FILES += ../nrf/clocks.cc
-SOURCE_FILES += ../nrf/gcc_startup_nrf52.s
-SOURCE_FILES += ../nrf/gcc_stubs.cc
-SOURCE_FILES += ../nrf/leds_pca10040.cc
-SOURCE_FILES += ../nrf/rtc.cc
-SOURCE_FILES += ../nrf/spim.cc
-SOURCE_FILES += ../nrf/spim_debug.cc
-SOURCE_FILES += ../nrf/spis.cc
-SOURCE_FILES += ../nrf/spis_debug.cc
-SOURCE_FILES += ../nrf/timer.cc
-SOURCE_FILES += ../nrf/timer_observer.cc
+SOURCE_FILES += ../nordic/buttons_pca10040.cc
+SOURCE_FILES += ../nordic/clocks.cc
+SOURCE_FILES += ../nordic/gcc_startup_nrf52.s
+SOURCE_FILES += ../nordic/gcc_stubs.cc
+SOURCE_FILES += ../nordic/leds_pca10040.cc
+SOURCE_FILES += ../nordic/rtc.cc
+SOURCE_FILES += ../nordic/spim.cc
+SOURCE_FILES += ../nordic/spim_debug.cc
+SOURCE_FILES += ../nordic/spis.cc
+SOURCE_FILES += ../nordic/spis_debug.cc
+SOURCE_FILES += ../nordic/timer.cc
+SOURCE_FILES += ../nordic/timer_observer.cc
 
 SOURCE_FILES += ../logger/logger.cc
 SOURCE_FILES += ../logger/logger_c.cc
@@ -55,7 +55,13 @@ SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c
 SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
 
 # Include folders:
-INCLUDE_PATHS += ./config/
+INCLUDE_PATHS  =
+INCLUDE_PATHS += ../nordic
+INCLUDE_PATHS += ../logger
+INCLUDE_PATHS += ../segger_rtt
+INCLUDE_PATHS += ../utilities
+
+INCLUDE_PATHS += ./config
 INCLUDE_PATHS += $(BOOST_ROOT)/include
 INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/templates/nRF52832
 INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/templates
@@ -72,6 +78,12 @@ INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/util
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/strerror
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd
 INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
+
+###
+# Use the LD_PATHS to allow the linker to bring in common linker scripts
+# The assumption is that projects are at the saem dieectory level as common.
+###
+LD_PATHS   = ../nordic
 
 LIB_FILES +=
 
