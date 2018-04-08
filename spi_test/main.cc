@@ -10,9 +10,6 @@
 #include "leds.h"
 #include "clocks.h"
 
-#include "nrf_gpio.h"
-#include "nrf_delay.h"
-
 #include "logger.h"
 #include "segger_rtt_output_stream.h"
 #include "project_assert.h"
@@ -225,3 +222,4 @@ int main()
         logger.flush();
     }
 }
+
