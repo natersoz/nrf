@@ -1,5 +1,7 @@
 /**
  * @file spis.cc
+ * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
+ *
  * Perform transfers from the Noric device acting as a SPI slave using DMA.
  */
 
@@ -232,26 +234,6 @@ static struct spis_control_block_t* const spis_control_block(spi_port_t spi_port
 }
 
 /**
- * There is nothing in the documentation to indicated this, but from the Nordic
- * SDK it appears that a read of the EVENTS_END register is required to
- * complete the operation of clearing EVENTS_END.
- */
-static void spis_clear_events(struct spis_control_block_t* spis_control)
-{
-    spis_control->spis_registers->EVENTS_END = 0u;
-    {
-        volatile uint32_t dummy = spis_control->spis_registers->EVENTS_END;
-        (void) dummy;
-    }
-
-    spis_control->spis_registers->EVENTS_ACQUIRED = 0u;
-    {
-        volatile uint32_t dummy = spis_control->spis_registers->EVENTS_ACQUIRED;
-        (void) dummy;
-    }
-}
-
-/**
  * An event handler that gets called when the GPIO pin assigned to the SPIS
  * slave select (aka csn) gets asserted low. Nothing happens.
  *
@@ -264,7 +246,7 @@ static void csn_event_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t actio
     (void) action;
 
     logger &logger = logger::instance();
-    logger.info("csn_event_handler: pin: %u, action: %u", pin, action);
+    logger.debug("csn_event_handler: pin: %u, action: %u", pin, action);
 }
 
 enum spi_result_t spis_init(spi_port_t                 spi_port,
@@ -283,7 +265,7 @@ enum spi_result_t spis_init(spi_port_t                 spi_port,
     spis_control->context = nullptr;
 
     logger &logger = logger::instance();
-    logger.info("spis_init: pins: ss: %u, sck: %u, mosi: %u, miso: %u",
+    logger.debug("spis_init: pins: ss: %u, sck: %u, mosi: %u, miso: %u",
                 spi_config->ss_pin, spi_config->sck_pin,
                 spi_config->miso_pin, spi_config->mosi_pin);
 
@@ -339,11 +321,23 @@ enum spi_result_t spis_init(spi_port_t                 spi_port,
     spis_control->spis_registers->TXD.PTR    = 0u;
     spis_control->spis_registers->TXD.MAXCNT = 0u;
 
-    /// @todo @note DEF is set the same as ORC - different than original.
+    /// @note DEF is set the same as ORC.
     spis_control->spis_registers->ORC        = spi_config->orc;
     spis_control->spis_registers->DEF        = spi_config->orc;
 
-    spis_clear_events(spis_control);
+    // Clear the transfer completion event.
+    spis_control->spis_registers->EVENTS_END = 0u;
+    {
+        volatile uint32_t dummy = spis_control->spis_registers->EVENTS_END;
+        (void) dummy;
+    }
+
+    // Clear the semaphore hand-off (peripheral to firmware) event.
+    spis_control->spis_registers->EVENTS_ACQUIRED = 0u;
+    {
+        volatile uint32_t dummy = spis_control->spis_registers->EVENTS_ACQUIRED;
+        (void) dummy;
+    }
 
     // Enable END_ACQUIRE shortcut.
     spis_control->spis_registers->SHORTS |= SPIS_SHORTS_END_ACQUIRE_Msk;
@@ -364,14 +358,12 @@ enum spi_result_t spis_init(spi_port_t                 spi_port,
                                                            csn_event_handler);
     if (gpiote_err_code != NRFX_SUCCESS)
     {
-        NRF_LOG_ERROR("%s: nrf_drv_gpiote_in_init failed: 0x%x", __func__, gpiote_err_code);
+        logger.error("%s: nrf_drv_gpiote_in_init failed: 0x%x", __func__, gpiote_err_code);
         ASSERT(0);
     }
 
     spis_control->spis_registers->ENABLE = (SPIS_ENABLE_ENABLE_Enabled << SPIS_ENABLE_ENABLE_Pos);
 
-    // ---- This is all interrupt enabling.
-    // ---- Move to spis_buffers_set().
     nrfx_gpiote_in_event_enable(spi_config->ss_pin, true);
 
     spis_control->spis_registers->INTENSET = (SPIS_INTENSET_ACQUIRED_Msk |
@@ -418,7 +410,7 @@ void spis_enable_transfer(spi_port_t            spi_port,
     ASSERT(handler);
 
     logger &logger = logger::instance();
-    logger.info("spis_enable: state: %u", spis_control->state);
+    logger.debug("spis_enable: state: %u", spis_control->state);
 
     switch (spis_control->state)
     {
@@ -463,16 +455,13 @@ static void irq_handler_spis(spis_control_block_t* spis_control)
 
     if (spis_control->spis_registers->EVENTS_ACQUIRED)
     {
-        logger.info("spis_irq: EVENTS_ACQUIRED, state: %u", spis_control->state);
+        logger.debug("spis_irq: EVENTS_ACQUIRED, state: %u", spis_control->state);
         if (spis_control->state == SPIS_BUFFER_RESOURCE_REQUESTED)
         {
-#if 0
             // The SPI slave semaphore is now owned by the CPU.
             spis_control->spis_registers->EVENTS_ACQUIRED = 0u;
             volatile uint32_t dummy = spis_control->spis_registers->EVENTS_ACQUIRED;
             (void) dummy;
-#endif
-            spis_clear_events(spis_control);
 
             spis_control->spis_registers->TXD.PTR    = reinterpret_cast<uint32_t>(spis_control->tx_buffer);
             spis_control->spis_registers->TXD.MAXCNT = spis_control->tx_length;
@@ -483,38 +472,34 @@ static void irq_handler_spis(spis_control_block_t* spis_control)
             // Release the SPI slave semaphore from CPU ownership.
             spis_control->spis_registers->TASKS_RELEASE = 1u;
             spis_control->state = SPIS_BUFFER_RESOURCE_CONFIGURED;
-            // Notify the client of the stat change.
-            /// @todo is this necessary?
-#if 0
+
+            // See notes for enum value SPIS_EVENT_BUFFERS_SET regarding
+            // the usefulness of this event.
             struct spis_event_t const event = {
                 .type = SPIS_EVENT_BUFFERS_SET,
-                .rx_amount = 0u,
-                .tx_amount = 0u
+                .rx_length = 0u,
+                .tx_length = 0u
             };
             spis_control->handler(spis_control->context, &event);
-#endif
         }
     }
 
     // Check for SPI transaction complete event.
     if (spis_control->spis_registers->EVENTS_END)
     {
-        logger.info("spis_irq: EVENTS_END, state: %u", spis_control->state);
+        logger.debug("spis_irq: EVENTS_END, state: %u", spis_control->state);
 
         if (spis_control->state == SPIS_BUFFER_RESOURCE_CONFIGURED)
         {
             // The SPI data transfer has completed.
-#if 0
             spis_control->spis_registers->EVENTS_END = 0u;
             volatile uint32_t dummy = spis_control->spis_registers->EVENTS_END;
             (void) dummy;
-#endif
-            spis_clear_events(spis_control);
 
             struct spis_event_t const event = {
-                .type = SPIS_EVENT_BUFFERS_SET,
-                .rx_amount = spis_control->spis_registers->RXD.AMOUNT,
-                .tx_amount = spis_control->spis_registers->TXD.AMOUNT
+                .type = SPIS_EVENT_TRANSFER,
+                .rx_length = spis_control->spis_registers->RXD.AMOUNT,
+                .tx_length = spis_control->spis_registers->TXD.AMOUNT
             };
 
             spis_control->state = SPIS_XFER_COMPLETED;

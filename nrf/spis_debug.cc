@@ -9,31 +9,31 @@
 void log_spim_registers(NRF_SPIS_Type const *spis_registers)
 {
     logger &logger = logger::instance();
-    logger.info("--- SPIS regs ---");
-    logger.info("TASKS_ACQUIRE   : 0x%08x", spis_registers->TASKS_ACQUIRE);
-    logger.info("TASKS_RELEASE   : 0x%08x", spis_registers->TASKS_RELEASE);
-    logger.info("EVENTS_END      : 0x%08x", spis_registers->EVENTS_END);
-    logger.info("EVENTS_ENDRX    : 0x%08x", spis_registers->EVENTS_ENDRX);
-    logger.info("EVENTS_ACQUIRED : 0x%08x", spis_registers->EVENTS_ACQUIRED);
-    logger.info("SHORTS          : 0x%08x", spis_registers->SHORTS);
-    logger.info("INTENSET        : 0x%08x", spis_registers->INTENSET);
-    logger.info("INTENCLR        : 0x%08x", spis_registers->INTENCLR);
-    logger.info("SEMSTAT         : 0x%08x", spis_registers->SEMSTAT);
-    logger.info("STATUS          : 0x%08x", spis_registers->STATUS);
-    logger.info("ENABLE          : 0x%08x", spis_registers->ENABLE);
-    logger.info("PSEL.SCK        : 0x%08x", spis_registers->PSEL.SCK);
-    logger.info("PSEL.MISO       : 0x%08x", spis_registers->PSEL.MISO);
-    logger.info("PSEL.MOSI       : 0x%08x", spis_registers->PSEL.MOSI);
-    logger.info("PSEL.CSN        : 0x%08x", spis_registers->PSEL.CSN);
-    logger.info("RXD.PTR         : 0x%08x", spis_registers->RXD.PTR);
-    logger.info("RXD.MAXCNT      : 0x%08x", spis_registers->RXD.MAXCNT);
-    logger.info("RXC.AMOUNT      : 0x%08x", spis_registers->RXD.AMOUNT);
-    logger.info("TXD.PTR         : 0x%08x", spis_registers->TXD.PTR);
-    logger.info("TXD.MAXCNT      : 0x%08x", spis_registers->TXD.MAXCNT);
-    logger.info("TXC.AMOUNT      : 0x%08x", spis_registers->TXD.AMOUNT);
-    logger.info("CONFIG          : 0x%08x", spis_registers->CONFIG);
-    logger.info("DEF             : 0x%08x", spis_registers->DEF);
-    logger.info("ORC             : 0x%08x", spis_registers->ORC);
-    logger.info("-----------------");
+    logger.debug("--- SPIS regs ---");
+    logger.debug("TASKS_ACQUIRE   : 0x%08x", spis_registers->TASKS_ACQUIRE);
+    logger.debug("TASKS_RELEASE   : 0x%08x", spis_registers->TASKS_RELEASE);
+    logger.debug("EVENTS_END      : 0x%08x", spis_registers->EVENTS_END);
+    logger.debug("EVENTS_ENDRX    : 0x%08x", spis_registers->EVENTS_ENDRX);
+    logger.debug("EVENTS_ACQUIRED : 0x%08x", spis_registers->EVENTS_ACQUIRED);
+    logger.debug("SHORTS          : 0x%08x", spis_registers->SHORTS);
+    logger.debug("INTENSET        : 0x%08x", spis_registers->INTENSET);
+    logger.debug("INTENCLR        : 0x%08x", spis_registers->INTENCLR);
+    logger.debug("SEMSTAT         : 0x%08x", spis_registers->SEMSTAT);
+    logger.debug("STATUS          : 0x%08x", spis_registers->STATUS);
+    logger.debug("ENABLE          : 0x%08x", spis_registers->ENABLE);
+    logger.debug("PSEL.SCK        : 0x%08x", spis_registers->PSEL.SCK);
+    logger.debug("PSEL.MISO       : 0x%08x", spis_registers->PSEL.MISO);
+    logger.debug("PSEL.MOSI       : 0x%08x", spis_registers->PSEL.MOSI);
+    logger.debug("PSEL.CSN        : 0x%08x", spis_registers->PSEL.CSN);
+    logger.debug("RXD.PTR         : 0x%08x", spis_registers->RXD.PTR);
+    logger.debug("RXD.MAXCNT      : 0x%08x", spis_registers->RXD.MAXCNT);
+    logger.debug("RXC.AMOUNT      : 0x%08x", spis_registers->RXD.AMOUNT);
+    logger.debug("TXD.PTR         : 0x%08x", spis_registers->TXD.PTR);
+    logger.debug("TXD.MAXCNT      : 0x%08x", spis_registers->TXD.MAXCNT);
+    logger.debug("TXC.AMOUNT      : 0x%08x", spis_registers->TXD.AMOUNT);
+    logger.debug("CONFIG          : 0x%08x", spis_registers->CONFIG);
+    logger.debug("DEF             : 0x%08x", spis_registers->DEF);
+    logger.debug("ORC             : 0x%08x", spis_registers->ORC);
+    logger.debug("-----------------");
 }
 
