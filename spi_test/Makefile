@@ -25,31 +25,32 @@ BOOST_ROOT=/usr/local/boost
 SOURCE_FILES =
 SOURCE_FILES += ./main.cc
 
+SOURCE_FILES += ../nrf/buttons_pca10040.cc
+SOURCE_FILES += ../nrf/clocks.cc
+SOURCE_FILES += ../nrf/gcc_startup_nrf52.s
+SOURCE_FILES += ../nrf/gcc_stubs.cc
+SOURCE_FILES += ../nrf/leds_pca10040.cc
+SOURCE_FILES += ../nrf/rtc.cc
 SOURCE_FILES += ../nrf/spim.cc
-SOURCE_FILES += ../nrf/spis.cc
 SOURCE_FILES += ../nrf/spim_debug.cc
+SOURCE_FILES += ../nrf/spis.cc
 SOURCE_FILES += ../nrf/spis_debug.cc
 SOURCE_FILES += ../nrf/timer.cc
 SOURCE_FILES += ../nrf/timer_observer.cc
-SOURCE_FILES += ../nrf/leds_pca10040.cc
-SOURCE_FILES += ../nrf/buttons_pca10040.cc
-SOURCE_FILES += ../nrf/gcc_startup_nrf52.s
-SOURCE_FILES += ../nrf/gcc_stubs.cc
 
-SOURCE_FILES += ../utilities/project_assert.cc
-SOURCE_FILES += ../utilities/format_conversion.cc
-SOURCE_FILES += ../utilities/int_to_string.cc
-SOURCE_FILES += ../utilities/vwritef.cc
-SOURCE_FILES += ../utilities/write_data.cc
-SOURCE_FILES += ../utilities/std_stubs.cc
 SOURCE_FILES += ../logger/logger.cc
 SOURCE_FILES += ../logger/logger_c.cc
 SOURCE_FILES += ../logger/segger_rtt_output_stream.cc
 SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
+SOURCE_FILES += ../utilities/format_conversion.cc
+SOURCE_FILES += ../utilities/int_to_string.cc
+SOURCE_FILES += ../utilities/project_assert.cc
+SOURCE_FILES += ../utilities/std_stubs.cc
+SOURCE_FILES += ../utilities/vwritef.cc
+SOURCE_FILES += ../utilities/write_data.cc
 
 # SDK source files:
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/timer/app_timer.c
 SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c
 SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
 
@@ -90,7 +91,8 @@ NORDIC_DEFS += -D SWI_DISABLE0
 
 NORDIC_DEFS += -D SPIM0_ENABLED
 NORDIC_DEFS += -D SPIS1_ENABLED
-NORDIC_DEFS += -D TIMER0_ENABLED
+NORDIC_DEFS += -D TIMER1_ENABLED
+NORDIC_DEFS += -D RTC1_ENABLED
 
 CXXFLAGS    += $(NORDIC_DEFS)
 CFLAGS      += $(NORDIC_DEFS)
