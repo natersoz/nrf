@@ -43,6 +43,10 @@ public:
     size_t debug(char const *fmt, ...);
 
     size_t write(level log_level, char const *fmt, ...);
+
+    /// Write a log entry without respect to any level. Always writes.
+    size_t write(char const *fmt, ...);
+
     size_t vwrite(level log_level, char const *fmt, va_list args);
 
     void   flush();

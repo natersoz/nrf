@@ -129,6 +129,25 @@ size_t logger::write(level log_level, char const *fmt, ...)
     return n_written;
 }
 
+size_t logger::write(char const *fmt, ...)
+{
+    size_t n_written = 0u;
+    if (this->os_ != nullptr)
+    {
+        n_written += this->log_time();
+
+        va_list args;
+        va_start(args, fmt);
+        n_written = vwritef(*this->os_, fmt, args);
+        va_end(args);
+
+        char const new_line = '\n';
+        n_written += this->os_->write(&new_line, sizeof(new_line));
+    }
+
+    return n_written;
+}
+
 size_t logger::vwrite(level log_level, char const *fmt, va_list args)
 {
     size_t n_written = 0u;
