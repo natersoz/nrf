@@ -1,15 +1,17 @@
 /**
  * @file spi_master/main.cc
+ * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
 #include "spim.h"
 #include "spis.h"
+#include "rtc.h"
 #include "timer_observer.h"
 #include "leds.h"
+#include "clocks.h"
 
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
-#include "app_timer.h"
 
 #include "logger.h"
 #include "segger_rtt_output_stream.h"
@@ -57,7 +59,7 @@ static uint8_t ramp_start_value = 0u;
 static spi_port_t const spim_port = 0u;
 static spi_port_t const spis_port = 1u;
 
-static timer_observable timer_test_observable(0u);
+static timer_observable timer_test_observable(1u);
 static timer_spis_prepare timer_spis(timer_observer::expiration_type::continuous,
                                      timer_test_observable.ticks_per_second());
 
@@ -119,7 +121,7 @@ void timer_spis_prepare::expiration_notify()
 {
     led_state_toggle(3u);
     logger &logger = logger::instance();
-    logger.info("timer_spis_prepare: expiry: cc: %u", this->cc_index_get());
+    logger.info("timer_spis: spis_enable_transfer()");
 
     spim_xfer_done = false;
 
@@ -131,13 +133,15 @@ void timer_spis_prepare::expiration_notify()
     mem_fill_ramp(spim_tx_buffer, ramp_start_value, 1u, spim_tx_length);
     ramp_start_value += spim_tx_length;
 
-    timer_spim.expiration_restart();
+    timer_test_observable.attach(timer_spim);
 }
 
 void timer_spim_send::expiration_notify()
 {
+    timer_test_observable.detach(timer_spim);
+
     logger &logger = logger::instance();
-    logger.info("timer_spim_send: expiry: cc: %u", this->cc_index_get());
+    logger.info("timer_spim: spim_transfer()");
 
     enum spi_result_t spim_result = spim_transfer(
         spim_port,
@@ -150,14 +154,19 @@ void timer_spim_send::expiration_notify()
     ASSERT(spim_result == SPI_RESULT_SUCCESS);
 }
 
+// RTC: 1024 ticks / second
+static rtc rtc_1(1u, 32u);
+
 int main()
 {
+    lfclk_enable(LFCLK_SOURCE_XO);
+    rtc_1.start();
     leds_board_init();
-    app_timer_init();
 
     logger& logger = logger::instance();
-    logger.set_level(logger::level::debug);
+    logger.set_level(logger::level::info);
     logger.set_output_stream(rtt_os);
+    logger.set_rtc(rtc_1);
 
     logger.info("SPIM init");
     logger.info("timer spim: %8u ticks", timer_spim.expiration_get_ticks());
@@ -192,7 +201,6 @@ int main()
     };
 
     timer_test_observable.attach(timer_spis);
-    timer_test_observable.attach(timer_spim);
 
     enum spi_result_t spim_result = spim_init(spim_port, &spim_config);
     enum spi_result_t spis_result = spis_init(spis_port, &spis_config);
