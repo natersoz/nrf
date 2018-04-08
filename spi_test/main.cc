@@ -82,7 +82,8 @@ static void mem_fill_ramp(void *buffer,
 
 void spim_event_handler(void* context)
 {
-    led_state_toggle(2u);
+    led_state_set(2u, false);
+
     logger &logger = logger::instance();
 
     logger.info("SPIM transfer completed.");
@@ -100,7 +101,7 @@ void spim_event_handler(void* context)
 
 void spis_event_handler(void* context, struct spis_event_t const *event)
 {
-    led_state_toggle(1u);
+    led_state_set(1u, false);
 
     logger &logger = logger::instance();
 
@@ -119,7 +120,8 @@ void spis_event_handler(void* context, struct spis_event_t const *event)
 
 void timer_spis_prepare::expiration_notify()
 {
-    led_state_toggle(3u);
+    led_state_set(1u, true);
+
     logger &logger = logger::instance();
     logger.info("timer_spis: spis_enable_transfer()");
 
@@ -138,6 +140,8 @@ void timer_spis_prepare::expiration_notify()
 
 void timer_spim_send::expiration_notify()
 {
+    led_state_set(2u, true);
+
     timer_test_observable.detach(timer_spim);
 
     logger &logger = logger::instance();
@@ -217,9 +221,10 @@ int main()
 
     while (true)
     {
+        led_state_set(0u, false);
         __WFE();
+        led_state_set(0u, true);
 
         logger.flush();
-        led_state_toggle(0u);
     }
 }
