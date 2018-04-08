@@ -110,9 +110,9 @@ size_t write_data(output_stream &os,
         case data_prefix::address:
             {
                 uintptr_t const address = reinterpret_cast<uintptr_t>(&data_ptr[iter]);
-                char buffer[hex_conversion_size<uintptr_t>];
+                char buffer[hex_conversion_size<uintptr_t> + 1];
                 size_t const digits = sizeof(address) * 2u;
-                size_t hex_len = int_to_hex(buffer, digits, address, digits);
+                size_t hex_len = int_to_hex(buffer, sizeof(buffer), address, digits);
                 n_write += os.write(buffer, hex_len);
 
                 char const colon[] = ": ";
