@@ -9,7 +9,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdtimer_test"
+        OutputFile="%bdgcc-arm.dylib"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -32,7 +32,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='g++ %xup -g -o "%o" %f %libs'/>
+                <Exec CmdLine='g++ %xup -g -o "%o" %f %libs -shared -fPIC'/>
             </Target>
             <Target
                 Name="Build"
@@ -61,7 +61,7 @@
                 Deletable="0"
                 SaveOption="SaveNone"
                 RunFromDir="%rw">
-                <Exec CmdLine='vsdebugio -prog "%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="Execute"
@@ -72,7 +72,7 @@
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
                 RunFromDir="%rw">
-                <Exec CmdLine='"%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="dash"
@@ -126,7 +126,7 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="Executable"/>
+                Value="SharedLibrary"/>
         </List>
     </Config>
     <Config
@@ -134,7 +134,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdtimer_test"
+        OutputFile="%bdgcc-arm.dylib"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -157,7 +157,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='g++ %xup -o "%o" %f %libs'/>
+                <Exec CmdLine='g++ %xup -o "%o" %f %libs -shared -fPIC'/>
             </Target>
             <Target
                 Name="Build"
@@ -186,7 +186,7 @@
                 Deletable="0"
                 SaveOption="SaveNone"
                 RunFromDir="%rw">
-                <Exec CmdLine='vsdebugio -prog "%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="Execute"
@@ -197,7 +197,7 @@
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
                 RunFromDir="%rw">
-                <Exec CmdLine='"%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="dash"
@@ -251,45 +251,36 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="Executable"/>
+                Value="SharedLibrary"/>
         </List>
     </Config>
     <Files>
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{8BC6BE93-08B1-4394-8CAB-C0A0A45CCB9C}">
-            <F N="main.cc"/>
+            GUID="{26EDE2B6-8AB4-4F2B-A440-92379F24FF57}">
+            <F N="gcc_startup_nrf52.s"/>
+            <F N="gcc_stubs.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{25EF7EED-5E81-43C6-9B7D-5AE2D7905081}">
-            <Folder
-                Name="config"
-                AutoCustom="1"
-                GUID="{8BA38CD3-BB97-439C-A894-3DE6998617A7}">
-                <F N="config/sdk_config.h"/>
-            </Folder>
-            <F N="timer_observer_test.h"/>
+            GUID="{C3FA7D1F-64DB-4EE2-9787-698E31A1AAFA}">
+            <F N="arm_utilities.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"
-            GUID="{C523F8BF-C6A7-430D-9D21-A54C5C37F79F}"/>
+            GUID="{8BE59244-4B37-41DE-8660-E37C12FAD642}"/>
         <Folder
             Name="Bitmaps"
             Filters="*.bmp"
-            GUID="{6D42562B-78E6-40D0-941F-2132F50A6BD3}"/>
+            GUID="{843B4CA0-1A9D-45CB-9123-653AA91146AD}"/>
         <Folder
             Name="Other Files"
             Filters=""
-            GUID="{770A4407-E046-490D-BD4B-63D5692E7A08}">
-            <F N="gdb-init"/>
-            <F
-                N="Makefile"
-                Type="Makefile"/>
-            <F N="timer_test.ld"/>
+            GUID="{7C4F4391-942B-43F1-A3B0-2CF82E089A97}">
+            <F N="gcc-arm.vpj"/>
         </Folder>
     </Files>
 </Project>

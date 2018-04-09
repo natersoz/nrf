@@ -9,7 +9,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdtimer_test"
+        OutputFile="%bdperipherals.a"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -32,7 +32,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='g++ %xup -g -o "%o" %f %libs'/>
+                <Exec CmdLine='ar -rs %xup "%o" %f'/>
             </Target>
             <Target
                 Name="Build"
@@ -61,7 +61,7 @@
                 Deletable="0"
                 SaveOption="SaveNone"
                 RunFromDir="%rw">
-                <Exec CmdLine='vsdebugio -prog "%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="Execute"
@@ -72,7 +72,7 @@
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
                 RunFromDir="%rw">
-                <Exec CmdLine='"%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="dash"
@@ -126,7 +126,7 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="Executable"/>
+                Value="StaticLibrary"/>
         </List>
     </Config>
     <Config
@@ -134,7 +134,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdtimer_test"
+        OutputFile="%bdperipherals.a"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -157,7 +157,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='g++ %xup -o "%o" %f %libs'/>
+                <Exec CmdLine='ar -rs %xup "%o" %f'/>
             </Target>
             <Target
                 Name="Build"
@@ -186,7 +186,7 @@
                 Deletable="0"
                 SaveOption="SaveNone"
                 RunFromDir="%rw">
-                <Exec CmdLine='vsdebugio -prog "%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="Execute"
@@ -197,7 +197,7 @@
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
                 RunFromDir="%rw">
-                <Exec CmdLine='"%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="dash"
@@ -251,45 +251,56 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="Executable"/>
+                Value="StaticLibrary"/>
         </List>
     </Config>
     <Files>
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{8BC6BE93-08B1-4394-8CAB-C0A0A45CCB9C}">
-            <F N="main.cc"/>
+            GUID="{D60C1C9E-94A9-44F0-B706-19ADA4ABA631}">
+            <F N="buttons_pca10040.cc"/>
+            <F N="clocks.cc"/>
+            <F N="leds_pca10040.cc"/>
+            <F N="rtc.cc"/>
+            <F N="rtc_debug.cc"/>
+            <F N="spim.cc"/>
+            <F N="spim_debug.cc"/>
+            <F N="spis.cc"/>
+            <F N="spis_debug.cc"/>
+            <F N="timer.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{25EF7EED-5E81-43C6-9B7D-5AE2D7905081}">
-            <Folder
-                Name="config"
-                AutoCustom="1"
-                GUID="{8BA38CD3-BB97-439C-A894-3DE6998617A7}">
-                <F N="config/sdk_config.h"/>
-            </Folder>
-            <F N="timer_observer_test.h"/>
+            GUID="{F9423275-F9C1-4E36-BF36-0A6CC2C08419}">
+            <F N="buttons.h"/>
+            <F N="clocks.h"/>
+            <F N="leds.h"/>
+            <F N="rtc.h"/>
+            <F N="rtc_debug.h"/>
+            <F N="rtc_observer.h"/>
+            <F N="spi_common.h"/>
+            <F N="spim.h"/>
+            <F N="spim_debug.h"/>
+            <F N="spis.h"/>
+            <F N="spis_debug.h"/>
+            <F N="timer.h"/>
+            <F N="timer_observable_generic.h"/>
+            <F N="timer_observer.h"/>
+            <F N="timer_observer_generic.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"
-            GUID="{C523F8BF-C6A7-430D-9D21-A54C5C37F79F}"/>
+            GUID="{5A56768E-6A83-4B93-944F-F9AE07151461}"/>
         <Folder
             Name="Bitmaps"
             Filters="*.bmp"
-            GUID="{6D42562B-78E6-40D0-941F-2132F50A6BD3}"/>
+            GUID="{0223C709-0AB8-42A6-ABEE-5ACD53CD62F6}"/>
         <Folder
             Name="Other Files"
             Filters=""
-            GUID="{770A4407-E046-490D-BD4B-63D5692E7A08}">
-            <F N="gdb-init"/>
-            <F
-                N="Makefile"
-                Type="Makefile"/>
-            <F N="timer_test.ld"/>
-        </Folder>
+            GUID="{2514B6F8-2029-4B5D-B1CD-FD9AEC4F19FF}"/>
     </Files>
 </Project>

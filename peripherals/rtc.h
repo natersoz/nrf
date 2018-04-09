@@ -14,11 +14,11 @@ extern "C" {
 #endif
 
 typedef uint8_t rtc_instance_t;
-typedef uint8_t cc_index_t;
+typedef uint8_t rtc_cc_index_t;
 
-typedef void (* rtc_event_handler_t) (void          *context,
-                                      cc_index_t    cc_index,
-                                      uint32_t      cc_count);
+typedef void (* rtc_event_handler_t) (void              *context,
+                                      rtc_cc_index_t    cc_index,
+                                      uint32_t          cc_count);
 
 /**
  * Initialize the RTC module.
@@ -31,9 +31,11 @@ typedef void (* rtc_event_handler_t) (void          *context,
  *                  The RTC clock frequency is 32,768 Hz / prescaler.
  * @note  The RTC prescaler value stored in the PRESCALER register is one
  *        less than the value set here.
- * @param irq_priority
- * @param handler
- * @param context
+ *
+ * @param irq_priority The timer interrupt priority.
+ *                     Event notifications are handled at this irq level.
+ * @param handler      The user provided timer notificaiton event handler.
+ * @param context      The user supplied context; unmodified by the driver.
  */
 void rtc_init(rtc_instance_t            rtc_instance,
               uint32_t                  prescaler,
@@ -50,16 +52,16 @@ void rtc_stop(rtc_instance_t rtc_instance);
 void rtc_reset(rtc_instance_t rtc_instance);
 
 void rtc_cc_set(rtc_instance_t  rtc_instance,
-                cc_index_t      cc_index,
+                rtc_cc_index_t  cc_index,
                 uint32_t        rtc_ticks);
 
-uint32_t rtc_cc_get(rtc_instance_t rtc_instance, cc_index_t cc_index);
+uint32_t rtc_cc_get(rtc_instance_t rtc_instance, rtc_cc_index_t cc_index);
 
 uint32_t rtc_cc_get_count(rtc_instance_t rtc_instance);
 
 uint64_t rtc_get_count_ext(rtc_instance_t rtc_instance);
 
-void rtc_cc_disable(rtc_instance_t rtc_instance, cc_index_t cc_index);
+void rtc_cc_disable(rtc_instance_t rtc_instance, rtc_cc_index_t cc_index);
 
 uint32_t rtc_ticks_per_second(rtc_instance_t rtc_instance);
 
@@ -72,12 +74,20 @@ void rtc_enable_interrupt(rtc_instance_t rtc_instance);
 class rtc
 {
 public:
-    using uint8_t = cc_index_t;
+    using cc_index_t = rtc_cc_index_t;
 
     /// The bit-wdith of the counter.
     static size_t const counter_width = 24u;
 
-    cc_index_t const cc_count;
+    /**
+     * If the ticks_remaining count is within this value the timer is expired.
+     * This is to avoid the situation where the waiting for another update
+     * call into update_tick_count() would be a worse estimate for timer
+     * expiration than expiring in the current cycle.
+     */
+    static int32_t const epsilon = 4u;
+
+    cc_index_t const cc_alloc_count;
 
     virtual ~rtc();
 
@@ -88,7 +98,7 @@ public:
     rtc& operator=(rtc&&)       = delete;
 
     rtc(rtc_instance_t  rtc_instance,
-        uint8_t         prescaler     = 0u,     // 32,768 Hz clock source.
+        uint8_t         prescaler     = 1u,     // 32,768 Hz clock source.
         uint8_t         irq_priority  = 7u);
 
     void start();
@@ -107,7 +117,19 @@ public:
     uint32_t usec_to_ticks(uint32_t usec) const;
     uint32_t msec_to_ticks(uint32_t msec) const;
 
-    virtual void event_notify(cc_index_t cc_index, uint32_t cc_count) {};
+    /**
+     * The rtc notificaiton virtual method for receiving callbacks when
+     * timer comaprator events happen. The default case is to do nothing.
+     * Doing nothing allows for a simple polling timer within inheritance.
+     *
+     * @param cc_index The comparator index which triggered the event callback.
+     * @param cc_count The comparator value at the time of the callback.
+     */
+    virtual void event_notify(cc_index_t cc_index, uint32_t cc_count)
+    {
+        (void) cc_index;
+        (void) cc_count;
+    };
 
 private:
     rtc_instance_t  rtc_instance_;

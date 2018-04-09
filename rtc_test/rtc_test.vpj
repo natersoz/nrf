@@ -271,7 +271,7 @@
                 GUID="{8BA38CD3-BB97-439C-A894-3DE6998617A7}">
                 <F N="config/sdk_config.h"/>
             </Folder>
-            <F N="timer_observer_test.h"/>
+            <F N="rtc_observer_test.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
@@ -285,11 +285,8 @@
             Name="Other Files"
             Filters=""
             GUID="{770A4407-E046-490D-BD4B-63D5692E7A08}">
-            <F N="gdb-init"/>
-            <F
-                N="Makefile"
-                Type="Makefile"/>
-            <F N="timer_test.ld"/>
+            <F N="rtc_test.ld"/>
+            <F N="rtc_test.vpj"/>
         </Folder>
     </Files>
 </Project>

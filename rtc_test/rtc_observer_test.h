@@ -1,25 +1,25 @@
 /**
- * @file timer_observer_test.h
+ * @file rtc_observer_test.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  *
- * Test for timer observer latency class.
+ * Test for RTC observer latency class.
  */
 
 #pragma once
 
-#include "timer_observer.h"
-#include "rtc.h"
+#include "timer.h"
+#include "rtc_observer.h"
 #include "logger.h"
 #include <algorithm>
 
-class timer_observer_test: public timer_observer
+class rtc_observer_test: public rtc_observer
 {
 public:
-    timer_observer_test(char const      *timer_name,
-                        expiration_type type,
-                        uint32_t        expiration_ticks,
-                        timer           &timer_reference)
-        : timer_observer(type, expiration_ticks),
+    rtc_observer_test(char const        *timer_name,
+                      expiration_type   type,
+                      uint32_t          expiration_ticks,
+                      rtc               &timer_reference)
+        : rtc_observer(type, expiration_ticks),
           name_(timer_name),
           timer_reference_(timer_reference),
           notification_count_(0u),
@@ -28,7 +28,7 @@ public:
     }
 
     /**
-     * When a timer is attached this funciton should be called to
+     * When an rtc is attached this funciton should be called to
      * set the base notification ticks. Especially important for
      * one shot timers since they don't accumulate this value.
      *
@@ -95,7 +95,7 @@ private:
 
     struct timer_error  error_stats;
     char const* const   name_;
-    timer               &timer_reference_;
+    rtc                 &timer_reference_;
     uint32_t volatile   notification_count_;
     uint32_t volatile   last_notification_ticks_;
 };

@@ -10,7 +10,7 @@ struct timer_control_block_t
 {
     NRF_TIMER_Type                  *registers;
     IRQn_Type                       irq_type;
-    cc_index_t                      cc_count;
+    timer_cc_index_t                cc_alloc_count;
     timer_event_handler_t           handler;
     void                            *context;
 };
@@ -22,7 +22,7 @@ static struct timer_control_block_t timer_instance_0 =
 {
     .registers              = NRF_TIMER0,
     .irq_type               = TIMER0_IRQn,
-    .cc_count               = 4u,
+    .cc_alloc_count         = 4u,
     .handler                = nullptr,
     .context                = nullptr,
 };
@@ -41,7 +41,7 @@ static struct timer_control_block_t timer_instance_1 =
 {
     .registers              = NRF_TIMER1,
     .irq_type               = TIMER1_IRQn,
-    .cc_count               = 4u,
+    .cc_alloc_count         = 4u,
     .handler                = nullptr,
     .context                = nullptr,
 };
@@ -60,7 +60,7 @@ static struct timer_control_block_t timer_instance_2 =
 {
     .registers              = NRF_TIMER2,
     .irq_type               = TIMER2_IRQn,
-    .cc_count               = 4u,
+    .cc_alloc_count         = 4u,
     .handler                = nullptr,
     .context                = nullptr,
 };
@@ -79,7 +79,7 @@ static struct timer_control_block_t timer_instance_3 =
 {
     .registers              = NRF_TIMER3,
     .irq_type               = TIMER3_IRQn,
-    .cc_count               = 6u,
+    .cc_alloc_count         = 6u,
     .handler                = nullptr,
     .context                = nullptr,
 };
@@ -98,7 +98,7 @@ static struct timer_control_block_t timer_instance_4 =
 {
     .registers              = NRF_TIMER4,
     .irq_type               = TIMER4_IRQn,
-    .cc_count               = 6u,
+    .cc_alloc_count         = 6u,
     .handler                = nullptr,
     .context                = nullptr,
 };
@@ -145,7 +145,7 @@ static struct timer_control_block_t* const timer_control_block(timer_instance_t 
 }
 
 static void timer_clear_compare_event(struct timer_control_block_t* timer_control,
-                                      cc_index_t                    cc_index)
+                                      timer_cc_index_t              cc_index)
 {
     timer_control->registers->EVENTS_COMPARE[cc_index] = 0u;
     volatile uint32_t dummy = timer_control->registers->EVENTS_COMPARE[cc_index];
@@ -189,7 +189,7 @@ void timer_init(timer_instance_t        timer_instance,
     timer_control->registers->SHORTS        = 0u;
     timer_control->registers->INTENCLR      = UINT32_MAX;
 
-    for (cc_index_t cc_index = 0u; cc_index < timer_control->cc_count; ++cc_index)
+    for (timer_cc_index_t cc_index = 0u; cc_index < timer_control->cc_alloc_count; ++cc_index)
     {
         timer_clear_compare_event(timer_control, cc_index);
         timer_control->registers->CC[cc_index] = 0u;
@@ -237,27 +237,27 @@ void timer_reset(timer_instance_t timer_instance)
 }
 
 void timer_cc_set(timer_instance_t  timer_instance,
-                  cc_index_t        cc_index,
+                  timer_cc_index_t  cc_index,
                   uint32_t          timer_ticks)
 {
     struct timer_control_block_t* const timer_control = timer_control_block(timer_instance);
     ASSERT(timer_control);
-    ASSERT(cc_index < timer_control->cc_count);
+    ASSERT(cc_index < timer_control->cc_alloc_count);
 
     timer_control->registers->CC[cc_index] = timer_ticks;
     timer_control->registers->INTENSET     = (1u << cc_index) << TIMER_INTENSET_COMPARE0_Pos;
 }
 
-uint32_t timer_cc_get(timer_instance_t timer_instance, cc_index_t cc_index)
+uint32_t timer_cc_get(timer_instance_t timer_instance, timer_cc_index_t cc_index)
 {
     struct timer_control_block_t* const timer_control = timer_control_block(timer_instance);
     ASSERT(timer_control);
-    ASSERT(cc_index < timer_control->cc_count);
+    ASSERT(cc_index < timer_control->cc_alloc_count);
     return timer_control->registers->CC[cc_index];
 }
 
 uint32_t timer_cc_get_count(timer_instance_t timer_instance,
-                            cc_index_t       cc_index)
+                            timer_cc_index_t cc_index)
 {
     struct timer_control_block_t* const timer_control = timer_control_block(timer_instance);
     ASSERT(timer_control);
@@ -268,8 +268,8 @@ uint32_t timer_cc_get_count(timer_instance_t timer_instance,
     return timer_count;
 }
 
-void timer_cc_disable(timer_instance_t timer_instance,
-                      cc_index_t       cc_index)
+void timer_cc_disable(timer_instance_t  timer_instance,
+                      timer_cc_index_t  cc_index)
 {
     struct timer_control_block_t* const timer_control = timer_control_block(timer_instance);
     ASSERT(timer_control);
@@ -296,7 +296,7 @@ void timer_enable_interrupt(timer_instance_t timer_instance)
 
 static void irq_handler_timer(timer_control_block_t *timer_control)
 {
-    for (cc_index_t cc_index = 0u; cc_index < timer_control->cc_count; ++cc_index)
+    for (timer_cc_index_t cc_index = 0u; cc_index < timer_control->cc_alloc_count; ++cc_index)
     {
         if (timer_control->registers->EVENTS_COMPARE[cc_index])
         {
@@ -307,9 +307,9 @@ static void irq_handler_timer(timer_control_block_t *timer_control)
     }
 }
 
-extern "C" void timer_event_handler(void        *context,
-                                    cc_index_t  cc_index,
-                                    uint32_t    cc_count)
+extern "C" void timer_event_handler(void                *context,
+                                    timer_cc_index_t    cc_index,
+                                    uint32_t            cc_count)
 {
     timer *timer_with_event = reinterpret_cast<timer*>(context);
     timer_with_event->event_notify(cc_index, cc_count);
@@ -318,8 +318,8 @@ extern "C" void timer_event_handler(void        *context,
 timer::timer(timer_instance_t  timer_instance,
              uint8_t           prescaler_exp,
              uint8_t           irq_priority)
-    : cc_count(timer_instances[timer_instance] ?
-               timer_instances[timer_instance]->cc_count : 0u),
+    : cc_alloc_count(timer_instances[timer_instance] ?
+                     timer_instances[timer_instance]->cc_alloc_count : 0u),
     timer_instance_(timer_instance)
 {
     timer_init(timer_instance,
@@ -350,22 +350,22 @@ void timer::reset()
     timer_reset(this->timer_instance_);
 }
 
-void timer::cc_set(cc_index_t cc_index, uint32_t timer_ticks)
+void timer::cc_set(timer_cc_index_t cc_index, uint32_t timer_ticks)
 {
     timer_cc_set(this->timer_instance_, cc_index, timer_ticks);
 }
 
-uint32_t timer::cc_get(cc_index_t cc_index) const
+uint32_t timer::cc_get(timer_cc_index_t cc_index) const
 {
     return timer_cc_get(this->timer_instance_, cc_index);
 }
 
-uint32_t timer::cc_get_count(cc_index_t cc_index) const
+uint32_t timer::cc_get_count(timer_cc_index_t cc_index) const
 {
     return timer_cc_get_count(this->timer_instance_, cc_index);
 }
 
-void timer::cc_disable(cc_index_t cc_index)
+void timer::cc_disable(timer_cc_index_t cc_index)
 {
     timer_cc_disable(this->timer_instance_, cc_index);
 }

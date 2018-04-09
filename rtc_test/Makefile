@@ -1,12 +1,12 @@
 ###
-# Makefile for testing Nordic nRF52 SPI interface.
+# Makefile for testing Nordic nRF52 Timer interface(s).
 # @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 ###
 
 SDK_ROOT := ../sdk
 
 # The executable name
-TARGET_NAME = spi_test
+TARGET_NAME = rtc_test
 
 # Where the compiled files are built.
 BUILD_PATH = _build
@@ -25,38 +25,31 @@ BOOST_ROOT=/usr/local/boost
 SOURCE_FILES =
 SOURCE_FILES += ./main.cc
 
+SOURCE_FILES += ../peripherals/rtc_debug.cc
+SOURCE_FILES += ../peripherals/clocks.cc
+SOURCE_FILES += ../peripherals/rtc.cc
+SOURCE_FILES += ../peripherals/timer.cc
+SOURCE_FILES += ../peripherals/leds_pca10040.cc
+SOURCE_FILES += ../peripherals/buttons_pca10040.cc
 SOURCE_FILES += ../gcc-arm/gcc_startup_nrf52.s
 SOURCE_FILES += ../gcc-arm/gcc_stubs.cc
-SOURCE_FILES += ../peripherals/buttons_pca10040.cc
-SOURCE_FILES += ../peripherals/clocks.cc
-SOURCE_FILES += ../peripherals/leds_pca10040.cc
-SOURCE_FILES += ../peripherals/rtc.cc
-SOURCE_FILES += ../peripherals/spim.cc
-SOURCE_FILES += ../peripherals/spim_debug.cc
-SOURCE_FILES += ../peripherals/spis.cc
-SOURCE_FILES += ../peripherals/spis_debug.cc
-SOURCE_FILES += ../peripherals/timer.cc
-
+SOURCE_FILES += ../utilities/project_assert.cc
+SOURCE_FILES += ../utilities/format_conversion.cc
+SOURCE_FILES += ../utilities/int_to_string.cc
+SOURCE_FILES += ../utilities/vwritef.cc
+SOURCE_FILES += ../utilities/write_data.cc
+SOURCE_FILES += ../utilities/std_stubs.cc
 SOURCE_FILES += ../logger/logger.cc
 SOURCE_FILES += ../logger/logger_c.cc
 SOURCE_FILES += ../logger/segger_rtt_output_stream.cc
 SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
-SOURCE_FILES += ../utilities/format_conversion.cc
-SOURCE_FILES += ../utilities/int_to_string.cc
-SOURCE_FILES += ../utilities/project_assert.cc
-SOURCE_FILES += ../utilities/std_stubs.cc
-SOURCE_FILES += ../utilities/vwritef.cc
-SOURCE_FILES += ../utilities/write_data.cc
 
 # SDK source files:
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
 SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
-SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c
-SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
 
 # Include folders:
-INCLUDE_PATHS  =
+INCLUDE_PATHS =  .
 INCLUDE_PATHS += ../gcc-arm
 INCLUDE_PATHS += ../logger
 INCLUDE_PATHS += ../nordic
@@ -71,9 +64,7 @@ INCLUDE_PATHS += $(BOOST_ROOT)/include
 INCLUDE_PATHS += $(SDK_ROOT)/components
 INCLUDE_PATHS += $(SDK_ROOT)/components/device
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/common
-INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/gpiote
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/hal
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/strerror
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/util
 INCLUDE_PATHS += $(SDK_ROOT)/components/softdevice/s132/headers
 INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain
@@ -101,11 +92,9 @@ NORDIC_DEFS += -D FLOAT_ABI_HARD
 NORDIC_DEFS += -D CONFIG_GPIO_AS_PINRESET
 NORDIC_DEFS += -D SWI_DISABLE0
 
-NORDIC_DEFS += -D SPIM0_ENABLED
-NORDIC_DEFS += -D SPIS1_ENABLED
-NORDIC_DEFS += -D TIMER1_ENABLED
 NORDIC_DEFS += -D RTC1_ENABLED
-NORDIC_DEFS += -D NRF_STRERROR_ENABLED
+NORDIC_DEFS += -D RTC2_ENABLED
+NORDIC_DEFS += -D TIMER2_ENABLED
 
 CXXFLAGS    += $(NORDIC_DEFS)
 CFLAGS      += $(NORDIC_DEFS)
