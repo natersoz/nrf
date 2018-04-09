@@ -18,6 +18,7 @@ SOURCE_FILES =
 SOURCE_FILES += ./main.cc
 SOURCE_FILES += ../nordic/gcc_startup_nrf52.s
 SOURCE_FILES += ../nordic/gcc_stubs.cc
+SOURCE_FILES += ../nordic/rtc.cc
 
 SOURCE_FILES += ../utilities/project_assert.cc
 SOURCE_FILES += ../utilities/format_conversion.cc
@@ -30,6 +31,15 @@ SOURCE_FILES += ../logger/logger_c.cc
 SOURCE_FILES += ../logger/segger_rtt_output_stream.cc
 SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
 
+# components/drivers_nrf/clock/nrf_drv_clock.c
+# components/drivers_nrf/gpiote/nrf_drv_gpiote.c
+# SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
+# SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c
+# SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c
+#components/toolchain/system_nrf52.c
+#SOURCE_FILES += $(SDK_ROOT)/components/libraries/timer/app_timer.c
+#SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_weak.c
+#SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/nrf_assert.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_advdata.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_params.c
@@ -48,37 +58,26 @@ SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/pm_buffer.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/pm_mutex.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/security_dispatcher.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/security_manager.c
-
-# SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c
-
-
-# components/drivers_nrf/clock/nrf_drv_clock.c
-# SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
-SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c
-# components/drivers_nrf/gpiote/nrf_drv_gpiote.c
-# SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c
-
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/atomic/nrf_atomic.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/atomic_fifo/nrf_atfifo.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/atomic_flags/nrf_atflags.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/crc16/crc16.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_section_vars/nrf_section_iter.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/fds/fds.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c
-#SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/hardfault/hardfault_implementation.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/pwr_mgmt/nrf_pwr_mgmt.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/scheduler/app_scheduler.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c
-#SOURCE_FILES += $(SDK_ROOT)/components/libraries/timer/app_timer.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_handler_gcc.c
-#SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_weak.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
-#SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/nrf_assert.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c
+SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c
 SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
-#components/toolchain/system_nrf52.c
 
 # Include folders common to all targets
 INCLUDE_PATHS += ../nordic
@@ -228,6 +227,10 @@ NORDIC_DEFS += -D SOFTDEVICE_PRESENT
 
 NORDIC_DEFS += -D CONFIG_GPIO_AS_PINRESET
 NORDIC_DEFS += -D SWI_DISABLE0
+NORDIC_DEFS += -D NRF_BLE_QWR_ENABLED=1
+NORDIC_DEFS += -D NRF_PWR_MGMT_ENABLED=1
+
+NORDIC_DEFS += -D RTC1_ENABLED
 
 CXXFLAGS    += $(NORDIC_DEFS)
 CFLAGS      += $(NORDIC_DEFS)

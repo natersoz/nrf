@@ -27,7 +27,6 @@
 #include "nrf_ble_gatt.h"
 
 #include "nrf_ble_qwr.h"
-#include "nrf_pwr_mgmt.h"
 
 #include "logger.h"
 #include "segger_rtt_output_stream.h"
@@ -676,29 +675,6 @@ static void buttons_leds_init(bool * p_erase_bonds)
     *p_erase_bonds = (startup_event == BSP_EVENT_CLEAR_BONDING_DATA);
 }
 
-/**@brief Function for initializing power management.
- */
-static void power_management_init(void)
-{
-    ret_code_t err_code;
-    err_code = nrf_pwr_mgmt_init();
-    APP_ERROR_CHECK(err_code);
-}
-
-
-/**@brief Function for handling the idle state (main loop).
- *
- * @details If there is no pending log operation, then sleep until next the next event occurs.
- */
-static void idle_state_handle(void)
-{
-    if (NRF_LOG_PROCESS() == false)
-    {
-        nrf_pwr_mgmt_run();
-    }
-}
-
-
 /**@brief Function for starting advertising.
  */
 static void advertising_start(bool erase_bonds)
@@ -732,7 +708,6 @@ int main(void)
     // Initialize.
     timers_init();
     buttons_leds_init(&erase_bonds);
-    power_management_init();
     ble_stack_init();
     gap_params_init();
     gatt_init();
@@ -750,7 +725,6 @@ int main(void)
     // Enter main loop.
     for (;;)
     {
-        idle_state_handle();        /// @todo what does this do?
         if (rtt_os.write_pending() == 0)
         {
             __WFE();
