@@ -36,9 +36,9 @@ extern "C" void RTC0_IRQHandler(void)
 }
 #else
 static struct rtc_control_block_t* const rtc_instance_ptr_0 = nullptr;
-#endif  // TIMER0_ENABLED
+#endif  // RTC0_ENABLED
 
-#if defined TIMER1_ENABLED
+#if defined RTC1_ENABLED
 static struct rtc_control_block_t rtc_instance_1 =
 {
     .registers              = NRF_RTC1,
@@ -56,9 +56,9 @@ extern "C" void RTC1_IRQHandler(void)
 }
 #else
 static struct rtc_control_block_t* const rtc_instance_ptr_1 = nullptr;
-#endif  // TIMER1_ENABLED
+#endif  // RTC1_ENABLED
 
-#if defined TIMER2_ENABLED
+#if defined RTC2_ENABLED
 static struct rtc_control_block_t rtc_instance_2 =
 {
     .registers              = NRF_RTC2,
@@ -76,7 +76,7 @@ extern "C" void RTC2_IRQHandler(void)
 }
 #else
 static struct rtc_control_block_t* const rtc_instance_ptr_2 = nullptr;
-#endif  // TIMER2_ENABLED
+#endif  // RTC2_ENABLED
 
 struct rtc_control_block_t* const rtc_instances[] =
 {
