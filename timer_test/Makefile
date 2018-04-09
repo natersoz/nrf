@@ -25,10 +25,6 @@ BOOST_ROOT=/usr/local/boost
 SOURCE_FILES =
 SOURCE_FILES += ./main.cc
 
-SOURCE_FILES += ../nordic/spim.cc
-SOURCE_FILES += ../nordic/spis.cc
-SOURCE_FILES += ../nordic/spim_debug.cc
-SOURCE_FILES += ../nordic/spis_debug.cc
 SOURCE_FILES += ../nordic/rtc_debug.cc
 SOURCE_FILES += ../nordic/clocks.cc
 SOURCE_FILES += ../nordic/rtc.cc
