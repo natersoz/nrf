@@ -50,6 +50,7 @@ SOURCE_FILES += ../utilities/vwritef.cc
 SOURCE_FILES += ../utilities/write_data.cc
 
 # SDK source files:
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
 SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c
 SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
@@ -105,6 +106,7 @@ NORDIC_DEFS += -D SPIM0_ENABLED
 NORDIC_DEFS += -D SPIS1_ENABLED
 NORDIC_DEFS += -D TIMER1_ENABLED
 NORDIC_DEFS += -D RTC1_ENABLED
+NORDIC_DEFS += -D NRF_STRERROR_ENABLED
 
 CXXFLAGS    += $(NORDIC_DEFS)
 CFLAGS      += $(NORDIC_DEFS)
