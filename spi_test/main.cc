@@ -47,7 +47,7 @@ static uint8_t ramp_start_value = 0u;
 static spi_port_t const spim_port = 0u;
 static spi_port_t const spis_port = 1u;
 
-static timer_observable timer_test_observable(1u);
+static timer_observable<> timer_test_observable(1u);
 static timer_spis_prepare timer_spis(timer_observer::expiration_type::continuous,
                                      timer_test_observable.msec_to_ticks(10));
 

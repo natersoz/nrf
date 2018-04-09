@@ -127,6 +127,38 @@ The S132 Softdevice Specification describes which peripherals:
 	UICR								Restricted
 	NVIC								Restricted
 
+### Interrupt levels:
+
+	In SDK components/libraries/util/app_util_platform.h:
+
+	There are the following definitions which give us insight
+	into the interrupt levels reserved for the softdevice 'SD'
+	and application 'APP' interrupt priority assignments.
+
+		```
+			#if __CORTEX_M == (0x00U)
+				#define _PRIO_SD_HIGH       0
+				#define _PRIO_APP_HIGH      1
+				#define _PRIO_APP_MID       1
+				#define _PRIO_SD_LOW        2
+				#define _PRIO_APP_LOW       3
+				#define _PRIO_APP_LOWEST    3
+				#define _PRIO_THREAD        4
+			#elif __CORTEX_M == (0x04U)
+				#define _PRIO_SD_HIGH       0
+				#define _PRIO_SD_MID        1
+				#define _PRIO_APP_HIGH      2
+				#define _PRIO_APP_MID       3
+				#define _PRIO_SD_LOW        4
+				#define _PRIO_SD_LOWEST     5
+				#define _PRIO_APP_LOW       6
+				#define _PRIO_APP_LOWEST    7
+				#define _PRIO_THREAD        15
+			#else
+				#error "No platform defined"
+			#endif
+		```
+
 
 Debugging and Flashing nRF5x:
 -----------------------------

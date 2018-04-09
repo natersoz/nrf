@@ -1,10 +1,10 @@
 /**
- * @file timer_test/main.cc
+ * @file rtc_test/main.cc
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
-#include "timer_observer.h"
-#include "timer_observer_test.h"
+#include "rtc_observer.h"
+#include "rtc_observer_test.h"
 #include "leds.h"
 
 #include "clocks.h"
@@ -16,86 +16,86 @@
 #include "segger_rtt_output_stream.h"
 #include "project_assert.h"
 
-class timer_observer_1: public timer_observer_test
+class timer_observer_1: public rtc_observer_test
 {
 public:
     timer_observer_1(expiration_type    type,
                      uint32_t           expiration_ticks,
-                     timer              &timer_reference) :
-        timer_observer_test("timer_1",
-                            type,
-                            expiration_ticks,
-                            timer_reference) {}
+                     rtc                &timer_reference) :
+        rtc_observer_test("timer_1",
+                          type,
+                          expiration_ticks,
+                          timer_reference) {}
 
     void expiration_notify() override;
 };
 
-class timer_observer_2: public timer_observer_test
+class timer_observer_2: public rtc_observer_test
 {
 public:
     timer_observer_2(expiration_type    type,
                      uint32_t           expiration_ticks,
-                     timer              &timer_reference) :
-        timer_observer_test("timer_2",
-                            type,
-                            expiration_ticks,
-                            timer_reference) {}
+                     rtc                &timer_reference) :
+        rtc_observer_test("timer_2",
+                          type,
+                          expiration_ticks,
+                          timer_reference) {}
 
     void expiration_notify() override;
 };
 
-class timer_observer_3: public timer_observer_test
+class timer_observer_3: public rtc_observer_test
 {
 public:
     timer_observer_3(expiration_type    type,
                      uint32_t           expiration_ticks,
-                     timer              &timer_reference) :
-        timer_observer_test("timer_3",
-                            type,
-                            expiration_ticks,
-                            timer_reference) {}
+                     rtc                &timer_reference) :
+        rtc_observer_test("timer_3",
+                          type,
+                          expiration_ticks,
+                          timer_reference) {}
 
     void expiration_notify() override;
 };
 
-class timer_observer_4: public timer_observer_test
+class timer_observer_4: public rtc_observer_test
 {
 public:
     timer_observer_4(expiration_type    type,
                      uint32_t           expiration_ticks,
-                     timer              &timer_reference) :
-        timer_observer_test("timer_4",
-                            type,
-                            expiration_ticks,
-                            timer_reference) {}
+                     rtc                &timer_reference) :
+        rtc_observer_test("timer_4",
+                          type,
+                          expiration_ticks,
+                          timer_reference) {}
 
     void expiration_notify() override;
 };
 
-class timer_observer_5: public timer_observer_test
+class timer_observer_5: public rtc_observer_test
 {
 public:
     timer_observer_5(expiration_type    type,
                      uint32_t           expiration_ticks,
-                     timer              &timer_reference) :
-        timer_observer_test("timer_5",
-                            type,
-                            expiration_ticks,
-                            timer_reference) {}
+                     rtc                &timer_reference) :
+        rtc_observer_test("timer_5",
+                          type,
+                          expiration_ticks,
+                          timer_reference) {}
 
     void expiration_notify() override;
 };
 
-class timer_observer_6: public timer_observer_test
+class timer_observer_6: public rtc_observer_test
 {
 public:
     timer_observer_6(expiration_type    type,
                      uint32_t           expiration_ticks,
-                     timer              &timer_reference) :
-        timer_observer_test("timer_6",
-                            type,
-                            expiration_ticks,
-                            timer_reference) {}
+                     rtc                &timer_reference) :
+        rtc_observer_test("timer_6",
+                          type,
+                          expiration_ticks,
+                          timer_reference) {}
 
     void expiration_notify() override;
 };
@@ -103,49 +103,46 @@ public:
 
 static segger_rtt_output_stream rtt_os;
 
-// RTC: 1024 ticks / second
-static rtc rtc_1(1u, 32u);
+// RTC: 32,768 ticks / second
+static rtc rtc_1(1u, 1u);
 
 /**
- * Use the TIMER1 peripheral.
- * The -D TIMER1_ENABLED must be set.
- * A linker error will help inform the user if it is not set.
- *
- * @note When the softdevice is in use it needs exclusive access to TIMER0
+ * Use the RTC2 peripheral for the test observable.
+ * The -D RTC2_ENABLED must be set.
  */
-timer_observable<> timer_test_observable(1u);
+rtc_observable<> rtc_test_observable(2u, 1u);
 
 /**
  * Use the TIMER2 peripheral as the refernce clock to benchmark tick error
- * and notification latency for TIMER1 being used as the DUT.
+ * and notification latency for the RTC being used as the DUT.
  */
-static timer timer_reference(2u);
+static rtc &timer_reference = rtc_1;
 
-static uint32_t const timer_tps = timer_test_observable.ticks_per_second();
+static uint32_t const timer_tps = rtc_test_observable.ticks_per_second();
 
-// timer 1 is continuous, 1 second.
-static timer_observer_1 timer_1(timer_observer::expiration_type::continuous,
+// rtc 1 is continuous, 1 second.
+static timer_observer_1 timer_1(rtc_observer::expiration_type::continuous,
                                 timer_tps, timer_reference);
 
-// timer 2 is one-shot, 200 msec.
-static timer_observer_2 timer_2(timer_observer::expiration_type::one_shot,
+// rtc 2 is one-shot, 200 msec.
+static timer_observer_2 timer_2(rtc_observer::expiration_type::one_shot,
                                 timer_tps / 5u, timer_reference);
 
-// timer 3 is continuous, fast: 500 usec.
-static timer_observer_3 timer_3(timer_observer::expiration_type::continuous,
-                                timer_tps / 2000u, timer_reference);
+// rtc 3 is continuous, fast: 5 msec.
+static timer_observer_3 timer_3(rtc_observer::expiration_type::continuous,
+                                timer_tps / 200u, timer_reference);
 
-// timer 4 is one-shot, quick: 500 usec, trigger on timer 2 event.
-static timer_observer_4 timer_4(timer_observer::expiration_type::one_shot,
-                                timer_tps / 2000u, timer_reference);
+// rtc 4 is one-shot, quick: 5 msec, trigger on rtc 2 event.
+static timer_observer_4 timer_4(rtc_observer::expiration_type::one_shot,
+                                timer_tps / 200u, timer_reference);
 
-// timer 5 is one-shot, long: 0.5 second, triggers on timer 4.
-static timer_observer_5 timer_5(timer_observer::expiration_type::one_shot,
+// rtc 5 is one-shot, long: 0.5 second, triggers on rtc 4.
+static timer_observer_5 timer_5(rtc_observer::expiration_type::one_shot,
                                 timer_tps / 2, timer_reference);
 
-// timer 6 is continuous, starts on timer 4, ends on timer 5.
-static timer_observer_6 timer_6(timer_observer::expiration_type::continuous,
-                                timer_tps / 1000u, timer_reference);
+// rtc 6 is continuous, starts on rtc 4, ends on rtc 5.
+static timer_observer_6 timer_6(rtc_observer::expiration_type::continuous,
+                                timer_tps / 100u, timer_reference);
 
 
 void timer_observer_1::expiration_notify()
@@ -156,7 +153,7 @@ void timer_observer_1::expiration_notify()
     logger.debug("obsv_1[%d]: this: 0x%p", this->cc_index_get(), this);
 
     timer_2.ticks_start_set(timer_reference.cc_get_count(0u));
-    timer_test_observable.attach(timer_2);
+    rtc_test_observable.attach(timer_2);
 }
 
 void timer_observer_2::expiration_notify()
@@ -167,8 +164,8 @@ void timer_observer_2::expiration_notify()
     logger.debug("obsv_2[%d]: this: 0x%p", this->cc_index_get(), this);
 
     timer_4.ticks_start_set(timer_reference.cc_get_count(0u));
-    timer_test_observable.attach(timer_4);
-    timer_test_observable.detach(timer_2);
+    rtc_test_observable.attach(timer_4);
+    rtc_test_observable.detach(timer_2);
 }
 
 void timer_observer_3::expiration_notify()
@@ -187,10 +184,10 @@ void timer_observer_4::expiration_notify()
     logger.debug("obsv_4[%d]: this: 0x%p", this->cc_index_get(), this);
 
     timer_6.ticks_start_set(timer_reference.cc_get_count(0u));
-    timer_test_observable.attach(timer_6);
+    rtc_test_observable.attach(timer_6);
     timer_5.ticks_start_set(timer_reference.cc_get_count(0u));
-    timer_test_observable.attach(timer_5);
-    timer_test_observable.detach(timer_4);
+    rtc_test_observable.attach(timer_5);
+    rtc_test_observable.detach(timer_4);
 }
 
 void timer_observer_5::expiration_notify()
@@ -198,10 +195,10 @@ void timer_observer_5::expiration_notify()
     this->update_stats();
 //    led_state_toggle(2u);
     logger &logger = logger::instance();
-    logger.debug("obsv_5[%d]: this: 0x%p", this->cc_index_get(), this);
+    logger.debug("obsv_5[%u]: this: 0x%p", this->cc_index_get(), this);
 
-    timer_test_observable.detach(timer_6);
-    timer_test_observable.detach(timer_5);
+    rtc_test_observable.detach(timer_6);
+    rtc_test_observable.detach(timer_5);
 }
 
 void timer_observer_6::expiration_notify()
@@ -209,7 +206,7 @@ void timer_observer_6::expiration_notify()
     this->update_stats();
 //    led_state_toggle(2u);
     logger &logger = logger::instance();
-    logger.debug("obsv_6[%d]: this: 0x%p", this->cc_index_get(), this);
+    logger.debug("obsv_6[%u]: this: 0x%p", this->cc_index_get(), this);
 }
 
 int main()
@@ -224,7 +221,7 @@ int main()
     logger.set_rtc(rtc_1);
 
     logger.info("--- Timer Test ---");
-    logger.info("timer ticks/second: %u", timer_test_observable.ticks_per_second());
+    logger.info("rtc ticks/second: %u", rtc_test_observable.ticks_per_second());
     logger.info("timer_1: %8u ticks, mode: %u, this: 0x%p", timer_1.expiration_get_ticks(), timer_1.expiration_get_type(), &timer_1);
     logger.info("timer_2: %8u ticks, mode: %u, this: 0x%p", timer_2.expiration_get_ticks(), timer_2.expiration_get_type(), &timer_2);
     logger.info("timer_3: %8u ticks, mode: %u, this: 0x%p", timer_3.expiration_get_ticks(), timer_3.expiration_get_type(), &timer_3);
@@ -234,9 +231,9 @@ int main()
 
     timer_reference.start();
     timer_1.ticks_start_set(timer_reference.cc_get_count(0u));
-    timer_test_observable.attach(timer_1);
+    rtc_test_observable.attach(timer_1);
     timer_3.ticks_start_set(timer_reference.cc_get_count(0u));
-    timer_test_observable.attach(timer_3);
+    rtc_test_observable.attach(timer_3);
 
     uint32_t rtc_count_last = rtc_1.get_count_extend_32();
 

@@ -25,16 +25,14 @@ BOOST_ROOT=/usr/local/boost
 SOURCE_FILES =
 SOURCE_FILES += ./main.cc
 
-SOURCE_FILES += ../nordic/rtc_debug.cc
-SOURCE_FILES += ../nordic/clocks.cc
-SOURCE_FILES += ../nordic/rtc.cc
-SOURCE_FILES += ../nordic/timer.cc
-SOURCE_FILES += ../nordic/timer_observer.cc
-SOURCE_FILES += ../nordic/leds_pca10040.cc
-SOURCE_FILES += ../nordic/buttons_pca10040.cc
-SOURCE_FILES += ../nordic/gcc_startup_nrf52.s
-SOURCE_FILES += ../nordic/gcc_stubs.cc
-
+SOURCE_FILES += ../peripherals/rtc_debug.cc
+SOURCE_FILES += ../peripherals/clocks.cc
+SOURCE_FILES += ../peripherals/rtc.cc
+SOURCE_FILES += ../peripherals/timer.cc
+SOURCE_FILES += ../peripherals/leds_pca10040.cc
+SOURCE_FILES += ../peripherals/buttons_pca10040.cc
+SOURCE_FILES += ../gcc-arm/gcc_startup_nrf52.s
+SOURCE_FILES += ../gcc-arm/gcc_stubs.cc
 SOURCE_FILES += ../utilities/project_assert.cc
 SOURCE_FILES += ../utilities/format_conversion.cc
 SOURCE_FILES += ../utilities/int_to_string.cc
@@ -48,32 +46,28 @@ SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
 
 # SDK source files:
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
-SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c
-SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
+SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
 
 # Include folders:
 INCLUDE_PATHS =  .
-INCLUDE_PATHS += ../nordic
+INCLUDE_PATHS += ../gcc-arm
 INCLUDE_PATHS += ../logger
+INCLUDE_PATHS += ../nordic
+INCLUDE_PATHS += ../peripherals
 INCLUDE_PATHS += ../segger_rtt
 INCLUDE_PATHS += ../utilities
 
 INCLUDE_PATHS += ./config
 INCLUDE_PATHS += $(BOOST_ROOT)/include
-INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/templates/nRF52832
-INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/templates
-INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx
-INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/mdk
-INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/hal
-INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/drivers
-INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/drivers/include
+
+# Note: hard coded to s312 below
 INCLUDE_PATHS += $(SDK_ROOT)/components
-INCLUDE_PATHS += $(SDK_ROOT)/components/boards
 INCLUDE_PATHS += $(SDK_ROOT)/components/device
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/delay
+INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/common
+INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/hal
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/util
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/strerror
-INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd
+INCLUDE_PATHS += $(SDK_ROOT)/components/softdevice/s132/headers
+INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain
 INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
 
 ###
@@ -98,8 +92,6 @@ NORDIC_DEFS += -D FLOAT_ABI_HARD
 NORDIC_DEFS += -D CONFIG_GPIO_AS_PINRESET
 NORDIC_DEFS += -D SWI_DISABLE0
 
-NORDIC_DEFS += -D SPIM0_ENABLED
-NORDIC_DEFS += -D SPIS1_ENABLED
 NORDIC_DEFS += -D TIMER1_ENABLED
 NORDIC_DEFS += -D TIMER2_ENABLED
 NORDIC_DEFS += -D RTC1_ENABLED

@@ -14,10 +14,10 @@ extern "C" {
 #endif
 
 typedef uint8_t timer_instance_t;
-typedef uint8_t cc_index_t;
+typedef uint8_t timer_cc_index_t;
 
 typedef void (* timer_event_handler_t) (void                *context,
-                                        cc_index_t          cc_index,
+                                        timer_cc_index_t    cc_index,
                                         uint32_t            cc_count);
 enum timer_mode_t
 {
@@ -25,6 +25,21 @@ enum timer_mode_t
     timer_mode_counter,
 };
 
+/**
+ * Initialize the TIMER module. The TIMER module is driven by HFCLK at 16 MHz.
+ *
+ * @param timer_instance
+ * @param prescaler_exp This is the prescaler 'exponent' value.
+ *                      The prescaler divisor N = (1 << prescaler_exp).
+ * Therefore a prescaler_exp value of 0 provides N = 1.
+ * Since HFCLK is 16 MHz, if prescaler_exp = 1, timer clock F = 16 MHz.
+ * Since HFCLK is 16 MHz, if prescaler_exp = 4, timer clock F =  1 MHz.
+ *
+ * @param irq_priority The timer interrupt priority.
+ *                     Event notifications are handled at this irq level.
+ * @param handler      The user provided timer notificaiton event handler.
+ * @param context      The user supplied context; unmodified by the driver.
+ */
 void timer_init(timer_instance_t        timer_instance,
                 enum timer_mode_t       timer_mode,
                 uint8_t                 prescaler_exp,
@@ -41,14 +56,14 @@ void timer_stop(timer_instance_t timer_instance);
 void timer_reset(timer_instance_t timer_instance);
 
 void timer_cc_set(timer_instance_t  timer_instance,
-                  cc_index_t        cc_index,
+                  timer_cc_index_t  cc_index,
                   uint32_t          timer_ticks);
 
-uint32_t timer_cc_get(timer_instance_t timer_instance, cc_index_t cc_index);
+uint32_t timer_cc_get(timer_instance_t timer_instance, timer_cc_index_t cc_index);
 
 uint32_t timer_cc_get_count(timer_instance_t timer_instance);
 
-void timer_cc_disable(timer_instance_t timer_instance, cc_index_t cc_index);
+void timer_cc_disable(timer_instance_t timer_instance, timer_cc_index_t cc_index);
 
 uint32_t timer_ticks_per_second(timer_instance_t timer_instance);
 
@@ -61,6 +76,8 @@ void timer_enable_interrupt(timer_instance_t timer_instance);
 class timer
 {
 public:
+    using cc_index_t = timer_cc_index_t;
+
     /// The bit-wdith of the counter.
     static size_t const counter_width = 32u;
 
@@ -76,9 +93,7 @@ public:
      */
     static int32_t const epsilon = 500u;
 
-    typedef uint8_t cc_index_t;
-
-    cc_index_t const cc_count;
+    cc_index_t const cc_alloc_count;
 
     virtual ~timer();
 
@@ -89,7 +104,7 @@ public:
     timer& operator=(timer&&)       = delete;
 
     timer(timer_instance_t  timer_instance,
-          uint8_t           prescaler_exp = 4u,     // 1 MHz clock tick
+          uint8_t           prescaler_exp = 4u,     // 1 MHz default clock tick
           uint8_t           irq_priority  = 7u);
 
     void start();

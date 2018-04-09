@@ -15,9 +15,10 @@ BUILD_TYPE	?= Debug
 
 SOURCE_FILES =
 SOURCE_FILES += ./main.c
-SOURCE_FILES += ../nrf/gcc_startup_nrf52.s
-SOURCE_FILES += ../nrf/gcc_stubs.cc
+SOURCE_FILES += ../gcc-arm/gcc_startup_nrf52.s
+SOURCE_FILES += ../gcc-arm/gcc_stubs.cc
 
+SOURCE_FILES += ../peripherals/rtc.cc
 SOURCE_FILES += ../utilities/project_assert.cc
 SOURCE_FILES += ../utilities/format_conversion.cc
 SOURCE_FILES += ../utilities/int_to_string.cc
@@ -68,7 +69,15 @@ SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c
 
-INCLUDE_PATHS =
+INCLUDE_PATHS =  .
+INCLUDE_PATHS += ../gcc-arm
+INCLUDE_PATHS += ../logger
+INCLUDE_PATHS += ../nordic
+INCLUDE_PATHS += ../peripherals
+INCLUDE_PATHS += ../segger_rtt
+INCLUDE_PATHS += ../utilities
+
+# Nordic SDK include paths
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/comp
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/twi_master
 INCLUDE_PATHS += $(SDK_ROOT)/components/ble/ble_services/ble_ancs_c
@@ -178,6 +187,12 @@ INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/usbd
 INCLUDE_PATHS += $(SDK_ROOT)/components/ble/ble_services/ble_hrs
 INCLUDE_PATHS += ./config
 
+###
+# Use the LD_PATHS to allow the linker to bring in common linker scripts
+# The assumption is that projects are at the saem dieectory level as common.
+###
+LD_PATHS   = ../nordic
+
 LIB_FILES +=
 
 # Nordic specific compiler definitions
@@ -197,6 +212,8 @@ NORDIC_DEFS += -D SOFTDEVICE_PRESENT
 
 NORDIC_DEFS += -D CONFIG_GPIO_AS_PINRESET
 NORDIC_DEFS += -D SWI_DISABLE0
+
+NORDIC_DEFS += -D RTC2_ENABLED
 
 CXXFLAGS    += $(NORDIC_DEFS)
 CFLAGS      += $(NORDIC_DEFS)
