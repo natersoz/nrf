@@ -1,5 +1,7 @@
 /**
  * @file logger_c.h
+ * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
+ *
  * C interface to the logger.
  */
 

@@ -1,5 +1,6 @@
 /**
  * @file logger.h
+ * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  *
  * @todo @bug logger::writer_ should be atomic for thread/ISR safety.
  * log_level should also, but is not fatal.
