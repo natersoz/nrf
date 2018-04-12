@@ -1,6 +1,7 @@
 /**
  * @file stream.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
+ *
  * A character driver-like set of classes.
  */
 

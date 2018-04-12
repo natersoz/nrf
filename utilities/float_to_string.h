@@ -1,6 +1,7 @@
 /**
  * @file float_to_string.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.o license.
+ *
  * Floating point numeric conversions; primarily as part of printf conversions.
  */
 

@@ -1,5 +1,6 @@
 /**
  * @file segger_rtt_output_stream.h
+ * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
 #include "segger_rtt_output_stream.h"
