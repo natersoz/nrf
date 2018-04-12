@@ -23,6 +23,14 @@ Noridc SDK Version:
 
 		$ ln -s <path to Nordic SDK> sdk
 
++ SDK modifications:
+
+	+ remove components/libraries/util/nrf_assert.orig.h
+      Replaced with nordic/nrf_assert.h
+	+ components/libraries/util/app_error_weak.c
+      Add line:
+	  #include "app_util_platform.h"
+
 Nordic SDK Changes:
 -------------------
 + ./components/libraries/util/app_error_weak.c:
