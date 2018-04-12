@@ -2,7 +2,6 @@ natersoz/nrf project
 ====================
 Copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 
-
 This project is a starting point for working with the Nordic NRF52
 PCA10040 development boards.
 
@@ -14,7 +13,7 @@ LICENSING
 
 Noridc SDK Version:
 -------------------
-+ Nordic SDK Version = nRF5_SDK_14.2.0_17b948a
++ Nordic SDK Version = `nRF5_SDK_14.2.0_17b948a`
 
     Note: In my opinion, SDK-15 was a step in the wrong direction.
     More interdependencies with even more horrific macros.
@@ -25,24 +24,65 @@ Noridc SDK Version:
 
 + SDK modifications:
 
-	+ remove components/libraries/util/nrf_assert.orig.h
-      Replaced with nordic/nrf_assert.h
-	+ components/libraries/util/app_error_weak.c
+	+ remove `components/libraries/util/nrf_assert.orig.h`
+      Replaced with `nordic/nrf_assert.h`
+	+ `components/libraries/util/app_error_weak.c`
       Add line:
-	  #include "app_util_platform.h"
+	  `#include "app_util_platform.h"`
 
 Nordic SDK Changes:
 -------------------
-+ ./components/libraries/util/app_error_weak.c:
++ `./components/libraries/util/app_error_weak.c`:
 	Add:
-	#include "app_util_platform.h"
+	`#include "app_util_platform.h"`
 
-+ mv ../sdk/components/libraries/util/nrf_assert.h:
-	renamed: ../sdk/components/libraries/util/nrf_assert-orig.h
-	To avoid inclusion, replaced with ../nrf/nrf_assert.h
++ mv `../sdk/components/libraries/util/nrf_assert.h`:
+	renamed: `../sdk/components/libraries/util/nrf_assert-orig.h`
+	To avoid inclusion, replaced with `../nrf/nrf_assert.h`
 
-+ nrf_atfifo.h
-	#include "sdk_errors.h"
+Nordic Linker Scripts and Sections
+----------------------------------
+The softdevice requires specific sections to be defined in the linker script
+See ble_peripheral_template.ld
+
+### RAM based sections:
+
+#### `.log_dynamic_data`
+
+	This appears to be a dynamically allocated heap pool location (?) for
+	the Nordic log. I'm not using it and it should be removed.
+
+#### `.fs_data`
+
+	. Used in: `./components/libraries/fstorage/nrf_fstorage.h, .c`
+	. Stored in RAM
+	. Used to store nrf_fstorage_t
+	. This appears to be a desdriptor related to the FLASH controller (?)
+	  and/or how flash is being used within the SDK.
+	. This does not appear to interact with the soft device directly.
+	  i.e. limited to SDK functionality.
+
+#### `.cli_sorted_cmd_ptrs`
+
+	. Used in `./components/libraries/cli/nrf_cli.c, .h`
+	. This appears to be a command interface buffer allocation.
+	  Perhaps used as a console command type of thing.
+    . Not used, should be removed.
+
+### Device Differences
+
+ `sdk/examples/ble_central/ble_app_multilink_central`
+
+```
+		 diff pca10040/s132/armgcc/ble_app_multilink_central_gcc_nrf52.ld
+			  pca10056/s140/armgcc/ble_app_multilink_central_gcc_nrf52.ld
+
+		<   FLASH (rx) : ORIGIN =    0x23000, LENGTH = 0x5d000
+		<   RAM  (rwx) : ORIGIN = 0x20004190, LENGTH =  0xbe70
+		---
+		>   FLASH (rx) : ORIGIN =    0x22000, LENGTH = 0xde000
+		>   RAM  (rwx) : ORIGIN = 0x20004170, LENGTH = 0x3be90
+```
 
 Nordic Development Boards:
 --------------------------
@@ -71,38 +111,29 @@ Nordic Development Boards:
 Nordic Compiler Options:
 ------------------------
 ### Common to Nordic boards:
+```
 		CFLAGS += -DCONFIG_GPIO_AS_PINRESET
 		CFLAGS += -DFLOAT_ABI_HARD
 		CFLAGS += -DSWI_DISABLE0
 		CFLAGS += -DNRF_SD_BLE_API_VERSION=5
 		CFLAGS += -DSOFTDEVICE_PRESENT
+```
 
 ### nRF52832 Compiler Options:
+```
 		CFLAGS += -DBOARD_PCA10040
 		CFLAGS += -DNRF52
 		CFLAGS += -DNRF52832_XXAA
 		CFLAGS += -DNRF52_PAN_74
 		CFLAGS += -DS132
+```
 
 ### nRF52840 Compiler Options:
+```
 		CFLAGS += -DBOARD_PCA10056
 		CFLAGS += -DNRF52840_XXAA
 		CFLAGS += -DS140
-
-Nordic Linker File Breakdown:
------------------------------
-+ Under construction
-
-+ `sdk/examples/ble_central/ble_app_multilink_central`
-
-		 diff pca10040/s132/armgcc/ble_app_multilink_central_gcc_nrf52.ld
-			  pca10056/s140/armgcc/ble_app_multilink_central_gcc_nrf52.ld
-
-		<   FLASH (rx) : ORIGIN =    0x23000, LENGTH = 0x5d000
-		<   RAM  (rwx) : ORIGIN = 0x20004190, LENGTH =  0xbe70
-		---
-		>   FLASH (rx) : ORIGIN =    0x22000, LENGTH = 0xde000
-		>   RAM  (rwx) : ORIGIN = 0x20004170, LENGTH = 0x3be90
+```
 
 ARM GCC Compiler:
 -----------------
