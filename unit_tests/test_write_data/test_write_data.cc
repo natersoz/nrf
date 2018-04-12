@@ -26,6 +26,16 @@ public:
         return fwrite(buffer, sizeof(char), length, stdout);
     }
 
+    virtual size_t write_pending() override
+    {
+        return 0u;
+    }
+
+    virtual size_t write_avail() override
+    {
+        return static_cast<size_t>(-1);
+    }
+
     virtual void flush() override
     {
         fflush(stdout);
