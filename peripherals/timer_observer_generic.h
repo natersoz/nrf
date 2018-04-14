@@ -42,7 +42,7 @@ public:
     timer_observer_generic& operator=(timer_observer_generic const&)  = delete;
     timer_observer_generic& operator=(timer_observer_generic&&)       = delete;
 
-    ~timer_observer_generic()
+    virtual ~timer_observer_generic()
     {
         if (this->observable_)
         {
