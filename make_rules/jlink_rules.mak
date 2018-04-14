@@ -193,7 +193,7 @@ jlink-help:
 	@printf "\tflash-softdevice: Flash the softdevice\n"
 	@printf "\tflash-erase:    : Erase the program flash\n"
 	@printf "\tflash-erase-all : Erase all flash using special Nordic registers\n"
-	@printf "\trun-debug       : Start the gdb server - resets the device\n"
+	@printf "\tgdb-server      : Start the gdb server - resets the device\n"
 	@printf "\n"
 
 jlink-info:
