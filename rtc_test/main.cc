@@ -222,6 +222,7 @@ int main()
 
     logger.info("--- Timer Test ---");
     logger.info("rtc ticks/second: %u", rtc_test_observable.ticks_per_second());
+    logger.info("sizeof : observable: %u, observer: %u / %u", sizeof(rtc_test_observable), sizeof(timer_1), sizeof(rtc_observer));
     logger.info("timer_1: %8u ticks, mode: %u, this: 0x%p", timer_1.expiration_get_ticks(), timer_1.expiration_get_type(), &timer_1);
     logger.info("timer_2: %8u ticks, mode: %u, this: 0x%p", timer_2.expiration_get_ticks(), timer_2.expiration_get_type(), &timer_2);
     logger.info("timer_3: %8u ticks, mode: %u, this: 0x%p", timer_3.expiration_get_ticks(), timer_3.expiration_get_type(), &timer_3);
