@@ -86,7 +86,7 @@ public:
      * expiration_notify() event is triggered.
      * @param expiration_type continuous or one-shot.
      */
-    void expiration_set(uint32_t ticks_expire, expiration_type type)
+    void expiration_set(expiration_type type, uint32_t ticks_expire)
     {
         // Since UINT32_MAX is used as the max initializaion value within
         // timer_observable::ticks_update() and checked for this value
@@ -106,15 +106,20 @@ public:
         }
     }
 
+    void expiration_set(expiration_type type)
+    {
+        this->expiration_set(type, this->ticks_expiration_);
+    }
+
     void expiration_set(uint32_t ticks_expire)
     {
-        this->expiration_set(ticks_expire, this->expiration_type_);
+        this->expiration_set(this->expiration_type_, ticks_expire);
     }
 
     /** Reset a one-shot timer's remainging to its expiration time */
     void expiration_set()
     {
-        this->expiration_set(this->ticks_expiration_, this->expiration_type_);
+        this->expiration_set(this->expiration_type_, this->ticks_expiration_);
     }
     /** @} */
 
