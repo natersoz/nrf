@@ -18,6 +18,9 @@
  * @class timer_observer_generic
  * This is the part of the timer class intended to be used by a timer client.
  * In the user's class override the event_notify method for timer notifications.
+ *
+ * @note A expiration tick count of UINT32_MAX is used within this class
+ * to mean that the observer is disabled.
  */
 template <typename timer_type>
 class timer_observer_generic
@@ -34,7 +37,6 @@ public:
         continuous
     };
 
-    timer_observer_generic()                                          = delete;
     timer_observer_generic(timer_observer_generic const&)             = delete;
     timer_observer_generic(timer_observer_generic &&)                 = delete;
     timer_observer_generic& operator=(timer_observer_generic const&)  = delete;
@@ -48,13 +50,23 @@ public:
         }
     }
 
-    timer_observer_generic(expiration_type type, uint32_t expiration_ticks)
-    : observable_(nullptr),
-      cc_index_(observable_type::cc_index_unassigned),
-      expiration_type_(type),
-      ticks_expiration_(expiration_ticks),
-      ticks_remaining_(expiration_ticks),
-      is_expired_(false)
+    timer_observer_generic():
+        observable_(nullptr),
+        cc_index_(observable_type::cc_index_unassigned),
+        expiration_type_(expiration_type::one_shot),
+        ticks_expiration_(UINT32_MAX),
+        ticks_remaining_(UINT32_MAX),
+        is_expired_(false)
+    {
+    }
+
+    timer_observer_generic(expiration_type expiry_type, uint32_t expiry_ticks):
+        observable_(nullptr),
+        cc_index_(observable_type::cc_index_unassigned),
+        expiration_type_(expiry_type),
+        ticks_expiration_(expiry_ticks),
+        ticks_remaining_(expiry_ticks),
+        is_expired_(false)
     {
     }
 
