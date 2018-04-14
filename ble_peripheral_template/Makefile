@@ -13,11 +13,17 @@ BUILD_PATH = _build
 # Set for Debug or Release build types.
 BUILD_TYPE	?= Debug
 
-# Source files common to all targets
+# Path to boot installation. Using 1.65.1
+BOOST_ROOT=/usr/local/boost
+
 SOURCE_FILES =
 SOURCE_FILES += ./main.cc
 SOURCE_FILES += ../gcc-arm/gcc_startup_nrf52.s
 SOURCE_FILES += ../gcc-arm/gcc_stubs.cc
+SOURCE_FILES += ../nordic/app_timer.cc
+SOURCE_FILES += ../peripherals/buttons_pca10040.cc
+SOURCE_FILES += ../peripherals/clocks.cc
+SOURCE_FILES += ../peripherals/leds_pca10040.cc
 SOURCE_FILES += ../peripherals/rtc.cc
 
 SOURCE_FILES += ../utilities/project_assert.cc
@@ -49,15 +55,11 @@ SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/pm_mutex.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/security_dispatcher.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/security_manager.c
 SOURCE_FILES += $(SDK_ROOT)/components/boards/boards.c
-SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/clock/nrf_drv_clock.c
+#SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/clock/nrf_drv_clock.c
 SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
 SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c
 SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/atomic_fifo/nrf_atfifo.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp_nfc.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/button/app_button.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/crc16/crc16.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_section_vars/nrf_section_iter.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/fds/fds.c
@@ -67,7 +69,6 @@ SOURCE_FILES += $(SDK_ROOT)/components/libraries/hardfault/hardfault_implementat
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/pwr_mgmt/nrf_pwr_mgmt.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/scheduler/app_scheduler.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/timer/app_timer.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_weak.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
@@ -87,6 +88,7 @@ INCLUDE_PATHS += ../segger_rtt
 INCLUDE_PATHS += ../utilities
 
 INCLUDE_PATHS += ./config
+INCLUDE_PATHS += $(BOOST_ROOT)/include
 
 # Nordic SDK include paths
 INCLUDE_PATHS += $(SDK_ROOT)/components
@@ -224,7 +226,7 @@ NORDIC_DEFS += -D SOFTDEVICE_PRESENT
 NORDIC_DEFS += -D CONFIG_GPIO_AS_PINRESET
 NORDIC_DEFS += -D SWI_DISABLE0
 
-NORDIC_DEFS += -D RTC2_ENABLED
+NORDIC_DEFS += -D RTC1_ENABLED
 
 CXXFLAGS    += $(NORDIC_DEFS)
 CFLAGS      += $(NORDIC_DEFS)

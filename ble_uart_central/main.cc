@@ -1,30 +1,30 @@
 /**
  * Copyright (c) 2016 - 2017, Nordic Semiconductor ASA
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this
  *    list of conditions and the following disclaimer.
- * 
+ *
  * 2. Redistributions in binary form, except as embedded into a Nordic
  *    Semiconductor ASA integrated circuit in a product or a software update for
  *    such product, must reproduce the above copyright notice, this list of
  *    conditions and the following disclaimer in the documentation and/or other
  *    materials provided with the distribution.
- * 
+ *
  * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
  *    contributors may be used to endorse or promote products derived from this
  *    software without specific prior written permission.
- * 
+ *
  * 4. This software, with or without modification, must only be used with a
  *    Nordic Semiconductor ASA integrated circuit.
- * 
+ *
  * 5. Any software provided in binary form under this license must not be reverse
  *    engineered, decompiled, modified and/or disassembled.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
  * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -35,32 +35,34 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 #include <stdio.h>
 #include <stdint.h>
-#include <stdbool.h>
-#include "nordic_common.h"
+
 #include "app_error.h"
-#include "app_uart.h"
-#include "ble_db_discovery.h"
 #include "app_timer.h"
+#include "app_uart.h"
 #include "app_util.h"
-#include "bsp_btn_ble.h"
 #include "ble.h"
+#include "ble_advdata.h"
+#include "ble_db_discovery.h"
 #include "ble_gap.h"
 #include "ble_hci.h"
+#include "ble_nus_c.h"
+#include "nordic_common.h"
+#include "nrf_ble_gatt.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
 #include "nrf_sdh_soc.h"
-#include "nrf_pwr_mgmt.h"
-#include "ble_advdata.h"
-#include "ble_nus_c.h"
-#include "nrf_ble_gatt.h"
 
-#include "nrf_log.h"
-#include "nrf_log_ctrl.h"
-#include "nrf_log_default_backends.h"
+#include "app_timer.h"
+#include "clocks.h"
+#include "leds.h"
+#include "buttons.h"
+#include "logger.h"
+#include "segger_rtt_output_stream.h"
+#include "rtc_observer.h"
 
 
 #define APP_BLE_CONN_CFG_TAG    1                                       /**< A tag that refers to the BLE stack configuration we set with @ref sd_ble_cfg_set. Default tag is @ref BLE_CONN_CFG_TAG_DEFAULT. */
@@ -105,17 +107,12 @@ static ble_gap_conn_params_t const m_connection_param =
 /** @brief Parameters used when scanning. */
 static ble_gap_scan_params_t const m_scan_params =
 {
-    .active   = 1,
-    .interval = SCAN_INTERVAL,
-    .window   = SCAN_WINDOW,
-    .timeout  = SCAN_TIMEOUT,
-    #if (NRF_SD_BLE_API_VERSION <= 2)
-        .selective   = 0,
-        .p_whitelist = NULL,
-    #endif
-    #if (NRF_SD_BLE_API_VERSION >= 3)
-        .use_whitelist = 0,
-    #endif
+    .active         = 1,
+    .use_whitelist  = 0,
+    .adv_dir_report = 0,
+    .interval       = SCAN_INTERVAL,
+    .window         = SCAN_WINDOW,
+    .timeout        = SCAN_TIMEOUT,
 };
 
 /**@brief NUS uuid. */
@@ -142,19 +139,13 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
     app_error_handler(0xDEADBEEF, line_num, p_file_name);
 }
 
-
 /**@brief Function to start scanning. */
 static void scan_start(void)
 {
-    ret_code_t ret;
-
-    ret = sd_ble_gap_scan_start(&m_scan_params);
-    APP_ERROR_CHECK(ret);
-
-    ret = bsp_indication_set(BSP_INDICATE_SCANNING);
-    APP_ERROR_CHECK(ret);
+    logger &logger = logger::instance();
+    logger.info("Start scanning");
+    sd_ble_gap_scan_start(&m_scan_params);
 }
-
 
 /**@brief Function for handling database discovery events.
  *
@@ -179,8 +170,9 @@ static void ble_nus_chars_received_uart_print(uint8_t * p_data, uint16_t data_le
 {
     ret_code_t ret_val;
 
-    NRF_LOG_DEBUG("Receiving data.");
-    NRF_LOG_HEXDUMP_DEBUG(p_data, data_len);
+    logger &logger = logger::instance();
+    logger.debug("Receiving data.");
+    logger.write_data(logger::level::debug, p_data, data_len, true);
 
     for (uint32_t i = 0; i < data_len; i++)
     {
@@ -189,8 +181,7 @@ static void ble_nus_chars_received_uart_print(uint8_t * p_data, uint16_t data_le
             ret_val = app_uart_put(p_data[i]);
             if ((ret_val != NRF_SUCCESS) && (ret_val != NRF_ERROR_BUSY))
             {
-                NRF_LOG_ERROR("app_uart_put failed for index 0x%04x.", i);
-                APP_ERROR_CHECK(ret_val);
+                logger.error("app_uart_put failed for index 0x%04x.", i);
             }
         } while (ret_val == NRF_ERROR_BUSY);
     }
@@ -206,7 +197,7 @@ static void ble_nus_chars_received_uart_print(uint8_t * p_data, uint16_t data_le
             ret_val = ble_nus_c_string_send(&m_ble_nus_c, p_data, data_len);
             if ((ret_val != NRF_SUCCESS) && (ret_val != NRF_ERROR_BUSY))
             {
-                NRF_LOG_ERROR("Failed sending NUS message. Error 0x%x. ", ret_val);
+                logger.error("Failed sending NUS message. Error 0x%x. ", ret_val);
                 APP_ERROR_CHECK(ret_val);
             }
         } while (ret_val == NRF_ERROR_BUSY);
@@ -225,6 +216,7 @@ void uart_event_handle(app_uart_evt_t * p_event)
     static uint8_t data_array[BLE_NUS_MAX_DATA_LEN];
     static uint16_t index = 0;
     uint32_t ret_val;
+    logger &logger = logger::instance();
 
     switch (p_event->evt_type)
     {
@@ -235,8 +227,8 @@ void uart_event_handle(app_uart_evt_t * p_event)
 
             if ((data_array[index - 1] == '\n') || (index >= (m_ble_nus_max_data_len)))
             {
-                NRF_LOG_DEBUG("Ready to send data over BLE NUS");
-                NRF_LOG_HEXDUMP_DEBUG(data_array, index);
+                logger.debug("Ready to send data over BLE NUS");
+                logger.write_data(logger::level::debug, data_array, index, true);
 
                 do
                 {
@@ -253,12 +245,12 @@ void uart_event_handle(app_uart_evt_t * p_event)
 
         /**@snippet [Handling data from UART] */
         case APP_UART_COMMUNICATION_ERROR:
-            NRF_LOG_ERROR("Communication error occurred while handling UART.");
+            logger.error("Communication error occurred while handling UART.");
             APP_ERROR_HANDLER(p_event->data.error_communication);
             break;
 
         case APP_UART_FIFO_ERROR:
-            NRF_LOG_ERROR("Error occurred in FIFO module used by UART.");
+            logger.error("Error occurred in FIFO module used by UART.");
             APP_ERROR_HANDLER(p_event->data.error_code);
             break;
 
@@ -280,17 +272,18 @@ void uart_event_handle(app_uart_evt_t * p_event)
 static void ble_nus_c_evt_handler(ble_nus_c_t * p_ble_nus_c, ble_nus_c_evt_t const * p_ble_nus_evt)
 {
     ret_code_t err_code;
+    logger &logger = logger::instance();
 
     switch (p_ble_nus_evt->evt_type)
     {
         case BLE_NUS_C_EVT_DISCOVERY_COMPLETE:
-            NRF_LOG_INFO("Discovery complete.");
+            logger.info("Discovery complete");
             err_code = ble_nus_c_handles_assign(p_ble_nus_c, p_ble_nus_evt->conn_handle, &p_ble_nus_evt->handles);
             APP_ERROR_CHECK(err_code);
 
             err_code = ble_nus_c_tx_notif_enable(p_ble_nus_c);
             APP_ERROR_CHECK(err_code);
-            NRF_LOG_INFO("Connected to device with Nordic UART Service.");
+            logger.info("Connected to device with Nordic UART Service.");
             break;
 
         case BLE_NUS_C_EVT_NUS_TX_EVT:
@@ -298,42 +291,11 @@ static void ble_nus_c_evt_handler(ble_nus_c_t * p_ble_nus_c, ble_nus_c_evt_t con
             break;
 
         case BLE_NUS_C_EVT_DISCONNECTED:
-            NRF_LOG_INFO("Disconnected.");
+            logger.info("Disconnected.");
             scan_start();
             break;
     }
 }
-/**@snippet [Handling events from the ble_nus_c module] */
-
-
-/**
- * @brief Function for shutdown events.
- *
- * @param[in]   event       Shutdown type.
- */
-static bool shutdown_handler(nrf_pwr_mgmt_evt_t event)
-{
-    ret_code_t err_code;
-
-    err_code = bsp_indication_set(BSP_INDICATE_IDLE);
-    APP_ERROR_CHECK(err_code);
-
-    switch (event)
-    {
-        case NRF_PWR_MGMT_EVT_PREPARE_WAKEUP:
-            // Prepare wakeup buttons.
-            err_code = bsp_btn_ble_sleep_mode_prepare();
-            APP_ERROR_CHECK(err_code);
-            break;
-
-        default:
-            break;
-    }
-
-    return true;
-}
-
-NRF_PWR_MGMT_HANDLER_REGISTER(shutdown_handler, APP_SHUTDOWN_HANDLER_PRIORITY);
 
 /**@brief Reads an advertising report and checks if a UUID is present in the service list.
  *
@@ -425,6 +387,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 {
     ret_code_t            err_code;
     ble_gap_evt_t const * p_gap_evt = &p_ble_evt->evt.gap_evt;
+    logger &logger = logger::instance();
 
     switch (p_ble_evt->header.evt_id)
     {
@@ -443,9 +406,8 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                 if (err_code == NRF_SUCCESS)
                 {
                     // scan is automatically stopped by the connect
-                    err_code = bsp_indication_set(BSP_INDICATE_IDLE);
                     APP_ERROR_CHECK(err_code);
-                    NRF_LOG_INFO("Connecting to target %02x%02x%02x%02x%02x%02x",
+                    logger.info("Connecting to target %02x%02x%02x%02x%02x%02x",
                              p_adv_report->peer_addr.addr[0],
                              p_adv_report->peer_addr.addr[1],
                              p_adv_report->peer_addr.addr[2],
@@ -458,11 +420,8 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
         }break; // BLE_GAP_EVT_ADV_REPORT
 
         case BLE_GAP_EVT_CONNECTED:
-            NRF_LOG_INFO("Connected to target");
+            logger.info("Connected to target");
             err_code = ble_nus_c_handles_assign(&m_ble_nus_c, p_ble_evt->evt.gap_evt.conn_handle, NULL);
-            APP_ERROR_CHECK(err_code);
-
-            err_code = bsp_indication_set(BSP_INDICATE_CONNECTED);
             APP_ERROR_CHECK(err_code);
 
             // start discovery of services. The NUS Client waits for a discovery result
@@ -473,12 +432,12 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
         case BLE_GAP_EVT_TIMEOUT:
             if (p_gap_evt->params.timeout.src == BLE_GAP_TIMEOUT_SRC_SCAN)
             {
-                NRF_LOG_INFO("Scan timed out.");
+                logger.info("Scan timed out.");
                 scan_start();
             }
             else if (p_gap_evt->params.timeout.src == BLE_GAP_TIMEOUT_SRC_CONN)
             {
-                NRF_LOG_INFO("Connection Request timed out.");
+                logger.info("Connection Request timed out.");
             }
             break;
 
@@ -498,11 +457,11 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 #ifndef S140
         case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
         {
-            NRF_LOG_DEBUG("PHY update request.");
+            logger.debug("PHY update request.");
             ble_gap_phys_t const phys =
             {
-                .rx_phys = BLE_GAP_PHY_AUTO,
                 .tx_phys = BLE_GAP_PHY_AUTO,
+                .rx_phys = BLE_GAP_PHY_AUTO,
             };
             err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
             APP_ERROR_CHECK(err_code);
@@ -511,7 +470,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 
         case BLE_GATTC_EVT_TIMEOUT:
             // Disconnect on GATT Client timeout event.
-            NRF_LOG_DEBUG("GATT Client Timeout.");
+            logger.debug("GATT Client Timeout.");
             err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle,
                                              BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
             APP_ERROR_CHECK(err_code);
@@ -519,7 +478,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 
         case BLE_GATTS_EVT_TIMEOUT:
             // Disconnect on GATT Server timeout event.
-            NRF_LOG_DEBUG("GATT Server Timeout.");
+            logger.debug("GATT Server Timeout.");
             err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle,
                                              BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
             APP_ERROR_CHECK(err_code);
@@ -562,10 +521,11 @@ void gatt_evt_handler(nrf_ble_gatt_t * p_gatt, nrf_ble_gatt_evt_t const * p_evt)
 {
     if (p_evt->evt_id == NRF_BLE_GATT_EVT_ATT_MTU_UPDATED)
     {
-        NRF_LOG_INFO("ATT MTU exchange completed.");
+        logger &logger = logger::instance();
+        logger.info("ATT MTU exchange completed.");
 
         m_ble_nus_max_data_len = p_evt->params.att_mtu_effective - OPCODE_LENGTH - HANDLE_LENGTH;
-        NRF_LOG_INFO("Ble NUS max data length set to 0x%X(%d)", m_ble_nus_max_data_len, m_ble_nus_max_data_len);
+        logger.info("Ble NUS max data length set to 0x%X(%d)", m_ble_nus_max_data_len, m_ble_nus_max_data_len);
     }
 }
 
@@ -583,39 +543,13 @@ void gatt_init(void)
 }
 
 
-/**@brief Function for handling events from the BSP module.
- *
- * @param[in] event  Event generated by button press.
- */
-void bsp_event_handler(bsp_event_t event)
-{
-    ret_code_t err_code;
-
-    switch (event)
-    {
-        case BSP_EVENT_SLEEP:
-            nrf_pwr_mgmt_shutdown(NRF_PWR_MGMT_SHUTDOWN_GOTO_SYSOFF);
-            break;
-
-        case BSP_EVENT_DISCONNECT:
-            err_code = sd_ble_gap_disconnect(m_ble_nus_c.conn_handle,
-                                             BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            if (err_code != NRF_ERROR_INVALID_STATE)
-            {
-                APP_ERROR_CHECK(err_code);
-            }
-            break;
-
-        default:
-            break;
-    }
-}
-
 /**@brief Function for initializing the UART. */
 static void uart_init(void)
 {
+    logger &logger = logger::instance();
+    logger.error("ERROR: TODO attach UART pins");
+#if 0
     ret_code_t err_code;
-
     app_uart_comm_params_t const comm_params =
     {
         .rx_pin_no    = RX_PIN_NUMBER,
@@ -633,8 +567,7 @@ static void uart_init(void)
                        uart_event_handle,
                        APP_IRQ_PRIORITY_LOWEST,
                        err_code);
-
-    APP_ERROR_CHECK(err_code);
+#endif
 }
 
 /**@brief Function for initializing the NUS Client. */
@@ -649,47 +582,6 @@ static void nus_c_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
-
-/**@brief Function for initializing buttons and leds. */
-static void buttons_leds_init(void)
-{
-    ret_code_t err_code;
-    bsp_event_t startup_event;
-
-    err_code = bsp_init(BSP_INIT_LED, bsp_event_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = bsp_btn_ble_init(NULL, &startup_event);
-    APP_ERROR_CHECK(err_code);
-}
-
-
-/**@brief Function for initializing the timer. */
-static void timer_init(void)
-{
-    ret_code_t err_code = app_timer_init();
-    APP_ERROR_CHECK(err_code);
-}
-
-
-/**@brief Function for initializing the nrf log module. */
-static void log_init(void)
-{
-    ret_code_t err_code = NRF_LOG_INIT(NULL);
-    APP_ERROR_CHECK(err_code);
-
-    NRF_LOG_DEFAULT_BACKENDS_INIT();
-}
-
-
-/**@brief Function for initializing the Power manager. */
-static void power_init(void)
-{
-    ret_code_t err_code = nrf_pwr_mgmt_init();
-    APP_ERROR_CHECK(err_code);
-}
-
-
 /** @brief Function for initializing the Database Discovery Module. */
 static void db_discovery_init(void)
 {
@@ -697,30 +589,40 @@ static void db_discovery_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
+static segger_rtt_output_stream rtt_os;
+
+static rtc_observable<> rtc_1(1u, 32u);
 
 int main(void)
 {
-    log_init();
-    timer_init();
-    power_init();
+    lfclk_enable(LFCLK_SOURCE_XO);
+    app_timer_init(rtc_1);
+    rtc_1.start();
+
+    leds_board_init();
+    buttons_board_init();
+
+    logger& logger = logger::instance();
+    logger.set_rtc(rtc_1);
+    logger.set_level(logger::level::debug);
+    logger.set_output_stream(rtt_os);
+
+    logger.info("--- BLE central ---");
+
     uart_init();
-    buttons_leds_init();
     db_discovery_init();
     ble_stack_init();
     gatt_init();
     nus_c_init();
 
-    // Start scanning for peripherals and initiate connection
-    // with devices that advertise NUS UUID.
-    printf("BLE UART central example started.\r\n");
-    NRF_LOG_INFO("BLE UART central example started.");
     scan_start();
 
     for (;;)
     {
-        if (NRF_LOG_PROCESS() == false)
+        rtt_os.flush();
+        if (rtt_os.write_pending() == 0)
         {
-            nrf_pwr_mgmt_run();
+            __WFE();
         }
     }
 }

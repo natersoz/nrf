@@ -1,30 +1,30 @@
 /**
  * Copyright (c) 2014 - 2017, Nordic Semiconductor ASA
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this
  *    list of conditions and the following disclaimer.
- * 
+ *
  * 2. Redistributions in binary form, except as embedded into a Nordic
  *    Semiconductor ASA integrated circuit in a product or a software update for
  *    such product, must reproduce the above copyright notice, this list of
  *    conditions and the following disclaimer in the documentation and/or other
  *    materials provided with the distribution.
- * 
+ *
  * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
  *    contributors may be used to endorse or promote products derived from this
  *    software without specific prior written permission.
- * 
+ *
  * 4. This software, with or without modification, must only be used with a
  *    Nordic Semiconductor ASA integrated circuit.
- * 
+ *
  * 5. Any software provided in binary form under this license must not be reverse
  *    engineered, decompiled, modified and/or disassembled.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
  * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -35,7 +35,7 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 /** @file
  *
@@ -48,25 +48,22 @@
  * This application uses the @ref srvlib_conn_params module.
  */
 
-
-
 #include <stdint.h>
 #include <string.h>
-#include "nordic_common.h"
-#include "nrf.h"
-#include "ble_hci.h"
+
+#include "app_uart.h"
+#include "app_util_platform.h"
 #include "ble_advdata.h"
 #include "ble_advertising.h"
 #include "ble_conn_params.h"
-#include "nrf_sdh.h"
-#include "nrf_sdh_soc.h"
-#include "nrf_sdh_ble.h"
-#include "nrf_ble_gatt.h"
-#include "app_timer.h"
+#include "ble_hci.h"
 #include "ble_nus.h"
-#include "app_uart.h"
-#include "app_util_platform.h"
-#include "bsp_btn_ble.h"
+#include "nordic_common.h"
+#include "nrf.h"
+#include "nrf_ble_gatt.h"
+#include "nrf_sdh.h"
+#include "nrf_sdh_ble.h"
+#include "nrf_sdh_soc.h"
 
 #if defined (UART_PRESENT)
 #include "nrf_uart.h"
@@ -75,9 +72,13 @@
 #include "nrf_uarte.h"
 #endif
 
-#include "nrf_log.h"
-#include "nrf_log_ctrl.h"
-#include "nrf_log_default_backends.h"
+#include "app_timer.h"
+#include "clocks.h"
+#include "leds.h"
+#include "buttons.h"
+#include "logger.h"
+#include "segger_rtt_output_stream.h"
+#include "rtc_observer.h"
 
 #define APP_BLE_CONN_CFG_TAG            1                                           /**< A tag identifying the SoftDevice BLE configuration. */
 
@@ -176,13 +177,16 @@ static void gap_params_init(void)
 /**@snippet [Handling the data received over BLE] */
 static void nus_data_handler(ble_nus_evt_t * p_evt)
 {
-
     if (p_evt->type == BLE_NUS_EVT_RX_DATA)
     {
         uint32_t err_code;
 
-        NRF_LOG_DEBUG("Received data from BLE NUS. Writing data on UART.");
-        NRF_LOG_HEXDUMP_DEBUG(p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
+        logger &logger = logger::instance();
+        logger.debug("Received data from BLE NUS. Writing data on UART.");
+        logger.write_data(logger::level::debug,
+                          p_evt->params.rx_data.p_data,
+                          p_evt->params.rx_data.length,
+                          true);
 
         for (uint32_t i = 0; i < p_evt->params.rx_data.length; i++)
         {
@@ -191,8 +195,7 @@ static void nus_data_handler(ble_nus_evt_t * p_evt)
                 err_code = app_uart_put(p_evt->params.rx_data.p_data[i]);
                 if ((err_code != NRF_SUCCESS) && (err_code != NRF_ERROR_BUSY))
                 {
-                    NRF_LOG_ERROR("Failed receiving NUS message. Error 0x%x. ", err_code);
-                    APP_ERROR_CHECK(err_code);
+                    logger.error("Failed receiving NUS message. Error 0x%x. ", err_code);
                 }
             } while (err_code == NRF_ERROR_BUSY);
         }
@@ -278,25 +281,6 @@ static void conn_params_init(void)
 }
 
 
-/**@brief Function for putting the chip into sleep mode.
- *
- * @note This function will not return.
- */
-static void sleep_mode_enter(void)
-{
-    uint32_t err_code = bsp_indication_set(BSP_INDICATE_IDLE);
-    APP_ERROR_CHECK(err_code);
-
-    // Prepare wakeup buttons.
-    err_code = bsp_btn_ble_sleep_mode_prepare();
-    APP_ERROR_CHECK(err_code);
-
-    // Go to system-off mode (this function will not return; wakeup will cause a reset).
-    err_code = sd_power_system_off();
-    APP_ERROR_CHECK(err_code);
-}
-
-
 /**@brief Function for handling advertising events.
  *
  * @details This function will be called for advertising events which are passed to the application.
@@ -305,19 +289,40 @@ static void sleep_mode_enter(void)
  */
 static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 {
-    uint32_t err_code;
+    uint32_t error_code;
+    logger &logger = logger::instance();
 
     switch (ble_adv_evt)
     {
-        case BLE_ADV_EVT_FAST:
-            err_code = bsp_indication_set(BSP_INDICATE_ADVERTISING);
-            APP_ERROR_CHECK(err_code);
-            break;
-        case BLE_ADV_EVT_IDLE:
-            sleep_mode_enter();
-            break;
-        default:
-            break;
+    case BLE_ADV_EVT_FAST:
+        logger.info("Fast advertising.");
+        break;
+    case BLE_ADV_EVT_IDLE:
+        // Go to system-off mode
+        // this function will not return; wakeup will cause a reset.
+        logger.debug("calling: sd_power_system_off()");
+        logger.flush();
+
+        /*
+         * Note: when a debugger is attached sd_power_system_off() will return
+         * with 0x2006 NRF_ERROR_SOC_POWER_OFF_SHOULD_NOT_RETURN.
+         * This is normal. When a debugger is attached the nrf device needs
+         * to hold resrouces so debug can continue; therefore not truly powering
+         * down. When no debugger is attached this function will not return.
+         * An interrupt or event is required, at which point the device will
+         * reset. This is probably not the behavior that I am going to want;
+         * so bottom line: do not call this unless the absolute lowest power
+         * is required.
+         */
+        error_code = sd_power_system_off();
+        if (error_code != NRF_SUCCESS)
+        {
+            logger.error("error: sd_power_system_off() failed: 0x%x", error_code);
+        }
+
+        break;
+    default:
+        break;
     }
 }
 
@@ -330,18 +335,17 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 {
     uint32_t err_code;
+    logger &logger = logger::instance();
 
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
-            NRF_LOG_INFO("Connected");
-            err_code = bsp_indication_set(BSP_INDICATE_CONNECTED);
-            APP_ERROR_CHECK(err_code);
+            logger.info("Connected");
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
-            NRF_LOG_INFO("Disconnected");
+            logger.info("Disconnected");
             // LED indication will be changed when advertising starts.
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
             break;
@@ -349,11 +353,11 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 #ifndef S140
         case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
         {
-            NRF_LOG_DEBUG("PHY update request.");
+            logger.debug("PHY update request.");
             ble_gap_phys_t const phys =
             {
-                .rx_phys = BLE_GAP_PHY_AUTO,
                 .tx_phys = BLE_GAP_PHY_AUTO,
+                .rx_phys = BLE_GAP_PHY_AUTO,
             };
             err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
             APP_ERROR_CHECK(err_code);
@@ -466,12 +470,13 @@ static void ble_stack_init(void)
 /**@brief Function for handling events from the GATT library. */
 void gatt_evt_handler(nrf_ble_gatt_t * p_gatt, nrf_ble_gatt_evt_t const * p_evt)
 {
+    logger &logger = logger::instance();
     if ((m_conn_handle == p_evt->conn_handle) && (p_evt->evt_id == NRF_BLE_GATT_EVT_ATT_MTU_UPDATED))
     {
         m_ble_nus_max_data_len = p_evt->params.att_mtu_effective - OPCODE_LENGTH - HANDLE_LENGTH;
-        NRF_LOG_INFO("Data len is set to 0x%X(%d)", m_ble_nus_max_data_len, m_ble_nus_max_data_len);
+        logger.info("Data len is set to 0x%X(%d)", m_ble_nus_max_data_len, m_ble_nus_max_data_len);
     }
-    NRF_LOG_DEBUG("ATT MTU exchange completed. central 0x%x peripheral 0x%x",
+    logger.debug("ATT MTU exchange completed. central 0x%x peripheral 0x%x",
                   p_gatt->att_mtu_desired_central,
                   p_gatt->att_mtu_desired_periph);
 }
@@ -488,45 +493,6 @@ void gatt_init(void)
     err_code = nrf_ble_gatt_att_mtu_periph_set(&m_gatt, 64);
     APP_ERROR_CHECK(err_code);
 }
-
-
-/**@brief Function for handling events from the BSP module.
- *
- * @param[in]   event   Event generated by button press.
- */
-void bsp_event_handler(bsp_event_t event)
-{
-    uint32_t err_code;
-    switch (event)
-    {
-        case BSP_EVENT_SLEEP:
-            sleep_mode_enter();
-            break;
-
-        case BSP_EVENT_DISCONNECT:
-            err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            if (err_code != NRF_ERROR_INVALID_STATE)
-            {
-                APP_ERROR_CHECK(err_code);
-            }
-            break;
-
-        case BSP_EVENT_WHITELIST_OFF:
-            if (m_conn_handle == BLE_CONN_HANDLE_INVALID)
-            {
-                err_code = ble_advertising_restart_without_whitelist(&m_advertising);
-                if (err_code != NRF_ERROR_INVALID_STATE)
-                {
-                    APP_ERROR_CHECK(err_code);
-                }
-            }
-            break;
-
-        default:
-            break;
-    }
-}
-
 
 /**@brief   Function for handling app_uart events.
  *
@@ -549,8 +515,9 @@ void uart_event_handle(app_uart_evt_t * p_event)
 
             if ((data_array[index - 1] == '\n') || (index >= (m_ble_nus_max_data_len)))
             {
-                NRF_LOG_DEBUG("Ready to send data over BLE NUS");
-                NRF_LOG_HEXDUMP_DEBUG(data_array, index);
+                logger &logger = logger::instance();
+                logger.debug("Ready to send data over BLE NUS");
+                logger.write_data(logger::level::debug, data_array, index);
 
                 do
                 {
@@ -578,14 +545,14 @@ void uart_event_handle(app_uart_evt_t * p_event)
             break;
     }
 }
-/**@snippet [Handling the data received over UART] */
+/** Handling the data received over UART */
 
-
-/**@brief  Function for initializing the UART module.
- */
-/**@snippet [UART Initialization] */
+/** Function for initializing the UART module. */
 static void uart_init(void)
 {
+    logger &logger = logger::instance();
+    logger.error("ERROR: TODO: NEED to set up the pins and then GO");
+#if 0
     uint32_t                     err_code;
     app_uart_comm_params_t const comm_params =
     {
@@ -604,10 +571,9 @@ static void uart_init(void)
                        uart_event_handle,
                        APP_IRQ_PRIORITY_LOWEST,
                        err_code);
-    APP_ERROR_CHECK(err_code);
-}
-/**@snippet [UART Initialization] */
 
+#endif
+}
 
 /**@brief Function for initializing the Advertising functionality.
  */
@@ -637,36 +603,6 @@ static void advertising_init(void)
     ble_advertising_conn_cfg_tag_set(&m_advertising, APP_BLE_CONN_CFG_TAG);
 }
 
-
-/**@brief Function for initializing buttons and leds.
- *
- * @param[out] p_erase_bonds  Will be true if the clear bonding button was pressed to wake the application up.
- */
-static void buttons_leds_init(bool * p_erase_bonds)
-{
-    bsp_event_t startup_event;
-
-    uint32_t err_code = bsp_init(BSP_INIT_LED | BSP_INIT_BUTTONS, bsp_event_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = bsp_btn_ble_init(NULL, &startup_event);
-    APP_ERROR_CHECK(err_code);
-
-    *p_erase_bonds = (startup_event == BSP_EVENT_CLEAR_BONDING_DATA);
-}
-
-
-/**@brief Function for initializing the nrf log module.
- */
-static void log_init(void)
-{
-    ret_code_t err_code = NRF_LOG_INIT(NULL);
-    APP_ERROR_CHECK(err_code);
-
-    NRF_LOG_DEFAULT_BACKENDS_INIT();
-}
-
-
 /**@brief Function for placing the application in low power state while waiting for events.
  */
 static void power_manage(void)
@@ -675,22 +611,30 @@ static void power_manage(void)
     APP_ERROR_CHECK(err_code);
 }
 
+static segger_rtt_output_stream rtt_os;
+
+static rtc_observable<> rtc_1(1u, 32u);
 
 /**@brief Application main function.
  */
 int main(void)
 {
-    uint32_t err_code;
-    bool     erase_bonds;
+    lfclk_enable(LFCLK_SOURCE_XO);
+    app_timer_init(rtc_1);
+    rtc_1.start();
 
-    // Initialize.
-    err_code = app_timer_init();
-    APP_ERROR_CHECK(err_code);
+    leds_board_init();
+    buttons_board_init();
+
+    logger& logger = logger::instance();
+    logger.set_rtc(rtc_1);
+    logger.set_level(logger::level::debug);
+    logger.set_output_stream(rtt_os);
+
+    logger.info("--- UART peripheral ---");
 
     uart_init();
-    log_init();
 
-    buttons_leds_init(&erase_bonds);
     ble_stack_init();
     gap_params_init();
     gatt_init();
@@ -698,20 +642,13 @@ int main(void)
     advertising_init();
     conn_params_init();
 
-    printf("\r\nUART Start!\r\n");
-    NRF_LOG_INFO("UART Start!");
-    err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
-    APP_ERROR_CHECK(err_code);
+    ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
 
     // Enter main loop.
     for (;;)
     {
-        UNUSED_RETURN_VALUE(NRF_LOG_PROCESS());
+        logger.flush();
         power_manage();
     }
 }
 
-
-/**
- * @}
- */
