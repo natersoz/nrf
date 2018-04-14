@@ -13,12 +13,19 @@ BUILD_PATH = _build
 # Set for Debug or Release build types.
 BUILD_TYPE	?= Debug
 
+# Path to boot installation. Using 1.65.1
+BOOST_ROOT=/usr/local/boost
+
 SOURCE_FILES =
-SOURCE_FILES += ./main.c
+SOURCE_FILES += ./main.cc
 SOURCE_FILES += ../gcc-arm/gcc_startup_nrf52.s
 SOURCE_FILES += ../gcc-arm/gcc_stubs.cc
-
+SOURCE_FILES += ../nordic/app_timer.cc
+SOURCE_FILES += ../peripherals/buttons_pca10040.cc
+SOURCE_FILES += ../peripherals/clocks.cc
+SOURCE_FILES += ../peripherals/leds_pca10040.cc
 SOURCE_FILES += ../peripherals/rtc.cc
+
 SOURCE_FILES += ../utilities/project_assert.cc
 SOURCE_FILES += ../utilities/format_conversion.cc
 SOURCE_FILES += ../utilities/int_to_string.cc
@@ -30,44 +37,34 @@ SOURCE_FILES += ../logger/logger_c.cc
 SOURCE_FILES += ../logger/segger_rtt_output_stream.cc
 SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
 
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/button/app_button.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_weak.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/scheduler/app_scheduler.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/timer/app_timer.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/hardfault/hardfault_implementation.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/nrf_assert.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/atomic_fifo/nrf_atfifo.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/balloc/nrf_balloc.c
-SOURCE_FILES += $(SDK_ROOT)/external/fprintf/nrf_fprintf.c
-SOURCE_FILES += $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_memobj/nrf_memobj.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_section_vars/nrf_section_iter.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/sdk_mapped_flags.c
+SOURCE_FILES += $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c
+SOURCE_FILES += $(SDK_ROOT)/components/ble/ble_db_discovery/ble_db_discovery.c
+SOURCE_FILES += $(SDK_ROOT)/components/ble/ble_services/ble_lbs_c/ble_lbs_c.c
+SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_advdata.c
+SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_state.c
+SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_srv_common.c
+SOURCE_FILES += $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c
 SOURCE_FILES += $(SDK_ROOT)/components/boards/boards.c
-SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/clock/nrf_drv_clock.c
 SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
 SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c
 SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/bsp/bsp_nfc.c
-SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_advdata.c
-SOURCE_FILES += $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c
-SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_state.c
-SOURCE_FILES += $(SDK_ROOT)/components/ble/ble_db_discovery/ble_db_discovery.c
-SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_srv_common.c
-SOURCE_FILES += $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c
-SOURCE_FILES += $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.S
-SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
-SOURCE_FILES += $(SDK_ROOT)/components/ble/ble_services/ble_lbs_c/ble_lbs_c.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/atomic_fifo/nrf_atfifo.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/button/app_button.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_section_vars/nrf_section_iter.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/hardfault/hardfault_implementation.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_weak.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/nrf_assert.c
+SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/sdk_mapped_flags.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c
+SOURCE_FILES += $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.S
+SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
 
 INCLUDE_PATHS =  .
 INCLUDE_PATHS += ../gcc-arm
@@ -76,6 +73,9 @@ INCLUDE_PATHS += ../nordic
 INCLUDE_PATHS += ../peripherals
 INCLUDE_PATHS += ../segger_rtt
 INCLUDE_PATHS += ../utilities
+
+INCLUDE_PATHS += ./config
+INCLUDE_PATHS += $(BOOST_ROOT)/include
 
 # Nordic SDK include paths
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/comp
@@ -108,7 +108,6 @@ INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/uart
 INCLUDE_PATHS += $(SDK_ROOT)/components/ble/common
 INCLUDE_PATHS += $(SDK_ROOT)/components/ble/ble_services/ble_lls
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/wdt
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/bsp
 INCLUDE_PATHS += $(SDK_ROOT)/components/ble/ble_db_discovery
 INCLUDE_PATHS += $(SDK_ROOT)/components/ble/ble_services/ble_bas
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/experimental_section_vars
@@ -213,7 +212,7 @@ NORDIC_DEFS += -D SOFTDEVICE_PRESENT
 NORDIC_DEFS += -D CONFIG_GPIO_AS_PINRESET
 NORDIC_DEFS += -D SWI_DISABLE0
 
-NORDIC_DEFS += -D RTC2_ENABLED
+NORDIC_DEFS += -D RTC1_ENABLED
 
 CXXFLAGS    += $(NORDIC_DEFS)
 CFLAGS      += $(NORDIC_DEFS)

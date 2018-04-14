@@ -6,31 +6,31 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "nordic_common.h"
-#include "nrf.h"
 #include "app_error.h"
 #include "ble.h"
-#include "ble_hci.h"
-#include "ble_srv_common.h"
 #include "ble_advdata.h"
 #include "ble_advertising.h"
 #include "ble_conn_params.h"
-#include "nrf_sdh.h"
-#include "nrf_sdh_soc.h"
-#include "nrf_sdh_ble.h"
-#include "app_timer.h"
-#include "fds.h"
-#include "peer_manager.h"
-#include "bsp_btn_ble.h"
-#include "sensorsim.h"
 #include "ble_conn_state.h"
+#include "ble_hci.h"
+#include "ble_srv_common.h"
+#include "bsp_btn_ble.h"
+#include "fds.h"
+#include "nordic_common.h"
+#include "nrf.h"
 #include "nrf_ble_gatt.h"
+#include "nrf_sdh.h"
+#include "nrf_sdh_ble.h"
+#include "nrf_sdh_soc.h"
+#include "peer_manager.h"
 
-
+#include "app_timer.h"
+#include "clocks.h"
+#include "leds.h"
+#include "buttons.h"
 #include "logger.h"
 #include "segger_rtt_output_stream.h"
-#include "nrf_log.h"
-#include "nrf_log_ctrl.h"
+#include "rtc_observer.h"
 
 
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2    /**< Reply when unsupported features are requested. */
@@ -106,21 +106,21 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
  */
 static void pm_evt_handler(pm_evt_t const * p_evt)
 {
-    ret_code_t err_code;
-
     switch (p_evt->evt_id)
     {
         case PM_EVT_BONDED_PEER_CONNECTED:
         {
-            NRF_LOG_INFO("Connected to a previously bonded device.");
+            logger &logger = logger::instance();
+            logger.info("Connected to a previously bonded device.");
         } break;
 
         case PM_EVT_CONN_SEC_SUCCEEDED:
         {
-            NRF_LOG_INFO("Connection secured: role: %d, conn_handle: 0x%x, procedure: %d.",
-                         ble_conn_state_role(p_evt->conn_handle),
-                         p_evt->conn_handle,
-                         p_evt->params.conn_sec_succeeded.procedure);
+            logger &logger = logger::instance();
+            logger.info("Connection secured: role: %d, conn_handle: 0x%x, procedure: %d.",
+                        ble_conn_state_role(p_evt->conn_handle),
+                        p_evt->conn_handle,
+                        p_evt->params.conn_sec_succeeded.procedure);
         } break;
 
         case PM_EVT_CONN_SEC_FAILED:
@@ -143,14 +143,14 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
         case PM_EVT_STORAGE_FULL:
         {
             // Run garbage collection on the flash.
-            err_code = fds_gc();
-            if (err_code == FDS_ERR_BUSY || err_code == FDS_ERR_NO_SPACE_IN_QUEUES)
+            ret_code_t const error_code = fds_gc();
+            if (error_code == FDS_ERR_BUSY || error_code == FDS_ERR_NO_SPACE_IN_QUEUES)
             {
                 // Retry.
             }
             else
             {
-                APP_ERROR_CHECK(err_code);
+                APP_ERROR_CHECK(error_code);
             }
         } break;
 
@@ -200,29 +200,6 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
     }
 }
 
-
-/**@brief Function for the Timer initialization.
- *
- * @details Initializes the timer module. This creates and starts application timers.
- */
-static void timers_init(void)
-{
-    // Initialize timer module.
-    ret_code_t err_code = app_timer_init();
-    APP_ERROR_CHECK(err_code);
-
-    // Create timers.
-
-    /* YOUR_JOB: Create any timers to be used by the application.
-                 Below is an example of how to create a timer.
-                 For every new timer needed, increase the value of the macro APP_TIMER_MAX_TIMERS by
-                 one.
-       ret_code_t err_code;
-       err_code = app_timer_create(&m_app_timer_id, APP_TIMER_MODE_REPEATED, timer_timeout_handler);
-       APP_ERROR_CHECK(err_code); */
-}
-
-
 /**@brief Function for the GAP initialization.
  *
  * @details This function sets up all the necessary GAP (Generic Access Profile) parameters of the
@@ -230,20 +207,19 @@ static void timers_init(void)
  */
 static void gap_params_init(void)
 {
-    ret_code_t              err_code;
     ble_gap_conn_params_t   gap_conn_params;
     ble_gap_conn_sec_mode_t sec_mode;
 
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
 
-    err_code = sd_ble_gap_device_name_set(&sec_mode,
-                                          (const uint8_t *)DEVICE_NAME,
-                                          strlen(DEVICE_NAME));
-    APP_ERROR_CHECK(err_code);
+    ret_code_t error_code = sd_ble_gap_device_name_set(&sec_mode,
+                                                     (const uint8_t *)DEVICE_NAME,
+                                                     strlen(DEVICE_NAME));
+    APP_ERROR_CHECK(error_code);
 
     /* YOUR_JOB: Use an appearance value matching the application's use case.
-       err_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_);
-       APP_ERROR_CHECK(err_code); */
+       error_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_);
+       APP_ERROR_CHECK(error_code); */
 
     memset(&gap_conn_params, 0, sizeof(gap_conn_params));
 
@@ -252,8 +228,8 @@ static void gap_params_init(void)
     gap_conn_params.slave_latency     = SLAVE_LATENCY;
     gap_conn_params.conn_sup_timeout  = CONN_SUP_TIMEOUT;
 
-    err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
-    APP_ERROR_CHECK(err_code);
+    error_code = sd_ble_gap_ppcp_set(&gap_conn_params);
+    APP_ERROR_CHECK(error_code);
 }
 
 
@@ -261,8 +237,8 @@ static void gap_params_init(void)
  */
 static void gatt_init(void)
 {
-    ret_code_t err_code = nrf_ble_gatt_init(&m_gatt, NULL);
-    APP_ERROR_CHECK(err_code);
+    ret_code_t error_code = nrf_ble_gatt_init(&m_gatt, NULL);
+    APP_ERROR_CHECK(error_code);
 }
 
 
@@ -297,7 +273,7 @@ static void on_yys_evt(ble_yy_service_t     * p_yy_service,
 static void services_init(void)
 {
     /* YOUR_JOB: Add code to initialize the services used by the application.
-       ret_code_t                         err_code;
+       ret_code_t                         error_code;
        ble_xxs_init_t                     xxs_init;
        ble_yys_init_t                     yys_init;
 
@@ -308,16 +284,16 @@ static void services_init(void)
        xxs_init.is_xxx_notify_supported    = true;
        xxs_init.ble_xx_initial_value.level = 100;
 
-       err_code = ble_bas_init(&m_xxs, &xxs_init);
-       APP_ERROR_CHECK(err_code);
+       error_code = ble_bas_init(&m_xxs, &xxs_init);
+       APP_ERROR_CHECK(error_code);
 
        // Initialize YYY Service.
        memset(&yys_init, 0, sizeof(yys_init));
        yys_init.evt_handler                  = on_yys_evt;
        yys_init.ble_yy_initial_value.counter = 0;
 
-       err_code = ble_yy_service_init(&yys_init, &yy_init);
-       APP_ERROR_CHECK(err_code);
+       error_code = ble_yy_service_init(&yys_init, &yy_init);
+       APP_ERROR_CHECK(error_code);
      */
 }
 
@@ -334,12 +310,11 @@ static void services_init(void)
  */
 static void on_conn_params_evt(ble_conn_params_evt_t * p_evt)
 {
-    ret_code_t err_code;
-
     if (p_evt->evt_type == BLE_CONN_PARAMS_EVT_FAILED)
     {
-        err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
-        APP_ERROR_CHECK(err_code);
+        ret_code_t error_code = sd_ble_gap_disconnect(m_conn_handle,
+                                                    BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
+        APP_ERROR_CHECK(error_code);
     }
 }
 
@@ -358,7 +333,6 @@ static void conn_params_error_handler(uint32_t nrf_error)
  */
 static void conn_params_init(void)
 {
-    ret_code_t             err_code;
     ble_conn_params_init_t cp_init;
 
     memset(&cp_init, 0, sizeof(cp_init));
@@ -372,41 +346,8 @@ static void conn_params_init(void)
     cp_init.evt_handler                    = on_conn_params_evt;
     cp_init.error_handler                  = conn_params_error_handler;
 
-    err_code = ble_conn_params_init(&cp_init);
-    APP_ERROR_CHECK(err_code);
-}
-
-
-/**@brief Function for starting timers.
- */
-static void application_timers_start(void)
-{
-    /* YOUR_JOB: Start your timers. below is an example of how to start a timer.
-       ret_code_t err_code;
-       err_code = app_timer_start(m_app_timer_id, TIMER_INTERVAL, NULL);
-       APP_ERROR_CHECK(err_code); */
-
-}
-
-
-/**@brief Function for putting the chip into sleep mode.
- *
- * @note This function will not return.
- */
-static void sleep_mode_enter(void)
-{
-    ret_code_t err_code;
-
-    err_code = bsp_indication_set(BSP_INDICATE_IDLE);
-    APP_ERROR_CHECK(err_code);
-
-    // Prepare wakeup buttons.
-    err_code = bsp_btn_ble_sleep_mode_prepare();
-    APP_ERROR_CHECK(err_code);
-
-    // Go to system-off mode (this function will not return; wakeup will cause a reset).
-    err_code = sd_power_system_off();
-    APP_ERROR_CHECK(err_code);
+    ret_code_t  error_code = ble_conn_params_init(&cp_init);
+    APP_ERROR_CHECK(error_code);
 }
 
 
@@ -418,25 +359,41 @@ static void sleep_mode_enter(void)
  */
 static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 {
-    ret_code_t err_code;
+    ret_code_t error_code;
+    logger &logger = logger::instance();
 
     switch (ble_adv_evt)
     {
-        case BLE_ADV_EVT_FAST:
-            NRF_LOG_INFO("Fast advertising.");
-            err_code = bsp_indication_set(BSP_INDICATE_ADVERTISING);
-            APP_ERROR_CHECK(err_code);
-            break;
+    case BLE_ADV_EVT_FAST:
+        logger.info("Fast advertising.");
+        break;
 
-        case BLE_ADV_EVT_IDLE:
-            sleep_mode_enter();
-            break;
+    case BLE_ADV_EVT_IDLE:
+        logger.debug("calling: sd_power_system_off()");
+        logger.flush();
 
-        default:
-            break;
+        /*
+         * Note: when a debugger is attached sd_power_system_off() will return
+         * with 0x2006 NRF_ERROR_SOC_POWER_OFF_SHOULD_NOT_RETURN.
+         * This is normal. When a debugger is attached the nrf device needs
+         * to hold resrouces so debug can continue; therefore not truly powering
+         * down. When no debugger is attached this function will not return.
+         * An interrupt or event is required, at which point the device will
+         * reset. This is probably not the behavior that I am going to want;
+         * so bottom line: do not call this unless the absolute lowest power
+         * is required.
+         */
+        error_code = sd_power_system_off();
+        if (error_code != NRF_SUCCESS)
+        {
+            logger.error("error: sd_power_system_off() failed: 0x%x", error_code);
+        }
+        break;
+
+    default:
+        break;
     }
 }
-
 
 /**@brief Function for handling BLE events.
  *
@@ -445,55 +402,54 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
  */
 static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 {
-    ret_code_t err_code = NRF_SUCCESS;
+    ret_code_t error_code = NRF_SUCCESS;
+    logger &logger = logger::instance();
 
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_DISCONNECTED:
-            NRF_LOG_INFO("Disconnected.");
+            logger.info("Disconnected.");
             // LED indication will be changed when advertising starts.
             break;
 
         case BLE_GAP_EVT_CONNECTED:
-            NRF_LOG_INFO("Connected.");
-            err_code = bsp_indication_set(BSP_INDICATE_CONNECTED);
-            APP_ERROR_CHECK(err_code);
+            logger.info("Connected.");
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
             break;
 
 #ifndef S140
         case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
         {
-            NRF_LOG_DEBUG("PHY update request.");
+            logger.debug("PHY update request.");
             ble_gap_phys_t const phys =
             {
                 .tx_phys = BLE_GAP_PHY_AUTO,
                 .rx_phys = BLE_GAP_PHY_AUTO,
             };
-            err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
-            APP_ERROR_CHECK(err_code);
+            error_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
+            APP_ERROR_CHECK(error_code);
         } break;
 #endif
 
         case BLE_GATTC_EVT_TIMEOUT:
             // Disconnect on GATT Client timeout event.
-            NRF_LOG_DEBUG("GATT Client Timeout.");
-            err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle,
+            logger.debug("GATT Client Timeout.");
+            error_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle,
                                              BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            APP_ERROR_CHECK(err_code);
+            APP_ERROR_CHECK(error_code);
             break;
 
         case BLE_GATTS_EVT_TIMEOUT:
             // Disconnect on GATT Server timeout event.
-            NRF_LOG_DEBUG("GATT Server Timeout.");
-            err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle,
+            logger.debug("GATT Server Timeout.");
+            error_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle,
                                              BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            APP_ERROR_CHECK(err_code);
+            APP_ERROR_CHECK(error_code);
             break;
 
         case BLE_EVT_USER_MEM_REQUEST:
-            err_code = sd_ble_user_mem_reply(p_ble_evt->evt.gattc_evt.conn_handle, NULL);
-            APP_ERROR_CHECK(err_code);
+            error_code = sd_ble_user_mem_reply(p_ble_evt->evt.gattc_evt.conn_handle, NULL);
+            APP_ERROR_CHECK(error_code);
             break;
 
         case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
@@ -518,9 +474,9 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                         auth_reply.type = BLE_GATTS_AUTHORIZE_TYPE_READ;
                     }
                     auth_reply.params.write.gatt_status = APP_FEATURE_NOT_SUPPORTED;
-                    err_code = sd_ble_gatts_rw_authorize_reply(p_ble_evt->evt.gatts_evt.conn_handle,
+                    error_code = sd_ble_gatts_rw_authorize_reply(p_ble_evt->evt.gatts_evt.conn_handle,
                                                                &auth_reply);
-                    APP_ERROR_CHECK(err_code);
+                    APP_ERROR_CHECK(error_code);
                 }
             }
         } break; // BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST
@@ -538,20 +494,20 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
  */
 static void ble_stack_init(void)
 {
-    ret_code_t err_code;
+    ret_code_t error_code;
 
-    err_code = nrf_sdh_enable_request();
-    APP_ERROR_CHECK(err_code);
+    error_code = nrf_sdh_enable_request();
+    APP_ERROR_CHECK(error_code);
 
     // Configure the BLE stack using the default settings.
     // Fetch the start address of the application RAM.
     uint32_t ram_start = 0;
-    err_code = nrf_sdh_ble_default_cfg_set(APP_BLE_CONN_CFG_TAG, &ram_start);
-    APP_ERROR_CHECK(err_code);
+    error_code = nrf_sdh_ble_default_cfg_set(APP_BLE_CONN_CFG_TAG, &ram_start);
+    APP_ERROR_CHECK(error_code);
 
     // Enable BLE stack.
-    err_code = nrf_sdh_ble_enable(&ram_start);
-    APP_ERROR_CHECK(err_code);
+    error_code = nrf_sdh_ble_enable(&ram_start);
+    APP_ERROR_CHECK(error_code);
 
     // Register a handler for BLE events.
     NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
@@ -563,10 +519,10 @@ static void ble_stack_init(void)
 static void peer_manager_init(void)
 {
     ble_gap_sec_params_t sec_param;
-    ret_code_t           err_code;
+    ret_code_t           error_code;
 
-    err_code = pm_init();
-    APP_ERROR_CHECK(err_code);
+    error_code = pm_init();
+    APP_ERROR_CHECK(error_code);
 
     memset(&sec_param, 0, sizeof(ble_gap_sec_params_t));
 
@@ -584,11 +540,11 @@ static void peer_manager_init(void)
     sec_param.kdist_peer.enc = 1;
     sec_param.kdist_peer.id  = 1;
 
-    err_code = pm_sec_params_set(&sec_param);
-    APP_ERROR_CHECK(err_code);
+    error_code = pm_sec_params_set(&sec_param);
+    APP_ERROR_CHECK(error_code);
 
-    err_code = pm_register(pm_evt_handler);
-    APP_ERROR_CHECK(err_code);
+    error_code = pm_register(pm_evt_handler);
+    APP_ERROR_CHECK(error_code);
 }
 
 
@@ -596,22 +552,23 @@ static void peer_manager_init(void)
  */
 static void delete_bonds(void)
 {
-    ret_code_t err_code;
+    ret_code_t error_code;
 
-    NRF_LOG_INFO("Erase bonds!");
+    logger &logger = logger::instance();
+    logger.info("Erase bonds!");
 
-    err_code = pm_peers_delete();
-    APP_ERROR_CHECK(err_code);
+    error_code = pm_peers_delete();
+    APP_ERROR_CHECK(error_code);
 }
 
-
+#if 0
 /**@brief Function for handling events from the BSP module.
  *
  * @param[in]   event   Event generated when button is pressed.
  */
 static void bsp_event_handler(bsp_event_t event)
 {
-    ret_code_t err_code;
+    ret_code_t error_code;
 
     switch (event)
     {
@@ -620,21 +577,21 @@ static void bsp_event_handler(bsp_event_t event)
             break; // BSP_EVENT_SLEEP
 
         case BSP_EVENT_DISCONNECT:
-            err_code = sd_ble_gap_disconnect(m_conn_handle,
+            error_code = sd_ble_gap_disconnect(m_conn_handle,
                                              BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            if (err_code != NRF_ERROR_INVALID_STATE)
+            if (error_code != NRF_ERROR_INVALID_STATE)
             {
-                APP_ERROR_CHECK(err_code);
+                APP_ERROR_CHECK(error_code);
             }
             break; // BSP_EVENT_DISCONNECT
 
         case BSP_EVENT_WHITELIST_OFF:
             if (m_conn_handle == BLE_CONN_HANDLE_INVALID)
             {
-                err_code = ble_advertising_restart_without_whitelist(&m_advertising);
-                if (err_code != NRF_ERROR_INVALID_STATE)
+                error_code = ble_advertising_restart_without_whitelist(&m_advertising);
+                if (error_code != NRF_ERROR_INVALID_STATE)
                 {
-                    APP_ERROR_CHECK(err_code);
+                    APP_ERROR_CHECK(error_code);
                 }
             }
             break; // BSP_EVENT_KEY_0
@@ -643,13 +600,13 @@ static void bsp_event_handler(bsp_event_t event)
             break;
     }
 }
-
+#endif
 
 /**@brief Function for initializing the Advertising functionality.
  */
 static void advertising_init(void)
 {
-    ret_code_t             err_code;
+    ret_code_t             error_code;
     ble_advertising_init_t init;
 
     memset(&init, 0, sizeof(init));
@@ -666,31 +623,11 @@ static void advertising_init(void)
 
     init.evt_handler = on_adv_evt;
 
-    err_code = ble_advertising_init(&m_advertising, &init);
-    APP_ERROR_CHECK(err_code);
+    error_code = ble_advertising_init(&m_advertising, &init);
+    APP_ERROR_CHECK(error_code);
 
     ble_advertising_conn_cfg_tag_set(&m_advertising, APP_BLE_CONN_CFG_TAG);
 }
-
-
-/**@brief Function for initializing buttons and leds.
- *
- * @param[out] p_erase_bonds  Will be true if the clear bonding button was pressed to wake the application up.
- */
-static void buttons_leds_init(bool * p_erase_bonds)
-{
-    ret_code_t err_code;
-    bsp_event_t startup_event;
-
-    err_code = bsp_init(BSP_INIT_LED | BSP_INIT_BUTTONS, bsp_event_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = bsp_btn_ble_init(NULL, &startup_event);
-    APP_ERROR_CHECK(err_code);
-
-    *p_erase_bonds = (startup_event == BSP_EVENT_CLEAR_BONDING_DATA);
-}
-
 
 /**@brief Function for starting advertising.
  */
@@ -703,28 +640,32 @@ static void advertising_start(bool erase_bonds)
     }
     else
     {
-        ret_code_t err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
+        ret_code_t error_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
 
-        APP_ERROR_CHECK(err_code);
+        APP_ERROR_CHECK(error_code);
     }
 }
 
 static segger_rtt_output_stream rtt_os;
 
+static rtc_observable<> rtc_1(1u, 32u);
+
 int main(void)
 {
-    bool erase_bonds;
+    lfclk_enable(LFCLK_SOURCE_XO);
+    app_timer_init(rtc_1);
+    rtc_1.start();
+
+    leds_board_init();
+    buttons_board_init();
 
     logger& logger = logger::instance();
+    logger.set_rtc(rtc_1);
     logger.set_level(logger::level::debug);
     logger.set_output_stream(rtt_os);
 
-    logger.info("BLE peripheral template");
+    logger.info("--- BLE peripheral template ---");
 
-
-    // Initialize.
-    timers_init();
-    buttons_leds_init(&erase_bonds);
     ble_stack_init();
     gap_params_init();
     gatt_init();
@@ -733,15 +674,12 @@ int main(void)
     conn_params_init();
     peer_manager_init();
 
-    // Start execution.
-    NRF_LOG_INFO("Template example started.");
-    application_timers_start();
-
+    bool const erase_bonds = false;
     advertising_start(erase_bonds);
 
-    // Enter main loop.
     for (;;)
     {
+        rtt_os.flush();
         if (rtt_os.write_pending() == 0)
         {
             __WFE();
@@ -749,7 +687,3 @@ int main(void)
     }
 }
 
-
-/**
- * @}
- */

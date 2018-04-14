@@ -37,8 +37,11 @@ Nordic SDK Changes:
 	`#include "app_util_platform.h"`
 
 + mv `../sdk/components/libraries/util/nrf_assert.h`:
-	renamed: `../sdk/components/libraries/util/nrf_assert-orig.h`
+	renamed: `../sdk/components/libraries/util/nrf_assert.orig.h`
 	To avoid inclusion, replaced with `../nrf/nrf_assert.h`
+
++ mv ./components/ble/ble_db_discovery/ble_db_discovery.h:
+	File has been changed to compile g++ arm.
 
 Nordic Linker Scripts and Sections
 ----------------------------------
