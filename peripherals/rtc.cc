@@ -159,6 +159,12 @@ void rtc_init(rtc_instance_t        rtc_instance,
     NVIC_SetPriority(rtc_control->irq_type, irq_priority);
     NVIC_ClearPendingIRQ(rtc_control->irq_type);
     NVIC_EnableIRQ(rtc_control->irq_type);
+
+#if 0
+    // Debug: Set the RTC counter value to (0 - 16u = 0xFFFFF0) so that
+    // The overflow event IRQ occurs soon after start.
+    rtc_control->registers->TASKS_TRIGOVRFLW = 1u;
+#endif
 }
 
 void rtc_deinit(rtc_instance_t rtc_instance)
@@ -296,11 +302,7 @@ rtc::rtc(rtc_instance_t rtc_instance, uint8_t  prescaler, uint8_t irq_priority)
                      rtc_instances[rtc_instance]->cc_alloc_count : 0u),
       rtc_instance_(rtc_instance)
 {
-    rtc_init(rtc_instance,
-             prescaler,
-             irq_priority,
-             rtc_event_handler,
-             this);
+    rtc_init(rtc_instance, prescaler, irq_priority, rtc_event_handler, this);
 }
 
 rtc::~rtc()
