@@ -248,11 +248,14 @@ private:
      */
     uint32_t ticks_update(cc_index_t cc_index, uint32_t cc_count)
     {
+        uint32_t const counter_mask = (timer_type::counter_width < 32u) ?
+            ((1u << timer_type::counter_width) - 1u) : UINT32_MAX ;
+
         // The number of ticks expired since the last update.
         // These shall be subtracted from each observer when update_tick_count()
         // is called.
-        int32_t const ticks_delta = cc_count -
-                                    this->cc_assoc_[cc_index].last_ticks_count_;
+        uint32_t const ticks_delta = (cc_count -
+            this->cc_assoc_[cc_index].last_ticks_count_) & counter_mask;
 
         this->cc_assoc_[cc_index].last_ticks_count_ = cc_count;
 
