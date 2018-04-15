@@ -45,6 +45,10 @@ inline auto bit_mask(bit_pos_t bit_pos_hi, bit_pos_t bit_pos_lo) -> uint_type
  * @tparam int_type The integer type of the integer value being passed in.
  * @param int_value The integer value to sign extend.
  * @param sign_pos  The bit position of the sign bit.
+ *                  This will be one less than the bit-width of an integer
+ *                  value.
+ * @example sign_pos for uint32_t is 31u.
+ * @example sign_pos for a 24-bit number is 23u.
  *
  * @return auto The sign extended version of the int_value passed in.
  */
