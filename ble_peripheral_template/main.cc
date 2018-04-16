@@ -561,47 +561,6 @@ static void delete_bonds(void)
     APP_ERROR_CHECK(error_code);
 }
 
-#if 0
-/**@brief Function for handling events from the BSP module.
- *
- * @param[in]   event   Event generated when button is pressed.
- */
-static void bsp_event_handler(bsp_event_t event)
-{
-    ret_code_t error_code;
-
-    switch (event)
-    {
-        case BSP_EVENT_SLEEP:
-            sleep_mode_enter();
-            break; // BSP_EVENT_SLEEP
-
-        case BSP_EVENT_DISCONNECT:
-            error_code = sd_ble_gap_disconnect(m_conn_handle,
-                                             BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            if (error_code != NRF_ERROR_INVALID_STATE)
-            {
-                APP_ERROR_CHECK(error_code);
-            }
-            break; // BSP_EVENT_DISCONNECT
-
-        case BSP_EVENT_WHITELIST_OFF:
-            if (m_conn_handle == BLE_CONN_HANDLE_INVALID)
-            {
-                error_code = ble_advertising_restart_without_whitelist(&m_advertising);
-                if (error_code != NRF_ERROR_INVALID_STATE)
-                {
-                    APP_ERROR_CHECK(error_code);
-                }
-            }
-            break; // BSP_EVENT_KEY_0
-
-        default:
-            break;
-    }
-}
-#endif
-
 /**@brief Function for initializing the Advertising functionality.
  */
 static void advertising_init(void)
