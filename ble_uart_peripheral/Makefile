@@ -14,7 +14,7 @@ BUILD_PATH = _build
 BUILD_TYPE	?= Debug
 
 # Path to boot installation. Using 1.65.1
-BOOST_ROOT=/usr/local/boost
+BOOST_ROOT=/opt/boost
 
 SOURCE_FILES =
 SOURCE_FILES += ./main.cc
