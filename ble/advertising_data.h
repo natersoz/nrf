@@ -20,12 +20,12 @@ class advertising_data_t: public std::vector<uint8_t, fixed_allocator<uint8_t> >
 public:
     static std::size_t const length = 31u;
 
-    ~advertising_data_t()                                 = default;
+    ~advertising_data_t()                                       = default;
 
-    advertising_data_t(advertising_data_t const&)             = delete;
-    advertising_data_t(advertising_data_t &&)                 = delete;
-    advertising_data_t& operator=(advertising_data_t const&)  = delete;
-    advertising_data_t& operator=(advertising_data_t&&)       = delete;
+    advertising_data_t(advertising_data_t const&)               = delete;
+    advertising_data_t(advertising_data_t &&)                   = delete;
+    advertising_data_t& operator=(advertising_data_t const&)    = delete;
+    advertising_data_t& operator=(advertising_data_t&&)         = delete;
 
     advertising_data_t()
         : std::vector<uint8_t, fixed_allocator<uint8_t> >(),

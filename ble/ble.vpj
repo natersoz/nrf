@@ -268,6 +268,7 @@
             GUID="{0AD1F050-F4C1-4392-BD1F-BDE278D30C33}">
             <F N="address.h"/>
             <F N="advertising.h"/>
+            <F N="advertising_data.h"/>
             <F N="ble_connection.h"/>
             <F N="gap_types.h"/>
             <F N="nordic_advertising.h"/>
