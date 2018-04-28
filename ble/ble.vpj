@@ -260,6 +260,8 @@
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
             GUID="{C652FBB5-D101-416F-8408-86EECAF1CBE9}">
             <F N="advertising.cc"/>
+            <F N="nordic_ble_event_observables.cc"/>
+            <F N="nordic_ble_gap_observable.cc"/>
             <F N="tlv_encode.cc"/>
         </Folder>
         <Folder
@@ -272,6 +274,10 @@
             <F N="ble_connection.h"/>
             <F N="gap_types.h"/>
             <F N="nordic_advertising.h"/>
+            <F N="nordic_ble_event_observable.h"/>
+            <F N="nordic_ble_event_observer.h"/>
+            <F N="nordic_ble_gap_observable.h"/>
+            <F N="nordic_ble_gap_observer.h"/>
             <F N="tlv_encode.h"/>
             <F N="uuid.h"/>
         </Folder>
