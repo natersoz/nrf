@@ -28,13 +28,13 @@ public:
     static uint16_t const interval_unspecified = 0xFFFFu;
 
     virtual ~advertising()                      = default;
+    advertising()                               = default;
 
     advertising(advertising const&)             = delete;
     advertising(advertising &&)                 = delete;
     advertising& operator=(advertising const&)  = delete;
     advertising& operator=(advertising&&)       = delete;
 
-    advertising();
     advertising(uint16_t interval);
 
     void set_mode_directed(ble::address const& peer_address);
