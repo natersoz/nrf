@@ -1,0 +1,5 @@
+target remote localhost:2331
+file _build/ble_peripheral_class.out
+load
+monitor reset
+

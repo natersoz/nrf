@@ -9,7 +9,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdutilities"
+        OutputFile="%bdble_tempplate_peripheral"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -20,7 +20,8 @@
                 Deletable="0"
                 OutputExts="*.o"
                 SaveOption="SaveCurrent"
-                RunFromDir="%rw">
+                RunFromDir="%rw"
+                ClearProcessBuffer="1">
                 <Exec CmdLine='g++ -c %xup  %defd -g -o "%bd%n%oe" %i "%f"'/>
             </Target>
             <Target
@@ -32,7 +33,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='ar -rs %xup "%o" %f'/>
+                <Exec CmdLine='g++ %xup -g -o "%o" %f %libs'/>
             </Target>
             <Target
                 Name="Build"
@@ -61,7 +62,7 @@
                 Deletable="0"
                 SaveOption="SaveNone"
                 RunFromDir="%rw">
-                <Exec CmdLine=""/>
+                <Exec CmdLine='vsdebugio -prog "%o"'/>
             </Target>
             <Target
                 Name="Execute"
@@ -72,7 +73,7 @@
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
                 RunFromDir="%rw">
-                <Exec CmdLine=""/>
+                <Exec CmdLine='"%o"'/>
             </Target>
             <Target
                 Name="dash"
@@ -126,7 +127,7 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="StaticLibrary"/>
+                Value="Executable"/>
         </List>
     </Config>
     <Config
@@ -134,7 +135,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdutilities"
+        OutputFile="%bdble_tempplate_peripheral"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -145,7 +146,8 @@
                 Deletable="0"
                 OutputExts="*.o"
                 SaveOption="SaveCurrent"
-                RunFromDir="%rw">
+                RunFromDir="%rw"
+                ClearProcessBuffer="1">
                 <Exec CmdLine='g++ -c %xup %defd -o "%bd%n%oe" %i "%f"'/>
             </Target>
             <Target
@@ -157,7 +159,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='ar -rs %xup "%o" %f'/>
+                <Exec CmdLine='g++ %xup -o "%o" %f %libs'/>
             </Target>
             <Target
                 Name="Build"
@@ -186,7 +188,7 @@
                 Deletable="0"
                 SaveOption="SaveNone"
                 RunFromDir="%rw">
-                <Exec CmdLine=""/>
+                <Exec CmdLine='vsdebugio -prog "%o"'/>
             </Target>
             <Target
                 Name="Execute"
@@ -197,7 +199,7 @@
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
                 RunFromDir="%rw">
-                <Exec CmdLine=""/>
+                <Exec CmdLine='"%o"'/>
             </Target>
             <Target
                 Name="dash"
@@ -251,47 +253,47 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="StaticLibrary"/>
+                Value="Executable"/>
         </List>
     </Config>
     <Files>
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{6BB44251-229E-4D80-975E-AF6EF065AFE8}">
-            <F N="format_conversion.cc"/>
-            <F N="int_to_string.cc"/>
-            <F N="project_assert.cc"/>
-            <F N="std_stubs.cc"/>
-            <F N="vwritef.cc"/>
-            <F N="write_data.cc"/>
+            GUID="{48553D21-D6F9-401C-90C9-BF9AB9E75BA5}">
+            <F N="../ble_uart_peripheral/main.c"/>
+            <F N="main.cc"/>
+            <F N="advertising.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{8483D48C-17AD-40B2-8C55-E43E03F2B80F}">
-            <F N="bit_manip.h"/>
-            <F N="fixed_allocator.h"/>
-            <F N="float_to_string.h"/>
-            <F N="format_conversion.h"/>
-            <F N="int_to_string.h"/>
-            <F N="project_assert.h"/>
-            <F N="section_macros.h"/>
-            <F N="stream.h"/>
-            <F N="vwritef.h"/>
-            <F N="write_data.h"/>
+            GUID="{D9DE20EA-A7D3-4545-A5D0-6F85EA6450EF}">
+            <Folder
+                Name="config"
+                AutoCustom="1"
+                GUID="{968D0B90-0C26-42B2-9692-31E752A74779}">
+                <F N="../ble_uart_peripheral/config/sdk_config.h"/>
+                <F N="config/sdk_config.h"/>
+            </Folder>
+            <F N="advertising.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"
-            GUID="{5928E62F-FDA7-42F8-A6A7-299E63E91B7E}"/>
+            GUID="{79ADCB1B-05F3-4AF9-AC4A-4CEFD32CE049}"/>
         <Folder
             Name="Bitmaps"
             Filters="*.bmp"
-            GUID="{F46B08ED-956F-46F8-B14D-DCB44B16CA2B}"/>
+            GUID="{80BAB69D-A7D3-4905-BE22-28FC4C4FB81D}"/>
         <Folder
             Name="Other Files"
             Filters=""
-            GUID="{2E768021-52E4-47DA-99C7-C5AD80372455}"/>
+            GUID="{C6EB8A4E-0B6C-43B5-877B-83A6B20CEF16}">
+            <F
+                N="Makefile"
+                Type="Makefile"/>
+            <F N="nrf_ble_peripheral.ld"/>
+        </Folder>
     </Files>
 </Project>
