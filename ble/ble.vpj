@@ -261,7 +261,7 @@
             GUID="{C652FBB5-D101-416F-8408-86EECAF1CBE9}">
             <F N="advertising.cc"/>
             <F N="nordic_ble_event_observables.cc"/>
-            <F N="nordic_ble_gap_observable.cc"/>
+            <F N="nordic_soc_observable.cc"/>
             <F N="tlv_encode.cc"/>
         </Folder>
         <Folder
@@ -276,8 +276,8 @@
             <F N="nordic_advertising.h"/>
             <F N="nordic_ble_event_observable.h"/>
             <F N="nordic_ble_event_observer.h"/>
-            <F N="nordic_ble_gap_observable.h"/>
-            <F N="nordic_ble_gap_observer.h"/>
+            <F N="nordic_soc_observable.h"/>
+            <F N="nordic_soc_observer.h"/>
             <F N="tlv_encode.h"/>
             <F N="uuid.h"/>
         </Folder>

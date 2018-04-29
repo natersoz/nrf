@@ -29,6 +29,7 @@ SOURCE_FILES += ../peripherals/rtc.cc
 
 SOURCE_FILES += ../ble/tlv_encode.cc
 SOURCE_FILES += ../ble/advertising.cc
+SOURCE_FILES += ../ble/nordic_soc_observable.cc
 SOURCE_FILES += ../ble/nordic_ble_event_observables.cc
 SOURCE_FILES += ../utilities/project_assert.cc
 SOURCE_FILES += ../utilities/format_conversion.cc
