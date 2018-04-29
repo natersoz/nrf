@@ -258,11 +258,20 @@
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{7209E883-9257-47AD-A288-998C738448C9}"></Folder>
+            GUID="{7209E883-9257-47AD-A288-998C738448C9}">
+            <F N="app_timer.cc"/>
+        </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
             GUID="{81D230E7-6884-4216-8E14-D216E7ABF729}">
+            <Folder
+                Name="sdk-changed"
+                AutoCustom="1"
+                GUID="{B4E7D66E-F85F-465B-A095-9BAC5F9CB3B4}">
+                <F N="sdk-changed/ble_db_discovery.h"/>
+            </Folder>
+            <F N="app_timer.h"/>
             <F N="nrf_assert.h"/>
             <F N="nrf_cmsis.h"/>
             <F N="nrf_log.h"/>
