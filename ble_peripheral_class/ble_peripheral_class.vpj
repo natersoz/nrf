@@ -261,9 +261,7 @@
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
             GUID="{48553D21-D6F9-401C-90C9-BF9AB9E75BA5}">
-            <F N="../ble_uart_peripheral/main.c"/>
             <F N="main.cc"/>
-            <F N="advertising.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -276,7 +274,6 @@
                 <F N="../ble_uart_peripheral/config/sdk_config.h"/>
                 <F N="config/sdk_config.h"/>
             </Folder>
-            <F N="advertising.h"/>
         </Folder>
         <Folder
             Name="Resource Files"

@@ -23,9 +23,20 @@ class fixed_allocator: public std::allocator<data_type>
 public:
     using value_type = data_type;
 
+    /**
+     * @struct rebind is essential for this class to work properly.
+     * It tells std::allocator to use our implementation of allocate and
+     * deallocate rather than the default operator new, delete.
+     */
+    template <class other_type> struct rebind
+    {
+        using other = fixed_allocator<other_type>;
+    };
+
     ~fixed_allocator()                                  = default;
 
-    fixed_allocator(fixed_allocator const&)             = delete;
+    // Required by rebind.
+    fixed_allocator(fixed_allocator const&)             = default;
     fixed_allocator(fixed_allocator &&)                 = delete;
     fixed_allocator& operator=(fixed_allocator const&)  = delete;
     fixed_allocator& operator=(fixed_allocator&&)       = delete;
@@ -69,6 +80,7 @@ public:
     {
         ASSERT(length <= this->buffer_length_);
         ASSERT(not this->in_use_);
+        this->in_use_ = true;
         return this->buffer_;
     }
 
@@ -84,26 +96,6 @@ public:
         ASSERT(buffer == this->buffer_);
         ASSERT(this->in_use_);
         this->in_use_ = false;
-    }
-
-    void set_backing_store(value_type *buffer, std::size_t length)
-    {
-        if (this->in_use_)
-        {
-            ASSERT(length >= this->buffer_length_);
-
-            memcpy(buffer, this->buffer_, this->buffer_length_);
-            this->buffer_length_ = length;
-        }
-
-        if (this->buffer_)
-        {
-            /// @todo This seems to be the right thing to do...
-//            std::remove_reference(this->buffer_);
-        }
-
-        this->buffer_        = buffer;
-        this->buffer_length_ = length;
     }
 
 private:

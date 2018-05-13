@@ -7,6 +7,7 @@
 #include "ble/gap_types.h"
 #include "ble/nordic_advertising.h"
 
+#include "logger.h"
 #include "project_assert.h"
 
 #include "ble_gap.h"                                    // Nordic softdevice
@@ -15,13 +16,25 @@
 namespace ble
 {
 
-advertising::advertising(uint16_t interval)
+advertising::advertising(uint16_t advertising_interval)
+    : allocator_(data_, sizeof(data_)),
+      advertising_data(allocator_),
+      interval(advertising_interval)
 {
-    this->advertising_params.interval = interval;
+    memset(this->data_, 0, sizeof(this->data_));
+    advertising_data.reserve(sizeof(this->data_));
 }
 
 void advertising::start()
 {
+    logger &logger = logger::instance();
+
+    logger.debug("adv_data: %p, %u", &*this->advertising_data.begin(), this->advertising_data.size());
+    logger.write_data(logger::level::debug,
+                      &*this->advertising_data.begin(),
+                      this->advertising_data.size(),
+                      true);
+
     uint32_t sd_result = sd_ble_gap_adv_data_set(
         &*this->advertising_data.begin(),               // advertising data
         this->advertising_data.size(),
@@ -32,8 +45,11 @@ void advertising::start()
 
     /// @todo Still don't know what this config_tag means - for now nothing.
     uint8_t const config_tag = 1u;
-    sd_result = sd_ble_gap_adv_start(&this->advertising_params, config_tag);
 
+    nordic::ble_advertising_params_t advertising_params;
+    advertising_params.interval = this->interval;
+
+    sd_result = sd_ble_gap_adv_start(&advertising_params, config_tag);
     ASSERT(sd_result == NRF_SUCCESS);
 }
 
