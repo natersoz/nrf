@@ -90,10 +90,18 @@ See also the macros defined in nrf_section.h:
 
 #### `.sdh_soc_observers`:
 #### `.sdh_ble_observers`:
-
+#### `.sdh_req_observers`:
+#### `.sdh_state_observers`:
 These are how the softdevice communicates event notifications with the client
-code using the observer pattern.
+code using the observer pattern. These observers are implemented in classes
+within the code base and the explanation is found within the headers and srouce.
 
+#### `.sdh_stack_observers`:
+This one ginormous observer for all stack events and is not used within this
+code base. Separation of functionality is a good thing.
+
+### `.pwr_mgmt_data`:
+This is not expected to be used. I do not like what Noric has done here.
 
 ### RAM based sections:
 

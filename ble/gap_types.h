@@ -11,6 +11,35 @@ namespace ble
 {
 
 /**
+ * @enum flags
+ * @see CSS_v5 Supplement to Bluetooth Core Specification page 12
+ *
+ * Bit      Decription
+ * 0        BLE Limited Discovery mode
+ * 1        BLE General Discovery mode
+ * 2        BR/EDR Not Supported                  (always 1)
+ * 3        Simultaneous LE and BR/EDR controller (always 0)
+ * 4        Simultaneous LE and BR/EDR host       (always 0)
+ * [5:7]    Reserved
+ */
+enum flags : uint8_t
+{
+    /**
+     * A device is limited by time, typically no more than 60 seconds,
+     * in which discovery is possible.
+     */
+    limited_discovery       = (1u << 0u),
+
+    /// The device can always be discovered.
+    general_discovery       = (1u << 1u),
+    br_edr_not_supported    = (1u << 2u),
+    le_br_edr_controller    = (1u << 3u),
+    le_br_edr_host          = (1u << 4u),
+    le_limited_discovery    = limited_discovery | br_edr_not_supported,
+    le_general_discovery    = general_discovery | br_edr_not_supported
+};
+
+/**
  * @enum gap_type
  * EIR Data Type, Advertising Data Type (AD Type) and OOB Data Type Definitions.
  *
@@ -31,16 +60,7 @@ namespace ble
  */
 enum class gap_type : uint8_t
 {
-    /**
-     * A single octect of LE flags:
-     * Bit      Decription
-     * 0        BLE Limited Discovery mode
-     * 1        BLE General Discovery mode
-     * 2        Always zero for BLE
-     * 3        Simultaneous LE and BR/EDR controller (always 0)
-     * 4        Simultaneous LE and BR/EDR host       (always 0)
-     * [5:7]    Reserved
-     */
+    /// @see enum flags
     flags = 0x01,
 
     /** @{
@@ -68,7 +88,7 @@ enum class gap_type : uint8_t
     local_name_complete = 0x09,
 
     /// The Tx power level in dBm as a signed 8-bit integer: -127 to +127 dBm.
-    tx_power_level  = 0x0A,
+    tx_power_level = 0x0A,
 
     sevice_class = 0x0D,
 

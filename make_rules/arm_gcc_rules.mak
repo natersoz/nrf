@@ -140,7 +140,7 @@ CFLAGS += -g3
 ###
 # GNU C++ Language compiler options
 ###
-CXXFLAGS += -std=c++14
+CXXFLAGS += -std=c++17
 CXXFLAGS += -nostdlib
 CXXFLAGS += $(WARNING_FLAGS)
 CXXFLAGS += $(ARM_GCC_FLAGS)

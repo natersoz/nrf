@@ -7,17 +7,17 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "app_error.h"
+//#include "app_error.h"
 #include "ble.h"
 #include "ble_conn_params.h"
 #include "ble_conn_state.h"
-#include "ble_srv_common.h"
+//#include "ble_srv_common.h"
 #include "fds.h"
-#include "nrf.h"
+//#include "nrf.h"
 #include "nrf_ble_gatt.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
-#include "nrf_sdh_soc.h"
+//#include "nrf_sdh_soc.h"
 #include "peer_manager.h"
 
 #include "app_timer.h"
@@ -29,12 +29,12 @@
 #include "rtc_observer.h"
 #include "project_assert.h"
 
+#include "ble/nordic_softdevice_init.h"
 #include "ble/advertising.h"
 
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2    /**< Reply when unsupported features are requested. */
 
 #define APP_BLE_OBSERVER_PRIO           3                                       /**< Application's BLE observer priority. You shouldn't need to modify this value. */
-#define APP_BLE_CONN_CFG_TAG            1                                       /**< A tag identifying the SoftDevice BLE configuration. */
 
 #define DEAD_BEEF                       0xDEADBEEF                              /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
@@ -113,7 +113,7 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
             }
             else
             {
-                APP_ERROR_CHECK(error_code);
+                ASSERT(error_code == NRF_SUCCESS);
             }
         } break;
 
@@ -131,26 +131,22 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
 
         case PM_EVT_PEER_DATA_UPDATE_FAILED:
         {
-            // Assert.
-            APP_ERROR_CHECK(p_evt->params.peer_data_update_failed.error);
+            ASSERT(p_evt->params.peer_data_update_failed.error == NRF_SUCCESS);
         } break;
 
         case PM_EVT_PEER_DELETE_FAILED:
         {
-            // Assert.
-            APP_ERROR_CHECK(p_evt->params.peer_delete_failed.error);
+            ASSERT(p_evt->params.peer_delete_failed.error == NRF_SUCCESS);
         } break;
 
         case PM_EVT_PEERS_DELETE_FAILED:
         {
-            // Assert.
-            APP_ERROR_CHECK(p_evt->params.peers_delete_failed_evt.error);
+            ASSERT(p_evt->params.peers_delete_failed_evt.error == NRF_SUCCESS);
         } break;
 
         case PM_EVT_ERROR_UNEXPECTED:
         {
-            // Assert.
-            APP_ERROR_CHECK(p_evt->params.error_unexpected.error);
+            ASSERT(p_evt->params.error_unexpected.error == NRF_SUCCESS);
         } break;
 
         case PM_EVT_CONN_SEC_START:
@@ -164,10 +160,41 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
     }
 }
 
-/**@brief Function for the GAP initialization.
+/**
+ * Convert from milliseconds to BLE conection interval units of 1.250 msec.
  *
- * @details This function sets up all the necessary GAP (Generic Access Profile) parameters of the
- *          device including the device name, appearance, and the preferred connection parameters.
+ * @param interval_msec A time interval expressed in milliseconds.
+ *
+ * @return uint16_t The number of 1.25 msec ticks used by the BLE connection
+ * interval tick count.
+ */
+static uint16_t connection_interval_msec(uint32_t interval_msec)
+{
+    interval_msec *= 1000u;
+    interval_msec /= 1250u;
+    return static_cast<uint16_t>(interval_msec);
+}
+
+/**
+ * Convert from milliseconds to BLE supervisory timeout tick count.
+ *
+ * @param interval_msec The supervisory timeout expressed in milliseconds.
+ *
+ * @return uint16_t The number of 10 msec ticks used by the BLE
+ * supervisory timeout tick count.
+ */
+static uint16_t supvisory_timeout_msec(uint32_t interval_msec)
+{
+    interval_msec /= 10u;
+    return static_cast<uint16_t>(interval_msec);
+}
+
+/**
+ * Function for the GAP initialization.
+ *
+ * @details This function sets up all the necessary GAP (Generic Access Profile)
+ * parameters of the device including the device name, appearance,
+ * and the preferred connection parameters.
  */
 static void gap_params_init(void)
 {
@@ -180,26 +207,21 @@ static void gap_params_init(void)
     ret_code_t error_code = sd_ble_gap_device_name_set(&sec_mode,
                                                      (const uint8_t *)DEVICE_NAME,
                                                      strlen(DEVICE_NAME));
-    APP_ERROR_CHECK(error_code);
+    ASSERT(error_code == NRF_SUCCESS);
 
     /* YOUR_JOB: Use an appearance value matching the application's use case.
        error_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_);
-       APP_ERROR_CHECK(error_code); */
+     */
 
     memset(&gap_conn_params, 0, sizeof(gap_conn_params));
 
-    uint16_t const MIN_CONN_INTERVAL    = MSEC_TO_UNITS(100, UNIT_1_25_MS);
-    uint16_t const MAX_CONN_INTERVAL    = MSEC_TO_UNITS(200, UNIT_1_25_MS);
-    uint16_t const SLAVE_LATENCY        = 0;
-    uint16_t const CONN_SUP_TIMEOUT     = MSEC_TO_UNITS(4000, UNIT_10_MS);
-
-    gap_conn_params.min_conn_interval = MIN_CONN_INTERVAL;
-    gap_conn_params.max_conn_interval = MAX_CONN_INTERVAL;
-    gap_conn_params.slave_latency     = SLAVE_LATENCY;
-    gap_conn_params.conn_sup_timeout  = CONN_SUP_TIMEOUT;
+    gap_conn_params.min_conn_interval = connection_interval_msec(100);
+    gap_conn_params.max_conn_interval = connection_interval_msec(200);
+    gap_conn_params.slave_latency     = 0;
+    gap_conn_params.conn_sup_timeout  = supvisory_timeout_msec(4000);
 
     error_code = sd_ble_gap_ppcp_set(&gap_conn_params);
-    APP_ERROR_CHECK(error_code);
+    ASSERT(error_code == NRF_SUCCESS);
 }
 
 /**@brief Function for initializing the GATT module.
@@ -207,7 +229,7 @@ static void gap_params_init(void)
 static void gatt_init(void)
 {
     ret_code_t error_code = nrf_ble_gatt_init(&m_gatt, NULL);
-    APP_ERROR_CHECK(error_code);
+    ASSERT(error_code == NRF_SUCCESS);
 }
 
 /**@brief Function for handling the YYY Service events.
@@ -253,7 +275,6 @@ static void services_init(void)
        xxs_init.ble_xx_initial_value.level = 100;
 
        error_code = ble_bas_init(&m_xxs, &xxs_init);
-       APP_ERROR_CHECK(error_code);
 
        // Initialize YYY Service.
        memset(&yys_init, 0, sizeof(yys_init));
@@ -261,20 +282,23 @@ static void services_init(void)
        yys_init.ble_yy_initial_value.counter = 0;
 
        error_code = ble_yy_service_init(&yys_init, &yy_init);
-       APP_ERROR_CHECK(error_code);
      */
 }
 
 
-/**@brief Function for handling the Connection Parameters Module.
+/**
+ * @todo This, along with the entire ble_conn_params.c functionality needs to
+ * be refactored into a class which handles BLE connection events.
+ * @see nordic::ble_gap_event_observer, as it will be the interface which
+ * gets connection notificiations.
  *
- * @details This function will be called for all events in the Connection Parameters Module which
- *          are passed to the application.
- *          @note All this function does is to disconnect. This could have been done by simply
- *                setting the disconnect_on_fail config parameter, but instead we use the event
- *                handler mechanism to demonstrate its use.
+ * This function is called for all events in the Connection Parameters Module
+ * which are passed to the application.
+ * @note All this function does is to disconnect.
+ * This could have been done by simply setting the disconnect_on_fail config
+ * parameter, but instead we use the event handler mechanism to demonstrate its use.
  *
- * @param[in] p_evt  Event received from the Connection Parameters Module.
+ * @param p_evt Event received from the Connection Parameters Module.
  */
 static void on_conn_params_evt(ble_conn_params_evt_t * p_evt)
 {
@@ -282,57 +306,60 @@ static void on_conn_params_evt(ble_conn_params_evt_t * p_evt)
     {
         ret_code_t error_code = sd_ble_gap_disconnect(m_conn_handle,
                                                     BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
-        APP_ERROR_CHECK(error_code);
+        ASSERT(error_code == NRF_SUCCESS);
     }
 }
 
 
-/**@brief Function for handling a Connection Parameters error.
+/**
+ * Function for handling a Connection Parameters error.
  *
- * @param[in] nrf_error  Error code containing information about what went wrong.
+ * @param nrf_error  Error code containing information about what went wrong.
  */
 static void conn_params_error_handler(uint32_t nrf_error)
 {
-    APP_ERROR_HANDLER(nrf_error);
+    ASSERT(nrf_error == NRF_SUCCESS);
 }
 
-
-/**@brief Function for initializing the Connection Parameters module.
+/**
+ * @see comments in on_conn_params_evt() for how this is going to be refactored.
  */
-static void conn_params_init(void)
+static void conn_params_init(rtc &rtc)
 {
     ble_conn_params_init_t cp_init;
     memset(&cp_init, 0, sizeof(cp_init));
 
     // Time from initiating event (connect or start of notification)
     // to first time sd_ble_gap_conn_param_update is called (5 seconds).
-    uint32_t const FIRST_CONN_PARAMS_UPDATE_DELAY = APP_TIMER_TICKS(5000u);
+    uint32_t const first_conn_params_update_delay = rtc.msec_to_ticks(5000u);
 
     // Time between each call to sd_ble_gap_conn_param_update
     // after the first call (30 seconds).
-    uint32_t const NEXT_CONN_PARAMS_UPDATE_DELAY = APP_TIMER_TICKS(30000u);
+    uint32_t const next_conn_params_update_delay = rtc.msec_to_ticks(30000u);
 
     // Number of attempts before giving up the connection parameter negotiation.
-    uint8_t const MAX_CONN_PARAMS_UPDATE_COUNT = 3u;
+    uint8_t const max_conn_params_update_count = 3u;
 
     cp_init.p_conn_params                  = NULL;
-    cp_init.first_conn_params_update_delay = FIRST_CONN_PARAMS_UPDATE_DELAY;
-    cp_init.next_conn_params_update_delay  = NEXT_CONN_PARAMS_UPDATE_DELAY;
-    cp_init.max_conn_params_update_count   = MAX_CONN_PARAMS_UPDATE_COUNT;
+    cp_init.first_conn_params_update_delay = first_conn_params_update_delay;
+    cp_init.next_conn_params_update_delay  = next_conn_params_update_delay;
+    cp_init.max_conn_params_update_count   = max_conn_params_update_count;
     cp_init.start_on_notify_cccd_handle    = BLE_GATT_HANDLE_INVALID;
     cp_init.disconnect_on_fail             = false;
     cp_init.evt_handler                    = on_conn_params_evt;
     cp_init.error_handler                  = conn_params_error_handler;
 
     ret_code_t  error_code = ble_conn_params_init(&cp_init);
-    APP_ERROR_CHECK(error_code);
+    ASSERT(error_code == NRF_SUCCESS);
 }
 
 /**@brief Function for handling BLE events.
  *
- * @param[in]   p_ble_evt   Bluetooth stack event.
- * @param[in]   p_context   Unused.
+ * @param  p_ble_evt   Bluetooth stack event.
+ * @param  p_context   Unused.
  */
+/// @todo This gets removed and replaced by an instance of
+/// nordic::ble_gap_event_observer.
 static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 {
     ret_code_t error_code = NRF_SUCCESS;
@@ -359,7 +386,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                 .rx_phys = BLE_GAP_PHY_AUTO,
             };
             error_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
-            APP_ERROR_CHECK(error_code);
+            ASSERT(error_code == NRF_SUCCESS);
         } break;
 #endif
 
@@ -368,7 +395,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             logger.debug("GATT Client Timeout.");
             error_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle,
                                              BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            APP_ERROR_CHECK(error_code);
+            ASSERT(error_code == NRF_SUCCESS);
             break;
 
         case BLE_GATTS_EVT_TIMEOUT:
@@ -376,12 +403,12 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             logger.debug("GATT Server Timeout.");
             error_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle,
                                              BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            APP_ERROR_CHECK(error_code);
+            ASSERT(error_code == NRF_SUCCESS);
             break;
 
         case BLE_EVT_USER_MEM_REQUEST:
             error_code = sd_ble_user_mem_reply(p_ble_evt->evt.gattc_evt.conn_handle, NULL);
-            APP_ERROR_CHECK(error_code);
+            ASSERT(error_code == NRF_SUCCESS);
             break;
 
         case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
@@ -408,7 +435,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                     auth_reply.params.write.gatt_status = APP_FEATURE_NOT_SUPPORTED;
                     error_code = sd_ble_gatts_rw_authorize_reply(p_ble_evt->evt.gatts_evt.conn_handle,
                                                                &auth_reply);
-                    APP_ERROR_CHECK(error_code);
+                    ASSERT(error_code == NRF_SUCCESS);
                 }
             }
         } break; // BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST
@@ -418,33 +445,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             break;
     }
 }
-
-
-/**@brief Function for initializing the BLE stack.
- *
- * @details Initializes the SoftDevice and the BLE event interrupt.
- */
-static void ble_stack_init(void)
-{
-    ret_code_t error_code;
-
-    error_code = nrf_sdh_enable_request();
-    APP_ERROR_CHECK(error_code);
-
-    // Configure the BLE stack using the default settings.
-    // Fetch the start address of the application RAM.
-    uint32_t ram_start = 0;
-    error_code = nrf_sdh_ble_default_cfg_set(APP_BLE_CONN_CFG_TAG, &ram_start);
-    APP_ERROR_CHECK(error_code);
-
-    // Enable BLE stack.
-    error_code = nrf_sdh_ble_enable(&ram_start);
-    APP_ERROR_CHECK(error_code);
-
-    // Register a handler for BLE events.
-    NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
-}
-
 
 /**@brief Function for the Peer Manager initialization.
  */
@@ -477,9 +477,83 @@ static void peer_manager_init(void)
     ASSERT(error_code == NRF_SUCCESS);
 }
 
+/**
+ * Initialize the SoftDevice and the BLE event interrupt.
+ */
+static void ble_stack_init(void)
+{
+    // Check to see if all other softdevice clients are ready to start.
+    {
+        ret_code_t error_code = nrf_sdh_enable_request();
+        ASSERT(error_code == NRF_SUCCESS);
+    }
+
+    /* __data_start__ marks the beginning of the data section within the linker
+     * description script. See nrf5x_common.ld. The RAM region before the data
+     * section is reserved for use by the softdevice.. If any other sections
+     * are placed in front of the __data_init__ marker then the marker location
+     * needs to change as well.
+     */
+    extern uint32_t __data_start__;
+    uintptr_t const ram_base_address        = reinterpret_cast<uintptr_t>(&__data_start__);
+    uint8_t   const total_link_count        =    1u;
+    uint8_t   const peripheral_link_count   =    1u;
+    uint16_t  const mtu_size                =   23u;
+    uint8_t   const gatt_uuid_count         =    4u;    /// @todo
+    uint32_t  const gatt_table_size         = 2048u;    /// @todo
+    bool      const service_changed         = false;
+
+    uint32_t const sd_init_result = nordic::softdevice_init(
+        ram_base_address,
+        total_link_count,
+        peripheral_link_count,
+        mtu_size,
+        gatt_uuid_count,
+        gatt_table_size,
+        service_changed);
+
+    ASSERT(sd_init_result == NRF_SUCCESS);
+
+    uint32_t sd_base_address  = ram_base_address;
+    ret_code_t const ret_code = sd_ble_enable(&sd_base_address);
+
+    logger& logger = logger::instance();
+    logger.info("RAM starts at 0x%08x, minimum required: 0x%08x, %s",
+                ram_base_address, sd_base_address,
+                (ram_base_address >= sd_base_address)? "OK" : "FAIL");
+
+    ASSERT(ret_code == NRF_SUCCESS);
+
+    // Register a handler for BLE events.
+    /// @todo This gets removed and replaced by an instance of
+    /// nordic::ble_gap_event_observer.
+    NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
+}
+
 static segger_rtt_output_stream rtt_os;
 
 static rtc_observable<> rtc_1(1u, 32u);
+
+#include "ble/gap_types.h"
+#include "ble/tlv_encode.h"
+#include "nordic/device_address.h"
+
+static uint16_t const advertising_interval = ble::advertising::interval_msec(100u);
+static ble::advertising advertising(advertising_interval);
+
+static void set_advertising_data(ble::advertising_data_t &data)
+{
+    uint16_t const uuid16_list[] = {
+        BLE_UUID_DEVICE_INFORMATION_SERVICE
+    };
+
+    size_t const uuid16_count = sizeof(uuid16_list) / sizeof(uuid16_list[0]);
+
+    ble::tlv_encode(data, ble::gap_type::flags,            ble::le_general_discovery);
+    ble::tlv_encode(data, ble::gap_type::local_name_short, "periph_class");
+    ble::tlv_encode_address(data, false, nordic::get_device_address());
+    ble::tlv_encode(data, ble::gap_type::uuid_service_16_complete, uuid16_list, uuid16_count);
+}
 
 int main(void)
 {
@@ -500,13 +574,12 @@ int main(void)
     ble_stack_init();
     gap_params_init();
     gatt_init();
-//    advertising_init(APP_BLE_CONN_CFG_TAG);
     services_init();
-    conn_params_init();
+    conn_params_init(rtc_1);
     peer_manager_init();
 
-//    bool const erase_bonds = false;
-//    advertising_start(erase_bonds);
+    set_advertising_data(advertising.advertising_data);
+    advertising.start();
 
     for (;;)
     {

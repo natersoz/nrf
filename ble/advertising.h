@@ -7,9 +7,6 @@
 
 #pragma once
 
-#include "ble/address.h"
-#include "ble/advertising_data.h"
-#include "ble/nordic_advertising.h"
 #include "fixed_allocator.h"
 #include <cstddef>
 #include <cstring>
@@ -18,6 +15,8 @@
 namespace ble
 {
 
+using advertising_data_t = std::vector<uint8_t, fixed_allocator<uint8_t> >;
+
 /**
  * @class advertising
  * A generic BLE advertising class, undirected and connectable.
@@ -25,48 +24,60 @@ namespace ble
 class advertising
 {
 public:
+    /// The number of bytes that can be carried in the advertising data.
+    static constexpr std::size_t const length = 31u;
+
+private:
+    uint8_t                     data_[length];
+    fixed_allocator<uint8_t>    allocator_;
+
+public:
+    /// Used to specify that the advertising interval can be anything.
     static uint16_t const interval_unspecified = 0xFFFFu;
 
+    /**
+     * Convert from milliseconds to BLE advertising interval units of 0.625 msec.
+     *
+     * @param interval_msec A time interval expressed in milliseconds.
+     *
+     * @return uint16_t The number of 0.625 msec ticks used by the BLE advertising
+     * interval tick count.
+     */
+    inline static uint16_t interval_msec(uint32_t interval_msec)
+    {
+        interval_msec *= 1000u;
+        interval_msec /=  625u;
+        return static_cast<uint16_t>(interval_msec);
+    }
+
     virtual ~advertising()                      = default;
-    advertising()                               = default;
+    advertising()                               = delete;
 
     advertising(advertising const&)             = delete;
     advertising(advertising &&)                 = delete;
     advertising& operator=(advertising const&)  = delete;
     advertising& operator=(advertising&&)       = delete;
 
-    advertising(uint16_t interval);
-
-    void set_mode_directed(ble::address const& peer_address);
-
-    /// @{ The advertising interval in 0.625 msec units.
-    void set_advertising_interval(uint16_t interval);
-    uint16_t get_advertising_interval() const;
-    /// @}
+    /**
+     * Create the advertising class with a specific intreval based on
+     * 0.625 msec tick counts.
+     *
+     * @param interval The advertising interval in 0.625 msec ticks.
+     */
+    advertising(uint16_t interval = advertising::interval_unspecified);
 
     void start();
     void stop();
 
-    std::size_t advertising_tlv_encode();
-
-private:
+    /**
+     * Use the tlv_encode functions to set the advertising data into
+     * this data struct.
+     */
     advertising_data_t advertising_data;
 
-    /**
-     * @todo For now all implementations are nordic nRF based.
-     * Perhaps some other day, make it generic.
-     */
-    nordic::ble_advertising_params_t advertising_params;
+    /// The advertising interval in 0.625 msec units.
+    uint16_t interval;
 };
 
 } // namespace ble
 
-
-
-extern "C" {
-
-// This will be static and private to the base advertising class.
-// void ble_advertising_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_adv);
-// void ble_advertising_on_sys_evt(uint32_t sys_evt, void * p_adv);
-
-}

@@ -1,5 +1,5 @@
 /**
- * @file ble/advertising.cc
+ * @file ble/nordic_advertising.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
