@@ -253,7 +253,6 @@ namespace secutiry_manager
  *
  * @note Deliberately not using enum class here so that oob_flags can
  * of bit-wise or-d together
- *
  */
 enum oob_flags : uint8_t
 {

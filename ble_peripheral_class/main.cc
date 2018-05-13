@@ -7,17 +7,13 @@
 #include <stdint.h>
 #include <string.h>
 
-//#include "app_error.h"
 #include "ble.h"
 #include "ble_conn_params.h"
 #include "ble_conn_state.h"
-//#include "ble_srv_common.h"
 #include "fds.h"
-//#include "nrf.h"
 #include "nrf_ble_gatt.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
-//#include "nrf_sdh_soc.h"
 #include "peer_manager.h"
 
 #include "app_timer.h"
@@ -35,9 +31,6 @@
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2    /**< Reply when unsupported features are requested. */
 
 #define APP_BLE_OBSERVER_PRIO           3                                       /**< Application's BLE observer priority. You shouldn't need to modify this value. */
-
-#define DEAD_BEEF                       0xDEADBEEF                              /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
-
 
 NRF_BLE_GATT_DEF(m_gatt);                                                       /**< GATT module instance. */
 
@@ -258,8 +251,7 @@ static void on_yys_evt(ble_yy_service_t     * p_yy_service,
 }
 */
 
-/**@brief Function for initializing services that will be used by the application.
- */
+/** Initialize application services. */
 static void services_init(void)
 {
     /* YOUR_JOB: Add code to initialize the services used by the application.
@@ -360,19 +352,19 @@ static void conn_params_init(rtc &rtc)
  */
 /// @todo This gets removed and replaced by an instance of
 /// nordic::ble_gap_event_observer.
-static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
+static void ble_evt_handler(ble_evt_t const *ble_event, void *context)
 {
     ret_code_t error_code = NRF_SUCCESS;
     logger &logger = logger::instance();
 
-    switch (p_ble_evt->header.evt_id)
+    switch (ble_event->header.evt_id)
     {
         case BLE_GAP_EVT_DISCONNECTED:
             logger.info("Disconnected.");
             break;
 
         case BLE_GAP_EVT_CONNECTED:
-            m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
+            m_conn_handle = ble_event->evt.gap_evt.conn_handle;
             logger.info("Connected, handle: 0x%04x", m_conn_handle);
             break;
 
@@ -385,7 +377,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                 .tx_phys = BLE_GAP_PHY_AUTO,
                 .rx_phys = BLE_GAP_PHY_AUTO,
             };
-            error_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
+            error_code = sd_ble_gap_phy_update(ble_event->evt.gap_evt.conn_handle, &phys);
             ASSERT(error_code == NRF_SUCCESS);
         } break;
 #endif
@@ -393,7 +385,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
         case BLE_GATTC_EVT_TIMEOUT:
             // Disconnect on GATT Client timeout event.
             logger.debug("GATT Client Timeout.");
-            error_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle,
+            error_code = sd_ble_gap_disconnect(ble_event->evt.gattc_evt.conn_handle,
                                              BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
             ASSERT(error_code == NRF_SUCCESS);
             break;
@@ -401,13 +393,13 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
         case BLE_GATTS_EVT_TIMEOUT:
             // Disconnect on GATT Server timeout event.
             logger.debug("GATT Server Timeout.");
-            error_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle,
+            error_code = sd_ble_gap_disconnect(ble_event->evt.gatts_evt.conn_handle,
                                              BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
             ASSERT(error_code == NRF_SUCCESS);
             break;
 
         case BLE_EVT_USER_MEM_REQUEST:
-            error_code = sd_ble_user_mem_reply(p_ble_evt->evt.gattc_evt.conn_handle, NULL);
+            error_code = sd_ble_user_mem_reply(ble_event->evt.gattc_evt.conn_handle, NULL);
             ASSERT(error_code == NRF_SUCCESS);
             break;
 
@@ -416,7 +408,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             ble_gatts_evt_rw_authorize_request_t  req;
             ble_gatts_rw_authorize_reply_params_t auth_reply;
 
-            req = p_ble_evt->evt.gatts_evt.params.authorize_request;
+            req = ble_event->evt.gatts_evt.params.authorize_request;
 
             if (req.type != BLE_GATTS_AUTHORIZE_TYPE_INVALID)
             {
@@ -433,7 +425,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                         auth_reply.type = BLE_GATTS_AUTHORIZE_TYPE_READ;
                     }
                     auth_reply.params.write.gatt_status = APP_FEATURE_NOT_SUPPORTED;
-                    error_code = sd_ble_gatts_rw_authorize_reply(p_ble_evt->evt.gatts_evt.conn_handle,
+                    error_code = sd_ble_gatts_rw_authorize_reply(ble_event->evt.gatts_evt.conn_handle,
                                                                &auth_reply);
                     ASSERT(error_code == NRF_SUCCESS);
                 }
@@ -446,8 +438,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     }
 }
 
-/**@brief Function for the Peer Manager initialization.
- */
 static void peer_manager_init(void)
 {
     ret_code_t error_code = pm_init();
