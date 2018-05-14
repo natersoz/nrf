@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "ble/advertising.h"
+#include "ble/advertising_data.h"
 #include "ble/gap_types.h"
 
 #include <cstddef>

@@ -17,12 +17,9 @@ namespace ble
 {
 
 advertising::advertising(uint16_t advertising_interval)
-    : allocator_(data_, sizeof(data_)),
-      advertising_data(allocator_),
+    : advertising_data(),
       interval(advertising_interval)
 {
-    memset(this->data_, 0, sizeof(this->data_));
-    advertising_data.reserve(sizeof(this->data_));
 }
 
 void advertising::start()

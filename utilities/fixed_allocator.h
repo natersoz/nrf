@@ -41,12 +41,8 @@ public:
     fixed_allocator& operator=(fixed_allocator const&)  = delete;
     fixed_allocator& operator=(fixed_allocator&&)       = delete;
 
-    fixed_allocator()
-        : buffer_(nullptr),
-          buffer_length_(0u),
-          in_use_(false)
-    {
-    }
+    fixed_allocator() : buffer_(nullptr), buffer_length_(0u), in_use_(false)
+    {}
 
     /**
      * Create a fixed alocator for the specified data_type.
@@ -56,11 +52,8 @@ public:
      *               backing store allocation.
      */
     fixed_allocator(value_type *buffer, std::size_t length)
-        : buffer_(buffer),
-          buffer_length_(length),
-          in_use_(false)
-    {
-    }
+        : buffer_(buffer), buffer_length_(length), in_use_(false)
+    {}
 
     /**
      * Allocates n * sizeof(value_type) bytes of uninitialized storage by
