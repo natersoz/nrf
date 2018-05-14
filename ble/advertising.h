@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "fixed_allocator.h"
+#include "ble/advertising_data.h"
 #include <cstddef>
 #include <cstring>
 #include <vector>
@@ -15,22 +15,12 @@
 namespace ble
 {
 
-using advertising_data_t = std::vector<uint8_t, fixed_allocator<uint8_t> >;
-
 /**
  * @class advertising
  * A generic BLE advertising class, undirected and connectable.
  */
 class advertising
 {
-public:
-    /// The number of bytes that can be carried in the advertising data.
-    static constexpr std::size_t const length = 31u;
-
-private:
-    uint8_t                     data_[length];
-    fixed_allocator<uint8_t>    allocator_;
-
 public:
     /// Used to specify that the advertising interval can be anything.
     static uint16_t const interval_unspecified = 0xFFFFu;
