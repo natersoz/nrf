@@ -8,27 +8,28 @@ PCA10040 development boards.
 This README.md is getting large. At some point it will be broken up into
 smaller pieces.
 
+Nordic Questions:
+-----------------
+1. ble_gatts_attr_t::init_offs Provide an example where this would not be zero.
+2. Understand Nordic's variable length attributes.
+3.
+
 Goals:
 ------
-
-+ Simplify the usage of the Nordic SDK.
-  There are too many changes Nordic is making between releases,
-  much of which I have no use for (`FreeRTOS`, `app_scheduler`, `sdk_config.h`).
-  Nordic is trying to be all things to all people and do their work for
-  them. I object. Let this project illustrate my expectations.
++ Provide a generic BLE implementation using C++ class structures which
+  can be adapted to any vendor specific hardware. The first instance will
+  be the Nordic nrf52 development board.
+  + The implementation will not use an OS, but should be easily adapted to an OS.
 + Peripheral device drivers should access the CMSIS mapped registers and
   rely minimally on the SDK. Progress will be indicated by the lack
   of file and module coupling between device drivers.
 + Isolate and simplify the softdevice usage. The softdevice is very well
   architected (from what I can tell) and does not incur many of the wild
   gyrations of the SDK. The softdevice will be called directly.
-+ There will be some portions of the SDK that will be used:
-    + As an example: I am expecting the fs modules to be used; at least the
-      interface provided in `nrf_fstorage.h`. This is an example of how the SDK
-      should look across the board. An interface decoupled from implementation
-      which the softdevice will use. The OEM can provide their own
-      impleemntation or use what the SDK provides. This is an example of
-      work well done.
+
+### Piroities:
++ First the peripheral and GATT server will be implemented.
++ Initially the Security Manager will be ignored.
 
 LICENSING
 ---------
