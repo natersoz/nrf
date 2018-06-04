@@ -260,10 +260,16 @@
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
             GUID="{C652FBB5-D101-416F-8408-86EECAF1CBE9}">
             <F N="advertising.cc"/>
+            <F N="battery_service.cc"/>
+            <F N="ble_bas.c"/>
             <F N="nordic_ble_event_observables.cc"/>
             <F N="nordic_req_observable.cc"/>
             <F N="nordic_soc_observable.cc"/>
+            <F N="nordic_softdevice_init.cc"/>
+            <F N="nordic_state_observable.cc"/>
             <F N="tlv_encode.cc"/>
+            <F N="uuid.cc"/>
+            <F N="nordic_gatts.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -271,8 +277,13 @@
             GUID="{0AD1F050-F4C1-4392-BD1F-BDE278D30C33}">
             <F N="address.h"/>
             <F N="advertising.h"/>
+            <F N="advertising_data.h"/>
+            <F N="battery_service.h"/>
+            <F N="ble_bas.h"/>
             <F N="ble_connection.h"/>
             <F N="gap_types.h"/>
+            <F N="gatt_uuids.h"/>
+            <F N="gatts.h"/>
             <F N="nordic_advertising.h"/>
             <F N="nordic_ble_event_observable.h"/>
             <F N="nordic_ble_event_observer.h"/>
@@ -280,8 +291,21 @@
             <F N="nordic_req_observer.h"/>
             <F N="nordic_soc_observable.h"/>
             <F N="nordic_soc_observer.h"/>
+            <F N="nordic_softdevice_init.h"/>
+            <F N="nordic_state_observable.h"/>
+            <F N="nordic_state_observer.h"/>
             <F N="tlv_encode.h"/>
             <F N="uuid.h"/>
+            <F N="gatts_event_observer.h"/>
+            <F N="att.h"/>
+            <F N="xxx.h"/>
+            <F N="gatt.h"/>
+            <F N="gatt_service.h"/>
+            <F N="gatt_format.h"/>
+            <F N="gatt_characteristic.h"/>
+            <F N="nordic_gatts.h"/>
+            <F N="gatt_declaration.h"/>
+            <F N="gatt_descriptors.h"/>
         </Folder>
         <Folder
             Name="Resource Files"

@@ -27,8 +27,11 @@ SOURCE_FILES += ../peripherals/clocks.cc
 SOURCE_FILES += ../peripherals/leds_pca10040.cc
 SOURCE_FILES += ../peripherals/rtc.cc
 
+SOURCE_FILES += ../ble/uuid.cc
 SOURCE_FILES += ../ble/tlv_encode.cc
 SOURCE_FILES += ../ble/advertising.cc
+SOURCE_FILES += ../ble/battery_service.cc
+SOURCE_FILES += ../ble/nordic_gatts.cc
 SOURCE_FILES += ../ble/nordic_softdevice_init.cc
 SOURCE_FILES += ../ble/nordic_state_observable.cc
 SOURCE_FILES += ../ble/nordic_req_observable.cc

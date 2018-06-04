@@ -3,6 +3,10 @@
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  *
  * Integer to string conversions.
+ *
+ * @todo These inline template implementations need to be implemented
+ * in a .cc file - they are using up program space by being scattered about
+ * with multiple implementations.
  */
 
 #pragma once
