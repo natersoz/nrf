@@ -78,14 +78,27 @@ public:
     {
     }
 
+    /**
+     * Instantiate a BLE GATT Service.
+     *
+     * @param service_uuid The 128-bit service UUID.
+     * @param attr_type must be one of:
+     *        - ble::gatt::declarations::primary_service
+     *        - ble::gatt::declarations::secondary_service
+     */
     service(services service_uuid, attribute_type attr_type) :
         decl(attr_type, properties::read),
         uuid(static_cast<uint16_t>(service_uuid))
     {
     }
 
-    declaration decl;
-    att::uuid const  uuid;
+    void characteristic_add(characteristic &char_to_add)
+    {
+        this->characteristic_list.push_back(char_to_add);
+    }
+
+    declaration     decl;
+    att::uuid const uuid;
 
     // The list of characteristics contained in the service.
     using characteristic_list_type =

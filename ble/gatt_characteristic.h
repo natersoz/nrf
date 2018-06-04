@@ -67,47 +67,20 @@ struct characteristic
     uint16_t        handle;
     att::uuid const uuid;
 
-    /**
-     * Read data from the characterisic.
-     *
-     * @param data The user supplied buffer to read into.
-     * @param length The length of the user supplied buffer.
-     * @param offset The offset into the characteristic data to begin reading from.
-     *
-     * @return att::signed_length_t
-     * @retval >= 0 The actual number of bytes read sucessfully.
-     * @retval  < 0 An error occured.
-     *         The unsigned negative value is mapped to ble:att::error_code.
-     */
-    virtual att::signed_length_t read(void           *data,
-                                      att::length_t  length,
-                                      att::length_t  offset = 0u) { return 0u; }
-
-    /**
-     * Write data to the characteristic.
-     *
-     * @param data   The data to write to the characteristic.
-     * @param length The number of bytes to write.
-     * @param offset The offset into the characteristic buffer to begin writing.
-     *
-     * @return att::signed_length_t
-     * @retval >= 0 The actual number of bytes written sucessfully.
-     * @retval  < 0 An error occured.
-     *         The unsigned negative value is mapped to ble:att::error_code.
-     */
-    virtual att::signed_length_t write(void const    *data,
-                                       att::length_t length,
-                                       att::length_t offset = 0u) { return 0u; }
+    /// @todo Provide a const version of this?
+    virtual void *data_pointer() { return nullptr; }
 
     virtual att::length_t data_length()     const { return 0u; }
-    virtual att::length_t data_length_max() const { return 0u; }
+    virtual att::length_t data_length_max() const { return this->data_length(); }
 
     bool data_length_is_variable() const {
         return this->data_length() != this->data_length_max();
     }
 
-    virtual void       *data_pointer()       { return nullptr; }
-    virtual void const *data_pointer() const { return nullptr; }
+    void descriptor_add(characteristic_base_descriptor &descriptor)
+    {
+        this->descriptor_list.push_back(descriptor);
+    }
 
     // The list of descriptors associated with this characteristic.
     using descriptor_list_type =

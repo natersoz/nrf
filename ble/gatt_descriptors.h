@@ -72,8 +72,8 @@ struct characteristic_user_descriptor: public characteristic_base_descriptor
     }
 
     /// @todo Implement the case where the user descriptor can be written.
-    char const* const           user_string_ptr;
-    uint16_t                    user_string_length;
+    char const* const   user_string_ptr;
+    uint16_t            user_string_length;
 };
 
 struct characteristic_presentation_format_descriptor: public characteristic_base_descriptor
@@ -128,6 +128,8 @@ struct characteristic_presentation_format_descriptor: public characteristic_base
     uint16_t              const description;    ///< No one seems to know what this does.
 };
 
+using cpfd = characteristic_presentation_format_descriptor;
+
 struct client_characteristic_configuration_descriptor: public characteristic_base_descriptor
 {
     static constexpr uint16_t const notification_enable = 0x01;
@@ -145,7 +147,8 @@ struct client_characteristic_configuration_descriptor: public characteristic_bas
         characteristic_base_descriptor(
             characteristic,
             attribute_type::client_characteristic_configuration,
-            properties::read_write)
+            properties::read_write),
+        configuration_bits(0u)
     {
     }
 
@@ -160,6 +163,8 @@ struct client_characteristic_configuration_descriptor: public characteristic_bas
      */
     uint16_t                    configuration_bits;
 };
+
+using cccd = client_characteristic_configuration_descriptor;
 
 struct server_characteristic_configuration_descriptor: public characteristic_base_descriptor
 {
@@ -177,7 +182,8 @@ struct server_characteristic_configuration_descriptor: public characteristic_bas
         characteristic_base_descriptor(
             characteristic,
             attribute_type::server_characteristic_configuration,
-            properties::read_write)
+            properties::read_write),
+        configuration_bits(0u)
     {
     }
 
@@ -185,6 +191,8 @@ struct server_characteristic_configuration_descriptor: public characteristic_bas
 
     uint16_t                    configuration_bits;
 };
+
+using sccd = server_characteristic_configuration_descriptor;
 
 } // namespace gatt
 } // namespace ble

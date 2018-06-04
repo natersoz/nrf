@@ -25,8 +25,16 @@
 #include "rtc_observer.h"
 #include "project_assert.h"
 
+#include "ble/att.h"
 #include "ble/nordic_softdevice_init.h"
+#include "ble/nordic_gatts.h"
+#include "ble/service/gap_service.h"
+#include "ble/service/gatt_service.h"
+#include "ble/service/battery_service.h"
 #include "ble/advertising.h"
+#include "ble/gap_types.h"
+#include "ble/tlv_encode.h"
+#include "nordic/device_address.h"
 
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2    /**< Reply when unsupported features are requested. */
 
@@ -176,7 +184,7 @@ static uint16_t connection_interval_msec(uint32_t interval_msec)
  * @return uint16_t The number of 10 msec ticks used by the BLE
  * supervisory timeout tick count.
  */
-static uint16_t supvisory_timeout_msec(uint32_t interval_msec)
+static uint16_t supervision_timeout_msec(uint32_t interval_msec)
 {
     interval_msec /= 10u;
     return static_cast<uint16_t>(interval_msec);
@@ -184,6 +192,11 @@ static uint16_t supvisory_timeout_msec(uint32_t interval_msec)
 
 /**
  * Function for the GAP initialization.
+ * @todo SD This likely goes away.
+ * - Sets device name
+ * - appearnce
+ * - ppcp
+ * These are all characteristics of the generic_access (gap) service.
  *
  * @details This function sets up all the necessary GAP (Generic Access Profile)
  * parameters of the device including the device name, appearance,
@@ -196,6 +209,7 @@ static void gap_params_init(void)
 
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
 
+    /// @todo SD setting device name
     char const *DEVICE_NAME = "ble_class";
     ret_code_t error_code = sd_ble_gap_device_name_set(&sec_mode,
                                                      (const uint8_t *)DEVICE_NAME,
@@ -211,8 +225,9 @@ static void gap_params_init(void)
     gap_conn_params.min_conn_interval = connection_interval_msec(100);
     gap_conn_params.max_conn_interval = connection_interval_msec(200);
     gap_conn_params.slave_latency     = 0;
-    gap_conn_params.conn_sup_timeout  = supvisory_timeout_msec(4000);
+    gap_conn_params.conn_sup_timeout  = supervision_timeout_msec(4000);
 
+    /// @todo SD setting PPCP
     error_code = sd_ble_gap_ppcp_set(&gap_conn_params);
     ASSERT(error_code == NRF_SUCCESS);
 }
@@ -224,59 +239,6 @@ static void gatt_init(void)
     ret_code_t error_code = nrf_ble_gatt_init(&m_gatt, NULL);
     ASSERT(error_code == NRF_SUCCESS);
 }
-
-/**@brief Function for handling the YYY Service events.
- * YOUR_JOB implement a service handler function depending on the event the service you are using can generate
- *
- * @details This function will be called for all YY Service events which are passed to
- *          the application.
- *
- * @param[in]   p_yy_service   YY Service structure.
- * @param[in]   p_evt          Event received from the YY Service.
- *
- *
-static void on_yys_evt(ble_yy_service_t     * p_yy_service,
-                       ble_yy_service_evt_t * p_evt)
-{
-    switch (p_evt->evt_type)
-    {
-        case BLE_YY_NAME_EVT_WRITE:
-            APPL_LOG("[APPL]: charact written with value %s. ", p_evt->params.char_xx.value.p_str);
-            break;
-
-        default:
-            // No implementation needed.
-            break;
-    }
-}
-*/
-
-/** Initialize application services. */
-static void services_init(void)
-{
-    /* YOUR_JOB: Add code to initialize the services used by the application.
-       ret_code_t                         error_code;
-       ble_xxs_init_t                     xxs_init;
-       ble_yys_init_t                     yys_init;
-
-       // Initialize XXX Service.
-       memset(&xxs_init, 0, sizeof(xxs_init));
-
-       xxs_init.evt_handler                = NULL;
-       xxs_init.is_xxx_notify_supported    = true;
-       xxs_init.ble_xx_initial_value.level = 100;
-
-       error_code = ble_bas_init(&m_xxs, &xxs_init);
-
-       // Initialize YYY Service.
-       memset(&yys_init, 0, sizeof(yys_init));
-       yys_init.evt_handler                  = on_yys_evt;
-       yys_init.ble_yy_initial_value.counter = 0;
-
-       error_code = ble_yy_service_init(&yys_init, &yy_init);
-     */
-}
-
 
 /**
  * @todo This, along with the entire ble_conn_params.c functionality needs to
@@ -524,12 +486,11 @@ static segger_rtt_output_stream rtt_os;
 
 static rtc_observable<> rtc_1(1u, 32u);
 
-#include "ble/gap_types.h"
-#include "ble/tlv_encode.h"
-#include "nordic/device_address.h"
-
 static uint16_t const advertising_interval = ble::advertising::interval_msec(100u);
 static ble::advertising advertising(advertising_interval);
+
+static constexpr char const device_name_str[] = "periph_class";
+static constexpr ble::att::length_t const device_name_length = sizeof(device_name_str) - 1u;
 
 static void set_advertising_data(ble::advertising_data_t &data)
 {
@@ -540,7 +501,7 @@ static void set_advertising_data(ble::advertising_data_t &data)
     size_t const uuid16_count = sizeof(uuid16_list) / sizeof(uuid16_list[0]);
 
     ble::tlv_encode(data, ble::gap_type::flags,            ble::le_general_discovery);
-    ble::tlv_encode(data, ble::gap_type::local_name_short, "periph_class");
+    ble::tlv_encode(data, ble::gap_type::local_name_short, device_name_str);
     ble::tlv_encode_address(data, false, nordic::get_device_address());
     ble::tlv_encode(data, ble::gap_type::uuid_service_16_complete, uuid16_list, uuid16_count);
 }
@@ -564,7 +525,38 @@ int main(void)
     ble_stack_init();
     gap_params_init();
     gatt_init();
-    services_init();
+
+    /// @todo "periph_class" is common with advertising device name.
+    ble::service::device_name device_name_characteristic(device_name_str, device_name_length);
+    ble::service::appearance  appearance_characteristic(ble::gatt::appearance::unknown);
+
+    /// @todo Connection interval needs to be thought through for a specific device.
+    ble::gap::connection_parameters const connection_parameters(
+        connection_interval_msec(100),
+        connection_interval_msec(200),
+        0u,
+        supervision_timeout_msec(4000u));
+
+    /// @todo Is gap_params_init() now obsolete?
+    /// Adding this service may duplicate the service - is it an error?
+    ble::service::ppcp          ppcp(connection_parameters);
+    ble::service::gap_service   gap_service;
+    gap_service.characteristic_add(device_name_characteristic);
+    gap_service.characteristic_add(appearance_characteristic);
+    gap_service.characteristic_add(ppcp);
+
+    ble::service::gatt_service  gatt_service;
+
+    ble::service::battery_service     battery_service;
+    ble::service::battery_level       battery_level_characteristic;
+    ble::service::battery_power_state battery_power_characteristic;
+    battery_service.characteristic_add(battery_level_characteristic);
+    battery_service.characteristic_add(battery_power_characteristic);
+
+    nordic::gatts_service_add(gap_service);
+    nordic::gatts_service_add(gatt_service);
+    nordic::gatts_service_add(battery_service);
+
     conn_params_init(rtc_1);
     peer_manager_init();
 
