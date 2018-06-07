@@ -190,48 +190,6 @@ static uint16_t supervision_timeout_msec(uint32_t interval_msec)
     return static_cast<uint16_t>(interval_msec);
 }
 
-/**
- * Function for the GAP initialization.
- * @todo SD This likely goes away.
- * - Sets device name
- * - appearnce
- * - ppcp
- * These are all characteristics of the generic_access (gap) service.
- *
- * @details This function sets up all the necessary GAP (Generic Access Profile)
- * parameters of the device including the device name, appearance,
- * and the preferred connection parameters.
- */
-static void gap_params_init(void)
-{
-    ble_gap_conn_params_t   gap_conn_params;
-    ble_gap_conn_sec_mode_t sec_mode;
-
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
-
-    /// @todo SD setting device name
-    char const *DEVICE_NAME = "ble_class";
-    ret_code_t error_code = sd_ble_gap_device_name_set(&sec_mode,
-                                                     (const uint8_t *)DEVICE_NAME,
-                                                     strlen(DEVICE_NAME));
-    ASSERT(error_code == NRF_SUCCESS);
-
-    /* YOUR_JOB: Use an appearance value matching the application's use case.
-       error_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_);
-     */
-
-    memset(&gap_conn_params, 0, sizeof(gap_conn_params));
-
-    gap_conn_params.min_conn_interval = connection_interval_msec(100);
-    gap_conn_params.max_conn_interval = connection_interval_msec(200);
-    gap_conn_params.slave_latency     = 0;
-    gap_conn_params.conn_sup_timeout  = supervision_timeout_msec(4000);
-
-    /// @todo SD setting PPCP
-    error_code = sd_ble_gap_ppcp_set(&gap_conn_params);
-    ASSERT(error_code == NRF_SUCCESS);
-}
-
 /**@brief Function for initializing the GATT module.
  */
 static void gatt_init(void)
@@ -523,7 +481,6 @@ int main(void)
     logger.info("--- BLE peripheral template ---");
 
     ble_stack_init();
-    gap_params_init();
     gatt_init();
 
     /// @todo "periph_class" is common with advertising device name.

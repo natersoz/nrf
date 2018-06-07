@@ -3,6 +3,7 @@
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
+#include "ble.h"
 #include "ble/advertising.h"
 #include "ble/gap_types.h"
 #include "ble/nordic_advertising.h"
@@ -40,7 +41,9 @@ void advertising::start()
 
     ASSERT(sd_result == NRF_SUCCESS);
 
-    /// @todo Still don't know what this config_tag means - for now nothing.
+    /// @todo Still don't know what this config_tag means - for now default.
+    /// @see more comments in ble_gatts.h:
+    /// BLE_CONN_CFGS, BLE_COMMON_CFGS, BLE_GAP_CFGS, BLE_GATTS_CFGS
     uint8_t const config_tag = 1u;
 
     nordic::ble_advertising_params_t advertising_params;
