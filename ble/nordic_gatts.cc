@@ -7,6 +7,10 @@
 #include "project_assert.h"
 #include "logger.h"
 
+#include "ble/service/gap_service.h"
+#include "ble/service/gatt_service.h"
+#include "ble/gatt_uuids.h"
+
 #include "ble.h"                    // Softdevice headers
 #include "ble_gatts.h"
 #include "nrf_error.h"
@@ -323,8 +327,95 @@ static uint32_t gatts_characteristic_add(uint16_t service_handle,
     return error;
 }
 
+static uint32_t nordic_add_gap_service(ble::gatt::service& service)
+{
+    uint32_t error_return = NRF_SUCCESS;
+    logger   &logger      = logger::instance();
+
+    for (ble::gatt::characteristic &node : service.characteristic_list)
+    {
+        uint32_t error = NRF_SUCCESS;
+
+        auto const uuid = static_cast<ble::gatt::characteristics>(node.uuid.get_u16());
+        switch(uuid)
+        {
+        case ble::gatt::characteristics::device_name:
+            {
+                /// @todo SM can these be set any other way for this service?
+                ble_gap_conn_sec_mode_t const security_mode = {
+                    .sm = 0u,
+                    .lv = 0u,
+                };
+
+                uint8_t *utf8_ptr = reinterpret_cast<uint8_t*>(node.data_pointer());
+                uint16_t utf8_len = node.data_length();
+                error = sd_ble_gap_device_name_set(&security_mode, utf8_ptr, utf8_len);
+
+                if (error != NRF_SUCCESS)
+                {
+                    logger.error("error: sd_ble_gap_device_name_set() failed: %u", error);
+                }
+            }
+            break;
+
+        case ble::gatt::characteristics::appearance:
+            {
+                uint16_t *appearance_ptr = reinterpret_cast<uint16_t*>(node.data_pointer());
+                if (node.data_length() != sizeof(uint16_t))
+                {
+                    logger.error("invalid appearance length: %u", node.data_length());
+                    ASSERT(0);
+                }
+
+                error = sd_ble_gap_appearance_set(*appearance_ptr);
+
+                if (error != NRF_SUCCESS)
+                {
+                    logger.error("error: sd_ble_gap_appearance_set() failed: %u", error);
+                }
+            }
+            break;
+
+        case ble::gatt::characteristics::ppcp:
+            {
+                ble::gap::connection_parameters const *connection_parameters_ptr =
+                    reinterpret_cast<ble::gap::connection_parameters const*>(node.data_pointer());
+                if (node.data_length() != sizeof(ble::gap::connection_parameters))
+                {
+                    logger.error("invalid connection_parameters length: %u", node.data_length());
+                    ASSERT(0);
+                }
+
+                ble_gap_conn_params_t const gap_conn_params = {
+                    .min_conn_interval = connection_parameters_ptr->connection_interval_min,
+                    .max_conn_interval = connection_parameters_ptr->connection_interval_max,
+                    .slave_latency     = connection_parameters_ptr->slave_latency,
+                    .conn_sup_timeout  = connection_parameters_ptr->connection_supervision_timeout,
+                };
+
+                error = sd_ble_gap_ppcp_set(&gap_conn_params);
+
+                if (error != NRF_SUCCESS)
+                {
+                    logger.error("error: sd_ble_gap_ppcp_set() failed: %u", error);
+                }
+            }
+            break;
+
+        default:
+            // Uknown characteristic for the GAP service.
+            break;
+        }
+
+        error_return = (error_return == NRF_SUCCESS)? error : error_return;
+    }
+
+    return error_return;
+}
+
 uint32_t gatts_service_add(ble::gatt::service& service)
 {
+    uint32_t           error     = NRF_SUCCESS;
     logger           &logger     = logger::instance();
     uint8_t    const nordic_type = nordic_service_type(service.decl.attribute_type);
     ble_uuid_t const nordic_uuid = nordic_uuid_type(service.uuid);
@@ -332,26 +423,63 @@ uint32_t gatts_service_add(ble::gatt::service& service)
     ASSERT(nordic_uuid.type != BLE_UUID_TYPE_UNKNOWN);
 
     char uuid_char_buffer[ble::att::uuid::conversion_length];
+    // memset(uuid_char_buffer, 0, sizeof(uuid_char_buffer));
     service.uuid.to_chars(uuid_char_buffer, uuid_char_buffer + ble::att::uuid::conversion_length);
 
-    uint32_t error = sd_ble_gatts_service_add(nordic_type,
-                                              &nordic_uuid,
-                                              &service.decl.handle);
-
-    if (error == NRF_SUCCESS)
+    if (nordic_uuid.type == BLE_UUID_TYPE_BLE)
     {
-        logger.debug("sd_ble_gatts_service_add(%s): OK", uuid_char_buffer);
+        logger.debug("BLE UUID: 0x%04x", nordic_uuid.uuid);
+    }
 
-        for (ble::gatt::characteristic &node : service.characteristic_list)
+    // The GAP service 0x1800 and the GATT service 0x1801 will return NRF_ERROR_FORBIDDEN
+    // if they are added to the service tree using sd_ble_gatts_service_add().
+    // Nordic provides other means for these since they affect the GAP and GATT handling.
+    if ((nordic_uuid.type == BLE_UUID_TYPE_BLE) && (nordic_uuid.uuid == 0x1800u))
+    {
+        error = nordic_add_gap_service(service);
+
+        if (error == NRF_SUCCESS)
         {
-            error = gatts_characteristic_add(service.decl.handle, node);
-            if (error != NRF_SUCCESS) { break; }
+            logger.debug("nordic_add_gap_service (0x%04x): OK", nordic_uuid.uuid);
         }
+        else
+        {
+            logger.error("error: nordic_add_gap_service (0x%04x): failed: %u",
+                         nordic_uuid.uuid, error);
+        }
+    }
+    else if ((nordic_uuid.type == BLE_UUID_TYPE_BLE) && (nordic_uuid.uuid == 0x1801u))
+    {
+        /* Do nothing. The appropriate call would be sd_ble_cfg_set().
+         * However, the default for Nordic is to enable this characteristic
+         * and to have the user able to indicate it. Which is what we want.
+         * The Nordic function is painful to call; it requires a configuration
+         * id, the softdevice base address. Since we already have the behavior
+         * required, just leave it alone.
+         */
     }
     else
     {
-        logger.error("error: sd_ble_gatts_service_add(%s) failed: %u",
-                     uuid_char_buffer, error);
+        logger.debug("sd_ble_gatts_service_add(%s)", uuid_char_buffer);
+        error = sd_ble_gatts_service_add(nordic_type,
+                                         &nordic_uuid,
+                                         &service.decl.handle);
+
+        if (error == NRF_SUCCESS)
+        {
+            logger.debug("sd_ble_gatts_service_add(%s): OK", uuid_char_buffer);
+
+            for (ble::gatt::characteristic &node : service.characteristic_list)
+            {
+                error = gatts_characteristic_add(service.decl.handle, node);
+                if (error != NRF_SUCCESS) { break; }
+            }
+        }
+        else
+        {
+            logger.error("error: sd_ble_gatts_service_add(%s) failed: %u",
+                         uuid_char_buffer, error);
+        }
     }
 
     return error;

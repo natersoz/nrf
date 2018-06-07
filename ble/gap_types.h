@@ -271,7 +271,7 @@ struct connection_parameters
         connection_interval_min(unspecified_interval),
         connection_interval_max(unspecified_interval),
         slave_latency(0u),
-        conection_supervision_timeout(unspecified_interval)
+        connection_supervision_timeout(unspecified_interval)
     {
     }
 
@@ -282,7 +282,7 @@ struct connection_parameters
         connection_interval_min(conn_interval_min),
         connection_interval_max(conn_interval_max),
         slave_latency(latency),
-        conection_supervision_timeout(conn_supervision_timeout)
+        connection_supervision_timeout(conn_supervision_timeout)
     {
     }
 
@@ -299,7 +299,7 @@ struct connection_parameters
      * The number of connection events the peripheral is allowed to not respond
      * before timing out. Range: [0x0000:0x01F3],
      * Slave latency max =
-     *      conection_supervision_timeout / (connection_interval * 2) - 1
+     *      connection_supervision_timeout / (connection_interval * 2) - 1
      */
     uint16_t slave_latency;
 
@@ -308,7 +308,7 @@ struct connection_parameters
      * Range: 0xFFFF indicates no specific value requested.
      * Range: [0x000A:0x0C80]; 100 ms to 32 seconds.
      */
-    uint16_t conection_supervision_timeout;
+    uint16_t connection_supervision_timeout;
 };
 
 static_assert(sizeof(connection_parameters) == sizeof(uint16_t) * 4u);

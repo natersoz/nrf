@@ -36,33 +36,36 @@ public:
     }
 
     virtual void *data_pointer() override {
-        return const_cast<handles_t *>(&this->service_changed_);
+        return const_cast<handles *>(&this->service_changed_handles_);
     }
 
     virtual att::length_t data_length() const override {
-        return sizeof(this->service_changed_);
+        return sizeof(this->service_changed_handles_);
     }
 
     void services_changed(uint16_t service_handle_first,
                           uint16_t service_handle_last)
     {
-        this->service_changed_.handle_first = service_handle_first;
-        this->service_changed_.handle_last  = service_handle_last;
+        this->service_changed_handles_.first = service_handle_first;
+        this->service_changed_handles_.last  = service_handle_last;
 
         /// @todo Implement notification code.
+        /// For Nordic. Later separate this out into a Nordic specific
+        /// set of code within the namespace nordic using:
+        /// sd_ble_gatts_service_changed() in ble_gatts.h
     }
 
 private:
-    struct handles_t
+    struct handles
     {
-        ~handles_t() = default;
-        handles_t(): handle_first(0u), handle_last(0u) {};
+        ~handles() = default;
+        handles(): first(0u), last(0u) {};
 
-        uint16_t handle_first;
-        uint16_t handle_last;
+        uint16_t first;
+        uint16_t last;
     };
 
-    handles_t service_changed_;
+    handles service_changed_handles_;
 
     ble::gatt::client_characteristic_configuration_descriptor cccd_;
 };
