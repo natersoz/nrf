@@ -26,11 +26,13 @@
 #include "project_assert.h"
 
 #include "ble/att.h"
+#include "ble/gatt_uuids.h"
 #include "ble/nordic_softdevice_init.h"
 #include "ble/nordic_gatts.h"
 #include "ble/service/gap_service.h"
 #include "ble/service/gatt_service.h"
 #include "ble/service/battery_service.h"
+#include "ble/service/current_time_service.h"
 #include "ble/advertising.h"
 #include "ble/gap_types.h"
 #include "ble/tlv_encode.h"
@@ -447,21 +449,41 @@ static rtc_observable<> rtc_1(1u, 32u);
 static uint16_t const advertising_interval = ble::advertising::interval_msec(100u);
 static ble::advertising advertising(advertising_interval);
 
-static constexpr char const device_name_str[] = "periph_class";
-static constexpr ble::att::length_t const device_name_length = sizeof(device_name_str) - 1u;
+static constexpr char const device_name_str[]  = "periph_class";
+static constexpr char const device_short_str[] = "cls";
+static constexpr ble::att::length_t const device_name_length  = sizeof(device_name_str)  - 1u;
+static constexpr ble::att::length_t const device_short_length = sizeof(device_short_str) - 1u;
 
-static void set_advertising_data(ble::advertising_data_t &data)
+static size_t set_advertising_data(ble::advertising_data_t &data)
 {
-    uint16_t const uuid16_list[] = {
-        BLE_UUID_DEVICE_INFORMATION_SERVICE
+    ble::gatt::services const services_16[] = {
+        ble::gatt::services::device_information,
+        ble::gatt::services::battery_service,
+        ble::gatt::services::current_time_service
     };
 
-    size_t const uuid16_count = sizeof(uuid16_list) / sizeof(uuid16_list[0]);
+    size_t const services_16_count = sizeof(services_16) / sizeof(services_16[0]);
 
-    ble::tlv_encode(data, ble::gap_type::flags,            ble::le_general_discovery);
-    ble::tlv_encode(data, ble::gap_type::local_name_short, device_name_str);
-    ble::tlv_encode_address(data, false, nordic::get_device_address());
-    ble::tlv_encode(data, ble::gap_type::uuid_service_16_complete, uuid16_list, uuid16_count);
+    size_t length = 0u;
+
+    length += ble::tlv_encode(data,
+                              ble::gap_type::flags,
+                              ble::le_general_discovery);
+
+    length += ble::tlv_encode(data,
+                              ble::gap_type::local_name_short,
+                              device_short_str,
+                              device_short_length);
+
+    length += ble::tlv_encode_address(data,
+                                      false,
+                                      nordic::get_device_address());
+
+    length += ble::tlv_encode(data,
+                              ble::gap_type::uuid_service_16_incomplete,
+                              services_16,
+                              services_16_count);
+    return length;
 }
 
 int main(void)
@@ -478,7 +500,7 @@ int main(void)
     logger.set_level(logger::level::debug);
     logger.set_output_stream(rtt_os);
 
-    logger.info("--- BLE peripheral template ---");
+    logger.info("--- BLE peripheral classes ---");
 
     ble_stack_init();
     gatt_init();
@@ -510,9 +532,18 @@ int main(void)
     battery_service.characteristic_add(battery_level_characteristic);
     battery_service.characteristic_add(battery_power_characteristic);
 
+    ble::service::current_time_service current_time_service;
+    current_time_service.current_time.greg_date.year    = 2018u;
+    current_time_service.current_time.greg_date.month   =   12u;
+    current_time_service.current_time.greg_date.day     =   13u;
+    current_time_service.current_time.greg_date.hours   =   17u;
+    current_time_service.current_time.greg_date.minutes =   29u;
+    current_time_service.current_time.greg_date.seconds =   52u;
+
     nordic::gatts_service_add(gap_service);
     nordic::gatts_service_add(gatt_service);
     nordic::gatts_service_add(battery_service);
+    nordic::gatts_service_add(current_time_service);
 
     conn_params_init(rtc_1);
     peer_manager_init();

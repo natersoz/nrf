@@ -128,7 +128,6 @@ private:
     ble::gap::connection_parameters const connection_parameters_;
 };
 
-
 class gap_service: public gatt::service
 {
 public:
