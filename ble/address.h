@@ -10,6 +10,7 @@
 
 namespace ble
 {
+namespace gap
 
 class address
 {
@@ -39,4 +40,5 @@ public:
     }
 };
 
+} // namespace gap
 } // namespace ble

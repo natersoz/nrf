@@ -11,6 +11,7 @@
 #pragma once
 
 #include "ble/gatt_service.h"
+#include "ble/gatt_descriptors.h"
 #include "ble/gatt_uuids.h"
 
 namespace ble
@@ -42,8 +43,10 @@ public:
         gatt::characteristic(gatt::characteristics::battery_level,
                              gatt::properties::read  |
                              gatt::properties::notify),
+        cccd(*this),
         battery_percentage_(0u)
     {
+        this->descriptor_add(this->cccd);
     }
 
     virtual void* data_pointer() override { return &this->battery_percentage_; }
@@ -51,6 +54,8 @@ public:
     virtual att::length_t data_length() const override {
         return sizeof(this->battery_percentage_);
     }
+
+    gatt::client_characteristic_configuration_descriptor cccd;
 
     void write_battery_percentage(uint8_t battery_percentage);
     uint8_t read_battery_percentage() const;
@@ -111,8 +116,10 @@ public:
         gatt::characteristic(gatt::characteristics::battery_power_state,
                              gatt::properties::read  |
                              gatt::properties::notify),
+        cccd(*this),
         battery_power_state_(0u)
     {
+        this->descriptor_add(this->cccd);
     }
 
     virtual void* data_pointer() override {
@@ -127,6 +134,8 @@ public:
                                    discharging  discharging_state,
                                    charging     charging_state,
                                    level        level_state);
+
+    gatt::client_characteristic_configuration_descriptor cccd;
 
     presence    read_battery_power_presence() const;
     discharging read_battery_power_discharging() const;
