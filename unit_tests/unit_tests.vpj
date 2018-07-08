@@ -259,7 +259,29 @@
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
             GUID="{692A7CBC-9741-41F8-A446-F11368B5C6DB}">
+            <Folder
+                Name="test_float_to_string"
+                AutoCustom="1"
+                GUID="{29B46032-0976-41E9-A8DF-F0F4D6454A3D}">
+                <F N="test_float_to_string/test_float_to_string.cc"/>
+            </Folder>
+            <Folder
+                Name="test_vwritef"
+                AutoCustom="1"
+                GUID="{DC00B2A7-CA55-4E30-805F-062F7E4B01D9}">
+                <F N="test_vwritef/test_vwritef.cc"/>
+            </Folder>
+            <Folder
+                Name="test_write_data"
+                AutoCustom="1"
+                GUID="{85316DFC-A5C8-464D-8410-C19523FE0903}">
+                <F N="test_write_data/test_write_data.cc"/>
+            </Folder>
             <F N="test_int_to_string.cc"/>
+            <F N="test_uuid.cc"/>
+            <F N="test_format_conversion.cc"/>
+            <F N="test_make_array.cc"/>
+            <F N="test_bit_manip.cc"/>
         </Folder>
         <Folder
             Name="Header Files"

@@ -274,6 +274,10 @@
             <F N="nordic_softdevice_init.cc"/>
             <F N="advertising.cc"/>
             <F N="nordic_soc_observable.cc"/>
+            <F N="nordic_ble_gatts_event_observable.cc"/>
+            <F N="nordic_ble_gattc_event_observable.cc"/>
+            <F N="nordic_ble_gap_event_observable.cc"/>
+            <F N="nordic_ble_common_event_observable.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -286,6 +290,8 @@
                 <F N="service/battery_service.h"/>
                 <F N="service/gap_service.h"/>
                 <F N="service/gatt_service.h"/>
+                <F N="service/device_information_service.h"/>
+                <F N="service/current_time_service.h"/>
             </Folder>
             <F N="nordic_ble_event_observer.h"/>
             <F N="nordic_soc_observer.h"/>
@@ -315,6 +321,11 @@
             <F N="nordic_req_observer.h"/>
             <F N="gatt_descriptors.h"/>
             <F N="nordic_state_observable.h"/>
+            <F N="ble_gatts_event_observer.h"/>
+            <F N="hci_error_codes.h"/>
+            <F N="nordic_ble_gap_event_observer.h"/>
+            <F N="ble_gap_event_observer.h"/>
+            <F N="ble_gattc_event_observer.h"/>
         </Folder>
         <Folder
             Name="Resource Files"

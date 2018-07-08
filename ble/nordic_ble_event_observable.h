@@ -49,20 +49,7 @@ public:
     }
 
     void notify(typename observer_type::event_enum_t         event_type,
-                typename observer_type::event_data_t const&  event_data)
-    {
-        for (auto observer_iter  = this->observer_list_.begin();
-                  observer_iter != this->observer_list_.end(); )
-        {
-            // Increment the iterator prior to using it.
-            // If the client removes itself during the completion callback
-            // then the iterator will be valid and can continue.
-            auto &observer = *observer_iter;
-            ++observer_iter;
-
-            observer.notify(event_type, event_data);
-        }
-    }
+                typename observer_type::event_data_t const&  event_data);
 
 private:
     /**

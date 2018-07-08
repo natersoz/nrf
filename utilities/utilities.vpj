@@ -280,6 +280,9 @@
             <F N="stream.h"/>
             <F N="vwritef.h"/>
             <F N="write_data.h"/>
+            <F N="charconv_integer.h"/>
+            <F N="charconv.h"/>
+            <F N="make_array.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
