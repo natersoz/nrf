@@ -1,11 +1,12 @@
 /**
- * @gap_types.h
+ * @file gap_types.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
 #pragma once
 
 #include <cstdint>
+#include <array>
 
 namespace ble
 {
@@ -248,6 +249,26 @@ enum class gap_type : uint8_t
 namespace gap
 {
 
+enum le_role : uint8_t
+{
+    peripheral_only      = 0x00,
+    central_only         = 0x01,
+    peripheral_preferred = 0x02, ///< Dual role supported; Peripheral preferred.
+    central_preferred    = 0x03, ///< Dual role supported; Central preferred.
+};
+
+/**
+ * @todo Nordic Specific: Taken from Nordic BLE_GAP_TIMEOUT_SOURCES
+ * This is fine to use, but does it encapsulate other implementations as well?
+ */
+enum class timeout_reason: uint8_t
+{
+    advertising             = 0,
+    scanning                = 1,
+    connection              = 2,
+    authenticated_payload   = 3
+};
+
 /**
  * @see Bluetooth Core Specification 5.0, Volume 3, Part C
  * 12.3 peripheral preferred connection parameters characteristic
@@ -313,10 +334,187 @@ struct connection_parameters
 
 static_assert(sizeof(connection_parameters) == sizeof(uint16_t) * 4u);
 
-} // namespace gap
-
-namespace secutiry_manager
+// The BLE security manager.
+namespace security
 {
+/**
+ * @see Bluetooth Core Specification 5.0, Volume 3, Part H
+ * 3.5.5 Pairing Failed, Table 3.7: Pairing Failed Reason Codes
+ */
+enum class pairing_failure : uint8_t
+{
+    /// @note The value 0x00 in the Core Specification is RFU.
+    /// We will use it to indicate success.
+    success                     = 0x00,
+
+    /// These values conform to Table 3.7
+    passkey_entry_failed        = 0x01,
+    oob_not_available           = 0x02,
+    authentication_requirements = 0x03,
+    confirm_value_faied         = 0x04,
+    pairing_not_supported       = 0x05,
+    encryption_key_size         = 0x06,
+    command_not_supoorted       = 0x07,
+    unspecified_reason          = 0x08,
+    repeated_attempts           = 0x09,
+    invalid_parameters          = 0x0a,
+    dhkey_check_failed          = 0x0b,
+    numberic_comparison         = 0x0c,
+    br_edr_pairing_in_progress  = 0x0d,
+    br_edr_key_deriv_denied     = 0x0e,
+
+    /// Vendor specific error conditions:
+    vendor_specific_begin       = 0x80,
+    timeout                     = 0x81,
+    pdu_invalid                 = 0x02,
+
+    /// A unknown/unrecognized pairing failure occurred.
+    failure_unknown             = 0xff
+};
+
+/**
+ * @struct authentication_required
+ * BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H, page 2340
+ * Figure 3.3:  Authentication Requirements Flags
+ */
+struct authentication_required
+{
+    /**
+     * Require mon-in-the-middle protection.
+     * A device sets the MITM flag to one to request an Authenticated
+     * security property for the STK when using LE legacy pairing
+     * and the LTK when using LE Secure Connections.
+     * @note For Nordic this is ble_gap_sec_params_t::mitm
+     */
+    bool mitm;
+
+    /**
+     * If LE Secure Connections pairing is supported by the device,
+     * then the SC field shall be set (otherwise unset).
+     * If both devices support LE Secure Connections pairing, then
+     * LE Secure Connections pairing shall be used,
+     * otherwise LE Legacy pairing shall be used.
+     * @note For Nordic this flag is ble_gap_sec_params_t::lesc.
+     */
+    bool sc;
+
+    /**
+     * Used only with Passkey Entry protocol and is ignored in other protocols.
+     * When both sides set that field to one, Keypress notifications shall be
+     * generated and sent using SMP Pairing Keypress Notification PDUs.
+     * @note For Nordic this flag is ble_gap_sec_params_t::keypress.
+     */
+    bool keypress;
+
+    /**
+     * The CT2 field is a 1-bit flag that shall be set upon transmission
+     * to indicate support for the h7 function.
+     * See sections 2.4.2.4 and 2.4.2.5.
+     * @todo TBD how this is used.
+     */
+    bool ct2;
+};
+
+/**
+ * @struct key_distribution
+ * See BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H, pages 2351
+ * Figure 3.11: LE Key Distribution Format
+ */
+struct key_distribution
+{
+    /**
+     * LE Legacy pairing:
+     * EncKey is set to indicate that the device shall distribute the
+     * LTK using the Encryption Information command followed by EDIV
+     * and Rand using the Master Identification command.
+     *
+     * LE Secure Connections pairing:
+     * When SMP is running on the LE transport, then the EncKey field is ignored.
+     * EDIV and Rand shall be set to zero and shall not be distributed.
+     */
+    bool enc_key;
+
+    /**
+     * IdKey is set to indicate that the device shall distribute IRK using
+     * the Identity Information command followed by its public device or
+     * static random address using Identity Address Information.
+     */
+    bool id_key;
+
+    /**
+     * SignKey is set to indicate that the device shall distribute CSRK
+     * using the Signing Information command.
+     */
+    bool sign_key;
+
+    /**
+     * When SMP is running on the LE transport, the LinkKey field is set to
+     * indicate that the device would like to derive the Link Key from the LTK.
+     */
+    bool link_key;
+};
+
+/**
+ * BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H page 2310, 2340
+ * Table 2.5: I/O Capabilities Mapping
+ * Table 3.4: IO Capability Values
+ * @enum io_capabilities
+ * @note None of the pairing algorithms can use Yes/No input and no output,
+ * therefore NoInputNoOutput is used as the resulting IO capability.
+ */
+enum class io_capabilities: uint8_t
+{
+    display_only            = 0,
+    display_yesno           = 1,
+    keyboard_only           = 2,
+    no_input_no_output      = 3,
+    keyboard_display        = 4,
+};
+
+/**
+ * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H page 2340
+ * Table 3.5: OOB Data Present Values
+ * @enum oob_flags.
+ * @note Not in use since this degenerates to bool for Version 5.0.
+ */
+enum class oob_data_flags
+{
+    auth_not_present  = 0,
+    auth_present      = 1
+};
+
+/**
+ * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H page 2349
+ *      Table 3.8: Notification Type
+ */
+enum class passkey_event: uint8_t
+{
+    entry_started   = 0,
+    digit_entered   = 1,
+    digit_erased    = 2,
+    cleared         = 3,
+    entry_completed = 4
+};
+
+/**
+ * See BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H, pages 2340-2342
+ * Figure 3.2:  Pairing Request Packet
+ */
+struct pairing_request
+{
+    io_capabilities         io_caps;
+    oob_data_flags          oob;
+    authentication_required auth_required;
+
+    /**
+     * Defines the maximum encryption key size that the device can support.
+     * Range: [7:16] octets.
+     */
+    uint8_t                 encryption_key_size_max;
+
+    key_distribution        initiator_key_distribution;
+    key_distribution        responder_key_distribution;
+};
 
 /**
  * @enum oob_flags
@@ -332,15 +530,38 @@ enum oob_flags : uint8_t
     address_type_random     = 1u << 3u,
 };
 
-enum le_role : uint8_t
+/**
+ * @struct master_id
+ * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H page 2353-2354
+ * 3.6.3 Master Identification, Figure 3.13: Master Identification Packet
+ *                              Figure 3.6:  Pairing Random Packet
+ */
+struct master_id
 {
-    peripheral_only      = 0x00,
-    central_only         = 0x01,
-    peripheral_preferred = 0x02, ///< Dual role supported; Peripheral preferred.
-    central_preferred    = 0x03, ///< Dual role supported; Central preferred.
+    uint16_t                ediv;
+    std::array<uint8_t, 8u> rand;
 };
 
-} // namespcae security_manager
+using stk = std::array<uint8_t, 16u>;
+using ltk = std::array<uint8_t, 16u>;
+using irk = std::array<uint8_t, 16u>;   ///< Figure 3.14: Identity Information Packet
 
+using csrk = std::array<uint8_t,  8u>;  ///< Figure 3.16: Signing Information Packet
+using dhk  = std::array<uint8_t, 32u>;  ///<
+
+using dhk_check = std::array<uint8_t, 16u>;  ///< Figure 3.9: Pairing DHKey Check PDU
+
+/**
+ * 3.5.6 Pairing Public Key, Figure 3.8: Pairing Public Key PDU
+ * This message is used to transfer the deviceâs local public key (X and Y)
+ * to the remote device; used by both initiator and responder.
+ * @note 64 bytes encapsulates both X and Y public key values.
+ */
+using pubk = std::array<uint8_t, 64u>;
+
+using pass_key = std::array<uint8_t, 6u>;
+
+} // namespcae security
+} // namespace gap
 } // namespace ble
 

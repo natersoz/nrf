@@ -34,6 +34,5 @@ class gatts_event_observer
 
 };
 
-
-}
+} // namespace ble
 
