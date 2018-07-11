@@ -1,5 +1,5 @@
 /**
- * @file ble_gap_event_observer.h
+ * @file ble/gap_event_observer.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
@@ -13,13 +13,6 @@
 
 namespace ble
 {
-
-enum class phy_layer_parameters
-{
-    rate_1_Mbps = 1,
-    rate_2_Mbps = 2,
-    coded       = 4
-};
 
 namespace gap
 {

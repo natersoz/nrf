@@ -7,32 +7,27 @@
 
 #pragma once
 
-
-
 namespace ble
 {
-
-/**
- * @todo Things needed:
- * - conection handle or connection association
- *
- */
-class gatts_event_observer
+namespace gatts
 {
-    virtual ~gatts_event_observer()                              = default;
-    gatts_event_observer();
 
-    gatts_event_observer(gatts_event_observer const&)            = delete;
-    gatts_event_observer(gatts_event_observer &&)                = delete;
-    gatts_event_observer& operator=(gatts_event_observer const&) = delete;
-    gatts_event_observer& operator=(gatts_event_observer&&)      = delete;
+class event_observer
+{
+public:
+    virtual ~event_observer()                        = default;
+    event_observer()                                 = default;
 
+    event_observer(event_observer const&)            = delete;
+    event_observer(event_observer &&)                = delete;
+    event_observer& operator=(event_observer const&) = delete;
+    event_observer& operator=(event_observer&&)      = delete;
 
     virtual size_t read(uint16_t attr_handle) = 0;
     virtual size_t write(uint16_t attr_handle) = 0;
     virtual bool rw_authorize_request(uint16_t attr_handle) = 0;
-
 };
 
+} // namespace gatts
 } // namespace ble
 

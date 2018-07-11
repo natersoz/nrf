@@ -7,10 +7,10 @@
 
 #pragma once
 
-#include "ble/ble_common_event_observer.h"  // Abstract BLE obsevers.
-#include "ble/ble_gap_event_observer.h"
-#include "ble/ble_gattc_event_observer.h"
-#include "ble/ble_gatts_event_observer.h"
+#include "ble/common_event_observer.h"      // Abstract BLE obsevers.
+#include "ble/gap_event_observer.h"
+#include "ble/gattc_event_observer.h"
+#include "ble/gatts_event_observer.h"
 
 #include "ble.h"                            // Nordic softdevice headers
 #include "ble_gap.h"
@@ -64,7 +64,7 @@ private:
     using observable_type =
         ble_event_observable<ble_event_observer<interface_type,
                                                 event_enum_type,
-                                                event_data_type> >;
+                                                event_data_type>>;
 
     observable_type volatile *observable_;
 

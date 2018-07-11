@@ -12,7 +12,9 @@
 #include "ble/gatt_characteristic.h"
 #include "ble/gatt_uuids.h"
 #include "ble/gatt_format.h"
+#include "project_assert.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <boost/intrusive/list.hpp>
 
@@ -20,6 +22,8 @@ namespace ble
 {
 namespace gatt
 {
+
+class service_container;
 
 /**
  * @class ble::gatt::service
@@ -37,7 +41,7 @@ namespace gatt
  *     - 0x2801, attribute_types::secondary_service.
  * - A service UUID, either BLE defined type of 16 or 32 bits or
  *   a user specified type of 128 bits.
- * - A container of characterisitcs.
+ * - A container of characteristics.
  */
 class service
 {
@@ -100,6 +104,11 @@ public:
     declaration     decl;
     att::uuid const uuid;
 
+    bool operator==(service const& other) const {
+        // Since the uuid has to be unique it can determine equivalence.
+        return (this->uuid == other.uuid);
+    }
+
     // The list of characteristics contained in the service.
     using characteristic_list_type =
         boost::intrusive::list<
@@ -110,14 +119,16 @@ public:
 
     characteristic_list_type characteristic_list;
 
-    /// @todo abstract nordic ble_gatts_event_observer into
-    /// ble::gatts_event observer.
-//    nordic::ble_gatts_event_observer gatts_event_observer;
+private:
+    // So that services can be added to the service_container.
+    boost::intrusive::list_member_hook<> hook_;
+
+    friend class service_container;
 };
 
 /**
  * @class service_include
- * Include characterisitics from one service within another.
+ * Include characteristics from one service within another.
  */
 class service_include
 {
@@ -160,6 +171,75 @@ public:
     service         *service_ptr;
     characteristic  *characteristic_begin_ptr;
     characteristic  *characteristic_last_ptr;
+};
+
+class service_container
+{
+private:
+    // The list of descriptors associated with this characteristic.
+    using service_list_type =
+        boost::intrusive::list<
+            service,
+            boost::intrusive::member_hook<service,
+                                          boost::intrusive::list_member_hook<>,
+                                          &service::hook_>>;
+
+public:
+    ~service_container()                                    = default;
+
+    service_container()                                     = default;
+    service_container(service_container const&)             = delete;
+    service_container(service_container &&)                 = delete;
+    service_container& operator=(service_container const&)  = delete;
+    service_container& operator=(service_container&&)       = delete;
+
+    void add(service &service)
+    {
+        service_list_type::const_iterator iter =
+            std::find(this->service_list_.begin(), this->service_list_.end(), service);
+
+        // For now be paranoid and makes sure no duplicates are added.
+        if (iter == this->service_list_.end())
+        {
+            this->service_list_.push_back(service);
+        }
+        else
+        {
+            ASSERT(0);
+        }
+    }
+
+    void remove(service &service)
+    {
+        this->service_list_.remove(service);
+    }
+
+    service_list_type::iterator find(ble::att::uuid const &uuid)
+    {
+        service const to_find(uuid, attribute_type::primary_service);
+        return std::find(this->service_list_.begin(), this->service_list_.end(), to_find);
+    }
+
+    service_list_type::const_iterator find(ble::att::uuid const &uuid) const
+    {
+        service const to_find(uuid, attribute_type::primary_service);
+        return std::find(this->service_list_.begin(), this->service_list_.end(), to_find);
+    }
+
+    service_list_type::iterator find(ble::gatt::services uuid)
+    {
+        service const to_find(uuid, attribute_type::primary_service);
+        return std::find(this->service_list_.begin(), this->service_list_.end(), to_find);
+    }
+
+    service_list_type::const_iterator find(ble::gatt::services uuid) const
+    {
+        service const to_find(uuid, attribute_type::primary_service);
+        return std::find(this->service_list_.begin(), this->service_list_.end(), to_find);
+    }
+
+private:
+    service_list_type service_list_;
 };
 
 } // namespace gatt

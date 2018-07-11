@@ -358,8 +358,8 @@ void ble_event_observable<ble_gap_event_observer>::notify(
             {
                 observer.interface_reference.phy_update_request(
                     event_data.conn_handle,
-                    static_cast<ble::phy_layer_parameters>(event_data.params.phy_update_request.peer_preferred_phys.tx_phys),
-                    static_cast<ble::phy_layer_parameters>(event_data.params.phy_update_request.peer_preferred_phys.rx_phys));
+                    static_cast<ble::gap::phy_layer_parameters>(event_data.params.phy_update_request.peer_preferred_phys.tx_phys),
+                    static_cast<ble::gap::phy_layer_parameters>(event_data.params.phy_update_request.peer_preferred_phys.rx_phys));
             }
             break;
 
@@ -368,8 +368,8 @@ void ble_event_observable<ble_gap_event_observer>::notify(
                 observer.interface_reference.phy_update(
                     event_data.conn_handle,
                     static_cast<ble::hci::error_codes>(event_data.params.phy_update.status),
-                    static_cast<ble::phy_layer_parameters>(event_data.params.phy_update.tx_phy),
-                    static_cast<ble::phy_layer_parameters>(event_data.params.phy_update.rx_phy));
+                    static_cast<ble::gap::phy_layer_parameters>(event_data.params.phy_update.tx_phy),
+                    static_cast<ble::gap::phy_layer_parameters>(event_data.params.phy_update.rx_phy));
             }
             break;
 

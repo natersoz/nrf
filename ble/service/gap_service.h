@@ -100,9 +100,8 @@ private:
  * @class ppcp
  * Peripheral Preferred Connection Parameters
  */
-class ppcp: public gatt::characteristic
+struct ppcp: public gatt::characteristic
 {
-public:
     virtual ~ppcp() override      = default;
 
     ppcp(ppcp const&)             = delete;
@@ -110,22 +109,21 @@ public:
     ppcp& operator=(ppcp const&)  = delete;
     ppcp& operator=(ppcp&&)       = delete;
 
-    ppcp(gap::connection_parameters connection_parameters) :
+    ppcp(gap::connection_parameters conn_params) :
         gatt::characteristic(gatt::characteristics::ppcp, gatt::properties::read),
-        connection_parameters_(connection_parameters)
+        connection_parameters(conn_params)
     {
     }
 
     virtual void *data_pointer() override {
-        return const_cast<ble::gap::connection_parameters*>(&this->connection_parameters_);
+        return const_cast<ble::gap::connection_parameters*>(&this->connection_parameters);
     }
 
     virtual att::length_t data_length() const override {
-        return sizeof(this->connection_parameters_);
+        return sizeof(this->connection_parameters);
     }
 
-private:
-    ble::gap::connection_parameters const connection_parameters_;
+    ble::gap::connection_parameters const connection_parameters;
 };
 
 class gap_service: public gatt::service

@@ -8,7 +8,7 @@
 
 #include "ble/nordic_ble_event_observable.h"
 #include "ble/nordic_ble_event_observer.h"
-#include "ble/ble_gattc_event_observer.h"
+#include "ble/gattc_event_observer.h"
 
 namespace nordic
 {
