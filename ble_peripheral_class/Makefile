@@ -33,7 +33,6 @@ SOURCE_FILES += ../ble/advertising.cc
 SOURCE_FILES += ../ble/service/battery_service.cc
 SOURCE_FILES += ../ble/nordic_gatts.cc
 SOURCE_FILES += ../ble/nordic_error.cc
-SOURCE_FILES += ../ble/nordic_softdevice_init.cc
 SOURCE_FILES += ../ble/nordic_state_observable.cc
 SOURCE_FILES += ../ble/nordic_req_observable.cc
 SOURCE_FILES += ../ble/nordic_soc_observable.cc
