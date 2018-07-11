@@ -7,6 +7,7 @@
 
 #include "ble/stack.h"
 #include "rtc.h"
+#include <cstdint>
 
 namespace ble
 {
@@ -37,6 +38,14 @@ public:
 
 private:
     rtc &rtc_;
+
+    uint32_t softdevice_init(uintptr_t    ram_base_address,
+                             uint8_t      total_link_count,
+                             uint8_t      peripheral_link_count,
+                             uint16_t     mtu_size,
+                             uint8_t      gatt_uuid_count,
+                             uint32_t     gatt_table_size,
+                             bool         service_changed);
 
     uint32_t connection_parameters_init();
 };
