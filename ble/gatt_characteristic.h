@@ -88,7 +88,7 @@ struct characteristic
             characteristic_base_descriptor,
             boost::intrusive::member_hook<characteristic_base_descriptor,
                                           boost::intrusive::list_member_hook<>,
-                                          &characteristic_base_descriptor::hook_> >;
+                                          &characteristic_base_descriptor::hook_>>;
 
     descriptor_list_type descriptor_list;
 

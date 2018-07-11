@@ -1,5 +1,5 @@
 /**
- * @file ble_gatts_event_observer.h
+ * @file ble/gattc_event_observer.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
@@ -7,7 +7,7 @@
 
 namespace ble
 {
-namespace gatts
+namespace gattc
 {
 
 class event_observer
@@ -15,9 +15,6 @@ class event_observer
 public:
 };
 
-} // namespace gatts
+} // namespace gattc
 } // namespace ble
-
-
-
 
