@@ -9,12 +9,31 @@
 #include "ble/nordic_ble_event_observable.h"
 #include "ble/nordic_ble_event_observer.h"
 #include "ble/gatts_event_observer.h"
+#include "ble/att.h"
 
 #include "ble_gatt.h"                       // Nordic softdevice header
 #include "logger.h"
 
 namespace nordic
 {
+
+ble::att::op_code nordic_write_type_opcode(uint8_t write_type)
+{
+    switch (write_type)
+    {
+    case BLE_GATTS_OP_WRITE_REQ:                return ble::att::op_code::write_request;
+    case BLE_GATTS_OP_WRITE_CMD:                return ble::att::op_code::write_command;
+    case BLE_GATTS_OP_SIGN_WRITE_CMD:           return ble::att::op_code::write_signed_command;
+    case BLE_GATTS_OP_PREP_WRITE_REQ:           return ble::att::op_code::write_prepare_request;
+    case BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL:    return ble::att::op_code::write_execute_request;
+    case BLE_GATTS_OP_EXEC_WRITE_REQ_NOW:       return ble::att::op_code::write_execute_request;
+    default:
+        break;
+    }
+
+    logger::instance().error("unhandled nordic write type: %u", write_type);
+    return static_cast<ble::att::op_code>(0u);
+}
 
 template<>
 void ble_event_observable<ble_gatts_event_observer>::notify(
@@ -42,18 +61,33 @@ void ble_event_observable<ble_gatts_event_observer>::notify(
                  event_data.conn_handle,
                  event_data.params.write.handle,
                  event_data.params.write.uuid.uuid,
-                 event_data.params.write.op,
+                 nordic_write_type_opcode(event_data.params.write.op),
                  bool(event_data.params.write.auth_required),
                  event_data.params.write.offset,
                  event_data.params.write.len);
-            observer.interface_reference.write(
-                event_data.conn_handle,
-                event_data.params.write.handle,
-                event_data.params.write.op,
-                bool(event_data.params.write.auth_required),
-                event_data.params.write.offset,
-                event_data.params.write.len,
-                event_data.params.write.data);
+
+            if (event_data.params.write.op == BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL)
+            {
+                observer.interface_reference.write_cancel(
+                    event_data.conn_handle,
+                    event_data.params.write.handle,
+                    nordic_write_type_opcode(event_data.params.write.op),
+                    bool(event_data.params.write.auth_required),
+                    event_data.params.write.offset,
+                    event_data.params.write.len,
+                    event_data.params.write.data);
+            }
+            else
+            {
+                observer.interface_reference.write(
+                    event_data.conn_handle,
+                    event_data.params.write.handle,
+                    nordic_write_type_opcode(event_data.params.write.op),
+                    bool(event_data.params.write.auth_required),
+                    event_data.params.write.offset,
+                    event_data.params.write.len,
+                    event_data.params.write.data);
+            }
             break;
 
         case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
@@ -79,14 +113,14 @@ void ble_event_observable<ble_gatts_event_observer>::notify(
                     event_data.conn_handle,
                     event_data.params.write.handle,
                     event_data.params.write.uuid.uuid,
-                    event_data.params.write.op,
+                    nordic_write_type_opcode(event_data.params.write.op),
                     bool(event_data.params.write.auth_required),
                     event_data.params.write.offset,
                     event_data.params.write.len);
                 observer.interface_reference.write_authorization_request(
                     event_data.conn_handle,
                     event_data.params.authorize_request.request.write.handle,
-                    event_data.params.authorize_request.request.write.op,
+                    nordic_write_type_opcode(event_data.params.authorize_request.request.write.op),
                     bool(event_data.params.authorize_request.request.write.auth_required),
                     event_data.params.authorize_request.request.write.offset,
                     event_data.params.authorize_request.request.write.len,

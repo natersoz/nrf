@@ -101,8 +101,7 @@ int main(void)
     nordic::ble_peripheral ble_peripheral(ble_stack,
                                           ble_advertising,
                                           ble_gap_observer,
-                                          &ble_gatts_observer,
-                                          nullptr);            //  gattc observer
+                                          ble_gatts_observer);
 
     ble_peripheral.ble_stack().init();
     ble_peripheral.ble_stack().enable();
