@@ -16,7 +16,7 @@
 
 /**
  * @class timer_observable_generic
- * Wrap a timer peripheral with the observerable part of the observer pattern.
+ * Wrap a timer peripheral with the observable part of the observer pattern.
  * Timer observers can attach to this observable and get timer expiration
  * notifications.
  *

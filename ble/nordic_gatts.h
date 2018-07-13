@@ -16,9 +16,9 @@ namespace nordic
 /**
  * Add the service to the GATT sever using the Nordic softdevice.
  *
- *
- *
- * @param service
+ * @param service A reference to the service to add.
+ *                The service object life time is effectively forever.
+ *                (As long as the BLE connect is in use and may be in use).
  *
  * @return uint32_t The Nordic error code.
  * @retval NRF_SUCCESS if successful.

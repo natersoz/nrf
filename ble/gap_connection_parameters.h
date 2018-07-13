@@ -21,7 +21,7 @@ namespace gap
  * @return uint16_t The number of 1.25 msec ticks used by the BLE connection
  * interval tick count.
  */
-inline uint16_t connection_interval_msec(uint32_t interval_msec)
+inline constexpr uint16_t connection_interval_msec(uint32_t interval_msec)
 {
     interval_msec *= 1000u;
     interval_msec /= 1250u;
@@ -36,7 +36,7 @@ inline uint16_t connection_interval_msec(uint32_t interval_msec)
  * @return uint16_t The number of 10 msec ticks used by the BLE
  * supervisory timeout tick count.
  */
-inline uint16_t supervision_timeout_msec(uint32_t interval_msec)
+inline constexpr uint16_t supervision_timeout_msec(uint32_t interval_msec)
 {
     interval_msec /= 10u;
     return static_cast<uint16_t>(interval_msec);

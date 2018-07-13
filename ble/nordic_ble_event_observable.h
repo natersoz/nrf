@@ -71,17 +71,17 @@ using ble_gap_event_observable    = ble_event_observable<ble_gap_event_observer>
 using ble_gattc_event_observable  = ble_event_observable<ble_gattc_event_observer>;
 using ble_gatts_event_observable  = ble_event_observable<ble_gatts_event_observer>;
 
-struct ble_obseverables
+struct ble_observables
 {
-    static ble_obseverables& instance();
+    static ble_observables& instance();
 
-    ~ble_obseverables()                                   = default;
-    ble_obseverables()                                    = default;
+    ~ble_observables()                                  = default;
+    ble_observables()                                   = default;
 
-    ble_obseverables(ble_obseverables const&)             = delete;
-    ble_obseverables(ble_obseverables&&)                  = delete;
-    ble_obseverables& operator=(ble_obseverables const &) = delete;
-    ble_obseverables& operator=(ble_obseverables&&)       = delete;
+    ble_observables(ble_observables const&)             = delete;
+    ble_observables(ble_observables&&)                  = delete;
+    ble_observables& operator=(ble_observables const &) = delete;
+    ble_observables& operator=(ble_observables&&)       = delete;
 
     ble_common_event_observable common_event_observable;
     ble_gap_event_observable    gap_event_observable;

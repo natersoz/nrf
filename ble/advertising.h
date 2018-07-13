@@ -33,7 +33,7 @@ public:
      * @return uint16_t The number of 0.625 msec ticks used by the BLE advertising
      * interval tick count.
      */
-    inline static uint16_t interval_msec(uint32_t interval_msec)
+    inline static constexpr uint16_t interval_msec(uint32_t interval_msec)
     {
         interval_msec *= 1000u;
         interval_msec /=  625u;
