@@ -24,6 +24,12 @@ namespace ble
 class peripheral
 {
 public:
+    // These trival observers do nothing.
+    // They stand in for the GATTS or GATTC references when none
+    // is supplied in the ctor.
+    static ble::gattc::event_observer ble_gattc_event_observer_trivial;
+    static ble::gatts::event_observer ble_gatts_event_observer_trivial;
+
     virtual ~peripheral()                     = default;
 
     peripheral()                              = delete;
@@ -35,12 +41,36 @@ public:
     peripheral(ble::stack                   &ble_stack,
                ble::advertising             &ble_advertising,
                ble::gap::event_observer     &ble_gap_event_observer,
-               ble::gatts::event_observer   *ble_gatts_event_observer,
-               ble::gattc::event_observer   *ble_gattc_event_observer)
+               ble::gatts::event_observer   &ble_gatts_event_observer,
+               ble::gattc::event_observer   &ble_gattc_event_observer)
     : ble_stack_(ble_stack),
       advertising_(ble_advertising),
       gap_event_observer_(ble_gap_event_observer),
       gatts_event_observer_(ble_gatts_event_observer),
+      gattc_event_observer_(ble_gattc_event_observer)
+    {
+    }
+
+    peripheral(ble::stack                   &ble_stack,
+               ble::advertising             &ble_advertising,
+               ble::gap::event_observer     &ble_gap_event_observer,
+               ble::gatts::event_observer   &ble_gatts_event_observer)
+    : ble_stack_(ble_stack),
+      advertising_(ble_advertising),
+      gap_event_observer_(ble_gap_event_observer),
+      gatts_event_observer_(ble_gatts_event_observer),
+      gattc_event_observer_(ble_gattc_event_observer_trivial)
+    {
+    }
+
+    peripheral(ble::stack                   &ble_stack,
+               ble::advertising             &ble_advertising,
+               ble::gap::event_observer     &ble_gap_event_observer,
+               ble::gattc::event_observer   &ble_gattc_event_observer)
+    : ble_stack_(ble_stack),
+      advertising_(ble_advertising),
+      gap_event_observer_(ble_gap_event_observer),
+      gatts_event_observer_(ble_gatts_event_observer_trivial),
       gattc_event_observer_(ble_gattc_event_observer)
     {
     }
@@ -53,8 +83,6 @@ public:
 
     ble::gap::event_observer const& gap_observer() const { return this->gap_event_observer_; }
     ble::gap::event_observer&       gap_observer()       { return this->gap_event_observer_; }
-
-
 
     ble::gap::connection_parameters const& connection_parameters_get() const;
     void connection_parameters_set(ble::gap::connection_parameters const& connection_parameters);
@@ -69,8 +97,8 @@ private:
     ble::stack                  &ble_stack_;
     ble::advertising            &advertising_;
     ble::gap::event_observer    &gap_event_observer_;
-    ble::gatts::event_observer  *gatts_event_observer_;
-    ble::gattc::event_observer  *gattc_event_observer_;
+    ble::gatts::event_observer  &gatts_event_observer_;
+    ble::gattc::event_observer  &gattc_event_observer_;
 
     ble::gatt::service_container service_container_;
 };

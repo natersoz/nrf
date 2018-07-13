@@ -26,26 +26,26 @@ public:
     event_observer& operator=(event_observer const&) = delete;
     event_observer& operator=(event_observer&&)      = delete;
 
-    /*
-       BLE_GATTS_OPS:
-       BLE_GATTS_OP_INVALID                0x00  Invalid Operation.
-       BLE_GATTS_OP_WRITE_REQ              0x01  Write Request.
-       BLE_GATTS_OP_WRITE_CMD              0x02  Write Command.
-       BLE_GATTS_OP_SIGN_WRITE_CMD         0x03  Signed Write Command.
-       BLE_GATTS_OP_PREP_WRITE_REQ         0x04  Prepare Write Request.
-       BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL  0x05  Execute Write Request: Cancel all prepared writes.
-       BLE_GATTS_OP_EXEC_WRITE_REQ_NOW     0x06  Execute Write Request: Immediately execute all prepared writes.
-    */
     virtual void write(
         uint16_t            conection_handle,
         uint16_t            attribute_handle,
-        uint8_t             write_type,     /// @todo @see BLE_GATTS_OPS below and fix
+        att::op_code        write_operation_type,
         bool                authorization_required,
         att::length_t       offset,
         att::length_t       length,
         void const*         data            /// @todo @ref sd_ble_evt_get for more information
                                             /// on how to use event structures with variable
                                             /// length array members.
+        ) {} // BLE_GATTS_EVT_WRITE
+
+    virtual void write_cancel(
+        uint16_t            conection_handle,
+        uint16_t            attribute_handle,
+        att::op_code        write_operation_type,
+        bool                authorization_required,
+        att::length_t       offset,
+        att::length_t       length,
+        void const*         data
         ) {} // BLE_GATTS_EVT_WRITE
 
     virtual void read_authorization_request(
@@ -57,13 +57,11 @@ public:
     virtual void write_authorization_request(
         uint16_t            conection_handle,
         uint16_t            attribute_handle,
-        uint8_t             write_type,     /// @todo @see BLE_GATTS_OPS below and fix
+        att::op_code        write_operation_type,
         bool                authorization_required,
         att::length_t       offset,
         att::length_t       length,
-        void const*         data            /// @todo @ref sd_ble_evt_get for more information
-                                            /// on how to use event structures with variable
-                                            /// length array members.
+        void const*         data
         ) {} // BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST
 
     virtual void system_attribute_missing(

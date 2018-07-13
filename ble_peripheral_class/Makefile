@@ -29,6 +29,7 @@ SOURCE_FILES += ../peripherals/rtc.cc
 SOURCE_FILES += ../ble/uuid.cc
 SOURCE_FILES += ../ble/tlv_encode.cc
 SOURCE_FILES += ../ble/advertising.cc
+SOURCE_FILES += ../ble/peripheral_trivial.cc
 SOURCE_FILES += ../ble/nordic_ble_gatts_event_observer.cc
 SOURCE_FILES += ../ble/nordic_ble_common_event_observer.cc
 SOURCE_FILES += ../ble/service/battery_service.cc
