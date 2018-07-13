@@ -35,17 +35,16 @@ public:
     using event_data_t = event_data_type;
 
     virtual ~ble_event_observer()                               = default;
-    ble_event_observer(interface_type &interface):
-        interface_reference(interface),
-        observable_(nullptr) {}
 
+    ble_event_observer()                                        = delete;
     ble_event_observer(ble_event_observer const&)               = delete;
     ble_event_observer(ble_event_observer&&)                    = delete;
     ble_event_observer& operator=(ble_event_observer const &)   = delete;
     ble_event_observer& operator=(ble_event_observer&&)         = delete;
 
-    virtual void notify(event_enum_type         gap_event_type,
-                        event_data_type const&  gap_event_data) = 0;
+    ble_event_observer(interface_type &interface):
+        interface_reference(interface),
+        observable_(nullptr) {}
 
     bool is_attached() const { return bool(this->observable_); }
 

@@ -4,18 +4,17 @@
  */
 
 #include "ble/nordic_ble_stack.h"
-#include "ble/nordic_softdevice_init.h"
 #include "project_assert.h"
 #include "nordic_error.h"
 #include "logger.h"
 
-#include "nrf_ble_gatt.h"
 #include "ble_conn_params.h"
 #include "nrf_sdh.h"
 #include "nrf_sdm.h"
 #include "ble_hci.h"
 
 #include <cstdint>
+#include <cstring>
 
 /* __data_start__ marks the beginning of the data section within the linker
  * description script. See nrf5x_common.ld. The RAM region before the data

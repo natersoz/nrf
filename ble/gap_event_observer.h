@@ -13,10 +13,16 @@
 
 namespace ble
 {
-
 namespace gap
 {
 
+/**
+ * @class ble::gap::event_observer
+ * An interface for processing GAP events.
+ *
+ * Instead of pure virtual functions each method has a trivial {}
+ * implementation. Inherit and override specific methods as required.
+ */
 class event_observer
 {
 public:
@@ -33,9 +39,9 @@ public:
      *
      * @param conection_handle  The new connection handle.
      * @param peer_address      The peer address of the associated device.
-     * @param peer_address_id   @todo Nordic Specific: index into the device identities
-     *                          list (as set with sd_ble_gap_device_identities_set)
-     *                          when the peer is using privacy.
+     * @param peer_address_id   @todo Nordic Specific: index into the device
+     *                          identities list when the peer is using privacy.
+     *                          (as set with sd_ble_gap_device_identities_set)
      */
     virtual void connect(
         uint16_t            conection_handle,
@@ -47,7 +53,8 @@ public:
      * A conection has been dropped.
      *
      * @param conection_handle The connection handle that was disconnected.
-     * @param error_code       The HCI error code indicating why the connection dropped.
+     * @param error_code       The HCI error code indicating why the connection
+     *                         dropped.
      */
     virtual void disconnect(
         uint16_t            conection_handle,
@@ -81,17 +88,17 @@ public:
      *
      * @param conection_handle The peer's connection handle.
      *
-     * @param enk_key In LE legacy pairing: Indicates that the device shall distribute
-     * the LTK using the Encryption Information command followed by EDIV and Rand using the
-     * Master Identification command.
+     * @param enk_key In LE legacy pairing: Indicates that the device shall
+     * distribute the LTK using the Encryption Information command followed by
+     * EDIV and Rand using the Master Identification command.
      * In LE Secure Connections: ignored. EDIV and Rand shall be set to zero.
      *
      * @param id_key Indicates that the device shall distribute IRK using the
      * Identity Information command followed by its public device or
      * static random address using Identity Address Information.
      *
-     * @param sign_key Indicates that the device shall distribute CSRK using the
-     * Signing Information command.
+     * @param sign_key Indicates that the device shall distribute CSRK using
+     * the Signing Information command.
      *
      * @param peer_address The peer's address.
      */
@@ -106,7 +113,8 @@ public:
      * Request to display a passkey to the user.
      *
      * @param passkey A six digit ASCII passkey value ['0':'9'].
-     * @param match_request Requires a response to determine if the passkey matched.
+     * @param match_request Requires a response to determine if the
+     *                      passkey matched.
      */
     virtual void security_passkey_display(
         uint16_t                  conection_handle,
@@ -140,7 +148,7 @@ public:
      *
      * @param conection_handle The connection handle identifying the peer.
      * @param public_key The peer's public key.
-     * @param oob_required Indicates that out of band authentication is required.
+     * @param oob_required Indicates that OOB authentication is required.
      */
     virtual void security_DH_key_calculation_request(
         uint16_t                conection_handle,
@@ -163,9 +171,9 @@ public:
      * @param kdist_peer        Peer  key distribution.
      *
      * Security Mode 0 Level 0: No access permissions at all
-     *                          (this level is not defined by the Bluetooth Core specification).
+     *          (this level is not defined by the Bluetooth Core specification).
      * Security Mode 1 Level 1: No security is needed (aka open link).
-     * Security Mode 1 Level 2: Encrypted link required, MITM protection not necessary.
+     * Security Mode 1 Level 2: Encrypted link required, no MITM protection.
      * Security Mode 1 Level 3: MITM protected encrypted link required.
      * Security Mode 1 Level 4: LESC MITM protected encrypted link using a
      *                          128-bit strength encryption key required.

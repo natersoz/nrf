@@ -278,6 +278,11 @@
             <F N="nordic_state_observable.cc"/>
             <F N="tlv_encode.cc"/>
             <F N="uuid.cc"/>
+            <F N="nordic_ble_gatts_event_observer.cc"/>
+            <F N="nordic_ble_peripheral.cc"/>
+            <F N="nordic_ble_stack.cc"/>
+            <F N="nordic_ble_peer.cc"/>
+            <F N="nordic_ble_common_event_observer.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -325,6 +330,10 @@
             <F N="tlv_encode.h"/>
             <F N="uuid.h"/>
             <F N="peripheral.h"/>
+            <F N="nordic_ble_peer.h"/>
+            <F N="nordic_ble_stack.h"/>
+            <F N="stack.h"/>
+            <F N="nordic_ble_peripheral.h"/>
         </Folder>
         <Folder
             Name="Resource Files"

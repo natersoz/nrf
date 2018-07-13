@@ -46,7 +46,7 @@ static ble::gap::security::pairing_failure auth_status_to_pairing_failure(uint8_
 template<>
 void ble_event_observable<ble_gap_event_observer>::notify(
     ble_gap_event_observer::event_enum_t event_type,
-    ble_gap_event_observer::event_data_t const&  event_data)
+    ble_gap_event_observer::event_data_t const& event_data)
 {
     logger &logger = logger::instance();
 
@@ -397,12 +397,9 @@ void ble_event_observable<ble_gap_event_observer>::notify(
             break;
 
         default:
-            logger.warn("ble_event_observable<ble_gap_event_observer>::notify(%u) unhandled event", event_type);
+            logger.warn("unhandled GAP event: %u", event_type);
             break;
         }
-
-        /// @todo Is this still necessary?
-        observer.notify(event_type, event_data);
     }
 }
 

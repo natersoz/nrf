@@ -11,6 +11,7 @@
 #include "ble/gatts_event_observer.h"
 #include "ble/gattc_event_observer.h"
 #include "ble/gatt_service.h"
+#include "ble/stack.h"
 #include "ble/uuid.h"
 
 namespace ble
@@ -31,24 +32,29 @@ public:
     peripheral& operator=(peripheral const&)  = delete;
     peripheral& operator=(peripheral&&)       = delete;
 
-    peripheral(ble::advertising            &advertising,
-               ble::gap::event_observer    &gap_event_observer,
-               ble::gatts::event_observer  *gatts_event_observer,
-               ble::gattc::event_observer  *gattc_event_observer)
-    : advertising_(advertising),
-      gap_event_observer_(gap_event_observer),
-      gatts_event_observer_(gatts_event_observer),
-      gattc_event_observer_(gattc_event_observer)
+    peripheral(ble::stack                   &ble_stack,
+               ble::advertising             &ble_advertising,
+               ble::gap::event_observer     &ble_gap_event_observer,
+               ble::gatts::event_observer   *ble_gatts_event_observer,
+               ble::gattc::event_observer   *ble_gattc_event_observer)
+    : ble_stack_(ble_stack),
+      advertising_(ble_advertising),
+      gap_event_observer_(ble_gap_event_observer),
+      gatts_event_observer_(ble_gatts_event_observer),
+      gattc_event_observer_(ble_gattc_event_observer)
     {
     }
 
-    ble::advertising& advertising_get() {
-        return this->advertising_;
-    }
+    ble::stack&             ble_stack()         { return this->ble_stack_; }
+    ble::stack const &      ble_stack() const   { return this->ble_stack_; }
 
-    ble::advertising const& advertising_get() const {
-        return this->advertising_;
-    }
+    ble::advertising&       advertising()       { return this->advertising_; }
+    ble::advertising const& advertising() const { return this->advertising_; }
+
+    ble::gap::event_observer const& gap_observer() const { return this->gap_event_observer_; }
+    ble::gap::event_observer&       gap_observer()       { return this->gap_event_observer_; }
+
+
 
     ble::gap::connection_parameters const& connection_parameters_get() const;
     void connection_parameters_set(ble::gap::connection_parameters const& connection_parameters);
@@ -60,6 +66,7 @@ public:
     ble::gatt::service const* service_get(ble::gatt::services uuid) const;
 
 private:
+    ble::stack                  &ble_stack_;
     ble::advertising            &advertising_;
     ble::gap::event_observer    &gap_event_observer_;
     ble::gatts::event_observer  *gatts_event_observer_;

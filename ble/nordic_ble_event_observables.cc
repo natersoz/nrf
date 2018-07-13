@@ -9,17 +9,17 @@
 #include "project_assert.h"
 
 // Instantiate the nordic::ble_obseverables class instance as a singleton.
-static nordic::ble_obseverables ble_observables_instance;
+static nordic::ble_observables ble_observables_instance;
 
 // Allow access to the nordic::ble_obseverables singleton.
-nordic::ble_obseverables& nordic::ble_obseverables::instance()
+nordic::ble_observables& nordic::ble_observables::instance()
 {
     return ble_observables_instance;
 }
 
 static void nordic_ble_event_handler(ble_evt_t const *ble_event, void *context)
 {
-    auto *ble_observables = reinterpret_cast<nordic::ble_obseverables*>(context);
+    auto *ble_observables = reinterpret_cast<nordic::ble_observables*>(context);
     ASSERT(ble_observables == &ble_observables_instance);
 
     if ((ble_event->header.evt_id >= BLE_EVT_BASE) &&   // Common BLE events.
@@ -53,7 +53,7 @@ static void nordic_ble_event_handler(ble_evt_t const *ble_event, void *context)
     }
 }
 
-static nrf_sdh_ble_evt_observer_t sdh_ble_gap_observer
+static nrf_sdh_ble_evt_observer_t sdh_ble_event_observer
     IN_SECTION(".sdh_ble_observers") =
 {
     .handler    = nordic_ble_event_handler,

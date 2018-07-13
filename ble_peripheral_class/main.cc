@@ -3,9 +3,8 @@
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
-#include <stdbool.h>
-#include <stdint.h>
-#include <string.h>
+#include <cstdint>
+#include <cstring>
 
 #include "app_timer.h"
 #include "clocks.h"
@@ -18,32 +17,36 @@
 
 #include "ble/advertising.h"
 #include "ble/att.h"
-#include "ble/gap_event_observer.h"
 #include "ble/gap_types.h"
 #include "ble/gatt_uuids.h"
-#include "ble/nordic_ble_stack.h"
-#include "ble/nordic_gatts.h"
+#include "ble/tlv_encode.h"
+
 #include "ble/service/battery_service.h"
 #include "ble/service/current_time_service.h"
 #include "ble/service/gap_service.h"
 #include "ble/service/gatt_service.h"
-#include "ble/tlv_encode.h"
-#include "nordic/device_address.h"
 
+#include "nordic/device_address.h"
 #include "ble/nordic_ble_stack.h"
 #include "ble/nordic_ble_peer.h"
+#include "ble/nordic_ble_stack.h"
+#include "ble/nordic_gatts.h"
+#include "ble/nordic_ble_peripheral.h"
+
+#include "ble_gap_observer.h"
+#include "ble_gatts_observer.h"
 
 static segger_rtt_output_stream rtt_os;
 
 static rtc_observable<> rtc_1(1u, 32u);
 
-static uint16_t const advertising_interval = ble::advertising::interval_msec(100u);
-static ble::advertising advertising(advertising_interval);
+static constexpr uint16_t const advertising_interval = ble::advertising::interval_msec(100u);
+static ble::advertising ble_advertising(advertising_interval);
 
-static constexpr char const device_name_str[]  = "periph_class";
-static constexpr char const device_short_str[] = "cls";
-static constexpr ble::att::length_t const device_name_length  = sizeof(device_name_str)  - 1u;
-static constexpr ble::att::length_t const device_short_length = sizeof(device_short_str) - 1u;
+static constexpr char const device_name[]       = "periph_class";
+static constexpr char const device_name_short[] = "cls";
+static constexpr ble::att::length_t const device_name_length  = sizeof(device_name) - 1u;
+static constexpr ble::att::length_t const device_short_length = sizeof(device_name_short) - 1u;
 
 static size_t set_advertising_data(ble::advertising_data_t &data)
 {
@@ -53,8 +56,6 @@ static size_t set_advertising_data(ble::advertising_data_t &data)
         ble::gatt::services::current_time_service
     };
 
-    size_t const services_16_count = sizeof(services_16) / sizeof(services_16[0]);
-
     size_t length = 0u;
 
     length += ble::tlv_encode(data,
@@ -63,7 +64,7 @@ static size_t set_advertising_data(ble::advertising_data_t &data)
 
     length += ble::tlv_encode(data,
                               ble::gap_type::local_name_short,
-                              device_short_str,
+                              device_name_short,
                               device_short_length);
 
     length += ble::tlv_encode_address(data,
@@ -73,7 +74,7 @@ static size_t set_advertising_data(ble::advertising_data_t &data)
     length += ble::tlv_encode(data,
                               ble::gap_type::uuid_service_16_incomplete,
                               services_16,
-                              services_16_count);
+                              std::size(services_16));
     return length;
 }
 
@@ -94,13 +95,22 @@ int main(void)
     logger.info("--- BLE peripheral classes ---");
 
     ble::nordic::stack ble_stack(rtc_1);
-    ble_stack.init();
-    ble_stack.enable();
+    ble_gap_observer   ble_gap_observer;
+    ble_gatts_observer ble_gatts_observer;
+
+    nordic::ble_peripheral ble_peripheral(ble_stack,
+                                          ble_advertising,
+                                          ble_gap_observer,
+                                          &ble_gatts_observer,
+                                          nullptr);            //  gattc observer
+
+    ble_peripheral.ble_stack().init();
+    ble_peripheral.ble_stack().enable();
 
     ble_peer_init();
 
     /// @todo "periph_class" is common with advertising device name.
-    ble::service::device_name device_name_characteristic(device_name_str, device_name_length);
+    ble::service::device_name device_name_characteristic(device_name, device_name_length);
     ble::service::appearance  appearance_characteristic(ble::gatt::appearance::unknown);
 
     /// @todo Connection interval needs to be thought through for a specific device.
@@ -137,8 +147,8 @@ int main(void)
     nordic::gatts_service_add(battery_service);
     nordic::gatts_service_add(current_time_service);
 
-    set_advertising_data(advertising.advertising_data);
-    advertising.start();
+    set_advertising_data(ble_peripheral.advertising().advertising_data);
+    ble_peripheral.advertising().start();
 
     for (;;)
     {

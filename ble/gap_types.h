@@ -508,7 +508,7 @@ using pubk = std::array<uint8_t, 64u>;
 
 using pass_key = std::array<uint8_t, 6u>;
 
-} // namespcae security
+} // namespace security
 } // namespace gap
 } // namespace ble
 
