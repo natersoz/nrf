@@ -10,9 +10,9 @@
 namespace ble
 {
 
-void tlv_encode_push_back(advertising_data_t    &encoded,
-                          void const            *data,
-                          size_t                length)
+void tlv_encode_push_back(gap::advertising_data_t&  encoded,
+                          void const*               data,
+                          size_t                    length)
 {
     uint8_t const *data_ptr_8 = reinterpret_cast<uint8_t const*>(data);
     for ( ; length > 0; --length)
@@ -21,9 +21,9 @@ void tlv_encode_push_back(advertising_data_t    &encoded,
     }
 }
 
-size_t tlv_encode(advertising_data_t    &encoded,
-                  gap_type              type,
-                  std::string const     &string)
+size_t tlv_encode(gap::advertising_data_t&  encoded,
+                  gap_type                  type,
+                  std::string const&        string)
 {
     size_t const length = string.size();
     if (encoded.capacity() - encoded.size() < length + tlv_header_length)
@@ -39,9 +39,9 @@ size_t tlv_encode(advertising_data_t    &encoded,
     return std::distance(end_start, encoded.end());
 }
 
-size_t tlv_encode(advertising_data_t    &encoded,
-                  gap_type              type,
-                  char const            *char_string)
+size_t tlv_encode(gap::advertising_data_t&  encoded,
+                  gap_type                  type,
+                  char const*               char_string)
 {
     if (encoded.capacity() - encoded.size() < tlv_header_length)
     {
@@ -65,9 +65,9 @@ size_t tlv_encode(advertising_data_t    &encoded,
     return std::distance(begin, encoded.end());
 }
 
-size_t tlv_encode_address(advertising_data_t    &encoded,
-                          bool                  address_is_random,
-                          void const            *address_pointer)
+size_t tlv_encode_address(gap::advertising_data_t&  encoded,
+                          bool                      address_is_random,
+                          void const*               address_pointer)
 {
     size_t const length = 7u;
     if (encoded.capacity() - encoded.size() < length + tlv_header_length)

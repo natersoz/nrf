@@ -254,6 +254,10 @@ enum class gap_type : uint8_t
 namespace gap
 {
 
+/// Use to initialize BLE handles which have yet to be assigned and
+/// to test handles for being valid.
+static constexpr uint16_t const invalid_handle = 0xFFFFu;
+
 enum class phy_layer_parameters
 {
     rate_1_Mbps = 1,
@@ -341,9 +345,9 @@ struct authentication_required
      * If both devices support LE Secure Connections pairing, then
      * LE Secure Connections pairing shall be used,
      * otherwise LE Legacy pairing shall be used.
-     * @note For Nordic this flag is ble_gap_sec_params_t::lesc.
+     * @note field 'SC' in BLE Core specification.
      */
-    bool sc;
+    bool lesc;
 
     /**
      * Used only with Passkey Entry protocol and is ignored in other protocols.
@@ -445,7 +449,7 @@ enum class passkey_event: uint8_t
 
 /**
  * See BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H, pages 2340-2342
- * Figure 3.2:  Pairing Request Packet
+ * Figure 3.2: Pairing Request Packet
  */
 struct pairing_request
 {
@@ -462,6 +466,13 @@ struct pairing_request
     key_distribution        initiator_key_distribution;
     key_distribution        responder_key_distribution;
 };
+
+/**
+ * See BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H, pages 2340-2342
+ * Figure 3.4: Pairing Response Packet,
+ * @note The pairing request and pairing response packet formats are identical.
+ */
+using pairing_response = pairing_request;
 
 /**
  * @enum oob_flags
@@ -490,13 +501,13 @@ struct master_id
 };
 
 using stk = std::array<uint8_t, 16u>;
-using ltk = std::array<uint8_t, 16u>;
+using ltk = std::array<uint8_t, 16u>;   ///< Figure 3.12: Encryption Information Packet
 using irk = std::array<uint8_t, 16u>;   ///< Figure 3.14: Identity Information Packet
 
-using csrk = std::array<uint8_t,  8u>;  ///< Figure 3.16: Signing Information Packet
-using dhk  = std::array<uint8_t, 32u>;  ///<
+using csrk  = std::array<uint8_t,  8u>; ///< Figure 3.16: Signing Information Packet
+using dhkey = std::array<uint8_t, 32u>; ///<
 
-using dhk_check = std::array<uint8_t, 16u>;  ///< Figure 3.9: Pairing DHKey Check PDU
+using dhkey_check = std::array<uint8_t, 16u>;  ///< Figure 3.9: Pairing DHKey Check PDU
 
 /**
  * 3.5.6 Pairing Public Key, Figure 3.8: Pairing Public Key PDU

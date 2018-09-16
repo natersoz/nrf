@@ -3,7 +3,7 @@
 SEARCH_DIR(.)
 GROUP(-lgcc -lc -lnosys)
 
-__SOFTDEVICE_DATA_SIZE = 0x2400;
+__SOFTDEVICE_DATA_SIZE = 0x3000;
 
 MEMORY
 {

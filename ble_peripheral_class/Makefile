@@ -18,6 +18,8 @@ BOOST_ROOT=/opt/boost
 
 SOURCE_FILES =
 SOURCE_FILES += ./main.cc
+SOURCE_FILES += ./ble_gap_connection.cc
+SOURCE_FILES += ./ble_gatts_observer.cc
 SOURCE_FILES += ../gcc-arm/gcc_startup_nrf52.s
 SOURCE_FILES += ../gcc-arm/gcc_stubs.cc
 SOURCE_FILES += ../nordic/app_timer.cc
@@ -28,18 +30,18 @@ SOURCE_FILES += ../peripherals/rtc.cc
 
 SOURCE_FILES += ../ble/uuid.cc
 SOURCE_FILES += ../ble/tlv_encode.cc
-SOURCE_FILES += ../ble/advertising.cc
 SOURCE_FILES += ../ble/peripheral_trivial.cc
 SOURCE_FILES += ../ble/nordic_ble_gatts_event_observer.cc
 SOURCE_FILES += ../ble/nordic_ble_common_event_observer.cc
 SOURCE_FILES += ../ble/service/battery_service.cc
-SOURCE_FILES += ../ble/nordic_gatts.cc
 SOURCE_FILES += ../ble/nordic_error.cc
 SOURCE_FILES += ../ble/nordic_state_observable.cc
 SOURCE_FILES += ../ble/nordic_req_observable.cc
 SOURCE_FILES += ../ble/nordic_soc_observable.cc
+SOURCE_FILES += ../ble/nordic_ble_gap_advertising.cc
 SOURCE_FILES += ../ble/nordic_ble_event_observables.cc
 SOURCE_FILES += ../ble/nordic_ble_gap_event_observable.cc
+SOURCE_FILES += ../ble/nordic_ble_gatts.cc
 SOURCE_FILES += ../ble/nordic_ble_gatts_event_observable.cc
 SOURCE_FILES += ../ble/nordic_ble_gattc_event_observable.cc
 SOURCE_FILES += ../ble/nordic_ble_common_event_observable.cc
@@ -96,7 +98,6 @@ SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
 # Stuff the is interesting and might be useful:
 # SOURCE_FILES += $(SDK_ROOT)/components/libraries/hardfault/hardfault_implementation.c
 # SOURCE_FILES += $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c
-
 
 INCLUDE_PATHS =  .
 INCLUDE_PATHS =  ..

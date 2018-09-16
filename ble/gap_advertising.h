@@ -1,5 +1,5 @@
 /**
- * @file ble/advertising.h
+ * @file ble/gap_advertising.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  *
  * A set of classes for configuring and performing BLE advertising.
@@ -7,17 +7,23 @@
 
 #pragma once
 
-#include "ble/advertising_data.h"
+#include "ble/gap_advertising_data.h"
 #include <cstddef>
 #include <cstring>
-#include <vector>
 
 namespace ble
 {
+namespace gap
+{
 
 /**
- * @class advertising
- * A generic BLE advertising class, undirected and connectable.
+ * @interface advertising
+ * A generic BLE advertising interface.
+ *
+ * Implement this interface:
+ * + With vendor specific APIs and hardware
+ * + To specify the profile suitable to the connection role:
+ *   directed, undirected, scannable, connectable, etc.
  */
 class advertising
 {
@@ -52,12 +58,23 @@ public:
      * Create the advertising class with a specific intreval based on
      * 0.625 msec tick counts.
      *
-     * @param interval The advertising interval in 0.625 msec ticks.
+     * @param advertising_interval The advertising interval in 0.625 msec ticks.
      */
-    advertising(uint16_t interval = advertising::interval_unspecified);
+    advertising(uint16_t advertising_interval = advertising::interval_unspecified):
+        advertising_data(),
+        interval(advertising_interval)
+    {
+    }
 
-    void start();
-    void stop();
+    /**
+     * Start advertising.
+     * The advertising data contained in the public member advertising_data
+     * will be used when advertising starts.
+     */
+    virtual void start() = 0;
+
+    /** Stop advertising. */
+    virtual void stop() = 0;
 
     /**
      * Use the tlv_encode functions to set the advertising data into
@@ -69,5 +86,6 @@ public:
     uint16_t interval;
 };
 
+} // namespace gap
 } // namespace ble
 

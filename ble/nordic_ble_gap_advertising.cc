@@ -3,27 +3,26 @@
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
-#include "ble.h"
-#include "ble/advertising.h"
 #include "ble/gap_types.h"
-#include "ble/nordic_advertising.h"
+#include "ble/nordic_ble_gap_advertising.h"
+#include "ble/nordic_ble_gap_advertising_params.h"
 
 #include "logger.h"
 #include "project_assert.h"
 
-#include "ble_gap.h"                                    // Nordic softdevice
+#include "ble.h"                // Nordic softdevice
+#include "ble_gap.h"
 #include "nrf_error.h"
 
-namespace ble
+namespace nordic
 {
 
-advertising::advertising(uint16_t advertising_interval)
-    : advertising_data(),
-      interval(advertising_interval)
+gap_advertising::gap_advertising(uint16_t advertising_interval):
+    ble::gap::advertising(advertising_interval)
 {
 }
 
-void advertising::start()
+void gap_advertising::start()
 {
     logger &logger = logger::instance();
 
@@ -46,16 +45,16 @@ void advertising::start()
     /// BLE_CONN_CFGS, BLE_COMMON_CFGS, BLE_GAP_CFGS, BLE_GATTS_CFGS
     uint8_t const config_tag = 1u;
 
-    nordic::ble_advertising_params_t advertising_params;
+    nordic::gap_advertising_params_t advertising_params;
     advertising_params.interval = this->interval;
 
     sd_result = sd_ble_gap_adv_start(&advertising_params, config_tag);
     ASSERT(sd_result == NRF_SUCCESS);
 }
 
-void advertising::stop()
+void gap_advertising::stop()
 {
     sd_ble_gap_adv_stop();
 }
 
-}
+} // namespace nordic

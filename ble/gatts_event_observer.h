@@ -78,9 +78,14 @@ public:
         uint16_t            attribute_handle
         ) {} // BLE_GATTS_EVT_HVC
 
-    virtual void mtu_rx_size(
+    /**
+     * BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part F
+     * Section 3.4.2.1 Exchange MTU Request
+     * Table 3.4: Format of Exchange MTU Request
+     */
+    virtual void exchange_mtu_request(
         uint16_t            conection_handle,
-        uint16_t            client_rx_mtu_size
+        att::length_t       client_rx_mtu_size
         ) {} // BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST
 
     virtual void timeout(

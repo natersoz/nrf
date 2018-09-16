@@ -18,27 +18,12 @@
 
 /* __data_start__ marks the beginning of the data section within the linker
  * description script. See nrf5x_common.ld. The RAM region before the data
- * section is reserved for use by the softdevice.. If any other sections
+ * section is reserved for use by the softdevice. If any other sections
  * are placed in front of the __data_init__ marker then the marker location
  * needs to change as well.
  */
 extern uint32_t __data_start__;
 static uintptr_t const ram_base_address = reinterpret_cast<uintptr_t>(&__data_start__);
-
-static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
-#if 0
-NRF_BLE_GATT_DEF(m_gatt);                                                       /**< GATT module instance. */
-static void gatt_init(void)
-{
-    uint32_t const error_code = nrf_ble_gatt_init(&m_gatt, NULL);
-    ASSERT(error_code == NRF_SUCCESS);
-}
-#endif
-
-static void conn_params_error_handler(uint32_t nrf_error)
-{
-    ASSERT(nrf_error == NRF_SUCCESS);
-}
 
 /**
  * Callback function for asserts in the SoftDevice.
@@ -57,40 +42,25 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t *u_file_name)
 }
 
 /**
- * @todo This, along with the entire ble_conn_params.c functionality needs to
- * be refactored into a class which handles BLE connection events.
- * @see nordic::ble_gap_event_observer, as it will be the interface which
- * gets connection notificiations.
- *
- * This function is called for all events in the Connection Parameters Module
- * which are passed to the application.
- * @note All this function does is to disconnect.
- * This could have been done by simply setting the disconnect_on_fail config
- * parameter, but instead we use the event handler mechanism to demonstrate its use.
- *
- * @param p_evt Event received from the Connection Parameters Module.
- */
-static void on_conn_params_evt(ble_conn_params_evt_t * p_evt)
-{
-    if (p_evt->evt_type == BLE_CONN_PARAMS_EVT_FAILED)
-    {
-        uint32_t error_code = sd_ble_gap_disconnect(m_conn_handle,
-                                                    BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
-        ASSERT(error_code == NRF_SUCCESS);
-    }
-}
-
-/**
  * Initialize the SoftDevice and the BLE event interrupt.
+ * @note When debugging with remote gdb (the normal case), if the image is updated
+ * via gdb 'load' and the get 'monitor reset' is not called, this function will fail
+ * since the state of the BLE stack is still running.
+ * @todo nrf_sdh_enable_request() calls nrf_sdh_enable_request() which uses
+ * #define NRF_SDH_CLOCK_LF_SRC in sdk_config.h; NRF_CLOCK_LF_SRC_XTAL (1).
+ * MAke this parameterized within this class.
  */
-std::errc ble::nordic::stack::init(void)
+std::errc nordic::ble_stack::init(void)
 {
     uint32_t error_code = NRF_SUCCESS;
 
-    // Check to see if all other softdevice clients are ready to start.
-
+    // Notify all softdevice registered observers that the softdevice is going
+    // to be initialized. If all observers do not acknowledge that they are
+    // ready, nrf_sdh_enable_request() will return an error.
     if (error_code == NRF_SUCCESS)
     {
+        // If nrf_sdh_enable_request() is successful then sd_softdevice_enable()
+        // has been called and softdevice interrupts are enabled.
         error_code = nrf_sdh_enable_request();
         ASSERT(error_code == NRF_SUCCESS);
     }
@@ -100,11 +70,11 @@ std::errc ble::nordic::stack::init(void)
         uint8_t   const total_link_count        =    1u;
         uint8_t   const peripheral_link_count   =    1u;
         uint16_t  const mtu_size                =   23u;
-        uint8_t   const gatt_uuid_count         =    4u;    /// @todo
+        uint8_t   const gatt_uuid_count         =   16u;    /// @todo
         uint32_t  const gatt_table_size         = 2048u;    /// @todo
         bool      const service_changed         = false;
 
-        error_code = this->softdevice_init(
+        error_code = this->set_configuration(
             ram_base_address,
             total_link_count,
             peripheral_link_count,
@@ -116,24 +86,25 @@ std::errc ble::nordic::stack::init(void)
         ASSERT(error_code == NRF_SUCCESS);
     }
 
-    if (error_code == NRF_SUCCESS)
-    {
-        error_code = this->connection_parameters_init();
-        ASSERT(error_code == NRF_SUCCESS);
-    }
-
     return nordic_to_system_error(error_code);
 }
 
-std::errc ble::nordic::stack::enable()
+std::errc nordic::ble_stack::enable()
 {
-    uint32_t sd_base_address  = ram_base_address;
-    uint32_t const error_code = sd_ble_enable(&sd_base_address);
+    uint32_t sd_base_address = ram_base_address;
+    uint32_t error_code = sd_ble_enable(&sd_base_address);
 
     logger& logger = logger::instance();
     logger.info("RAM starts at 0x%08x, minimum required: 0x%08x, %s",
                 ram_base_address, sd_base_address,
                 (ram_base_address >= sd_base_address)? "OK" : "FAIL");
+
+    if (false && error_code == NRF_SUCCESS)
+    {
+        // The connection parameters cannot be set until the BLE stack is enabled.
+        error_code = this->connection_parameters_init();
+        ASSERT(error_code == NRF_SUCCESS);
+    }
 
     ASSERT(error_code == NRF_SUCCESS);
     return nordic_to_system_error(error_code);
@@ -143,53 +114,41 @@ std::errc ble::nordic::stack::enable()
     //gatt_init();
 }
 
-std::errc ble::nordic::stack::disable()
+std::errc nordic::ble_stack::disable()
 {
-    /// @todo de-register the BLE GAP, GATT, etc. observers here (?)
     uint32_t error_code = sd_softdevice_disable();
     return nordic_to_system_error(error_code);
 }
 
-bool ble::nordic::stack::is_enabled() const
+bool nordic::ble_stack::is_enabled() const
 {
     uint8_t is_enabled = 0u;
     sd_softdevice_is_enabled(&is_enabled);      // Always return NRF_SUCCESS.
     return bool(is_enabled);
 }
 
-uint32_t ble::nordic::stack::softdevice_init(uintptr_t  ram_base_address,
-                                             uint8_t    total_link_count,
-                                             uint8_t    peripheral_link_count,
-                                             uint16_t   mtu_size,
-                                             uint8_t    gatt_uuid_count,
-                                             uint32_t   gatt_table_size,
-                                             bool       service_changed)
+uint32_t nordic::ble_stack::set_configuration(uintptr_t  ram_base_address,
+                                              uint8_t    total_link_count,
+                                              uint8_t    peripheral_link_count,
+                                              uint16_t   mtu_size,
+                                              uint8_t    gatt_uuid_count,
+                                              uint32_t   gatt_table_size,
+                                              bool       service_changed)
 {
     uint32_t ret_code = NRF_SUCCESS;
     logger& logger = logger::instance();
 
-    /**
-     * @param conn_cfg_tag
-     * It appears that conn_cfg_tag is associated with an advertising profile
-     * and a conection configuration (in this function).
-     * @todo Still don't know what this config_tag means - for now nothing.
-     *
-     * @note Must be different for all connection configurations added and
-     * not @ref BLE_CONN_CFG_TAG_DEFAULT.
-     */
-    uint8_t const conn_cfg_tag = 1u;
-
-    // Overwrite some of the default settings of the BLE stack.
     // If any of the calls to sd_ble_cfg_set() fail, log the error but carry on
     // so that wrong RAM settings can be caught by nrf_sdh_ble_enable()
     // and a meaningful error  message will be printed to the user suggesting
     // the correct value.
-
     ble_cfg_t ble_cfg;
     memset(&ble_cfg, 0, sizeof(ble_cfg));
 
-    // Configure the connection count.
-    ble_cfg.conn_cfg.conn_cfg_tag = conn_cfg_tag;
+    // Note: any of the configuration settings which are part of the
+    // struct ble_conn_cfg_t member conn_cfg require the conn_cfg_tag.
+    // For other settings, this tag must not be set.
+    ble_cfg.conn_cfg.conn_cfg_tag = this->connection_configuration_tag_;
 
     /**
      * The number of concurrent connections the application can create with this configuration.
@@ -234,8 +193,8 @@ uint32_t ble::nordic::stack::softdevice_init(uintptr_t  ram_base_address,
 
     // Configure the maximum ATT MTU.
     memset(&ble_cfg, 0, sizeof(ble_cfg));
-    ble_cfg.conn_cfg.conn_cfg_tag                   = conn_cfg_tag;
-    ble_cfg.conn_cfg.params.gatt_conn_cfg.att_mtu   = mtu_size;
+    ble_cfg.conn_cfg.conn_cfg_tag = this->connection_configuration_tag_;
+    ble_cfg.conn_cfg.params.gatt_conn_cfg.att_mtu = mtu_size;
 
     {
         uint32_t error_code = sd_ble_cfg_set(BLE_CONN_CFG_GATT, &ble_cfg, ram_base_address);
@@ -291,7 +250,51 @@ uint32_t ble::nordic::stack::softdevice_init(uintptr_t  ram_base_address,
     return ret_code;
 }
 
-uint32_t ble::nordic::stack::connection_parameters_init()
+/**
+ * -------------
+ * Everything from here to the end of the file is reall GAP functionality
+ * nad needs to be rewritten into the GAP
+ *
+ * @todo This, along with the entire ble_conn_params.c functionality needs to
+ * be refactored into a class which handles BLE connection events.
+ * @see nordic::ble_gap_event_observer, as it will be the interface which
+ * gets connection notificiations.
+ *
+ * This function is called for all events in the Connection Parameters Module
+ * which are passed to the application.
+ * @note All this function does is to disconnect.
+ * This could have been done by simply setting the disconnect_on_fail config
+ * parameter, but instead we use the event handler mechanism to demonstrate its use.
+ *
+ * @param p_evt Event received from the Connection Parameters Module.
+ */
+
+static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
+#if 0
+NRF_BLE_GATT_DEF(m_gatt);                                                       /**< GATT module instance. */
+static void gatt_init(void)
+{
+    uint32_t const error_code = nrf_ble_gatt_init(&m_gatt, NULL);
+    ASSERT(error_code == NRF_SUCCESS);
+}
+#endif
+
+static void conn_params_error_handler(uint32_t nrf_error)
+{
+    ASSERT(nrf_error == NRF_SUCCESS);
+}
+
+static void on_conn_params_evt(ble_conn_params_evt_t * p_evt)
+{
+    if (p_evt->evt_type == BLE_CONN_PARAMS_EVT_FAILED)
+    {
+        uint32_t error_code = sd_ble_gap_disconnect(m_conn_handle,
+                                                    BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
+        ASSERT(error_code == NRF_SUCCESS);
+    }
+}
+
+uint32_t nordic::ble_stack::connection_parameters_init()
 {
     ble_conn_params_init_t cp_init;
     memset(&cp_init, 0, sizeof(cp_init));

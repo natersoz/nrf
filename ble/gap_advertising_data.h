@@ -1,5 +1,5 @@
 /**
- * @file ble/advertising_data.h
+ * @file ble/gap_advertising_data.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  *
  * A set of classes for configuring and performing BLE advertising.
@@ -12,6 +12,8 @@
 #include <cstring>
 
 namespace ble
+{
+namespace gap
 {
 
 class advertising_data_t
@@ -47,5 +49,6 @@ private:
     uint8_t                     data_[length];
 };
 
+} // namespace gap
 } // namespace ble
 
