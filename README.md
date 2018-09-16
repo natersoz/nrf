@@ -2,17 +2,11 @@ project: natersoz/nrf
 ====================
 Copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 
-This project is a starting point for working with the Nordic NRF52
-PCA10040 development boards.
-
-This README.md is getting large. At some point it will be broken up into
-smaller pieces.
-
-Nordic Questions:
------------------
-1. ble_gatts_attr_t::init_offs Provide an example where this would not be zero.
-2. Understand Nordic's variable length attributes.
-3.
+LICENSING
+---------
++ File which contain a Nordic Semiconductor License in the comments header
+  are covered under the terms found in `NORDIC_LICENSE.txt`.
++ All other files are covered under the Apache 2.0 LICENSE file.
 
 Goals:
 ------
@@ -26,16 +20,20 @@ Goals:
 + Isolate and simplify the softdevice usage. The softdevice is very well
   architected (from what I can tell) and does not incur many of the wild
   gyrations of the SDK. The softdevice will be called directly.
++ What about mbed BLE? This is a good question.
+  Show me the declaration for the securityManager class and we can proceed.
+  + This appears to be a well-meaning work in progress.
+    It will be nice if it ever happens.
+	At ths point, I am confident I can do better.
 
 ### Piroities:
 + First the peripheral and GATT server will be implemented.
-+ Initially the Security Manager will be ignored.
 
-LICENSING
----------
-+ File which contain a Nordic Semiconductor License in the comments header
-  are covered under the terms found in `NORDIC_LICENSE.txt`.
-+ All other files are covered under the Apache 2.0 LICENSE file.
+Nordic Questions:
+-----------------
+1. ble_gatts_attr_t::init_offs Provide an example where this would not be zero.
+2. Understand Nordic's variable length attributes.
+3.
 
 Noridc SDK Version:
 -------------------

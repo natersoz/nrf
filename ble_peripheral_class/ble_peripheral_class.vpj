@@ -41,7 +41,8 @@
                 CaptureOutputWith="ProcessBuffer"
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
-                RunFromDir="%rw">
+                RunFromDir="%rw"
+                ClearProcessBuffer="1">
                 <Exec CmdLine="make"/>
             </Target>
             <Target
@@ -167,7 +168,8 @@
                 CaptureOutputWith="ProcessBuffer"
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
-                RunFromDir="%rw">
+                RunFromDir="%rw"
+                ClearProcessBuffer="1">
                 <Exec CmdLine="make"/>
             </Target>
             <Target
@@ -261,6 +263,9 @@
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
             GUID="{48553D21-D6F9-401C-90C9-BF9AB9E75BA5}">
+            <F N="ble_event_handler.cc"/>
+            <F N="ble_gap_connection.cc"/>
+            <F N="ble_gatts_observer.cc"/>
             <F N="main.cc"/>
         </Folder>
         <Folder
@@ -271,9 +276,10 @@
                 Name="config"
                 AutoCustom="1"
                 GUID="{968D0B90-0C26-42B2-9692-31E752A74779}">
-                <F N="../ble_uart_peripheral/config/sdk_config.h"/>
                 <F N="config/sdk_config.h"/>
             </Folder>
+            <F N="ble_gap_connection.h"/>
+            <F N="ble_gatts_observer.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
@@ -286,11 +292,6 @@
         <Folder
             Name="Other Files"
             Filters=""
-            GUID="{C6EB8A4E-0B6C-43B5-877B-83A6B20CEF16}">
-            <F
-                N="Makefile"
-                Type="Makefile"/>
-            <F N="nrf_ble_peripheral.ld"/>
-        </Folder>
+            GUID="{C6EB8A4E-0B6C-43B5-877B-83A6B20CEF16}"></Folder>
     </Files>
 </Project>

@@ -63,10 +63,10 @@ struct connection_parameters
     connection_parameters& operator=(connection_parameters&&)       = default;
 
     connection_parameters():
-        connection_interval_min(unspecified_interval),
-        connection_interval_max(unspecified_interval),
+        interval_min(unspecified_interval),
+        interval_max(unspecified_interval),
         slave_latency(0u),
-        connection_supervision_timeout(unspecified_interval)
+        supervision_timeout(unspecified_interval)
     {
     }
 
@@ -74,10 +74,10 @@ struct connection_parameters
                           uint16_t conn_interval_max,
                           uint16_t latency,
                           uint16_t conn_supervision_timeout):
-        connection_interval_min(conn_interval_min),
-        connection_interval_max(conn_interval_max),
+        interval_min(conn_interval_min),
+        interval_max(conn_interval_max),
         slave_latency(latency),
-        connection_supervision_timeout(conn_supervision_timeout)
+        supervision_timeout(conn_supervision_timeout)
     {
     }
 
@@ -85,8 +85,8 @@ struct connection_parameters
      * Units: 1.25 msec. Range: [0x0006:0x0C80]. 0xFFFF indicates unspecified.
      * Values outside the range (except 0xFFFF) are reserved for future use.
      */
-    uint16_t connection_interval_min;
-    uint16_t connection_interval_max;
+    uint16_t interval_min;
+    uint16_t interval_max;
     /** @} */
 
     /**
@@ -103,7 +103,7 @@ struct connection_parameters
      * Range: 0xFFFF indicates no specific value requested.
      * Range: [0x000A:0x0C80]; 100 ms to 32 seconds.
      */
-    uint16_t connection_supervision_timeout;
+    uint16_t supervision_timeout;
 };
 
 // This is a sanity check for the struct connection_parameters.

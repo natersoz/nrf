@@ -3,7 +3,7 @@
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
-#include "nordic_gatts.h"
+#include "nordic_ble_gatts.h"
 #include "project_assert.h"
 #include "logger.h"
 
@@ -387,10 +387,10 @@ static uint32_t nordic_add_gap_service(ble::gatt::service& service)
                 }
 
                 ble_gap_conn_params_t const gap_conn_params = {
-                    .min_conn_interval = connection_parameters_ptr->connection_interval_min,
-                    .max_conn_interval = connection_parameters_ptr->connection_interval_max,
+                    .min_conn_interval = connection_parameters_ptr->interval_min,
+                    .max_conn_interval = connection_parameters_ptr->interval_max,
                     .slave_latency     = connection_parameters_ptr->slave_latency,
-                    .conn_sup_timeout  = connection_parameters_ptr->connection_supervision_timeout,
+                    .conn_sup_timeout  = connection_parameters_ptr->supervision_timeout,
                 };
 
                 error = sd_ble_gap_ppcp_set(&gap_conn_params);

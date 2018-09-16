@@ -15,40 +15,41 @@
 #include "rtc_observer.h"
 #include "project_assert.h"
 
-#include "ble/advertising.h"
 #include "ble/att.h"
 #include "ble/gap_types.h"
 #include "ble/gatt_uuids.h"
 #include "ble/tlv_encode.h"
 
+#include "ble/gap_connection.h"
 #include "ble/service/battery_service.h"
 #include "ble/service/current_time_service.h"
 #include "ble/service/gap_service.h"
 #include "ble/service/gatt_service.h"
 
-#include "nordic/device_address.h"
 #include "ble/nordic_ble_stack.h"
+#include "ble/nordic_ble_gap_advertising.h"
 #include "ble/nordic_ble_peer.h"
-#include "ble/nordic_ble_stack.h"
-#include "ble/nordic_gatts.h"
+#include "ble/nordic_ble_gatts.h"
 #include "ble/nordic_ble_peripheral.h"
 
-#include "ble_gap_observer.h"
+#include "nordic/device_address.h"
+
+#include "ble_gap_connection.h"
 #include "ble_gatts_observer.h"
 
 static segger_rtt_output_stream rtt_os;
 
 static rtc_observable<> rtc_1(1u, 32u);
 
-static constexpr uint16_t const advertising_interval = ble::advertising::interval_msec(100u);
-static ble::advertising ble_advertising(advertising_interval);
+static constexpr uint16_t const advertising_interval = ble::gap::advertising::interval_msec(100u);
+static nordic::gap_advertising ble_advertising(advertising_interval);
 
 static constexpr char const device_name[]       = "periph_class";
 static constexpr char const device_name_short[] = "cls";
 static constexpr ble::att::length_t const device_name_length  = sizeof(device_name) - 1u;
 static constexpr ble::att::length_t const device_short_length = sizeof(device_name_short) - 1u;
 
-static size_t set_advertising_data(ble::advertising_data_t &data)
+static size_t set_advertising_data(ble::gap::advertising_data_t &data)
 {
     ble::gatt::services const services_16[] = {
         ble::gatt::services::device_information,
@@ -94,13 +95,22 @@ int main(void)
 
     logger.info("--- BLE peripheral classes ---");
 
-    ble::nordic::stack ble_stack(rtc_1);
-    ble_gap_observer   ble_gap_observer;
+    /// @todo Connection interval needs to be thought through for a specific device.
+    ble::gap::connection_parameters const connection_parameters(
+        ble::gap::connection_interval_msec(100),
+        ble::gap::connection_interval_msec(200),
+        0u,
+        ble::gap::supervision_timeout_msec(4000u));
+
+    nordic::ble_stack ble_stack(rtc_1);
+
+    // Implementations specific to the ble_peripheral_class.
+    ble_gap_connection ble_gap_connection(connection_parameters);
     ble_gatts_observer ble_gatts_observer;
 
     nordic::ble_peripheral ble_peripheral(ble_stack,
                                           ble_advertising,
-                                          ble_gap_observer,
+                                          ble_gap_connection,
                                           ble_gatts_observer);
 
     ble_peripheral.ble_stack().init();
@@ -111,13 +121,6 @@ int main(void)
     /// @todo "periph_class" is common with advertising device name.
     ble::service::device_name device_name_characteristic(device_name, device_name_length);
     ble::service::appearance  appearance_characteristic(ble::gatt::appearance::unknown);
-
-    /// @todo Connection interval needs to be thought through for a specific device.
-    ble::gap::connection_parameters const connection_parameters(
-        ble::gap::connection_interval_msec(100),
-        ble::gap::connection_interval_msec(200),
-        0u,
-        ble::gap::supervision_timeout_msec(4000u));
 
     ble::service::ppcp          ppcp(connection_parameters);
     ble::service::gap_service   gap_service;

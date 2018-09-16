@@ -11,10 +11,10 @@ namespace hci
 {
 
 /**
- * @enum error_codes
+ * @enum ble::hci::error_code
  * BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part D page 643
  */
-enum class error_codes: uint8_t
+enum class error_code: uint8_t
 {
     success                                                 = 0x00,
     unknown_hci_command                                     = 0x01,

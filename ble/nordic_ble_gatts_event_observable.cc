@@ -180,11 +180,11 @@ void ble_event_observable<ble_gatts_event_observer>::notify(
             // Exchange MTU Request.
             // Reply with @ref sd_ble_gatts_exchange_mtu_reply.
             logger::instance().debug(
-                "GATTS service change confirmation: c: 0x%04x, rx_mtx: %u",
+                "GATTS exchange mtu request: c: 0x%04x, client_rx_mtu: %u",
                 event_data.conn_handle,
                 event_data.params.exchange_mtu_request.client_rx_mtu);
 
-            observer.interface_reference.mtu_rx_size(
+            observer.interface_reference.exchange_mtu_request(
                 event_data.conn_handle,
                 event_data.params.exchange_mtu_request.client_rx_mtu);
             break;
@@ -196,7 +196,7 @@ void ble_event_observable<ble_gatts_event_observer>::notify(
                 event_data.conn_handle,
                 event_data.params.timeout.src);
 
-            observer.interface_reference.mtu_rx_size(
+            observer.interface_reference.timeout(
                 event_data.conn_handle,
                 event_data.params.timeout.src);
             break;
