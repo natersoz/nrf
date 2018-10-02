@@ -104,26 +104,26 @@ public:
     declaration     decl;
     att::uuid const uuid;
 
-    bool operator==(service const& other) const {
-        // Since the uuid has to be unique it can determine equivalence.
-        return (this->uuid == other.uuid);
-    }
-
+private:
     // The list of characteristics contained in the service.
     using characteristic_list_type =
         boost::intrusive::list<
             characteristic,
+            boost::intrusive::constant_time_size<false>,
             boost::intrusive::member_hook<characteristic,
-                                          boost::intrusive::list_member_hook<>,
-                                          &characteristic::hook_> >;
+                                          characteristic::list_hook_type,
+                                          &characteristic::hook_>
+        >;
 
-    characteristic_list_type characteristic_list;
-
-private:
-    // So that services can be added to the service_container.
-    boost::intrusive::list_member_hook<> hook_;
+    using list_hook_type = boost::intrusive::list_member_hook<
+        boost::intrusive::link_mode<boost::intrusive::auto_unlink>
+        >;
+    list_hook_type hook_;
 
     friend class service_container;
+
+public:
+    characteristic_list_type characteristic_list;
 };
 
 /**
@@ -176,12 +176,17 @@ public:
 class service_container
 {
 private:
-    // The list of descriptors associated with this characteristic.
+    /**
+     * The list of descriptors associated with this characteristic.
+     * @note constant_time_size<false> is used so that the nodes can be
+     * efficiently removed through hook.unlink().
+     */
     using service_list_type =
         boost::intrusive::list<
             service,
+            boost::intrusive::constant_time_size<false>,
             boost::intrusive::member_hook<service,
-                                          boost::intrusive::list_member_hook<>,
+                                          service::list_hook_type,
                                           &service::hook_>>;
 
 public:
@@ -195,10 +200,9 @@ public:
 
     void add(service &service)
     {
-        service_list_type::const_iterator iter =
-            std::find(this->service_list_.begin(), this->service_list_.end(), service);
-
-        // For now be paranoid and makes sure no duplicates are added.
+        // Check to see if this uuid is already in the container.
+        // Do not allow services with duplicate uuids to be added.
+        service_list_type::const_iterator iter = this->find(service.uuid);
         if (iter == this->service_list_.end())
         {
             this->service_list_.push_back(service);
@@ -211,31 +215,39 @@ public:
 
     void remove(service &service)
     {
-        this->service_list_.remove(service);
+        auto iter = this->find(service.uuid);
+        if (iter != this->service_list_.end())
+        {
+            iter->hook_.unlink();
+        }
     }
 
     service_list_type::iterator find(ble::att::uuid const &uuid)
     {
-        service const to_find(uuid, attribute_type::primary_service);
-        return std::find(this->service_list_.begin(), this->service_list_.end(), to_find);
+        /// @todo remove code duplication per Scott Meyers, "Effective C++", Item 3.
+        /// @note Implementation must go in the const function version.
+        return std::find_if(this->service_list_.begin(), this->service_list_.end(),
+                            [&uuid] (service const& service_in_list) {
+                                return uuid == service_in_list.uuid; });
     }
 
     service_list_type::const_iterator find(ble::att::uuid const &uuid) const
     {
-        service const to_find(uuid, attribute_type::primary_service);
-        return std::find(this->service_list_.begin(), this->service_list_.end(), to_find);
+        return std::find_if(this->service_list_.begin(), this->service_list_.end(),
+                            [&uuid] (service const& service_in_list) {
+                                return uuid == service_in_list.uuid; });
     }
 
     service_list_type::iterator find(ble::gatt::services uuid)
     {
-        service const to_find(uuid, attribute_type::primary_service);
-        return std::find(this->service_list_.begin(), this->service_list_.end(), to_find);
+        ble::att::uuid const att_uuid(static_cast<uint32_t>(uuid));
+        return this->find(att_uuid);
     }
 
     service_list_type::const_iterator find(ble::gatt::services uuid) const
     {
-        service const to_find(uuid, attribute_type::primary_service);
-        return std::find(this->service_list_.begin(), this->service_list_.end(), to_find);
+        ble::att::uuid const att_uuid(static_cast<uint32_t>(uuid));
+        return this->find(att_uuid);
     }
 
 private:

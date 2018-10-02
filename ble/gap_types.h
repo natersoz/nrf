@@ -458,9 +458,10 @@ struct pairing_request
     authentication_required auth_required;
 
     /**
-     * Defines the maximum encryption key size that the device can support.
+     * Defines the encryption key size that the device can support.
      * Range: [7:16] octets.
      */
+    uint8_t                 encryption_key_size_min;
     uint8_t                 encryption_key_size_max;
 
     key_distribution        initiator_key_distribution;
@@ -505,9 +506,7 @@ using ltk = std::array<uint8_t, 16u>;   ///< Figure 3.12: Encryption Information
 using irk = std::array<uint8_t, 16u>;   ///< Figure 3.14: Identity Information Packet
 
 using csrk  = std::array<uint8_t,  8u>; ///< Figure 3.16: Signing Information Packet
-using dhkey = std::array<uint8_t, 32u>; ///<
-
-using dhkey_check = std::array<uint8_t, 16u>;  ///< Figure 3.9: Pairing DHKey Check PDU
+using dhkey = std::array<uint8_t, 32u>; ///< Figure 3.9: Pairing DHKey Check PDU
 
 /**
  * 3.5.6 Pairing Public Key, Figure 3.8: Pairing Public Key PDU

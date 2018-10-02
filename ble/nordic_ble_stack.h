@@ -6,7 +6,6 @@
 #pragma once
 
 #include "ble/stack.h"
-#include "rtc.h"
 #include <cstdint>
 
 namespace nordic
@@ -56,9 +55,8 @@ public:
     ble_stack& operator=(ble_stack const&)  = delete;
     ble_stack& operator=(ble_stack&&)       = delete;
 
-    ble_stack(rtc &rtc, uint8_t conn_cfg_tag = 1u):
+    ble_stack(uint8_t conn_cfg_tag):
         ble::stack(),
-        rtc_(rtc),
         connection_configuration_tag_(conn_cfg_tag)
     {}
 
@@ -68,8 +66,6 @@ public:
     bool      is_enabled() const override;
 
 private:
-    rtc&          rtc_;
-
     /// See doc/nordic_ble_conn_cfg.h
     /// for evolving documentation on this tag's usage and meaning.
     uint8_t const connection_configuration_tag_;
@@ -81,8 +77,6 @@ private:
                                uint8_t      gatt_uuid_count,
                                uint32_t     gatt_table_size,
                                bool         service_changed);
-
-    uint32_t connection_parameters_init();
 };
 
 } // namespace nordic

@@ -99,13 +99,6 @@ std::errc nordic::ble_stack::enable()
                 ram_base_address, sd_base_address,
                 (ram_base_address >= sd_base_address)? "OK" : "FAIL");
 
-    if (false && error_code == NRF_SUCCESS)
-    {
-        // The connection parameters cannot be set until the BLE stack is enabled.
-        error_code = this->connection_parameters_init();
-        ASSERT(error_code == NRF_SUCCESS);
-    }
-
     ASSERT(error_code == NRF_SUCCESS);
     return nordic_to_system_error(error_code);
 
@@ -249,78 +242,3 @@ uint32_t nordic::ble_stack::set_configuration(uintptr_t  ram_base_address,
 
     return ret_code;
 }
-
-/**
- * -------------
- * Everything from here to the end of the file is reall GAP functionality
- * nad needs to be rewritten into the GAP
- *
- * @todo This, along with the entire ble_conn_params.c functionality needs to
- * be refactored into a class which handles BLE connection events.
- * @see nordic::ble_gap_event_observer, as it will be the interface which
- * gets connection notificiations.
- *
- * This function is called for all events in the Connection Parameters Module
- * which are passed to the application.
- * @note All this function does is to disconnect.
- * This could have been done by simply setting the disconnect_on_fail config
- * parameter, but instead we use the event handler mechanism to demonstrate its use.
- *
- * @param p_evt Event received from the Connection Parameters Module.
- */
-
-static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
-#if 0
-NRF_BLE_GATT_DEF(m_gatt);                                                       /**< GATT module instance. */
-static void gatt_init(void)
-{
-    uint32_t const error_code = nrf_ble_gatt_init(&m_gatt, NULL);
-    ASSERT(error_code == NRF_SUCCESS);
-}
-#endif
-
-static void conn_params_error_handler(uint32_t nrf_error)
-{
-    ASSERT(nrf_error == NRF_SUCCESS);
-}
-
-static void on_conn_params_evt(ble_conn_params_evt_t * p_evt)
-{
-    if (p_evt->evt_type == BLE_CONN_PARAMS_EVT_FAILED)
-    {
-        uint32_t error_code = sd_ble_gap_disconnect(m_conn_handle,
-                                                    BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
-        ASSERT(error_code == NRF_SUCCESS);
-    }
-}
-
-uint32_t nordic::ble_stack::connection_parameters_init()
-{
-    ble_conn_params_init_t cp_init;
-    memset(&cp_init, 0, sizeof(cp_init));
-
-    // Time from initiating event (connect or start of notification)
-    // to first time sd_ble_gap_conn_param_update is called (5 seconds).
-    uint32_t const first_conn_params_update_delay = this->rtc_.msec_to_ticks(5000u);
-
-    // Time between each call to sd_ble_gap_conn_param_update
-    // after the first call (30 seconds).
-    uint32_t const next_conn_params_update_delay = this->rtc_.msec_to_ticks(30000u);
-
-    // Number of attempts before giving up the connection parameter negotiation.
-    uint8_t const max_conn_params_update_count = 3u;
-
-    cp_init.p_conn_params                  = NULL;
-    cp_init.first_conn_params_update_delay = first_conn_params_update_delay;
-    cp_init.next_conn_params_update_delay  = next_conn_params_update_delay;
-    cp_init.max_conn_params_update_count   = max_conn_params_update_count;
-    cp_init.start_on_notify_cccd_handle    = BLE_GATT_HANDLE_INVALID;
-    cp_init.disconnect_on_fail             = false;
-    cp_init.evt_handler                    = on_conn_params_evt;
-    cp_init.error_handler                  = conn_params_error_handler;
-
-    uint32_t error_code = ble_conn_params_init(&cp_init);
-    ASSERT(error_code == NRF_SUCCESS);
-    return error_code;
-}
-

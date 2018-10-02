@@ -20,6 +20,7 @@
 #include "ble/gatt_uuids.h"
 #include "ble/tlv_encode.h"
 
+#include "ble/peripheral.h"
 #include "ble/gap_connection.h"
 #include "ble/service/battery_service.h"
 #include "ble/service/current_time_service.h"
@@ -30,7 +31,6 @@
 #include "ble/nordic_ble_gap_advertising.h"
 #include "ble/nordic_ble_peer.h"
 #include "ble/nordic_ble_gatts.h"
-#include "ble/nordic_ble_peripheral.h"
 
 #include "nordic/device_address.h"
 
@@ -46,8 +46,6 @@ static nordic::gap_advertising ble_advertising(advertising_interval);
 
 static constexpr char const device_name[]       = "periph_class";
 static constexpr char const device_name_short[] = "cls";
-static constexpr ble::att::length_t const device_name_length  = sizeof(device_name) - 1u;
-static constexpr ble::att::length_t const device_short_length = sizeof(device_name_short) - 1u;
 
 static size_t set_advertising_data(ble::gap::advertising_data_t &data)
 {
@@ -66,7 +64,7 @@ static size_t set_advertising_data(ble::gap::advertising_data_t &data)
     length += ble::tlv_encode(data,
                               ble::gap_type::local_name_short,
                               device_name_short,
-                              device_short_length);
+                              std::size(device_name_short) - 1u);
 
     length += ble::tlv_encode_address(data,
                                       false,
@@ -102,32 +100,41 @@ int main(void)
         0u,
         ble::gap::supervision_timeout_msec(4000u));
 
-    nordic::ble_stack ble_stack(rtc_1);
+    uint8_t const connection_configuration_tag = 1u;
+    nordic::ble_stack ble_stack(connection_configuration_tag);
 
     // Implementations specific to the ble_peripheral_class.
-    ble_gap_connection ble_gap_connection(connection_parameters);
+    nordic::ble_gap_request_response ble_gap_request_response;
+    ble_gap_connection ble_gap_connection(ble_gap_request_response,
+                                          ble_advertising,
+                                          connection_parameters);
     ble_gatts_observer ble_gatts_observer;
 
-    nordic::ble_peripheral ble_peripheral(ble_stack,
-                                          ble_advertising,
-                                          ble_gap_connection,
-                                          ble_gatts_observer);
+    ble::peripheral ble_peripheral(ble_stack,
+                                   ble_gap_connection,
+                                   ble_gatts_observer);
 
     ble_peripheral.ble_stack().init();
     ble_peripheral.ble_stack().enable();
 
     ble_peer_init();
 
-    /// @todo "periph_class" is common with advertising device name.
-    ble::service::device_name device_name_characteristic(device_name, device_name_length);
+    // gap service: 0x1800
+    //   device name: uuid = 0x2a00
+    //   appearance : uuid = 0x2a01
+    //   ppcp       : uuid = 0x2a04
+    ble::service::device_name device_name_characteristic(device_name, std::size(device_name) - 1u);
     ble::service::appearance  appearance_characteristic(ble::gatt::appearance::unknown);
-
-    ble::service::ppcp          ppcp(connection_parameters);
-    ble::service::gap_service   gap_service;
+    ble::service::ppcp        ppcp(connection_parameters);
+    ble::service::gap_service gap_service;
     gap_service.characteristic_add(device_name_characteristic);
     gap_service.characteristic_add(appearance_characteristic);
     gap_service.characteristic_add(ppcp);
 
+    // Note that using the Nordic softdevice the GATT service  does not have
+    // any effect. It is here for completeness.
+    // In another silicon vendor this will have meaning.
+    // See comments in nordic::gatts_service_add().
     ble::service::gatt_service  gatt_service;
 
     ble::service::battery_service     battery_service;
@@ -149,8 +156,11 @@ int main(void)
     nordic::gatts_service_add(battery_service);
     nordic::gatts_service_add(current_time_service);
 
-    set_advertising_data(ble_peripheral.advertising().advertising_data);
-    ble_peripheral.advertising().start();
+    set_advertising_data(ble_peripheral.connection().advertising().advertising_data);
+    ble_peripheral.connection().advertising().start();
+
+    /// @todo this is for debug, remove once characteristics work properly.
+    battery_level_characteristic.write_battery_percentage(88u);
 
     for (;;)
     {

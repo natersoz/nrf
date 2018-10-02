@@ -13,7 +13,7 @@ BUILD_PATH = _build
 # Set for Debug or Release build types.
 BUILD_TYPE	?= Debug
 
-# Path to boot installation. Using 1.65.1
+# Path to boost installation. Using 1.65.1
 BOOST_ROOT=/opt/boost
 
 SOURCE_FILES =
@@ -31,22 +31,23 @@ SOURCE_FILES += ../peripherals/rtc.cc
 SOURCE_FILES += ../ble/uuid.cc
 SOURCE_FILES += ../ble/tlv_encode.cc
 SOURCE_FILES += ../ble/peripheral_trivial.cc
-SOURCE_FILES += ../ble/nordic_ble_gatts_event_observer.cc
-SOURCE_FILES += ../ble/nordic_ble_common_event_observer.cc
 SOURCE_FILES += ../ble/service/battery_service.cc
-SOURCE_FILES += ../ble/nordic_error.cc
-SOURCE_FILES += ../ble/nordic_state_observable.cc
-SOURCE_FILES += ../ble/nordic_req_observable.cc
-SOURCE_FILES += ../ble/nordic_soc_observable.cc
-SOURCE_FILES += ../ble/nordic_ble_gap_advertising.cc
+SOURCE_FILES += ../ble/nordic_ble_common_event_observable.cc
+SOURCE_FILES += ../ble/nordic_ble_common_event_observer.cc
 SOURCE_FILES += ../ble/nordic_ble_event_observables.cc
+SOURCE_FILES += ../ble/nordic_ble_gap_advertising.cc
 SOURCE_FILES += ../ble/nordic_ble_gap_event_observable.cc
+SOURCE_FILES += ../ble/nordic_ble_gap_request_response.cc
+SOURCE_FILES += ../ble/nordic_ble_gattc_event_observable.cc
 SOURCE_FILES += ../ble/nordic_ble_gatts.cc
 SOURCE_FILES += ../ble/nordic_ble_gatts_event_observable.cc
-SOURCE_FILES += ../ble/nordic_ble_gattc_event_observable.cc
-SOURCE_FILES += ../ble/nordic_ble_common_event_observable.cc
-SOURCE_FILES += ../ble/nordic_ble_stack.cc
+SOURCE_FILES += ../ble/nordic_ble_gatts_event_observer.cc
 SOURCE_FILES += ../ble/nordic_ble_peer.cc
+SOURCE_FILES += ../ble/nordic_ble_stack.cc
+SOURCE_FILES += ../ble/nordic_error.cc
+SOURCE_FILES += ../ble/nordic_req_observable.cc
+SOURCE_FILES += ../ble/nordic_soc_observable.cc
+SOURCE_FILES += ../ble/nordic_state_observable.cc
 SOURCE_FILES += ../utilities/project_assert.cc
 SOURCE_FILES += ../utilities/format_conversion.cc
 SOURCE_FILES += ../utilities/int_to_string.cc
@@ -58,15 +59,15 @@ SOURCE_FILES += ../logger/logger_c.cc
 SOURCE_FILES += ../logger/segger_rtt_output_stream.cc
 SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
 
-# These would be nice to dump and likely can.
-SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_params.c
-SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_state.c
-SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_srv_common.c
+# These have been dumped - reminder to look inside before dumping.
+#SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_params.c
+#SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_srv_common.c
 
 # Required by peer manager, but hope to dump later.
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_weak.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
+SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_state.c
 
 # Peer manager and required dependencies:
 SOURCE_FILES += $(SDK_ROOT)/components/ble/peer_manager/gatt_cache_manager.c
@@ -92,8 +93,10 @@ SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_section_vars/nrf_s
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/sdk_mapped_flags.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c
-SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c
+#SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c
 SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
+
+# Note nrf_sdh_ble.c is where the service discrovery BLE events are dispatched from.
 
 # Stuff the is interesting and might be useful:
 # SOURCE_FILES += $(SDK_ROOT)/components/libraries/hardfault/hardfault_implementation.c

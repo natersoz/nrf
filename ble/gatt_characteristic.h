@@ -13,12 +13,15 @@
 #include "ble/gatt_format.h"
 
 #include <cstdint>
+#include <utility>
 #include <boost/intrusive/list.hpp>
 
 namespace ble
 {
 namespace gatt
 {
+
+class service;
 
 /**
  * @struct characteristic
@@ -67,8 +70,22 @@ struct characteristic
     uint16_t        handle;
     att::uuid const uuid;
 
-    /// @todo Provide a const version of this?
-    virtual void *data_pointer() { return nullptr; }
+    /**
+     * Provide non-const access to the characteristic data.
+     * Per Scott Meyers Effictive C++ Item 3, call the const version from the
+     * non-const version.
+     */
+    void* data_pointer() {
+        return const_cast<void*>(std::as_const(*this).data_pointer());
+    }
+
+    /**
+     * Provide const access to the characteristic data.
+     * @note This method is virtual and should be overridden by the data type
+     * of the characteristic being exposed. The non-const does not and should not
+     * need to be overridden by class which inherit from characteristic.
+     */
+    virtual void const* data_pointer() const { return nullptr; }
 
     virtual att::length_t data_length()     const { return 0u; }
     virtual att::length_t data_length_max() const { return this->data_length(); }
@@ -82,18 +99,28 @@ struct characteristic
         this->descriptor_list.push_back(descriptor);
     }
 
+private:
+    // Contain characteristics within Services.
+    using list_hook_type = boost::intrusive::list_member_hook<
+        boost::intrusive::link_mode<boost::intrusive::auto_unlink>
+        >;
+
     // The list of descriptors associated with this characteristic.
     using descriptor_list_type =
         boost::intrusive::list<
             characteristic_base_descriptor,
+            boost::intrusive::constant_time_size<false>,
             boost::intrusive::member_hook<characteristic_base_descriptor,
-                                          boost::intrusive::list_member_hook<>,
-                                          &characteristic_base_descriptor::hook_>>;
+                                          characteristic_base_descriptor::list_hook_type,
+                                          &characteristic_base_descriptor::hook_>
+        >;
 
+    list_hook_type hook_;
+
+    friend class service;
+
+public:
     descriptor_list_type descriptor_list;
-
-    // Contain characteristics within Services.
-    boost::intrusive::list_member_hook<> hook_;
 };
 
 } // namespace gatt

@@ -45,8 +45,14 @@ struct characteristic_base_descriptor
     declaration           decl;
     characteristic* const characteristic_ptr;
 
+private:
     // Contain descriptors within Characteristics.
-    boost::intrusive::list_member_hook<> hook_;
+    using list_hook_type = boost::intrusive::list_member_hook<
+        boost::intrusive::link_mode<boost::intrusive::auto_unlink>
+        >;
+    list_hook_type hook_;
+
+    friend struct characteristic;
 };
 
 struct characteristic_user_descriptor: public characteristic_base_descriptor

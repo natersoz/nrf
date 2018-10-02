@@ -44,8 +44,8 @@ public:
     {
     }
 
-    virtual void *data_pointer() override {
-        return const_cast<char *>(this->device_name_);
+    virtual void const* data_pointer() const override {
+        return this->device_name_;
     }
 
     virtual att::length_t data_length() const override {
@@ -84,8 +84,8 @@ public:
     {
     }
 
-    virtual void *data_pointer() override {
-        return const_cast<ble::gatt::appearance*>(&this->appearance_);
+    virtual void const* data_pointer() const override {
+        return &this->appearance_;
     }
 
     virtual att::length_t data_length() const override {
@@ -115,8 +115,8 @@ struct ppcp: public gatt::characteristic
     {
     }
 
-    virtual void *data_pointer() override {
-        return const_cast<ble::gap::connection_parameters*>(&this->connection_parameters);
+    virtual void const* data_pointer() const override {
+        return &this->connection_parameters;
     }
 
     virtual att::length_t data_length() const override {

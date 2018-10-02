@@ -9,7 +9,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdble_tempplate_peripheral"
+        OutputFile="%bdble_peripheral_thermometer"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -134,7 +134,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdble_tempplate_peripheral"
+        OutputFile="%bdble_peripheral_thermometer"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -258,36 +258,37 @@
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{48553D21-D6F9-401C-90C9-BF9AB9E75BA5}">
-            <F N="../ble_uart_peripheral/main.c"/>
+            GUID="{C7EE9A82-8757-42B8-ABAB-56F382C498F9}">
+            <F N="main.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{D9DE20EA-A7D3-4545-A5D0-6F85EA6450EF}">
+            GUID="{69D0E056-8F85-4A70-8262-83679045B099}">
             <Folder
                 Name="config"
                 AutoCustom="1"
-                GUID="{968D0B90-0C26-42B2-9692-31E752A74779}">
-                <F N="../ble_uart_peripheral/config/sdk_config.h"/>
+                GUID="{4229AB3B-E9E2-4F22-87FD-209FEB323CCD}">
+                <F N="config/sdk_config.h"/>
             </Folder>
         </Folder>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"
-            GUID="{79ADCB1B-05F3-4AF9-AC4A-4CEFD32CE049}"/>
+            GUID="{3F3D75E0-B39F-4B6A-A667-E661FF623AB4}"/>
         <Folder
             Name="Bitmaps"
             Filters="*.bmp"
-            GUID="{80BAB69D-A7D3-4905-BE22-28FC4C4FB81D}"/>
+            GUID="{31965FB0-3684-4419-8C5C-D3AFD83547BB}"/>
         <Folder
             Name="Other Files"
             Filters=""
-            GUID="{C6EB8A4E-0B6C-43B5-877B-83A6B20CEF16}">
+            GUID="{EF4797D0-DE59-4114-9A6D-FAB5492B3E16}">
+            <F N="ble_app_hts_gcc_nrf52.ld"/>
+            <F N="gdb-init"/>
             <F
                 N="Makefile"
                 Type="Makefile"/>
-            <F N="nrf_ble_peripheral.ld"/>
         </Folder>
     </Files>
 </Project>

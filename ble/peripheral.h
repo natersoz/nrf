@@ -5,8 +5,7 @@
 
 #pragma once
 
-#include "ble/gap_advertising.h"
-#include "ble/gap_connection.h"
+#include "ble/peripheral_connection.h"
 #include "ble/gatts_event_observer.h"
 #include "ble/gattc_event_observer.h"
 #include "ble/gatt_service.h"
@@ -39,13 +38,11 @@ public:
     peripheral& operator=(peripheral&&)       = delete;
 
     /// ctor: A peripheral with both GATT server and client.
-    peripheral(ble::stack                   &ble_stack,
-               ble::gap::advertising        &ble_advertising,
-               ble::gap::connection         &ble_gap_connection,
-               ble::gatts::event_observer   &ble_gatts_event_observer,
-               ble::gattc::event_observer   &ble_gattc_event_observer)
+    peripheral(ble::stack                       &ble_stack,
+               ble::gap::peripheral_connection  &ble_gap_connection,
+               ble::gatts::event_observer       &ble_gatts_event_observer,
+               ble::gattc::event_observer       &ble_gattc_event_observer)
     : ble_stack_(ble_stack),
-      advertising_(ble_advertising),
       gap_connection_(ble_gap_connection),
       gatts_event_observer_(ble_gatts_event_observer),
       gattc_event_observer_(ble_gattc_event_observer)
@@ -53,12 +50,10 @@ public:
     }
 
     /// ctor: A peripheral with a GATT server only; no client.
-    peripheral(ble::stack                   &ble_stack,
-               ble::gap::advertising        &ble_advertising,
-               ble::gap::connection         &ble_gap_connection,
-               ble::gatts::event_observer   &ble_gatts_event_observer)
+    peripheral(ble::stack                       &ble_stack,
+               ble::gap::peripheral_connection  &ble_gap_connection,
+               ble::gatts::event_observer       &ble_gatts_event_observer)
     : ble_stack_(ble_stack),
-      advertising_(ble_advertising),
       gap_connection_(ble_gap_connection),
       gatts_event_observer_(ble_gatts_event_observer),
       gattc_event_observer_(ble_gattc_event_observer_trivial)
@@ -66,12 +61,10 @@ public:
     }
 
     /// ctor: A peripheral with a GATT client only; no server.
-    peripheral(ble::stack                   &ble_stack,
-               ble::gap::advertising        &ble_advertising,
-               ble::gap::connection         &ble_gap_connection,
-               ble::gattc::event_observer   &ble_gattc_event_observer)
+    peripheral(ble::stack                       &ble_stack,
+               ble::gap::peripheral_connection  &ble_gap_connection,
+               ble::gattc::event_observer       &ble_gattc_event_observer)
     : ble_stack_(ble_stack),
-      advertising_(ble_advertising),
       gap_connection_(ble_gap_connection),
       gatts_event_observer_(ble_gatts_event_observer_trivial),
       gattc_event_observer_(ble_gattc_event_observer)
@@ -81,11 +74,8 @@ public:
     ble::stack&             ble_stack()         { return this->ble_stack_; }
     ble::stack const &      ble_stack() const   { return this->ble_stack_; }
 
-    ble::gap::advertising&       advertising()       { return this->advertising_; }
-    ble::gap::advertising const& advertising() const { return this->advertising_; }
-
-    ble::gap::connection const& gap_conection() const { return this->gap_connection_; }
-    ble::gap::connection&       gap_conection()       { return this->gap_connection_; }
+    ble::gap::peripheral_connection const& connection() const { return this->gap_connection_; }
+    ble::gap::peripheral_connection&       connection()       { return this->gap_connection_; }
 
     void service_add(ble::gatt::service const& service);
     ble::gatt::service*       service_get(ble::att::uuid uuid);
@@ -95,8 +85,7 @@ public:
 
 private:
     ble::stack                      &ble_stack_;
-    ble::gap::advertising           &advertising_;
-    ble::gap::connection            &gap_connection_;
+    ble::gap::peripheral_connection &gap_connection_;
     ble::gatts::event_observer      &gatts_event_observer_;
     ble::gattc::event_observer      &gattc_event_observer_;
 

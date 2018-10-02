@@ -9,6 +9,7 @@
 #include "ble/gap_types.h"
 #include "ble/gap_connection_parameters.h"
 #include "ble/gap_event_observer.h"
+#include "ble/gap_request_response.h"
 
 namespace ble
 {
@@ -24,26 +25,34 @@ class connection: protected ble::gap::event_observer
 public:
     virtual ~connection()                       = default;
 
+    connection()                                = delete;
     connection(connection const&)               = delete;
     connection(connection &&)                   = delete;
     connection& operator=(connection const&)    = delete;
     connection& operator=(connection&&)         = delete;
 
     /** Constructor which uses the default connection parameters. */
-    connection():
+    connection(ble::gap::request_response& request_response):
         super(),
         handle_(invalid_handle),
         mtu_size_(ble::att::mtu_length_minimum),
+        request_response_(request_response),
         parameters_()
     {}
 
     /** Constructor which specifies the connection parameters. */
-    connection(ble::gap::connection_parameters const& connection_parameters):
+    connection(ble::gap::request_response&            request_response,
+               ble::gap::connection_parameters const& connection_parameters):
         super(),
         handle_(invalid_handle),
         mtu_size_(ble::att::mtu_length_minimum),
+        request_response_(request_response),
         parameters_(connection_parameters)
     {}
+
+    ble::gap::request_response& request_response() {
+        return this->request_response_;
+    }
 
     uint16_t get_handle() const { return this->handle_; }
     bool is_connected() const { return (this->handle_ != gap::invalid_handle); }
@@ -55,12 +64,6 @@ public:
     void set_parameters(connection_parameters const& parameters) {
         this->parameters_ = parameters;
     }
-
-    /// Override these virtual functions with device specific implementations.
-    /// @todo TBD:
-//    virtual void negotiate_ppcp() = 0;
-//    virtual void negotiate_mtu() = 0;
-//    virtual void disconnect(ble::hci::error_code reason) = 0;
 
 protected:
     void set_handle(uint16_t handle) { this->handle_ = handle; }
@@ -78,15 +81,12 @@ protected:
         this->set_handle(ble::gap::invalid_handle);
     }
 
-
-
-
-
 private:
     using super = ble::gap::event_observer;
 
     uint16_t                        handle_;
     ble::att::length_t              mtu_size_;
+    ble::gap::request_response&     request_response_;
     ble::gap::connection_parameters parameters_;
 };
 

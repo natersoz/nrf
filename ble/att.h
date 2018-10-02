@@ -48,8 +48,13 @@ enum class permissions
  * @see Bluetooth Core Specification 5.0, Volume 3, Part F
  * Section 3.4.1.1 Error Response, Table 3.3: Error Codes
  */
-enum class error_code
+enum class error_code : uint16_t
 {
+    /// @note success is not found in the Core specification
+    /// table cited, but we need something that indicates success
+    /// in the cases where status is reported and there is no failure.
+    success                             = 0x00,
+
     /// The attribute handle given was not valid on this server.
     invalid_handle                      = 0x01,
 
@@ -100,6 +105,13 @@ enum class error_code
 
     /// Insufficient Resources to complete the request.
     insufficient_resources              = 0x11,
+
+    /// Vendor extensions are not part of the Core specification.
+    /// Vendors extend things and their extended values go here
+    vendor_extension_begin              = 0x200,
+
+    /// Not part of the core extension.
+    unknown                             = 0xffff
 };
 
 /**
