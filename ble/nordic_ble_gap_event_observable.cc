@@ -137,6 +137,7 @@ void ble_event_observable<ble_gap_event_observer>::notify(
                         .ct2        = false   /// @todo ??
                     },
 
+                    .encryption_key_size_min = sec_params.min_key_size,
                     .encryption_key_size_max = sec_params.max_key_size,
                     // The peer is making the request,
                     // therefore the peer is the initiator.

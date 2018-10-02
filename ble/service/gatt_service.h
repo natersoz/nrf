@@ -35,8 +35,8 @@ public:
         this->descriptor_add(cccd_);
     }
 
-    virtual void *data_pointer() override {
-        return const_cast<handles *>(&this->service_changed_handles_);
+    virtual void const* data_pointer() const override {
+        return &this->service_changed_handles_;
     }
 
     virtual att::length_t data_length() const override {

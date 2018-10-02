@@ -19,6 +19,8 @@ namespace nordic
  * @param service A reference to the service to add.
  *                The service object life time is effectively forever.
  *                (As long as the BLE connect is in use and may be in use).
+ * @note The service reference is not const; the handle of the GATTS
+ *       characterisitics are updated with they are added.
  *
  * @return uint32_t The Nordic error code.
  * @retval NRF_SUCCESS if successful.

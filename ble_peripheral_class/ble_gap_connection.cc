@@ -6,7 +6,7 @@
 #include "ble_gap_connection.h"
 #include "logger.h"
 
-#include "ble_gap.h" // Nordic softdevice - to be replaced with ble::gap::request_reply interface
+#include "ble_gap.h"
 
 ble_gap_connection::~ble_gap_connection()
 {
@@ -18,8 +18,9 @@ ble_gap_connection::~ble_gap_connection()
 }
 
 /** Constructor which uses the default connection parameters. */
-ble_gap_connection::ble_gap_connection():
-    super(),
+ble_gap_connection::ble_gap_connection(ble::gap::request_response& request_response,
+                                       ble::gap::advertising&      advertising):
+    super(request_response, advertising),
     nordic_gap_event_observer_(*this)
 {
     nordic::ble_observables& observables = nordic::ble_observables::instance();
@@ -27,8 +28,10 @@ ble_gap_connection::ble_gap_connection():
 }
 
 /** Constructor which specifies the connection parameters. */
-ble_gap_connection::ble_gap_connection(ble::gap::connection_parameters const& connect_params):
-    super(connect_params),
+ble_gap_connection::ble_gap_connection(ble::gap::request_response&            request_response,
+                                       ble::gap::advertising&                 advertising,
+                                       ble::gap::connection_parameters const& connect_params):
+    super(request_response, advertising, connect_params),
     nordic_gap_event_observer_(*this)
 {
     nordic::ble_observables& observables = nordic::ble_observables::instance();
@@ -41,6 +44,13 @@ void ble_gap_connection::connect(uint16_t                    connection_handle,
 {
     super::connect(connection_handle, peer_address, peer_address_id);
     logger::instance().debug("gap::connect: 0x%04x", this->get_handle());
+
+    /// @todo It would probably be better to get the ble::service::gap_service
+    /// preferred connection parameters and use those. It would eliminated
+    /// duplication of the connection parameters value.
+    this->request_response().connection_parameter_update_request(
+        this->get_handle(),
+        this->get_parameters());
 }
 
 void ble_gap_connection::disconnect(uint16_t                connection_handle,

@@ -49,7 +49,9 @@ public:
         this->descriptor_add(this->cccd);
     }
 
-    virtual void* data_pointer() override { return &this->battery_percentage_; }
+    virtual void const* data_pointer() const override {
+        return &this->battery_percentage_;
+    }
 
     virtual att::length_t data_length() const override {
         return sizeof(this->battery_percentage_);
@@ -122,7 +124,7 @@ public:
         this->descriptor_add(this->cccd);
     }
 
-    virtual void* data_pointer() override {
+    virtual void const* data_pointer() const override {
         return &this->battery_power_state_;
     }
 

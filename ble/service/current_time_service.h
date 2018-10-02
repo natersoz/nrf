@@ -83,7 +83,9 @@ struct date_time: public gatt::characteristic
         this->descriptor_add(this->cccd);
     }
 
-    virtual void* data_pointer() override { return &this->greg_date; }
+    virtual void const* data_pointer() const override {
+        return &this->greg_date;
+    }
 
     virtual att::length_t data_length() const override {
         return sizeof(this->greg_date);
@@ -118,7 +120,9 @@ struct day_date_time: public gatt::characteristic
         this->descriptor_add(this->cccd);
     }
 
-    virtual void* data_pointer() override { return &this->greg_date; }
+    virtual void const* data_pointer() const override {
+        return &this->greg_date;
+    }
 
     virtual att::length_t data_length() const override {
         return sizeof(this->greg_date) + sizeof(this->week_day);
@@ -151,7 +155,9 @@ struct exact_time_256: public gatt::characteristic
        this->descriptor_add(this->cccd);
    }
 
-    virtual void* data_pointer() override { return &this->greg_date; }
+    virtual void const* data_pointer() const override {
+        return &this->greg_date;
+    }
 
     virtual att::length_t data_length() const override {
         return sizeof(this->greg_date) +
@@ -204,7 +210,9 @@ struct current_time: public gatt::characteristic
          this->descriptor_add(this->cccd);
      }
 
-    virtual void* data_pointer() override { return &this->greg_date; }
+    virtual void const* data_pointer() const override {
+        return &this->greg_date;
+    }
 
     virtual att::length_t data_length() const override {
         return sizeof(this->greg_date) +
@@ -246,7 +254,9 @@ struct time_zone: public gatt::characteristic
     {
     }
 
-    virtual void* data_pointer() override { return &this->tz_offset; }
+    virtual void const* data_pointer() const override {
+        return &this->tz_offset;
+    }
 
     virtual att::length_t data_length() const override {
         return sizeof(this->tz_offset);
@@ -288,7 +298,7 @@ struct dst_offset: public gatt::characteristic
     {
     }
 
-    virtual void* data_pointer() override { return &this->offset; }
+    virtual void const* data_pointer() const override { return &this->offset; }
 
     virtual att::length_t data_length() const override {
         return sizeof(this->offset);
@@ -329,7 +339,7 @@ struct time_source: public gatt::characteristic
     {
     }
 
-    virtual void* data_pointer() override { return &this->source; }
+    virtual void const* data_pointer() const override { return &this->source; }
 
     virtual att::length_t data_length() const override {
         return sizeof(this->source);
@@ -366,7 +376,9 @@ struct time_accuracy: public gatt::characteristic
     {
     }
 
-    virtual void* data_pointer() override { return &this->accuracy; }
+    virtual void const* data_pointer() const override {
+        return &this->accuracy;
+    }
 
     virtual att::length_t data_length() const override {
         return sizeof(this->accuracy);

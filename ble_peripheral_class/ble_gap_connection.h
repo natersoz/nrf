@@ -5,17 +5,18 @@
 
 #pragma once
 
-#include "ble/gap_connection.h"
+#include "ble/peripheral_connection.h"
 #include "ble/nordic_ble_event_observable.h"
+#include "ble/nordic_ble_gap_request_response.h"
 
 /**
  * An implementation of the interface ble::gap::event_observer specific
  * to the nrf/ble_peripheral_class.
  */
-class ble_gap_connection: public ble::gap::connection
+class ble_gap_connection: public ble::gap::peripheral_connection
 {
 private:
-    using super = ble::gap::connection;
+    using super = ble::gap::peripheral_connection;
 
 public:
     virtual ~ble_gap_connection() override;
@@ -24,10 +25,14 @@ public:
     using super::super;
 
     /** Constructor which uses the default connection parameters. */
-    ble_gap_connection();
+    ble_gap_connection(ble::gap::request_response&  request_response,
+                       ble::gap::advertising&       advertising);
 
     /** Constructor which specifies the connection parameters. */
-    ble_gap_connection(ble::gap::connection_parameters const& connect_params);
+    ble_gap_connection(
+        ble::gap::request_response&            request_response,
+        ble::gap::advertising&                 advertising,
+        ble::gap::connection_parameters const& connect_params);
 
 protected:
     /**
