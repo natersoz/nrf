@@ -34,17 +34,8 @@ Progress:
 ---------
 + Peripherals on `master` in the directory `peripherals` have been tested.
 + Peripheral tests can be found in the directories `spi_test`, `rtc_test`, etc.
-  TODO: These should be moved into a top level system_test directory.
 + Code which can be tested without hardware dependencies is found under `unit_tests`.
 + The project `ble_peripheral_class` is a BLE peripheral example using the BLE class
   based implementation of this code base. It is a GATT server only peripheral.
   It is tested and working as expected on Nordic hardware.
-
-TODO:
------
-+ Build up classes for dealing with bonding and the security manager.
-+ Build up the classes for the GATT client (gattc).
-+ Move ble/nordic_* files, which are all nordic implementation of the BLE
-  interface classes, into the directory nordic/ble and namespace map
-  to nordic::ble:: ... as appropriate.
 
