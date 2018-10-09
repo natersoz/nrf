@@ -1,5 +1,5 @@
 /**
- * @file nordic_ble_event_observables.cc
+ * @file hci_error_codes.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
