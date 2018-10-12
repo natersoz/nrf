@@ -27,6 +27,7 @@ SOURCE_FILES += ../peripherals/buttons_pca10040.cc
 SOURCE_FILES += ../peripherals/clocks.cc
 SOURCE_FILES += ../peripherals/leds_pca10040.cc
 SOURCE_FILES += ../peripherals/rtc.cc
+SOURCE_FILES += ../peripherals/saadc.cc
 
 SOURCE_FILES += ../ble/uuid.cc
 SOURCE_FILES += ../ble/tlv_encode.cc
