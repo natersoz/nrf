@@ -8,11 +8,11 @@
 
 struct timer_control_block_t
 {
-    NRF_TIMER_Type                  *registers;
-    IRQn_Type                       irq_type;
-    timer_cc_index_t                cc_alloc_count;
-    timer_event_handler_t           handler;
-    void                            *context;
+    NRF_TIMER_Type* const   registers;
+    IRQn_Type       const   irq_type;
+    timer_cc_index_t        cc_alloc_count;
+    timer_event_handler_t   handler;
+    void*                   context;
 };
 
 static void irq_handler_timer(timer_control_block_t *timer_control);

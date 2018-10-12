@@ -82,7 +82,7 @@ struct spis_control_block_t
      *          is SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler().
      * @note NRF_SPIM3_BASE is supported only by nRF52840.
      */
-    NRF_SPIS_Type *spis_registers;
+    NRF_SPIS_Type* const spis_registers;
 
     /**
      * SPI/SPIM peripheral instance IRQ number.
@@ -93,7 +93,7 @@ struct spis_control_block_t
      * - SPIM3_IRQn (nRF52840)
      * @see association notes in .spis_registers above.
      */
-    IRQn_Type irq_type;
+    IRQn_Type const irq_type;
 
     /// The user supplied callback function.
     /// When the spi transfer is complete this function is called.

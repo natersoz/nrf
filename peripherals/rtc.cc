@@ -8,8 +8,8 @@
 
 struct rtc_control_block_t
 {
-    NRF_RTC_Type            *registers;
-    IRQn_Type               irq_type;
+    NRF_RTC_Type* const     registers;
+    IRQn_Type     const     irq_type;
     rtc_cc_index_t          cc_alloc_count;
     uint64_t                counter_extend;
     rtc_event_handler_t     handler;
