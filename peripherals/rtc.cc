@@ -5,6 +5,7 @@
 
 #include "rtc.h"
 #include "project_assert.h"
+#include "nrf_cmsis.h"
 
 struct rtc_control_block_t
 {

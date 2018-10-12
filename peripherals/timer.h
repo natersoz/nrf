@@ -7,7 +7,6 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "nrf_cmsis.h"
 
 #ifdef __cplusplus
 extern "C" {
