@@ -45,7 +45,7 @@ struct address
     {
     }
 
-    address(std::array<uint8_t, length> address, enum type address_type):
+    address(std::array<uint8_t, length> const& address, enum type address_type):
             octets(address), type(address_type)
     {
     }
