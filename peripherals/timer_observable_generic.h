@@ -9,7 +9,7 @@
 
 #include <cstdint>
 #include <cstddef>
-#include <array>
+#include <algorithm>
 #include <boost/intrusive/list.hpp>
 
 #include "project_assert.h"
@@ -29,8 +29,8 @@
  *
  * @tparam cc_index_limit The number of comparators available for the timer
  * to use when setting up time interval event notifications.
- * This value allocates the std::array cc_assoc_ private struct and is
- * over-allocated by default to 6.
+ * This value allocates the array cc_assoc_[cc_index_limit] private struct
+ * and is over-allocated by default to 6.
  * Within the Nordic context TIMERs:
  * - [0:1] have 4 comparators active,
  * - [2:4] have 6 comparators active.
@@ -115,7 +115,7 @@ public:
     }
 
     /**
-     * Attach a timer observer to the observale.
+     * Attach a timer observer to the observable.
      * This enables the observer to receive timer interval expiration event
      * notifications from the observable.
      *
@@ -130,12 +130,24 @@ public:
         // comparators attached to the timer.
         if (observer.cc_index_get() == cc_index_unassigned)
         {
-            observer.cc_index_          = this->cc_index_attach_;
-            this->cc_index_attach_     += 1u;
-            if (this->cc_index_attach_ >= this->cc_alloc_count)
+            if (this->cc_assoc_[this->cc_index_attach_].exclusive_owner)
             {
-                this->cc_index_attach_ = 0u;
+                cc_index_t const cc_index = this->cc_index_attach_next();
+                if (cc_index == cc_index_unassigned)
+                {
+                    // No available CC's to attach to. All exclusively owned.
+                    ASSERT(0);
+                    observer.cc_index_ = cc_index_unassigned;
+                    return;
+                }
+                else
+                {
+                    this->cc_index_attach_ = cc_index;
+                }
             }
+
+            observer.cc_index_     = this->cc_index_attach_;
+            this->cc_index_attach_ = this->cc_index_attach_next();
         }
 
         if (profile_using_only_cc0)
@@ -150,6 +162,69 @@ public:
         {
             this->start();
         }
+    }
+
+    /**
+     * Attach a timer observer to the observable with exclusive use of the
+     * timer comparator (CC). This is required when triggering other
+     * peripherals from the CC event via PPI.
+     *
+     * @param observer The observer to attach and enable.
+     * @return The attached CC index.
+     * @retval cc_index_unassigned If no exclusive timer comparator register
+     *                             was available for use.
+     */
+    cc_index_t attach_exclusive(observer_type& observer)
+    {
+        ASSERT(not observer.is_attached());
+        observer.observable_ = this;
+
+        // If the observer has already attached exclusive,
+        // detached, but now re-attaching exclusive.
+        if (observer.cc_index_get() != cc_index_unassigned)
+        {
+            if (this->cc_assoc_[observer.cc_index_get()].exclusive_owner == &observer)
+            {
+                /// @todo duplicate code below:
+                this->observer_ticks_update(observer);
+                this->cc_assoc_[observer.cc_index_].exclusive_owner = &observer;
+                this->cc_assoc_[observer.cc_index_].observer_list_.push_back(observer);
+
+                if (this->attached_count() == 1u)
+                {
+                    this->start();
+                }
+
+                return observer.cc_index_;
+            }
+        }
+
+        // Attempt to attach the observer to a observable CC that is not in use.
+        // This observer is guaranteed to be unattached (ASSERTed on entry),
+        // so checking for association and CC distributuion is not performed.
+        // Profiling flag profile_using_only_cc0 also ignored.
+        for (cc_index_t index = 0u; index < this->cc_alloc_count; ++index)
+        {
+            if (this->cc_assoc_[index].observer_list_.empty())
+            {
+                // Success: index points to an unused timer comparator register.
+                observer.cc_index_ = index;
+
+                this->observer_ticks_update(observer);
+                this->cc_assoc_[observer.cc_index_].exclusive_owner = &observer;
+                this->cc_assoc_[observer.cc_index_].observer_list_.push_back(observer);
+
+                if (this->attached_count() == 1u)
+                {
+                    this->start();
+                }
+
+                return observer.cc_index_;
+            }
+        }
+
+        // Failure: there is no exclusive comparator register available.
+        return cc_index_unassigned;
     }
 
     /**
@@ -176,6 +251,17 @@ public:
         observer.observable_ = nullptr;
     }
 
+    void detach_exclusve(observer_type& observer)
+    {
+        ASSERT(this->cc_assoc_[observer.cc_index_].exclusive_owner == &observer);
+
+        this->cc_assoc_[observer.cc_index_].exclusive_owner = nullptr;
+        if (observer.is_attached())
+        {
+            this->detach(observer);
+        }
+    }
+
 private:
     /**
      * Debug/testing only: set to true to force all observers to be
@@ -191,16 +277,32 @@ private:
         boost::intrusive::list<
             observer_type,
             boost::intrusive::member_hook<observer_type,
-                                          boost::intrusive::list_member_hook< >,
-                                          &observer_type::hook_> >;
+                                          boost::intrusive::list_member_hook<>,
+                                          &observer_type::hook_>
+        >;
+
     /**
      * @struct cc_association
      * Information associated with each timer comparator.
      */
     struct cc_association
     {
+        ~cc_association()                                 = default;
+
+        cc_association(cc_association const&)             = delete;
+        cc_association(cc_association&&)                  = delete;
+        cc_association& operator=(cc_association const &) = delete;
+        cc_association& operator=(cc_association&&)       = delete;
+
+        cc_association():
+            observer_list_(), exclusive_owner(nullptr), last_ticks_count_(0u) {}
+
         /// Each comparator is allocated a list of observers.
         observer_list observer_list_;
+
+        /// Set to the observer instance which has exclusive use of the
+        /// comparator register
+        observer_type *exclusive_owner;
 
         /// The last tick count for which all nodes within the observer_list_
         /// have been updated.
@@ -208,7 +310,7 @@ private:
     };
 
     /// For each timer comparator a cc_association instance.
-    std::array<cc_association, cc_index_limit> cc_assoc_;
+    cc_association cc_assoc_[cc_index_limit];
 
     /// Used distribute observers across the comparator array.
     cc_index_t cc_index_attach_;
@@ -294,6 +396,30 @@ private:
         }
 
         return count;
+    }
+
+    cc_index_t cc_index_attach_next()
+    {
+        cc_index_t cc_index = this->cc_index_attach_;
+
+        do
+        {
+            cc_index += 1u;
+            if (cc_index >= this->cc_alloc_count)
+            {
+                cc_index = 0u;
+            }
+
+            // A CC was found that is not exclusively assigned to an observer.
+            if (not this->cc_assoc_[cc_index].exclusive_owner)
+            {
+                return cc_index;
+            }
+
+        } while (cc_index != this->cc_index_attach_);
+
+        // No CC's were available for use.
+        return cc_index_unassigned;
     }
 };
 

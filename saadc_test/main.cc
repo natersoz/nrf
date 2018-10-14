@@ -5,6 +5,7 @@
 
 #include "saadc.h"
 #include "rtc.h"
+#include "timer.h"
 #include "timer_observer.h"
 #include "leds.h"
 #include "clocks.h"
@@ -18,8 +19,8 @@
 #include <cstring>
 #include <iterator>
 
-// RTC: 32,768 ticks / second
-static rtc rtc_1(1u, 1u);
+static rtc   rtc_1(1u);
+static timer timer_1(1u);
 static segger_rtt_output_stream rtt_os;
 
 // ADC channel convesions destination buffer;
@@ -44,10 +45,9 @@ static timer_observable<> timer_test_observable(1u);
 static timer_saadc timer_saadc(timer_test_observable.msec_to_ticks(1000u));
 
 static void saadc_event_handler(saadc_event_t   event,
-                                uint16_t        event_value,
+                                int16_t         event_value,
                                 void*           context)
 {
-    led_state_set(2u, false);
     logger &logger = logger::instance();
 
     switch (event)
@@ -56,7 +56,7 @@ static void saadc_event_handler(saadc_event_t   event,
         logger.debug("SAADC event: conversion start");
         break;
     case saadc_event_conversion_stop:
-        logger.debug("SAADC event: conversion stop: %u samples", event_value);
+        logger.info("SAADC event: conversion stop: %d samples", event_value);
         break;
     case saadc_event_conversion_complete:
         {
@@ -65,9 +65,9 @@ static void saadc_event_handler(saadc_event_t   event,
             uint32_t const conversion_usec = (conversion_ticks * 1000000u) / rtc_1.ticks_per_second();
             conversion_count += 1u;
 
-            logger.info("SAADC event: conversion complete: %u samples, ticks: %u, usec: %u",
+            logger.info("SAADC event: conversion complete: %d samples, ticks: %u, usec: %u",
                         event_value, conversion_ticks, conversion_usec);
-            for (uint16_t index = 0u; index < event_value; ++index)
+            for (int16_t index = 0u; index < event_value; ++index)
             {
                 logger.info("%6d 0x%4x", saadc_buffer[index], saadc_buffer[index]);
             }
@@ -79,14 +79,14 @@ static void saadc_event_handler(saadc_event_t   event,
     case saadc_event_limit_lower:
         {
             struct saadc_limits_t const limits = saadc_get_channel_limits(event_value);
-            logger.info("SAADC event: chan: %u, lower limit %u 0x%x exceeded",
+            logger.info("SAADC event: chan: %d, lower limit %u 0x%x exceeded",
                         event_value, limits.lower, limits.lower);
         }
         break;
     case saadc_event_limit_upper:
         {
             struct saadc_limits_t const limits = saadc_get_channel_limits(event_value);
-            logger.info("SAADC event: chan: %u, upper limit %u 0x%x exceeded",
+            logger.info("SAADC event: chan: %d, upper limit %u 0x%x exceeded",
                         event_value, limits.upper, limits.upper);
         }
         break;
@@ -101,33 +101,30 @@ static void saadc_event_handler(saadc_event_t   event,
 
 void timer_saadc::expiration_notify()
 {
-    led_state_set(2u, true);
-
-    struct saadc_conversion_channel_time_t const conversion = saadc_conversion_channel_time();
+    struct saadc_conversion_info_t const conversion = saadc_conversion_info();
 
     logger &logger = logger::instance();
     logger.info("SAADC start: channel_count: %u / %u, time: %u usec",
                 saadc_buffer_length, conversion.channel_count, conversion.time_usec);
 
     conversion_start_ticks = rtc_1.get_count_extend_32();
-    saadc_conversion_start(saadc_buffer,
-                           saadc_buffer_length,
-                           saadc_event_handler);
 }
 
 int main()
 {
     lfclk_enable(LFCLK_SOURCE_XO);
     rtc_1.start();
+
     leds_board_init();
+    led_state_set(0u, true);
 
     logger& logger = logger::instance();
     logger.set_level(logger::level::info);
     logger.set_output_stream(rtt_os);
     logger.set_rtc(rtc_1);
 
-    logger.info("SAADC: test");
-    logger.info("timer saadc: %8u ticks", timer_saadc.expiration_get_ticks());
+    logger.info("---------- SAADC test ----------");
+    logger.debug("timer saadc: %8u ticks", timer_saadc.expiration_get_ticks());
 
     uint8_t const irq_priority = 7u;
     saadc_init(saadc_conversion_resolution_12_bit, nullptr, irq_priority);
@@ -146,15 +143,30 @@ int main()
                                        saadc_reference_600mV,
                                        saadc_tacq_40_usec);
 
-    // Don't attach the tiemr observer until the SAADC is configure.
-    // The conversion might start before being configured.
-    timer_test_observable.attach(timer_saadc);
+    /* Attach exclusively so that the events triggered by the timer comparator
+     * (CC) register is only used by us; it won't generate more events than
+     * being asked for here.
+     *
+     * Don't attach the timer observer until the SAADC is configured.
+     * The conversion might start before being configured.
+     */
+    timer_observable<>::cc_index_t const cc_index =
+        timer_test_observable.attach_exclusive(timer_saadc);
+
+    logger.debug("timer exclusive index: %u", cc_index);
+    ASSERT(cc_index != timer_observable<>::cc_index_unassigned);
+
+    uint32_t volatile* saadc_trigger_event = timer_1.cc_get_event(cc_index);
+    saadc_conversion_start(saadc_buffer,
+                           saadc_buffer_length,
+                           saadc_event_handler,
+                           saadc_trigger_event);
 
     while (true)
     {
+        led_state_set(0u, false);   // Turn off the LED when sleeping.
         __WFE();
-
-        led_state_toggle(0u);
+        led_state_set(0u, true);
         logger.flush();
     }
 }

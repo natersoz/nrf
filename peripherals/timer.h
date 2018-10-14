@@ -60,6 +60,8 @@ void timer_cc_set(timer_instance_t  timer_instance,
 
 uint32_t timer_cc_get(timer_instance_t timer_instance, timer_cc_index_t cc_index);
 
+uint32_t volatile* timer_cc_get_event(timer_instance_t timer_instance, timer_cc_index_t cc_index);
+
 uint32_t timer_cc_get_count(timer_instance_t timer_instance);
 
 void timer_cc_disable(timer_instance_t timer_instance, timer_cc_index_t cc_index);
@@ -112,6 +114,7 @@ public:
 
     void     cc_set(cc_index_t cc_index, uint32_t timer_ticks);
     uint32_t cc_get(cc_index_t) const;
+    uint32_t volatile* cc_get_event(cc_index_t);
     uint32_t cc_get_count(cc_index_t cc_index) const;
     void     cc_disable(cc_index_t cc_index);
 

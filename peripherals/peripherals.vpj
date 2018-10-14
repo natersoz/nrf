@@ -270,6 +270,7 @@
             <F N="spis.cc"/>
             <F N="spis_debug.cc"/>
             <F N="timer.cc"/>
+            <F N="ppi.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -291,6 +292,7 @@
             <F N="timer_observable_generic.h"/>
             <F N="timer_observer.h"/>
             <F N="timer_observer_generic.h"/>
+            <F N="ppi.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
