@@ -7,6 +7,8 @@
 #include "project_assert.h"
 #include "nrf_cmsis.h"
 
+#include <iterator>
+
 struct timer_control_block_t
 {
     NRF_TIMER_Type* const   registers;
@@ -135,7 +137,7 @@ static uint8_t const prescaler_exp_default = 4u;
 
 static struct timer_control_block_t* const timer_control_block(timer_instance_t timer_instance)
 {
-    if (timer_instance < sizeof(timer_instances) / sizeof(timer_instances[0]))
+    if (timer_instance < std::size(timer_instances))
     {
         return timer_instances[timer_instance];
     }
@@ -257,6 +259,16 @@ uint32_t timer_cc_get(timer_instance_t timer_instance, timer_cc_index_t cc_index
     return timer_control->registers->CC[cc_index];
 }
 
+uint32_t volatile* timer_cc_get_event(timer_instance_t timer_instance, timer_cc_index_t cc_index)
+{
+    struct timer_control_block_t* const timer_control = timer_control_block(timer_instance);
+
+    ASSERT(timer_control);
+    ASSERT(cc_index < std::size(timer_control->registers->EVENTS_COMPARE));
+
+    return &timer_control->registers->EVENTS_COMPARE[cc_index];
+}
+
 uint32_t timer_cc_get_count(timer_instance_t timer_instance,
                             timer_cc_index_t cc_index)
 {
@@ -359,6 +371,11 @@ void timer::cc_set(timer_cc_index_t cc_index, uint32_t timer_ticks)
 uint32_t timer::cc_get(timer_cc_index_t cc_index) const
 {
     return timer_cc_get(this->timer_instance_, cc_index);
+}
+
+uint32_t volatile* timer::cc_get_event(timer_cc_index_t cc_index)
+{
+    return timer_cc_get_event(this->timer_instance_, cc_index);
 }
 
 uint32_t timer::cc_get_count(timer_cc_index_t cc_index) const

@@ -56,6 +56,8 @@ void rtc_cc_set(rtc_instance_t  rtc_instance,
 
 uint32_t rtc_cc_get(rtc_instance_t rtc_instance, rtc_cc_index_t cc_index);
 
+uint32_t volatile* rtc_cc_get_event(rtc_instance_t rtc_instance, rtc_cc_index_t cc_index);
+
 uint32_t rtc_cc_get_count(rtc_instance_t rtc_instance);
 
 uint64_t rtc_get_count_ext(rtc_instance_t rtc_instance);
@@ -65,7 +67,6 @@ void rtc_cc_disable(rtc_instance_t rtc_instance, rtc_cc_index_t cc_index);
 uint32_t rtc_ticks_per_second(rtc_instance_t rtc_instance);
 
 void rtc_enable_interrupt(rtc_instance_t rtc_instance);
-
 
 #ifdef __cplusplus
 }
@@ -106,6 +107,7 @@ public:
 
     void     cc_set(cc_index_t cc_index, uint32_t rtc_ticks);
     uint32_t cc_get(cc_index_t) const;
+    uint32_t volatile* cc_get_event(cc_index_t);
     uint32_t cc_get_count(cc_index_t cc_index) const;
     uint32_t cc_get_count() const;
     uint32_t get_count_extend_32() const;

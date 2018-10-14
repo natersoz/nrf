@@ -7,6 +7,8 @@
 #include "project_assert.h"
 #include "nrf_cmsis.h"
 
+#include <iterator>
+
 struct rtc_control_block_t
 {
     NRF_RTC_Type* const     registers;
@@ -102,7 +104,7 @@ static size_t const rtc_counter_width = 24u;
 
 static struct rtc_control_block_t* const rtc_control_block(rtc_instance_t rtc_instance)
 {
-    if (rtc_instance < sizeof(rtc_instances) / sizeof(rtc_instances[0]))
+    if (rtc_instance < std::size(rtc_instances))
     {
         return rtc_instances[rtc_instance];
     }
@@ -223,6 +225,16 @@ uint32_t rtc_cc_get(rtc_instance_t rtc_instance, rtc_cc_index_t cc_index)
     return rtc_control->registers->CC[cc_index];
 }
 
+uint32_t volatile* rtc_cc_get_event(rtc_instance_t rtc_instance, rtc_cc_index_t cc_index)
+{
+    struct rtc_control_block_t* const rtc_control = rtc_control_block(rtc_instance);
+
+    ASSERT(rtc_control);
+    ASSERT(cc_index < std::size(rtc_control->registers->EVENTS_COMPARE));
+
+    return &rtc_control->registers->EVENTS_COMPARE[cc_index];
+}
+
 uint32_t rtc_cc_get_count(rtc_instance_t rtc_instance, rtc_cc_index_t cc_index)
 {
     (void) cc_index;
@@ -334,6 +346,11 @@ void rtc::cc_set(rtc_cc_index_t cc_index, uint32_t rtc_ticks)
 uint32_t rtc::cc_get(rtc_cc_index_t cc_index) const
 {
     return rtc_cc_get(this->rtc_instance_, cc_index);
+}
+
+uint32_t volatile* rtc::cc_get_event(rtc_cc_index_t cc_index)
+{
+    return rtc_cc_get_event(this->rtc_instance_, cc_index);
 }
 
 uint32_t rtc::cc_get_count(rtc_cc_index_t cc_index) const

@@ -32,6 +32,7 @@ SOURCE_FILES += ../peripherals/clocks.cc
 SOURCE_FILES += ../peripherals/leds_pca10040.cc
 SOURCE_FILES += ../peripherals/rtc.cc
 SOURCE_FILES += ../peripherals/saadc.cc
+SOURCE_FILES += ../peripherals/ppi.cc
 SOURCE_FILES += ../peripherals/timer.cc
 
 SOURCE_FILES += ../logger/logger.cc

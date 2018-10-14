@@ -1,5 +1,5 @@
 /**
- * @file ble_peripheral_class/main.cc
+ * @file saadc.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
@@ -127,6 +127,17 @@ enum saadc_reference_select_t
 /**
  * @enum saadc_tacq_t
  * Set the ADC input sample and hold time.
+ *
+ * @warning Nordic Errata:
+ * 3.41 [150] SAADC: EVENT_STARTED does not fire
+ * This anomaly applies to IC Rev. Rev 2, build codes QFAA-E00, CIAA-E00, QFAB-E00.
+ * It was inherited from the previous IC revision Rev 1.
+ * Symptoms:        EVENT_STARTED does not fire.
+ * Conditions:      ADC started (TASKS_START) with PPI task.
+ *                  Any channel configured to TACQ <= 5 μs.
+ * Consequences:    ADC cannot be started (TASKS_START) with PPI if TACQ <= 5 μs.
+ *
+ * http://infocenter.nordicsemi.com/pdf/nRF52832_Rev_2_Errata_v1.1.pdf
  */
 enum saadc_tacq_t
 {
@@ -136,13 +147,6 @@ enum saadc_tacq_t
     saadc_tacq_15_usec          = 3u,
     saadc_tacq_20_usec          = 4u,
     saadc_tacq_40_usec          = 5u,
-};
-
-/// @todo not implemented
-enum saadc_conversion_trigger_t
-{
-    saadc_convertion_trigger_manual,
-    saadc_convertion_trigger_ppi,
 };
 
 /// Select the SAADC conversion resolution.
@@ -161,11 +165,11 @@ enum saadc_conversion_resolution_t
  * saadc_event_limits_exceeded:     The input channel associated with a the event type.
  * saadc_event_conversion_complete: The number of int16_t conversion values delivered.
  * saadc_event_conversion_stop:     The number of int16_t conversion values delivered.
- * All others:                      UINT8_MAX.
+ * All others:                      -1
  * @param context The user supplied context.
  */
 typedef void (* saadc_event_handler_t) (saadc_event_t   event,
-                                        uint16_t        event_value,
+                                        int16_t         event_value,
                                         void*           context);
 
 /**
@@ -256,23 +260,37 @@ void saadc_deinit(void);
 
 /**
  * Start a SAADC analog to digital conversion.
+ * The conversion starts when this function is called.
  *
  * @param destination_pointer The destination buffer of the converted ADC samples.
  *                            Since the SAADC converts on 16-bit boundaries, using
  *                            int16_t will guarantee correct data alignment and
  *                            be in agreement with the sign-extended data produced
  *                            by the SAADC conversion.
- * @param desitnation_length  The number of uint16_t values that are allocated for
+ * @param desitnation_length  The number of int16_t values that are allocated for
  *                            conversion. This value must be greater than or equal
  *                            to the number of channels being converted.
  * @param saadc_handler       The user supplied callback completion handler.
  *                            This handler gets called when the SAADC conversion
  *                            is complete and the samples transfered into the user
  *                            supplied memory locations.
+ * @param event_register_pointer
+ *                            The Nordic peripheral based event which will trigger
+ *                            the conversion via a PPI connection.
+ *                            If this value is null then the conversion starts
+ *                            immediately.
+ *
+ * @warning Nordic Errata:    3.41 [150] SAADC: EVENT_STARTED does not fire.
+ *                            If a SAADC is configured with an acquisition time
+ *                            <= 5 usec and the trigger mode is PPI
+ *                            (event_register_pointer != null) then the trigger
+ *                            will be missed. Error checking guarding against
+ *                            this condition is not provided in the driver.
  */
 void saadc_conversion_start(int16_t*                destination_pointer,
                             uint16_t                desitnation_length,
-                            saadc_event_handler_t   saadc_handler);
+                            saadc_event_handler_t   saadc_handler,
+                            uint32_t volatile*      event_register_pointer);
 
 /**
  * Stop any pending and current SAADC conversions.
@@ -280,8 +298,8 @@ void saadc_conversion_start(int16_t*                destination_pointer,
  */
 void saadc_conversion_stop(void);
 
-/// Used for returning values from saadc_conversion_channel_time()
-struct saadc_conversion_channel_time_t
+/// Used for returning values from saadc_conversion_info()
+struct saadc_conversion_info_t
 {
     /// The time required for the SAADC conversion based on the
     /// number of configured channels, their sample and hold times and
@@ -298,10 +316,10 @@ struct saadc_conversion_channel_time_t
  * will take. Attempting to perform groups of conversions faster than this
  * time will cause aborted conversions.
  *
- * @return struct saadc_conversion_channel_time_t The channel time for
- * conversion and channel count enabled.
+ * @return struct saadc_conversion_info_t The SAADC channel count and
+ *                                        conversion time.
  */
-struct saadc_conversion_channel_time_t saadc_conversion_channel_time(void);
+struct saadc_conversion_info_t saadc_conversion_info(void);
 
 /**
  * Enable callbacks onto the event handler based on the ADC exceeding specified
