@@ -1,0 +1,316 @@
+<!DOCTYPE Project SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpj.dtd">
+<Project
+    Version="10.0"
+    VendorName="SlickEdit"
+    TemplateName="GNU C/C++"
+    WorkingDir=".">
+    <Config
+        Name="Debug"
+        Type="gnuc"
+        DebugCallbackName="gdb"
+        Version="1"
+        OutputFile="%bdperipherals.a"
+        CompilerConfigName="Latest Version">
+        <Menu>
+            <Target
+                Name="Compile"
+                MenuCaption="&amp;Compile"
+                Dialog="_gnuc_options_form Compile"
+                CaptureOutputWith="ProcessBuffer"
+                Deletable="0"
+                OutputExts="*.o"
+                SaveOption="SaveCurrent"
+                RunFromDir="%rw">
+                <Exec CmdLine='g++ -c %xup  %defd -g -o "%bd%n%oe" %i "%f"'/>
+            </Target>
+            <Target
+                Name="Link"
+                MenuCaption="&amp;Link"
+                ShowOnMenu="Never"
+                Dialog="_gnuc_options_form Link"
+                CaptureOutputWith="ProcessBuffer"
+                Deletable="0"
+                SaveOption="SaveCurrent"
+                RunFromDir="%rw">
+                <Exec CmdLine='ar -rs %xup "%o" %f'/>
+            </Target>
+            <Target
+                Name="Build"
+                MenuCaption="&amp;Build"
+                CaptureOutputWith="ProcessBuffer"
+                Deletable="0"
+                SaveOption="SaveWorkspaceFiles"
+                RunFromDir="%rw">
+                <Exec CmdLine="make"/>
+            </Target>
+            <Target
+                Name="Rebuild"
+                MenuCaption="&amp;Rebuild"
+                CaptureOutputWith="ProcessBuffer"
+                Deletable="0"
+                SaveOption="SaveWorkspaceFiles"
+                RunFromDir="%rw">
+                <Exec CmdLine=""/>
+            </Target>
+            <Target
+                Name="Debug"
+                MenuCaption="&amp;Debug"
+                Dialog="_gnuc_options_form Run/Debug"
+                BuildFirst="1"
+                CaptureOutputWith="ProcessBuffer"
+                Deletable="0"
+                SaveOption="SaveNone"
+                RunFromDir="%rw">
+                <Exec CmdLine=""/>
+            </Target>
+            <Target
+                Name="Execute"
+                MenuCaption="E&amp;xecute"
+                Dialog="_gnuc_options_form Run/Debug"
+                BuildFirst="1"
+                CaptureOutputWith="ProcessBuffer"
+                Deletable="0"
+                SaveOption="SaveWorkspaceFiles"
+                RunFromDir="%rw">
+                <Exec CmdLine=""/>
+            </Target>
+            <Target
+                Name="dash"
+                MenuCaption="-"
+                Deletable="0">
+                <Exec/>
+            </Target>
+            <Target
+                Name="GNU C Options"
+                MenuCaption="GNU C &amp;Options..."
+                ShowOnMenu="HideIfNoCmdLine"
+                Deletable="0"
+                SaveOption="SaveNone">
+                <Exec
+                    CmdLine="gnucoptions"
+                    Type="Slick-C"/>
+            </Target>
+        </Menu>
+        <Rules Name="Compile">
+            <Rule
+                InputExts="*.ada"
+                OutputExts="*.o"
+                LinkObject="1">
+                <Exec CmdLine='gnat -g -c -o "%bd%n.o" "%f"'/>
+            </Rule>
+            <Rule
+                InputExts="*.adb"
+                OutputExts="*.o"
+                LinkObject="1">
+                <Exec CmdLine='gnat -g -c -o "%bd%n.o" "%f"'/>
+            </Rule>
+            <Rule
+                InputExts="*.f"
+                OutputExts="*.o"
+                LinkObject="1">
+                <Exec CmdLine='gfortran -c -g -o "%bd%n.o" "%f"'/>
+            </Rule>
+            <Rule
+                InputExts="*.f90"
+                OutputExts="*.o"
+                LinkObject="1">
+                <Exec CmdLine='gfortran -c -g -o "%bd%n.o" "%f"'/>
+            </Rule>
+            <Rule
+                InputExts="*.d"
+                OutputExts="*.o"
+                LinkObject="1">
+                <Exec CmdLine='gdc -c -g -o "%bd%n.o" "%f"'/>
+            </Rule>
+        </Rules>
+        <List Name="GNUC Options">
+            <Item
+                Name="LinkerOutputType"
+                Value="StaticLibrary"/>
+        </List>
+    </Config>
+    <Config
+        Name="Release"
+        Type="gnuc"
+        DebugCallbackName="gdb"
+        Version="1"
+        OutputFile="%bdperipherals.a"
+        CompilerConfigName="Latest Version">
+        <Menu>
+            <Target
+                Name="Compile"
+                MenuCaption="&amp;Compile"
+                Dialog="_gnuc_options_form Compile"
+                CaptureOutputWith="ProcessBuffer"
+                Deletable="0"
+                OutputExts="*.o"
+                SaveOption="SaveCurrent"
+                RunFromDir="%rw">
+                <Exec CmdLine='g++ -c %xup %defd -o "%bd%n%oe" %i "%f"'/>
+            </Target>
+            <Target
+                Name="Link"
+                MenuCaption="&amp;Link"
+                ShowOnMenu="Never"
+                Dialog="_gnuc_options_form Link"
+                CaptureOutputWith="ProcessBuffer"
+                Deletable="0"
+                SaveOption="SaveCurrent"
+                RunFromDir="%rw">
+                <Exec CmdLine='ar -rs %xup "%o" %f'/>
+            </Target>
+            <Target
+                Name="Build"
+                MenuCaption="&amp;Build"
+                CaptureOutputWith="ProcessBuffer"
+                Deletable="0"
+                SaveOption="SaveWorkspaceFiles"
+                RunFromDir="%rw">
+                <Exec CmdLine="make"/>
+            </Target>
+            <Target
+                Name="Rebuild"
+                MenuCaption="&amp;Rebuild"
+                CaptureOutputWith="ProcessBuffer"
+                Deletable="0"
+                SaveOption="SaveWorkspaceFiles"
+                RunFromDir="%rw">
+                <Exec CmdLine=""/>
+            </Target>
+            <Target
+                Name="Debug"
+                MenuCaption="&amp;Debug"
+                Dialog="_gnuc_options_form Run/Debug"
+                BuildFirst="1"
+                CaptureOutputWith="ProcessBuffer"
+                Deletable="0"
+                SaveOption="SaveNone"
+                RunFromDir="%rw">
+                <Exec CmdLine=""/>
+            </Target>
+            <Target
+                Name="Execute"
+                MenuCaption="E&amp;xecute"
+                Dialog="_gnuc_options_form Run/Debug"
+                BuildFirst="1"
+                CaptureOutputWith="ProcessBuffer"
+                Deletable="0"
+                SaveOption="SaveWorkspaceFiles"
+                RunFromDir="%rw">
+                <Exec CmdLine=""/>
+            </Target>
+            <Target
+                Name="dash"
+                MenuCaption="-"
+                Deletable="0">
+                <Exec/>
+            </Target>
+            <Target
+                Name="GNU C Options"
+                MenuCaption="GNU C &amp;Options..."
+                ShowOnMenu="HideIfNoCmdLine"
+                Deletable="0"
+                SaveOption="SaveNone">
+                <Exec
+                    CmdLine="gnucoptions"
+                    Type="Slick-C"/>
+            </Target>
+        </Menu>
+        <Rules Name="Compile">
+            <Rule
+                InputExts="*.ada"
+                OutputExts="*.o"
+                LinkObject="1">
+                <Exec CmdLine='gnat -O -c -o "%bd%n.o" "%f"'/>
+            </Rule>
+            <Rule
+                InputExts="*.adb"
+                OutputExts="*.o"
+                LinkObject="1">
+                <Exec CmdLine='gnat -O -c -o "%bd%n.o" "%f"'/>
+            </Rule>
+            <Rule
+                InputExts="*.f"
+                OutputExts="*.o"
+                LinkObject="1">
+                <Exec CmdLine='gfortran -O -g -o "%bd%n.o" "%f"'/>
+            </Rule>
+            <Rule
+                InputExts="*.f90"
+                OutputExts="*.o"
+                LinkObject="1">
+                <Exec CmdLine='gfortran -O -g -o "%bd%n.o" "%f"'/>
+            </Rule>
+            <Rule
+                InputExts="*.d"
+                OutputExts="*.o"
+                LinkObject="1">
+                <Exec CmdLine='gdc -c -g -o "%bd%n.o" "%f"'/>
+            </Rule>
+        </Rules>
+        <List Name="GNUC Options">
+            <Item
+                Name="LinkerOutputType"
+                Value="StaticLibrary"/>
+        </List>
+    </Config>
+    <Files>
+        <Folder
+            Name="Source Files"
+            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
+            GUID="{D60C1C9E-94A9-44F0-B706-19ADA4ABA631}">
+            <F N="buttons_pca10040.cc"/>
+            <F N="clocks.cc"/>
+            <F N="leds_pca10040.cc"/>
+            <F N="rtc.cc"/>
+            <F N="rtc_debug.cc"/>
+            <F N="saadc.cc"/>
+            <F N="spim.cc"/>
+            <F N="spim_debug.cc"/>
+            <F N="spis.cc"/>
+            <F N="spis_debug.cc"/>
+            <F N="timer.cc"/>
+            <F N="ppi.cc"/>
+            <F N="gpio_te.cc"/>
+            <F N="gpio.cc"/>
+            <F N="spi_common.cc"/>
+        </Folder>
+        <Folder
+            Name="Header Files"
+            Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
+            GUID="{F9423275-F9C1-4E36-BF36-0A6CC2C08419}">
+            <F N="buttons.h"/>
+            <F N="clocks.h"/>
+            <F N="leds.h"/>
+            <F N="rtc.h"/>
+            <F N="rtc_debug.h"/>
+            <F N="rtc_observer.h"/>
+            <F N="saadc.h"/>
+            <F N="spi_common.h"/>
+            <F N="spim.h"/>
+            <F N="spim_debug.h"/>
+            <F N="spis.h"/>
+            <F N="spis_debug.h"/>
+            <F N="timer.h"/>
+            <F N="timer_observable_generic.h"/>
+            <F N="timer_observer.h"/>
+            <F N="timer_observer_generic.h"/>
+            <F N="ppi.h"/>
+            <F N="gpio.h"/>
+            <F N="gpio_te.h"/>
+            <F N="gpio_pin.h"/>
+        </Folder>
+        <Folder
+            Name="Resource Files"
+            Filters="*.ico;*.cur;*.dlg"
+            GUID="{5A56768E-6A83-4B93-944F-F9AE07151461}"/>
+        <Folder
+            Name="Bitmaps"
+            Filters="*.bmp"
+            GUID="{0223C709-0AB8-42A6-ABEE-5ACD53CD62F6}"/>
+        <Folder
+            Name="Other Files"
+            Filters=""
+            GUID="{2514B6F8-2029-4B5D-B1CD-FD9AEC4F19FF}"/>
+    </Files>
+</Project>

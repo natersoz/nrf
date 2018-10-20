@@ -1,0 +1,5 @@
+target remote localhost:2331
+file _build/gpio_te_test.out
+load
+monitor reset
+
