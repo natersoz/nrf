@@ -2,7 +2,8 @@
 # Makefile for Nordic nRF52 multi-link central
 ###
 
-SDK_ROOT := ../sdk
+PROJECT_ROOT := ..
+SDK_ROOT     := $(PROJECT_ROOT)/sdk
 
 # The executable name
 TARGET_NAME = ble_central_multilink
@@ -18,24 +19,25 @@ BOOST_ROOT=/opt/boost
 
 SOURCE_FILES =
 SOURCE_FILES += ./main.cc
-SOURCE_FILES += ../gcc-arm/gcc_startup_nrf52.s
-SOURCE_FILES += ../gcc-arm/gcc_stubs.cc
-SOURCE_FILES += ../nordic/app_timer.cc
-SOURCE_FILES += ../peripherals/buttons_pca10040.cc
-SOURCE_FILES += ../peripherals/clocks.cc
-SOURCE_FILES += ../peripherals/leds_pca10040.cc
-SOURCE_FILES += ../peripherals/rtc.cc
+SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/gcc_startup_nrf52.s
+SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/gcc_stubs.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/app_timer.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/buttons_pca10040.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/clocks.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/leds_pca10040.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/rtc.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/gpio.cc
 
-SOURCE_FILES += ../utilities/project_assert.cc
-SOURCE_FILES += ../utilities/format_conversion.cc
-SOURCE_FILES += ../utilities/int_to_string.cc
-SOURCE_FILES += ../utilities/vwritef.cc
-SOURCE_FILES += ../utilities/write_data.cc
-SOURCE_FILES += ../utilities/std_stubs.cc
-SOURCE_FILES += ../logger/logger.cc
-SOURCE_FILES += ../logger/logger_c.cc
-SOURCE_FILES += ../logger/segger_rtt_output_stream.cc
-SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/project_assert.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/format_conversion.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/int_to_string.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/vwritef.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/write_data.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/std_stubs.cc
+SOURCE_FILES += $(PROJECT_ROOT)/logger/logger.cc
+SOURCE_FILES += $(PROJECT_ROOT)/logger/logger_c.cc
+SOURCE_FILES += $(PROJECT_ROOT)/logger/segger_rtt_output_stream.cc
+SOURCE_FILES += $(PROJECT_ROOT)/segger_rtt/SEGGER_RTT.c
 
 SOURCE_FILES += $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/ble_db_discovery/ble_db_discovery.c
@@ -46,10 +48,9 @@ SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_srv_common.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c
 SOURCE_FILES += $(SDK_ROOT)/components/boards/boards.c
 SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
-SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c
 SOURCE_FILES += $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/atomic_fifo/nrf_atfifo.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/button/app_button.c
+#SOURCE_FILES += $(SDK_ROOT)/components/libraries/button/app_button.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_section_vars/nrf_section_iter.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c
@@ -67,12 +68,12 @@ SOURCE_FILES += $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.S
 SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
 
 INCLUDE_PATHS =  .
-INCLUDE_PATHS += ../gcc-arm
-INCLUDE_PATHS += ../logger
-INCLUDE_PATHS += ../nordic
-INCLUDE_PATHS += ../peripherals
-INCLUDE_PATHS += ../segger_rtt
-INCLUDE_PATHS += ../utilities
+INCLUDE_PATHS += $(PROJECT_ROOT)/gcc-arm
+INCLUDE_PATHS += $(PROJECT_ROOT)/logger
+INCLUDE_PATHS += $(PROJECT_ROOT)/nordic
+INCLUDE_PATHS += $(PROJECT_ROOT)/nordic/peripherals
+INCLUDE_PATHS += $(PROJECT_ROOT)/segger_rtt
+INCLUDE_PATHS += $(PROJECT_ROOT)/utilities
 
 INCLUDE_PATHS += ./config
 INCLUDE_PATHS += $(BOOST_ROOT)/include
@@ -92,8 +93,6 @@ INCLUDE_PATHS += $(SDK_ROOT)/components/ble/ble_services/ble_lbs
 INCLUDE_PATHS += $(SDK_ROOT)/components/ble/ble_services/ble_gls
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/fstorage
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/i2s
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/gpiote
-INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/gpiote
 INCLUDE_PATHS += $(SDK_ROOT)/components/boards
 INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/experimental_memobj
 INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/common
@@ -190,7 +189,7 @@ INCLUDE_PATHS += ./config
 # Use the LD_PATHS to allow the linker to bring in common linker scripts
 # The assumption is that projects are at the saem dieectory level as common.
 ###
-LD_PATHS   = ../nordic
+LD_PATHS   = $(PROJECT_ROOT)/nordic
 
 LIB_FILES +=
 
@@ -252,6 +251,6 @@ info:
 	@echo "DEPEND_FILES       = $(DEPEND_FILES)"
 	@echo
 
-include ../make_rules/arm_gcc_rules.mak
-include ../make_rules/jlink_rules.mak
+include $(PROJECT_ROOT)/make_rules/arm_gcc_rules.mak
+include $(PROJECT_ROOT)/make_rules/jlink_rules.mak
 

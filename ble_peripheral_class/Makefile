@@ -2,7 +2,8 @@
 # Makefile for the BLE peripheral class project
 ###
 
-SDK_ROOT := ../sdk
+PROJECT_ROOT := ..
+SDK_ROOT     := $(PROJECT_ROOT)/sdk
 
 # The executable name
 TARGET_NAME = ble_peripheral_class
@@ -20,54 +21,55 @@ SOURCE_FILES =
 SOURCE_FILES += ./main.cc
 SOURCE_FILES += ./ble_gap_connection.cc
 SOURCE_FILES += ./ble_gatts_observer.cc
-SOURCE_FILES += ../gcc-arm/gcc_startup_nrf52.s
-SOURCE_FILES += ../gcc-arm/gcc_stubs.cc
-SOURCE_FILES += ../nordic/app_timer.cc
-SOURCE_FILES += ../peripherals/buttons_pca10040.cc
-SOURCE_FILES += ../peripherals/clocks.cc
-SOURCE_FILES += ../peripherals/leds_pca10040.cc
-SOURCE_FILES += ../peripherals/rtc.cc
-SOURCE_FILES += ../peripherals/saadc.cc
+SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/gcc_startup_nrf52.s
+SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/gcc_stubs.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/app_timer.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/buttons_pca10040.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/clocks.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/leds_pca10040.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/rtc.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/gpio.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/saadc.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/nordic_critical_section.cc
 
-SOURCE_FILES += ../ble/uuid.cc
-SOURCE_FILES += ../ble/tlv_encode.cc
-SOURCE_FILES += ../ble/peripheral_trivial.cc
-SOURCE_FILES += ../ble/service/battery_service.cc
-SOURCE_FILES += ../ble/nordic_ble_common_event_observable.cc
-SOURCE_FILES += ../ble/nordic_ble_common_event_observer.cc
-SOURCE_FILES += ../ble/nordic_ble_event_observables.cc
-SOURCE_FILES += ../ble/nordic_ble_gap_advertising.cc
-SOURCE_FILES += ../ble/nordic_ble_gap_event_observable.cc
-SOURCE_FILES += ../ble/nordic_ble_gap_request_response.cc
-SOURCE_FILES += ../ble/nordic_ble_gattc_event_observable.cc
-SOURCE_FILES += ../ble/nordic_ble_gatts.cc
-SOURCE_FILES += ../ble/nordic_ble_gatts_event_observable.cc
-SOURCE_FILES += ../ble/nordic_ble_gatts_event_observer.cc
-SOURCE_FILES += ../ble/nordic_ble_peer.cc
-SOURCE_FILES += ../ble/nordic_ble_stack.cc
-SOURCE_FILES += ../ble/nordic_error.cc
-SOURCE_FILES += ../ble/nordic_req_observable.cc
-SOURCE_FILES += ../ble/nordic_soc_observable.cc
-SOURCE_FILES += ../ble/nordic_state_observable.cc
-SOURCE_FILES += ../utilities/project_assert.cc
-SOURCE_FILES += ../utilities/format_conversion.cc
-SOURCE_FILES += ../utilities/int_to_string.cc
-SOURCE_FILES += ../utilities/vwritef.cc
-SOURCE_FILES += ../utilities/write_data.cc
-SOURCE_FILES += ../utilities/std_stubs.cc
-SOURCE_FILES += ../logger/logger.cc
-SOURCE_FILES += ../logger/logger_c.cc
-SOURCE_FILES += ../logger/segger_rtt_output_stream.cc
-SOURCE_FILES += ../segger_rtt/SEGGER_RTT.c
+SOURCE_FILES += $(PROJECT_ROOT)/ble/uuid.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/tlv_encode.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/peripheral_trivial.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/service/battery_service.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_common_event_observable.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_common_event_observer.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_event_observables.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gap_advertising.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gap_event_observable.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gap_request_response.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gattc_event_observable.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts_event_observable.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts_event_observer.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_peer.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_stack.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_error.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_req_observable.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_soc_observable.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_state_observable.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/project_assert.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/format_conversion.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/int_to_string.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/vwritef.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/write_data.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/std_stubs.cc
+SOURCE_FILES += $(PROJECT_ROOT)/logger/logger.cc
+SOURCE_FILES += $(PROJECT_ROOT)/logger/logger_c.cc
+SOURCE_FILES += $(PROJECT_ROOT)/logger/segger_rtt_output_stream.cc
+SOURCE_FILES += $(PROJECT_ROOT)/segger_rtt/SEGGER_RTT.c
 
 # These have been dumped - reminder to look inside before dumping.
-#SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_params.c
-#SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_srv_common.c
+# SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_params.c
+# SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_srv_common.c
 
 # Required by peer manager, but hope to dump later.
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error.c
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_error_weak.c
-SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/app_util_platform.c
 SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_state.c
 
 # Peer manager and required dependencies:
@@ -104,13 +106,13 @@ SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
 # SOURCE_FILES += $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c
 
 INCLUDE_PATHS =  .
-INCLUDE_PATHS =  ..
-INCLUDE_PATHS += ../gcc-arm
-INCLUDE_PATHS += ../logger
-INCLUDE_PATHS += ../nordic
-INCLUDE_PATHS += ../peripherals
-INCLUDE_PATHS += ../segger_rtt
-INCLUDE_PATHS += ../utilities
+INCLUDE_PATHS =  $(PROJECT_ROOT)
+INCLUDE_PATHS += $(PROJECT_ROOT)/gcc-arm
+INCLUDE_PATHS += $(PROJECT_ROOT)/logger
+INCLUDE_PATHS += $(PROJECT_ROOT)/nordic
+INCLUDE_PATHS += $(PROJECT_ROOT)/nordic/peripherals
+INCLUDE_PATHS += $(PROJECT_ROOT)/segger_rtt
+INCLUDE_PATHS += $(PROJECT_ROOT)/utilities
 
 INCLUDE_PATHS += ./config
 INCLUDE_PATHS += $(BOOST_ROOT)/include
@@ -150,7 +152,7 @@ INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
 # Use the LD_PATHS to allow the linker to bring in common linker scripts
 # The assumption is that projects are at the saem dieectory level as common.
 ###
-LD_PATHS   = ../nordic
+LD_PATHS   = $(PROJECT_ROOT)/nordic
 
 LIB_FILES +=
 
@@ -212,6 +214,6 @@ info:
 	@echo "DEPEND_FILES       = $(DEPEND_FILES)"
 	@echo
 
-include ../make_rules/arm_gcc_rules.mak
-include ../make_rules/jlink_rules.mak
+include $(PROJECT_ROOT)/make_rules/arm_gcc_rules.mak
+include $(PROJECT_ROOT)/make_rules/jlink_rules.mak
 

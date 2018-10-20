@@ -67,13 +67,8 @@ Revision: $Rev: 7020 $
 #ifndef SEGGER_RTT_CONF_H
 #define SEGGER_RTT_CONF_H
 
-#include "nordic_common.h"
-#include "app_util_platform.h"
-#include "sdk_config.h"
-
-#ifdef __IAR_SYSTEMS_ICC__
-  #include <intrinsics.h>
-#endif
+// #include "nordic_common.h"
+#include "nordic_critical_section.h"
 
 /*********************************************************************
 *
@@ -81,6 +76,30 @@ Revision: $Rev: 7020 $
 *
 **********************************************************************
 */
+
+#ifndef SEGGER_RTT_CONFIG_BUFFER_SIZE_UP
+#define SEGGER_RTT_CONFIG_BUFFER_SIZE_UP 2048u
+#endif
+
+#ifndef SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS
+#define SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS 2
+#endif
+
+#ifndef SEGGER_RTT_CONFIG_BUFFER_SIZE_DOWN
+#define SEGGER_RTT_CONFIG_BUFFER_SIZE_DOWN 16
+#endif
+
+#ifndef SEGGER_RTT_CONFIG_MAX_NUM_DOWN_BUFFERS
+#define SEGGER_RTT_CONFIG_MAX_NUM_DOWN_BUFFERS 2
+#endif
+
+// The following modes are supported:
+// 0: SKIP  - Do not block, output nothing.
+// 1: TRIM  - Do not block, output as much as fits.
+// 2: BLOCK - Wait until there is space in the buffer.
+#ifndef SEGGER_RTT_CONFIG_DEFAULT_MODE
+#define SEGGER_RTT_CONFIG_DEFAULT_MODE 0
+#endif
 
 #define SEGGER_RTT_MAX_NUM_UP_BUFFERS       (SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS)      // Max. number of up-buffers (T->H) available on this target    (Default: 3)
 #define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS     (SEGGER_RTT_CONFIG_MAX_NUM_DOWN_BUFFERS)    // Max. number of down-buffers (H->T) available on this target  (Default: 3)
@@ -90,7 +109,7 @@ Revision: $Rev: 7020 $
 
 #define SEGGER_RTT_PRINTF_BUFFER_SIZE       (64u)                                       // Size of buffer for RTT printf to bulk-send chars via RTT     (Default: 64)
 
-#define USE_RTT_ASM                         (0)                                         // Use assembler version of SEGGER_RTT.c when 1 
+#define USE_RTT_ASM                         (0)                                         // Use assembler version of SEGGER_RTT.c when 1
 
 #define SEGGER_RTT_MODE_DEFAULT             SEGGER_RTT_CONFIG_DEFAULT_MODE              // Mode for pre-initialized terminal channel (buffer 0)
 
@@ -102,19 +121,19 @@ Revision: $Rev: 7020 $
 *
 *       RTT memcpy configuration
 *
-*       memcpy() is good for large amounts of data, 
+*       memcpy() is good for large amounts of data,
 *       but the overhead is big for small amounts, which are usually stored via RTT.
 *       With SEGGER_RTT_MEMCPY_USE_BYTELOOP a simple byte loop can be used instead.
 *
 *       SEGGER_RTT_MEMCPY() can be used to replace standard memcpy() in RTT functions.
-*       This is may be required with memory access restrictions, 
+*       This is may be required with memory access restrictions,
 *       such as on Cortex-A devices with MMU.
 */
 #define SEGGER_RTT_MEMCPY_USE_BYTELOOP              0 // 0: Use memcpy/SEGGER_RTT_MEMCPY, 1: Use a simple byte-loop
 //
 // Example definition of SEGGER_RTT_MEMCPY to external memcpy with GCC toolchains and Cortex-A targets
 //
-//#if ((defined __SES_ARM) || (defined __CROSSWORKS_ARM) || (defined __GNUC__)) && (defined (__ARM_ARCH_7A__))  
+//#if ((defined __SES_ARM) || (defined __CROSSWORKS_ARM) || (defined __GNUC__)) && (defined (__ARM_ARCH_7A__))
 //  #define SEGGER_RTT_MEMCPY(pDest, pSrc, NumBytes)      SEGGER_memcpy((pDest), (pSrc), (NumBytes))
 //#endif
 
@@ -208,7 +227,7 @@ Revision: $Rev: 7020 $
     #define SEGGER_RTT_LOCK()
     #define SEGGER_RTT_UNLOCK()
   #endif
-#endif                      
+#endif
 
 /*********************************************************************
 *
