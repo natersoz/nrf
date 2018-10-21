@@ -9,6 +9,7 @@
 #include "spi_common.h"
 #include "spis_debug.h"
 #include "gpio.h"
+#include "gpio_te.h"
 
 #include "nordic_critical_section.h"
 
@@ -68,6 +69,10 @@ struct spis_control_block_t
     uint32_t    rx_length;
     /// @}
 
+    /// Used to work around DMA anomaly 109.
+    /// @see spis_init_dma_anomaly_109().
+    gpio_te_channel_t gpio_te_channel;
+
     /// The user supplied callback function.
     /// When the spi transfer is complete this function is called.
     spis_event_handler_t handler;
@@ -81,6 +86,8 @@ struct spis_control_block_t
 };
 
 static void irq_handler_spis(spis_control_block_t* spis_control);
+static gpio_te_channel_t spis_init_dma_anomaly_109(gpio_pin_t spis_ss_pin);
+static void spis_deinit_dma_anomaly_109(gpio_te_channel_t gpio_te_channel);
 
 /// @todo Get rid of this macro hell. Can templates be used?
 #if defined SPIS0_ENABLED
@@ -94,6 +101,7 @@ static struct spis_control_block_t spis_instance_0 =
     .tx_length              = 0u,
     .rx_buffer              = nullptr,
     .rx_length              = 0u,
+    .gpio_te_channel        = gpio_te_channel_invalid,
     .handler                = nullptr,
     .context                = nullptr,
     .ss_pin                 = SPI_PIN_NOT_USED,
@@ -119,6 +127,7 @@ static struct spis_control_block_t spis_instance_1 =
     .tx_length              = 0u,
     .rx_buffer              = nullptr,
     .rx_length              = 0u,
+    .gpio_te_channel        = gpio_te_channel_invalid,
     .handler                = nullptr,
     .context                = nullptr,
     .ss_pin                 = SPI_PIN_NOT_USED,
@@ -144,6 +153,7 @@ static struct spis_control_block_t spis_instance_2 =
     .tx_length              = 0u,
     .rx_buffer              = nullptr,
     .rx_length              = 0u,
+    .gpio_te_channel        = gpio_te_channel_invalid,
     .handler                = nullptr,
     .context                = nullptr,
     .ss_pin                 = SPI_PIN_NOT_USED,
@@ -223,6 +233,10 @@ enum spi_result_t spis_init(spi_port_t                  spi_port,
 
     spis_control->handler = handler;
     spis_control->context = context;
+
+    // This uses up one of the GPIO TE channels.
+    // It should be enabled unless a determination is made that it does not apply.
+    spis_control->gpio_te_channel = spis_init_dma_anomaly_109(spi_config->ss_pin);
 
     logger &logger = logger::instance();
     logger.debug("spis_init: pins: ss: %u, sck: %u, mosi: %u, miso: %u",
@@ -317,6 +331,11 @@ void spis_deinit(spi_port_t spi_port)
 
     NVIC_DisableIRQ(spis_control->irq_type);
     spis_control->spis_registers->INTENCLR = spis_interrupt_mask;
+
+    if (spis_control->gpio_te_channel != gpio_te_channel_invalid)
+    {
+        spis_deinit_dma_anomaly_109(spis_control->gpio_te_channel);
+    }
 }
 
 static void spis_arm_transfer(struct spis_control_block_t* spis_control)
@@ -438,3 +457,53 @@ static void irq_handler_spis(spis_control_block_t* spis_control)
     }
 }
 
+static void gpio_te_pin_event_handler(gpio_te_channel_t gpio_te_channel,
+                                      void*             context)
+{
+    // This function does nothing other than provide the work around for
+    // DMA anomaly 109. Provide debug output to check if the workaround is
+    // enabled and working.
+    logger::instance().debug("anomaly 109 event");
+}
+
+/**
+ * Enable the DMA anomaly workaround
+ *
+ * @see http://infocenter.nordicsemi.com/pdf/nRF52_PAN_109_add_v1.1.pdf
+ * System enters IDLE and stops the 64 MHz clock at the same time as the
+ * peripheral that is using DMA is started. This results in the wrong data being
+ * sent to the external device.
+ *
+ * @param spis_ss_pin       The SPIS SS pin
+ * @return gpio_te_channel  The GPIO TE channel allocated to the workaround.
+ */
+static gpio_te_channel_t spis_init_dma_anomaly_109(gpio_pin_t spis_ss_pin)
+{
+    if (not gpio_te_is_initialized())
+    {
+        uint8_t const irq_priority = 7u;
+        gpio_te_init(irq_priority);
+    }
+
+    // This prevents the system from entering idle (WFE) at the same time
+    // that the DMA is started.
+    gpio_te_channel_t const gpio_te_channel =
+        gpio_te_allocate_channel_event(spis_ss_pin,
+                                       gpio_te_polarity_falling,
+                                       nullptr,
+                                       gpio_te_pin_event_handler,
+                                       nullptr);
+
+    gpio_te_channel_enable_event(gpio_te_channel);
+
+    return gpio_te_channel;
+}
+
+/**
+ * Release the GPIO TE channel allocated for the DMA anomaly workaround.
+ * @param gpio_te_channel The GPIO TE channel to release.
+ */
+static void spis_deinit_dma_anomaly_109(gpio_te_channel_t gpio_te_channel)
+{
+    gpio_te_channel_release(gpio_te_channel);
+}

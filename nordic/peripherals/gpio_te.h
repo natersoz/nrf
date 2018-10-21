@@ -67,9 +67,15 @@ enum { gpio_te_channel_invalid = (gpio_te_channel_t)(-1) };
  * To enable port events call gpio_te_port_enable().
  * Port events are handled independently of pin events.
  *
- * @param irq_priority  The interrupt priority for handling GPIO events.
+ * @param irq_priority The interrupt priority for handling GPIO events.
  */
 void gpio_te_init(uint8_t irq_priority);
+
+/**
+ * Determine whether the GPIO TE module has been initialized.
+ * @return bool true if it has been initialized; false if not.
+ */
+bool gpio_te_is_initialized(void);
 
 /**
  * Enable the Port event.

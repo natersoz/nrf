@@ -45,13 +45,29 @@ struct gpio_te_control_block_t
      */
     IRQn_Type const irq_type;
 
+    /// The number of GPIO TE channels available on the device.
     gpio_te_channel_t const channel_count;
 
+    /// Is the GPIO TE module initialized? true if so, false if not.
+    bool initialized;
+
+    /**
+     * @{
+     * Each GPIO TE channel is allocated a event callback handler and a context
+     * since each pin and its event are independent of each other and occur for
+     * different reasons.
+     */
     gpio_te_pin_event_handler_t     pin_event_handlers[gpio_te_channel_count];
     void*                           pin_event_contexts[gpio_te_channel_count];
+    /** @} */
 
+    /**
+     * @{
+     * The PORT event handler and stored user context.
+     */
     gpio_te_port_event_handler_t    port_event_handler;
     void*                           port_event_context;
+    /** @} */
 };
 
 static struct gpio_te_control_block_t gpio_te_instance_0 =
@@ -60,6 +76,7 @@ static struct gpio_te_control_block_t gpio_te_instance_0 =
     .gpio_registers         = reinterpret_cast<NRF_GPIO_Type *>(NRF_P0_BASE),
     .irq_type               = GPIOTE_IRQn,
     .channel_count          = gpio_te_channel_count,
+    .initialized            = false,
 
     .pin_event_handlers     = {nullptr},
     .pin_event_contexts     = {nullptr},
@@ -88,12 +105,14 @@ void gpio_te_init(uint8_t irq_priority)
     // Noridc peripheral count values then catch it here.
     // If it fails compilation is likely an NRF51 device.
     ASSERT(gpio_te_channel_count == config_count);
-    ASSERT(gpio_te_channel_count == event_in_count );
-    ASSERT(gpio_te_channel_count == task_out_count );
-    ASSERT(gpio_te_channel_count == task_clr_count );
-    ASSERT(gpio_te_channel_count == task_set_count );
+    ASSERT(gpio_te_channel_count == event_in_count);
+    ASSERT(gpio_te_channel_count == task_out_count);
+    ASSERT(gpio_te_channel_count == task_clr_count);
+    ASSERT(gpio_te_channel_count == task_set_count);
 
     ASSERT(interrupt_priority_is_valid(irq_priority));
+
+    gpio_te_instance_0.initialized = true;
 
     // Disable all interrupts.
     gpio_te_instance_0.gpio_te_registers->INTENCLR = UINT32_MAX;
@@ -115,6 +134,11 @@ void gpio_te_init(uint8_t irq_priority)
     NVIC_EnableIRQ(gpio_te_instance_0.irq_type);
 
     logger::instance().debug("channel count: %u", gpio_te_instance_0.channel_count);
+}
+
+bool gpio_te_is_initialized(void)
+{
+    return gpio_te_instance_0.initialized;
 }
 
 void gpio_te_port_enable(gpio_te_port_event_handler_t   port_event_handler,
