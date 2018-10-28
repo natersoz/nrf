@@ -23,25 +23,30 @@ static inline bool interrupt_context_check()
 
 static inline bool is_valid_ram(void const *ptr, size_t length)
 {
-    /**
-     * @todo use the linker file RAM region to determine whether the address
-     * and length are within the valid RAM region. For now, hardcode this.
-     * @todo For async SPI calls we should check that the RAM used is not
-     * within stack range.
-     */
-    uintptr_t const __ram_begin = 0x20000000uL;
-    uintptr_t const __ram_end   = __ram_begin + 64u * 1024u;
+    extern uint32_t __ram_begin__;
+    extern uint32_t __ram_end__;
+
+    uintptr_t const ram_begin = reinterpret_cast<uintptr_t>(&__ram_begin__);
+    uintptr_t const ram_end   = reinterpret_cast<uintptr_t>(&__ram_end__);
 
     uintptr_t const addr_begin = reinterpret_cast<uintptr_t>(ptr);
     uintptr_t const addr_end   = addr_begin + length;
 
-    return (addr_begin >= __ram_begin) && (addr_end < __ram_end);
+    return (addr_begin >= ram_begin) && (addr_end < ram_end);
 }
 
 static inline bool is_valid_flash(void const *ptr, size_t length)
 {
-    /// @todo this would also be a nice to have.
-    return true;
+    extern uint32_t __flash_begin__;
+    extern uint32_t __flash_end__;
+
+    uintptr_t const flash_begin = reinterpret_cast<uintptr_t>(&__flash_begin__);
+    uintptr_t const flash_end   = reinterpret_cast<uintptr_t>(&__flash_end__);
+
+    uintptr_t const addr_begin = reinterpret_cast<uintptr_t>(ptr);
+    uintptr_t const addr_end   = addr_begin + length;
+
+    return (addr_begin >= flash_begin) && (addr_end < flash_end);
 }
 
 static inline bool interrupt_priority_is_valid(uint8_t irq_priority)
