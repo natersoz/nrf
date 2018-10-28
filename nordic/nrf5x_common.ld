@@ -166,4 +166,9 @@ SECTIONS
     TotalFlashUsed = CodeFlashUsed + DataInitFlashUsed;
     ASSERT(TotalFlashUsed <= LENGTH(FLASH), "region FLASH overflowed with .data and user data")
 
+    __ram_begin__ = ORIGIN(RAM);
+    __ram_end__   = ORIGIN(RAM) + LENGTH(RAM);
+
+    __flash_begin__ = ORIGIN(FLASH);
+    __flash_end__   = ORIGIN(FLASH) + LENGTH(FLASH);
 }
