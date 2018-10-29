@@ -49,6 +49,13 @@ static inline bool is_valid_flash(void const *ptr, size_t length)
     return (addr_begin >= flash_begin) && (addr_end < flash_end);
 }
 
+/**
+ * Priorities 0, 1, 4 are reserved for use by the softdevice.
+ *
+ * @param irq_priority The IRQ prioroty to check.
+ * @return bool true if the IRQ priority is not used by the softdevice;
+ *              false if the IRQ priority is reserved for use by the softdevice.
+ */
 static inline bool interrupt_priority_is_valid(uint8_t irq_priority)
 {
 #if defined NRF51
@@ -59,7 +66,7 @@ static inline bool interrupt_priority_is_valid(uint8_t irq_priority)
     #endif
 #else
     #ifdef SOFTDEVICE_PRESENT
-        return ((irq_priority > 1u) && (irq_priority < 4u)) &&
+        return ((irq_priority > 1u) && (irq_priority < 4u)) ||
                ((irq_priority > 4u) && (irq_priority < 8u));
     #else
         return (irq_priority < 8u);
