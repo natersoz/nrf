@@ -14,7 +14,7 @@ static constexpr char const info_string[]   = { 'i', 'n', 'f', 'o', ':', ' ' };
 static constexpr char const debug_string[]  = { 'd', 'e', 'b', 'u', 'g', ':', ' ' };
 
 static constexpr char const color_reset_string[]    = { 0x1B, '[', '3', '9', ';', '4', '9', 'm' };
-static constexpr char const color_red_string[]      = { 0x1B, '[', '3', '1', 'm' };
+static constexpr char const color_red_string[]      = { 0x1B, '[', '9', '1', 'm' };
 static constexpr char const color_yellow_string[]   = { 0x1B, '[', '9', '3', 'm' };
 
 static constexpr size_t const color_reset_string_length = sizeof(color_reset_string);
