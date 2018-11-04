@@ -8,6 +8,18 @@
 #include "vwritef.h"
 #include "write_data.h"
 
+static constexpr char const error_string[]  = { 'e', 'r', 'r', 'o', 'r', ':', ' ' };
+static constexpr char const warn_string[]   = { 'w', 'a', 'r', 'n', 'i', 'n', 'g', ':', ' ' };
+static constexpr char const info_string[]   = { 'i', 'n', 'f', 'o', ':', ' ' };
+static constexpr char const debug_string[]  = { 'd', 'e', 'b', 'u', 'g', ':', ' ' };
+
+static constexpr char const color_reset_string[]    = { 0x1B, '[', '3', '9', ';', '4', '9', 'm' };
+static constexpr char const color_red_string[]      = { 0x1B, '[', '3', '1', 'm' };
+static constexpr char const color_yellow_string[]   = { 0x1B, '[', '9', '3', 'm' };
+
+static constexpr size_t const color_reset_string_length = sizeof(color_reset_string);
+
+
 static logger logger_instance;
 
 logger& logger::instance()
@@ -28,12 +40,15 @@ size_t logger::error(char const *fmt, ...)
     if (this->os_ != nullptr)
     {
         n_written += this->log_time();
+        n_written += this->os_->write(color_red_string, sizeof(color_red_string));
+        n_written += this->os_->write(error_string, sizeof(error_string));
 
         va_list args;
         va_start(args, fmt);
         n_written += vwritef(*this->os_, fmt, args);
         va_end(args);
 
+        n_written += this->os_->write(color_reset_string, sizeof(color_reset_string));
         char const new_line = '\n';
         n_written += this->os_->write(&new_line, sizeof(new_line));
     }
@@ -49,12 +64,15 @@ size_t logger::warn( char const *fmt, ...)
         if (this->log_level_ >= level::warning)
         {
             n_written += this->log_time();
+            n_written += this->os_->write(color_yellow_string, sizeof(color_yellow_string));
+            n_written += this->os_->write(warn_string, sizeof(warn_string));
 
             va_list args;
             va_start(args, fmt);
             n_written = vwritef(*this->os_, fmt, args);
             va_end(args);
 
+            n_written += this->os_->write(color_reset_string, sizeof(color_reset_string));
             char const new_line = '\n';
             n_written += this->os_->write(&new_line, sizeof(new_line));
         }
@@ -71,6 +89,7 @@ size_t logger::info( char const *fmt, ...)
         if (this->log_level_ >= level::info)
         {
             n_written += this->log_time();
+            n_written += this->os_->write(info_string, sizeof(info_string));
 
             va_list args;
             va_start(args, fmt);
@@ -93,6 +112,7 @@ size_t logger::debug(char const *fmt, ...)
         if (this->log_level_ >= level::debug)
         {
             n_written += this->log_time();
+            n_written += this->os_->write(debug_string, sizeof(debug_string));
 
             va_list args;
             va_start(args, fmt);
