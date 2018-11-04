@@ -1,10 +1,6 @@
 /**
  * @file doc/nordic_ble_conn_cfg.h
- * Document Nordic's ble_cfg_t union type.
- *
- * It is frustrating that Nordic does not provide adequate documentation
- * of their softdevice.
- *
+ * Trace through Nordic's ble_cfg_t union type.
  *
  * see softdevice header 'ble.h'
  *
