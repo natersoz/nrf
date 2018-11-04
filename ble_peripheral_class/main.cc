@@ -14,6 +14,7 @@
 #include "segger_rtt_output_stream.h"
 #include "rtc_observer.h"
 #include "project_assert.h"
+#include "stack_usage.h"
 
 #include "ble/att.h"
 #include "ble/gap_types.h"
@@ -79,6 +80,7 @@ static size_t set_advertising_data(ble::gap::advertising_data_t &data)
 
 int main(void)
 {
+    stack_fill(0xabcd1234);
     lfclk_enable(LFCLK_SOURCE_XO);
     app_timer_init(rtc_1);
     rtc_1.start();
@@ -161,6 +163,9 @@ int main(void)
 
     /// @todo this is for debug, remove once characteristics work properly.
     battery_level_characteristic.write_battery_percentage(88u);
+
+    logger.info("stack: free: %5u 0x%04x, size: %5u 0x%04x",
+                stack_free(), stack_free(), stack_size(), stack_size());
 
     for (;;)
     {

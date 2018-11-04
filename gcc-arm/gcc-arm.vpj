@@ -261,12 +261,15 @@
             GUID="{26EDE2B6-8AB4-4F2B-A440-92379F24FF57}">
             <F N="gcc_startup_nrf52.s"/>
             <F N="gcc_stubs.cc"/>
+            <F N="stack_usage.cc"/>
+            <F N="gcc_exception_stubs.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
             GUID="{C3FA7D1F-64DB-4EE2-9787-698E31A1AAFA}">
             <F N="arm_utilities.h"/>
+            <F N="stack_usage.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
