@@ -24,6 +24,7 @@ SOURCE_FILES += ./ble_gatts_observer.cc
 SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/gcc_startup_nrf52.s
 SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/gcc_stubs.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/app_timer.cc
+SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/stack_usage.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/buttons_pca10040.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/clocks.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/leds_pca10040.cc
