@@ -225,24 +225,24 @@ $(BUILD_PATH):
 
 # Compile C++ SRC files
 $(BUILD_PATH)/%.cc.o: %.cc
-	@echo Compiling file: $<
+	@echo Compiling: $<
 	$(VERBOSE)$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c -o $@ $<
 	$(VERBOSE)$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c -MM -MT $@ -MF $(@:.o=.dep) $<
 
 # Compile C SRC files
 $(BUILD_PATH)/%.c.o: %.c
-	@echo Compiling file: $<
+	@echo Compiling: $<
 	$(VERBOSE)$(CC) $(CFLAGS) $(INCLUDE_PATHS) -c -o $@ $<
 	$(VERBOSE)$(CC) $(CFLAGS) $(INCLUDE_PATHS) -c -MM -MT $@ -MF $(@:.o=.dep) $<
 
 # Compile Assembly files
 $(BUILD_PATH)/%.s.o: %.s
-	@echo Assembling file: $<
+	@echo Assembling: $<
 	$(VERBOSE)$(CC) $(ASFLAGS) $(INCLUDE_PATHS) -c -o $@ $<
 
 # Link
 $(BUILD_PATH)/$(TARGET_NAME).out: $(OBJECT_FILES) $(LIBS) $(LINKER_SCRIPT)
-	@echo Linking target: $@
+	@echo Linking: $@
 	$(VERBOSE)$(CC) $(LDFLAGS) $(OBJECT_FILES) $(LIBS) -T $(LINKER_SCRIPT) -o $@
 	$(VERBOSE)$(SIZE) $@
 
