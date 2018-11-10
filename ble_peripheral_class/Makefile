@@ -33,6 +33,9 @@ SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/leds_pca10040.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/rtc.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/gpio.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/saadc.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/timer.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/mwu.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/mwu_debug.cc
 
 SOURCE_FILES += $(PROJECT_ROOT)/ble/uuid.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/tlv_encode.cc
