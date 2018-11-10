@@ -43,6 +43,9 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
+#define __STATIC_INLINE static inline
+#define __ASM           __asm
+
 #if defined __cplusplus
 extern "C" {
 #endif
