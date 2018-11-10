@@ -337,3 +337,48 @@ The following files have been modified from the original:
     + Removed `register` keyword instances.
       These are deprecated and cause compiler warnings.
 
+Nordic Softdevice SDK flags required
+------------------------------------
+These flags have to be set in order to get the softdevice to interact properly:
+
+sdk/components/softdevice/common/nrf_sdh.h
+sdk/components/softdevice/common/nrf_sdh.c
+
+	#define SOFTDEVICE_PRESENT		(in Makefile)
+	#define S132					(in Makefile)
+	#define NRF_SDH=1
+		Enable the SD_EVT_IRQn
+
+	#define NRF_SDH_DISPATCH_MODEL = NRF_SDH_DISPATCH_MODEL_INTERRUPT
+
+	not defined APP_SCHEDULER_ENABLED
+
+Softdevice version information:
+-------------------------------
+
+	sdk/components/softdevice/s132/headers/nrf_sdm.h
+	SD_MAJOR_VERSION
+	SD_MINOR_VERSION
+	SD_BUGFIX_VERSION
+
+
+Softdevice RAM
+--------------
+To enable the softdevice the SD interface function `sd_ble_enable()` is called.
+This function is found in the header
+`sdk/components/softdevice/s132/headers/ble.h`.
+
+The parameter passed in is the RAM address which marks the start of the
+application memory usage. The softdevice reserver all RAM lower than this
+address for it own use.
+
+Nordic has done something very cool here: They use the Memory Watch Unit (MWU)
+peripheral to determine if your application has stepped into Nordic's memory
+region. If you examine the MWU once the softdevice as been enabled you will
+see that all RAM lower than the address passed into `sd_ble_enable()` is
+being watched. Any application write to this region and Nordic will get an
+interrupt and call the application fault handler `app_error_fault_handler()`.
+
+If this happens you will receive a non-descript memory access violation
+with no other hints regarding what triggered the fault. But Nordic can
+definitely determine that it was on your side of the code; not theirs.
