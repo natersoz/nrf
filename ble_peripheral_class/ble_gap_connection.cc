@@ -23,8 +23,6 @@ ble_gap_connection::ble_gap_connection(ble::gap::request_response& request_respo
     super(request_response, advertising),
     nordic_gap_event_observer_(*this)
 {
-    nordic::ble_observables& observables = nordic::ble_observables::instance();
-    observables.gap_event_observable.attach(this->nordic_gap_event_observer_);
 }
 
 /** Constructor which specifies the connection parameters. */
@@ -33,6 +31,10 @@ ble_gap_connection::ble_gap_connection(ble::gap::request_response&            re
                                        ble::gap::connection_parameters const& connect_params):
     super(request_response, advertising, connect_params),
     nordic_gap_event_observer_(*this)
+{
+}
+
+void ble_gap_connection::init()
 {
     nordic::ble_observables& observables = nordic::ble_observables::instance();
     observables.gap_event_observable.attach(this->nordic_gap_event_observer_);

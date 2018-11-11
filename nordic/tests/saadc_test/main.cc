@@ -25,8 +25,9 @@ static timer timer_1(1u);
 static segger_rtt_output_stream rtt_os;
 
 // ADC channel convesions destination buffer;
-static int16_t saadc_buffer[2u];
-static uint16_t saadc_buffer_length = std::size(saadc_buffer);
+static int16_t saadc_buffer[2u][2u];
+static uint8_t saadc_buffer_index = 0u;
+static uint16_t saadc_buffer_length = std::size(saadc_buffer[0u]);
 
 static size_t conversion_count = 0u;
 static uint32_t conversion_start_ticks = 0u;
@@ -39,26 +40,33 @@ public:
     measurement_timer(uint32_t expiry_ticks) :
         timer_observer(timer_observer::expiration_type::continuous,
                        expiry_ticks) {}
-
+private:
     void expiration_notify() override;
 };
 
 static timer_observable<> timer_test_observable(1u);
 static measurement_timer measurement_timer(timer_test_observable.msec_to_ticks(1000u));
 
-static void saadc_event_handler(saadc_event_t   event,
-                                int16_t         event_value,
-                                void*           context)
+static void saadc_event_handler(saadc_event_type_t              event_type,
+                                union saadc_event_info_t const* event_info,
+                                void*                           context)
 {
     logger &logger = logger::instance();
 
-    switch (event)
+    switch (event_type)
     {
-    case saadc_event_conversion_start:
-        logger.debug("SAADC event: conversion start");
+    case saadc_event_conversion_started:
+        {
+            uint8_t const prev_buffer_index = saadc_buffer_index;
+            saadc_buffer_index ^= 1u;
+            saadc_queue_conversion_buffer(saadc_buffer[saadc_buffer_index], saadc_buffer_length);
+            logger.debug("SAADC event: conversion started, index: %u -> %u, buffer queued: 0x%p",
+                         prev_buffer_index, saadc_buffer_index, saadc_buffer[saadc_buffer_index]);
+        }
         break;
     case saadc_event_conversion_stop:
-        logger.info("SAADC event: conversion stop: %d samples", event_value);
+        logger.info("SAADC event: conversion stop: samples: 0x%p, %u",
+                    event_info->conversion.data, event_info->conversion.length);
         break;
     case saadc_event_conversion_complete:
         {
@@ -67,29 +75,35 @@ static void saadc_event_handler(saadc_event_t   event,
             uint32_t const conversion_usec = (conversion_ticks * 1000000u) / rtc_1.ticks_per_second();
             conversion_count += 1u;
 
-            logger.info("SAADC event: conversion complete: %d samples, ticks: %u, usec: %u",
-                        event_value, conversion_ticks, conversion_usec);
-            for (int16_t index = 0u; index < event_value; ++index)
+            logger.info("SAADC event: conversion complete: samples: 0x%p, %u, ticks: %u, usec: %u",
+                        event_info->conversion.data, event_info->conversion.length,
+                        conversion_ticks, conversion_usec);
+            for (int16_t index = 0u; index < event_info->conversion.length; ++index)
             {
-                logger.info("%6d 0x%4x", saadc_buffer[index], saadc_buffer[index]);
+                logger.info("%6d 0x%4x", event_info->conversion.data[index],
+                                         event_info->conversion.data[index]);
             }
             logger.write_data(logger::level::debug,
-                              saadc_buffer,
-                              sizeof(saadc_buffer));
+                              event_info->conversion.data,
+                              event_info->conversion.length * sizeof(int16_t),
+                              false,
+                              write_data::data_prefix::address);
         }
         break;
     case saadc_event_limit_lower:
         {
-            struct saadc_limits_t const limits = saadc_get_channel_limits(event_value);
+            saadc_input_channel_t const input_channel = event_info->limits_exceeded.input_channel;
+            struct saadc_limits_t const limits = saadc_get_channel_limits(input_channel);
             logger.info("SAADC event: chan: %d, lower limit %u 0x%x exceeded",
-                        event_value, limits.lower, limits.lower);
+                        input_channel, limits.lower, limits.lower);
         }
         break;
     case saadc_event_limit_upper:
         {
-            struct saadc_limits_t const limits = saadc_get_channel_limits(event_value);
+            saadc_input_channel_t const input_channel = event_info->limits_exceeded.input_channel;
+            struct saadc_limits_t const limits = saadc_get_channel_limits(input_channel);
             logger.info("SAADC event: chan: %d, upper limit %u 0x%x exceeded",
-                        event_value, limits.upper, limits.upper);
+                        input_channel, limits.upper, limits.upper);
         }
         break;
     case saddc_event_calibration_complete:
@@ -140,7 +154,10 @@ int main()
     logger.debug("timer: %8u ticks", measurement_timer.expiration_get_ticks());
 
     uint8_t const irq_priority = 7u;
-    saadc_init(saadc_conversion_resolution_12_bit, nullptr, irq_priority);
+    saadc_init(saadc_conversion_resolution_12_bit,
+               saadc_event_handler,
+               nullptr,
+               irq_priority);
 
     saadc_input_configure_single_ended(0u,
                                        saadc_input_AIN0,
@@ -170,9 +187,8 @@ int main()
     ASSERT(cc_index != timer_observable<>::cc_index_unassigned);
 
     uint32_t volatile* saadc_trigger_event = timer_1.cc_get_event(cc_index);
-    saadc_conversion_start(saadc_buffer,
+    saadc_conversion_start(saadc_buffer[saadc_buffer_index],
                            saadc_buffer_length,
-                           saadc_event_handler,
                            saadc_trigger_event);
 
     while (true)

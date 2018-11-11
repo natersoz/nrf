@@ -158,12 +158,7 @@ public:
     battery_service& operator=(battery_service const&)  = delete;
     battery_service& operator=(battery_service&&)       = delete;
 
-    /**
-     * Construct a Battery Service as a primary service.
-     *
-     * @param attr_type Specify whether the battery service
-     * is a primary or secondary service.
-     */
+    /** Construct a Battery Service as a primary service. */
     battery_service():
         service(gatt::services::battery_service,
                 gatt::attribute_type::primary_service)
@@ -171,7 +166,7 @@ public:
     }
 
     /**
-     * Construct a Battery Service object.
+     * Construct an Battery Service as a primary or secondary service.
      *
      * @param attr_type Specify whether the battery service
      * is a primary or secondary service.

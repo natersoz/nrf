@@ -12,12 +12,14 @@
 extern "C" {
 #endif
 
-enum saadc_event_t
+typedef uint8_t saadc_input_channel_t;
+
+enum saadc_event_type_t
 {
     /// This event is sent in response to the EVENTS_STARTED interrupt.
     /// The RESULT.PTR register is double-buffered can be updated
     /// immediately after the EVENTS_STARTED event is generated.
-    saadc_event_conversion_start,
+    saadc_event_conversion_started,
     saadc_event_conversion_stop,
     saadc_event_conversion_complete,
     saadc_event_limit_lower,
@@ -159,18 +161,44 @@ enum saadc_conversion_resolution_t
 };
 
 /**
+ * @union saadc_event_info_t
+ *
+ * @todo saddc_event_calibration_complete, no data structure yet defined.
+ */
+union saadc_event_info_t
+{
+    /**
+     * Used for even_type_t:
+     * saadc_event_conversion_started,
+     * saadc_event_conversion_stop,
+     * saadc_event_conversion_complete,
+     */
+    struct
+    {
+        int16_t const*  data;
+        uint16_t        length;
+    } conversion;
+
+    /**
+     * Used for even_type_t:
+     * saadc_event_limit_lower,
+     * saadc_event_limit_upper,
+     */
+    struct
+    {
+        saadc_input_channel_t input_channel;
+    } limits_exceeded;
+};
+
+/**
  * @brief SAADC event handler type.
  * @param event The reason that the event handler was called
- * @param event_value
- * saadc_event_limits_exceeded:     The input channel associated with a the event type.
- * saadc_event_conversion_complete: The number of int16_t conversion values delivered.
- * saadc_event_conversion_stop:     The number of int16_t conversion values delivered.
- * All others:                      -1
+ * @param event_info Information pertaining to the event notification.
  * @param context The user supplied context.
  */
-typedef void (* saadc_event_handler_t) (saadc_event_t   event,
-                                        int16_t         event_value,
-                                        void*           context);
+typedef void (* saadc_event_handler_t) (saadc_event_type_t              event_type,
+                                        union saadc_event_info_t const* event_info,
+                                        void*                           context);
 
 /**
  * General function for configuring an SAADC analog input for conversion.
@@ -187,7 +215,7 @@ typedef void (* saadc_event_handler_t) (saadc_event_t   event,
  * @param t_acq                 @see enum saadc_tacq_t
  */
 void saadc_input_configure(
-    uint8_t                         input_channel,
+    saadc_input_channel_t           input_channel,
     enum saadc_input_drive_t        drive,
     enum saadc_input_select_t       analog_in_positive,
     enum saadc_input_termination_t  termination_positive,
@@ -208,7 +236,7 @@ void saadc_input_configure(
  * @param t_acq                 @see enum saadc_tacq_t
  */
 void saadc_input_configure_single_ended(
-    uint8_t                         input_channel,
+    saadc_input_channel_t           input_channel,
     enum saadc_input_select_t       analog_in_positive,
     enum saadc_input_termination_t  termination_positive,
     enum saadc_gain_t               gain,
@@ -222,7 +250,7 @@ void saadc_input_configure_single_ended(
  *
  * @param input_channel The analog input channel to disable.
  */
-void saadc_input_disable(uint8_t input_channel);
+void saadc_input_disable(saadc_input_channel_t input_channel);
 
 /**
  * Determine whether an input channel is enabled.
@@ -231,7 +259,7 @@ void saadc_input_disable(uint8_t input_channel);
  *
  * @return bool true if the SAADC input channe is enabled; false if not.
  */
-bool saadc_input_is_enabled(uint8_t input_channel);
+bool saadc_input_is_enabled(saadc_input_channel_t input_channel);
 
 /**
  * Initialize the SAADC device driver.
@@ -241,14 +269,19 @@ bool saadc_input_is_enabled(uint8_t input_channel);
  *
  * @note oversampling and burst mode not supported.
  *
- * @param resolution   The resolution of the SAADC conversions.
- * @param context      A user suppplied object that is unmodified by the SAADC
- *                     driver and is supplied as part of the event handler callback.
- * @param irq_priority The interrupt priority of the conversion.
- *                     Typically the value 7 is used in nRF5x designs.
- *                     Values 0, 1 and 4 are reserved for the softdevice.
+ * @param resolution    The resolution of the SAADC conversions.
+ * @param saadc_handler The user supplied callback completion handler.
+ *                      This handler gets called when the SAADC conversion
+ *                      is complete and the samples transfered into the user
+ *                      supplied memory locations.
+ * @param context       A user suppplied object that is unmodified by the SAADC
+ *                      driver and is supplied as part of the event handler callback.
+ * @param irq_priority  The interrupt priority of the conversion.
+ *                      Typically the value 7 is used in nRF5x designs.
+ *                      Values 0, 1 and 4 are reserved for the softdevice.
  */
 void saadc_init(enum saadc_conversion_resolution_t  resolution,
+                saadc_event_handler_t               saadc_handler,
                 void*                               context,
                 uint8_t                             irq_priority);
 
@@ -270,10 +303,6 @@ void saadc_deinit(void);
  * @param desitnation_length  The number of int16_t values that are allocated for
  *                            conversion. This value must be greater than or equal
  *                            to the number of channels being converted.
- * @param saadc_handler       The user supplied callback completion handler.
- *                            This handler gets called when the SAADC conversion
- *                            is complete and the samples transfered into the user
- *                            supplied memory locations.
  * @param event_register_pointer
  *                            The Nordic peripheral based event which will trigger
  *                            the conversion via a PPI connection.
@@ -289,8 +318,18 @@ void saadc_deinit(void);
  */
 void saadc_conversion_start(int16_t*                destination_pointer,
                             uint16_t                desitnation_length,
-                            saadc_event_handler_t   saadc_handler,
                             uint32_t volatile*      event_register_pointer);
+
+/**
+ * Queue the next SAADC conversion buffer. This function should only be called
+ * within the event handler saadc_event_conversion_started.
+ * @note This is useful when using a PPI event to trigger the SAADC conversion.
+ *
+ * @param destination_pointer The next SAADC conversion location.
+ * @param destination_length  The next SAADC conversion sample length.
+ */
+void saadc_queue_conversion_buffer(int16_t* destination_pointer,
+                                   uint16_t destination_length);
 
 /**
  * Stop any pending and current SAADC conversions.
@@ -307,7 +346,7 @@ struct saadc_conversion_info_t
     uint16_t time_usec;
 
     /// The number of channels enabled for SAADC conversion.
-    uint8_t channel_count;
+    saadc_input_channel_t channel_count;
 };
 
 /**
@@ -331,17 +370,20 @@ struct saadc_conversion_info_t saadc_conversion_info(void);
  * @param limit_lower   The lower limit.
  * @param limit_upper   The upper limit.
  */
-void saadc_enable_limits_event(uint8_t input_channel,
-                               int16_t limit_lower,
-                               int16_t limit_upper);
+void saadc_enable_limits_event(saadc_input_channel_t        input_channel,
+                               int16_t                      limit_lower,
+                               int16_t                      limit_upper);
+
 /// Enable callbacks based on the ADC exceeding specified lower limit.
-void saadc_enable_lower_limit_event(uint8_t input_channel, int16_t limit_lower);
+void saadc_enable_lower_limit_event(saadc_input_channel_t   input_channel,
+                                    int16_t                 limit_lower);
 
 /// Enable callbacks based on the ADC exceeding specified upper limit.
-void saadc_enable_upper_limit_event(uint8_t input_channel, int16_t limit_upper);
+void saadc_enable_upper_limit_event(saadc_input_channel_t   input_channel,
+                                    int16_t                 limit_upper);
 
 /// Disable callbacks based on the ADC exceeding specified limits.
-void saadc_disable_limit_event(uint8_t input_channel);
+void saadc_disable_limit_event(saadc_input_channel_t        input_channel);
 
 struct saadc_limits_t
 {
@@ -357,7 +399,7 @@ struct saadc_limits_t
  * @return struct saadc_limits_t The lower, upper limits associated with the
  *                               input channel.
  */
-struct saadc_limits_t saadc_get_channel_limits(uint8_t input_channel);
+struct saadc_limits_t saadc_get_channel_limits(saadc_input_channel_t input_channel);
 
 /**
  * Determine whether an SAADC conversion is in progress.

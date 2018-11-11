@@ -188,7 +188,7 @@ static void scan_start(void)
     ret = sd_ble_gap_scan_start(&m_scan_params);
     if (ret != NRF_SUCCESS)
     {
-        logger.error("error: sd_ble_gap_scan_start(): failed: 0x%x", ret);
+        logger.error("sd_ble_gap_scan_start(): failed: 0x%x", ret);
     }
 }
 

@@ -1,26 +1,29 @@
 /**
- * @file ble/peripheral.h
+ * @file ble/profile_peripheral.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
 #pragma once
 
+#include "ble/profile_connectable.h"
 #include "ble/peripheral_connection.h"
 #include "ble/gatts_event_observer.h"
 #include "ble/gattc_event_observer.h"
 #include "ble/gatt_service.h"
+#include "ble/gatt_service_container.h"
 #include "ble/stack.h"
 #include "ble/uuid.h"
 #include "ble/hci_error_codes.h"
 
 namespace ble
 {
-
+namespace profile
+{
 /**
  * @class peripheral
- * Aggregate the specific classes which compose a BLE peripheral
+ * Aggregate the specific classes which compose a BLE peripheral.
  */
-class peripheral
+class peripheral: public connectable
 {
 public:
     // These trival observers do nothing.
@@ -41,22 +44,27 @@ public:
     peripheral(ble::stack                       &ble_stack,
                ble::gap::peripheral_connection  &ble_gap_connection,
                ble::gatts::event_observer       &ble_gatts_event_observer,
+               ble::gatts::operations           &ble_gatts_operations,
                ble::gattc::event_observer       &ble_gattc_event_observer)
-    : ble_stack_(ble_stack),
-      gap_connection_(ble_gap_connection),
-      gatts_event_observer_(ble_gatts_event_observer),
-      gattc_event_observer_(ble_gattc_event_observer)
+    : connectable(ble_stack,
+                  ble_gap_connection,
+                  ble_gatts_event_observer,
+                  ble_gatts_operations,
+                  ble_gattc_event_observer),
+      advertising_(ble_gap_connection.advertising())
     {
     }
 
     /// ctor: A peripheral with a GATT server only; no client.
     peripheral(ble::stack                       &ble_stack,
                ble::gap::peripheral_connection  &ble_gap_connection,
-               ble::gatts::event_observer       &ble_gatts_event_observer)
-    : ble_stack_(ble_stack),
-      gap_connection_(ble_gap_connection),
-      gatts_event_observer_(ble_gatts_event_observer),
-      gattc_event_observer_(ble_gattc_event_observer_trivial)
+               ble::gatts::event_observer       &ble_gatts_event_observer,
+               ble::gatts::operations           &ble_gatts_operations)
+    : connectable(ble_stack,
+                  ble_gap_connection,
+                  ble_gatts_event_observer,
+                  ble_gatts_operations),
+      advertising_(ble_gap_connection.advertising())
     {
     }
 
@@ -64,32 +72,21 @@ public:
     peripheral(ble::stack                       &ble_stack,
                ble::gap::peripheral_connection  &ble_gap_connection,
                ble::gattc::event_observer       &ble_gattc_event_observer)
-    : ble_stack_(ble_stack),
-      gap_connection_(ble_gap_connection),
-      gatts_event_observer_(ble_gatts_event_observer_trivial),
-      gattc_event_observer_(ble_gattc_event_observer)
+    : connectable(ble_stack,
+                  ble_gap_connection,
+                  ble_gattc_event_observer),
+      advertising_(ble_gap_connection.advertising())
     {
     }
 
-    ble::stack&             ble_stack()         { return this->ble_stack_; }
-    ble::stack const &      ble_stack() const   { return this->ble_stack_; }
-
-    ble::gap::peripheral_connection const& connection() const { return this->gap_connection_; }
-    ble::gap::peripheral_connection&       connection()       { return this->gap_connection_; }
-
-    void service_add(ble::gatt::service const& service);
-    ble::gatt::service*       service_get(ble::att::uuid uuid);
-    ble::gatt::service const* service_get(ble::att::uuid uuid) const;
-    ble::gatt::service*       service_get(ble::gatt::services uuid);
-    ble::gatt::service const* service_get(ble::gatt::services uuid) const;
+    ble::gap::advertising const& advertising() const { return this->advertising_; }
+    ble::gap::advertising&       advertising()       { return this->advertising_; }
 
 private:
-    ble::stack                      &ble_stack_;
-    ble::gap::peripheral_connection &gap_connection_;
-    ble::gatts::event_observer      &gatts_event_observer_;
-    ble::gattc::event_observer      &gattc_event_observer_;
+    using super = ble::profile::connectable;
 
-    ble::gatt::service_container    service_container_;
+    ble::gap::advertising& advertising_;
 };
 
+} // namespace profile
 } // namespace ble

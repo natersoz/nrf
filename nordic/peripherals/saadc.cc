@@ -13,7 +13,7 @@
 #include <iterator>
 
 /// The number of SAADC analog input conversion channels.
-static uint8_t const SAADC_INPUT_COUNT = 8u;
+static saadc_input_channel_t const SAADC_INPUT_COUNT = 8u;
 
 /// The SAADC time of conversion in microsoeconds.
 static uint32_t const t_acq_conv = 2u;
@@ -38,14 +38,10 @@ struct saadc_control_block_t
      */
     IRQn_Type const irq_type;
 
+    int16_t* sample_data_pointer;
+
     ppi_channel_t ppi_trigger;
     ppi_channel_t ppi_sample;
-
-    /// SAADC conversion completion data destination buffer.
-    int16_t* destination_pointer;
-
-    /// SAADC conversion completion data destination buffer length in uint16_t words.
-    uint16_t destination_length;
 
     /// The user supplied callback function.
     /// When the spi transfer is complete this function is called.
@@ -60,14 +56,13 @@ static void irq_handler_saadc(struct saadc_control_block_t* saadc_control);
 
 static struct saadc_control_block_t saadc_instance_0 =
 {
-    .saadc_registers        = reinterpret_cast<NRF_SAADC_Type *>(NRF_SAADC_BASE),
-    .irq_type               = SAADC_IRQn,
-    .ppi_trigger            = ppi_channel_invalid,
-    .ppi_sample             = ppi_channel_invalid,
-    .destination_pointer    = nullptr,
-    .destination_length     = 0u,
-    .handler                = nullptr,
-    .context                = nullptr
+    .saadc_registers     = reinterpret_cast<NRF_SAADC_Type *>(NRF_SAADC_BASE),
+    .irq_type            = SAADC_IRQn,
+    .sample_data_pointer = nullptr,
+    .ppi_trigger         = ppi_channel_invalid,
+    .ppi_sample          = ppi_channel_invalid,
+    .handler             = nullptr,
+    .context             = nullptr
 };
 
 extern "C" void SAADC_IRQHandler(void)
@@ -119,7 +114,7 @@ static uint32_t t_acq_usec(enum saadc_tacq_t t_acq)
 }
 
 void saadc_input_configure(
-    uint8_t                         input_channel,
+    saadc_input_channel_t           input_channel,
     enum saadc_input_drive_t        drive,
     enum saadc_input_select_t       analog_in_positive,
     enum saadc_input_termination_t  termination_positive,
@@ -161,7 +156,7 @@ void saadc_input_configure(
 }
 
 void saadc_input_configure_single_ended(
-    uint8_t                         input_channel,
+    saadc_input_channel_t           input_channel,
     enum saadc_input_select_t       analog_in_positive,
     enum saadc_input_termination_t  termination_positive,
     enum saadc_gain_t               gain,
@@ -181,7 +176,7 @@ void saadc_input_configure_single_ended(
     );
 }
 
-void saadc_input_disable(uint8_t input_channel)
+void saadc_input_disable(saadc_input_channel_t input_channel)
 {
     // Set registers CH[].PSELP, CH[].PSELN, CH[].CONFIG to defaults
     saadc_input_configure(
@@ -197,13 +192,14 @@ void saadc_input_disable(uint8_t input_channel)
     );
 }
 
-bool saadc_input_is_enabled(uint8_t input_channel)
+bool saadc_input_is_enabled(saadc_input_channel_t input_channel)
 {
     NRF_SAADC_Type *saadc_registers = saadc_instance_0.saadc_registers;
     return (saadc_registers->CH[input_channel].PSELP != saadc_input_select_NC);
 }
 
 void saadc_init(enum saadc_conversion_resolution_t  resolution,
+                saadc_event_handler_t               saadc_handler,
                 void*                               context,
                 uint8_t                             irq_priority)
 {
@@ -215,18 +211,19 @@ void saadc_init(enum saadc_conversion_resolution_t  resolution,
     // Short hand for readability.
     NRF_SAADC_Type* const saadc_registers = saadc_instance_0.saadc_registers;
 
-    saadc_instance_0.destination_pointer    = nullptr;
-    saadc_instance_0.destination_length     = 0u;
-    saadc_instance_0.handler                = nullptr;
-    saadc_instance_0.context                = nullptr;
+    saadc_instance_0.sample_data_pointer = nullptr;
+    saadc_instance_0.handler = saadc_handler;
+    saadc_instance_0.context = context;
 
     // During the life time of this driver - until deinit() is called -
     // the SAADC EVENTS_STARTED event will trigger the SAADC TASKS_SAMPLE
     // task to start taking samples using PPI. Otherwise this would have to be
     // done in the ISR and introduce software latency as sample jitter.
-    saadc_instance_0.ppi_sample = ppi_channel_allocate(&saadc_registers->TASKS_SAMPLE,
-                                                       &saadc_registers->EVENTS_STARTED,
-                                                       nullptr);
+    saadc_instance_0.ppi_sample = ppi_channel_allocate(
+        &saadc_registers->TASKS_SAMPLE,
+        &saadc_registers->EVENTS_STARTED,
+        nullptr);
+
     ppi_channel_enable(saadc_instance_0.ppi_sample);
     logger::instance().debug("ppi sample channel: %u", saadc_instance_0.ppi_sample);
 
@@ -236,15 +233,16 @@ void saadc_init(enum saadc_conversion_resolution_t  resolution,
     saadc_registers->INTEN          = 0u;
     saadc_registers->ENABLE         = 0u;
 
-    saadc_registers->INTENCLR       = interrupts_clear_all; // Clear all SAADC interrupts.
+    saadc_registers->INTENCLR       = interrupts_clear_all;
     saadc_registers->RESOLUTION     = saadc_conversion_resolution_12_bit;
-    saadc_registers->OVERSAMPLE     = 0u;                   // disable oversampling.
-    saadc_registers->SAMPLERATE     = 0u;                   // Use task to trigger SAADC conversions.
+    saadc_registers->OVERSAMPLE     = 0u;   // disable oversampling.
+    saadc_registers->SAMPLERATE     = 0u;   // A task triggers conversions.
 
-    saadc_registers->RESULT.PTR     = 0u;                   // The conversion result:
-    saadc_registers->RESULT.MAXCNT  = 0u;                   // init to nullptr, zero length.
+    saadc_registers->RESULT.PTR     = 0u;   // Init conversion results:
+    saadc_registers->RESULT.MAXCNT  = 0u;   // nullptr, zero length.
 
-    for (uint8_t input_channel = 0u; input_channel < SAADC_INPUT_COUNT; ++input_channel)
+    for (saadc_input_channel_t input_channel = 0u;
+         input_channel < SAADC_INPUT_COUNT; ++input_channel)
     {
         saadc_input_disable(input_channel);
     }
@@ -266,6 +264,7 @@ void saadc_deinit(void)
     ppi_channel_release(saadc_instance_0.ppi_trigger);
     ppi_channel_release(saadc_instance_0.ppi_sample);
 
+    saadc_instance_0.sample_data_pointer = nullptr;
     saadc_instance_0.ppi_trigger = ppi_channel_invalid;
     saadc_instance_0.ppi_sample  = ppi_channel_invalid;
 
@@ -280,7 +279,8 @@ void saadc_deinit(void)
     saadc_clear_event_register(&saadc_registers->EVENTS_CALIBRATEDONE);
     saadc_clear_event_register(&saadc_registers->EVENTS_STOPPED);
 
-    for (uint8_t input_channel = 0u; input_channel < SAADC_INPUT_COUNT; ++input_channel)
+    for (saadc_input_channel_t input_channel = 0u;
+         input_channel < SAADC_INPUT_COUNT; ++input_channel)
     {
         saadc_clear_event_register(&saadc_registers->EVENTS_CH[input_channel].LIMITH);
         saadc_clear_event_register(&saadc_registers->EVENTS_CH[input_channel].LIMITL);
@@ -289,7 +289,6 @@ void saadc_deinit(void)
 
 void saadc_conversion_start(int16_t*              destination_pointer,
                             uint16_t              destination_length,
-                            saadc_event_handler_t saadc_handler,
                             uint32_t volatile*    event_register)
 {
     ASSERT(not saadc_conversion_in_progress());
@@ -297,8 +296,7 @@ void saadc_conversion_start(int16_t*              destination_pointer,
 
     NRF_SAADC_Type *saadc_registers = saadc_instance_0.saadc_registers;
 
-    struct saadc_conversion_info_t const channel_conversion =
-        saadc_conversion_info();
+    struct saadc_conversion_info_t const channel_conversion = saadc_conversion_info();
     ASSERT(channel_conversion.channel_count <= destination_length);
 
     saadc_registers->ENABLE = 1u;
@@ -313,12 +311,17 @@ void saadc_conversion_start(int16_t*              destination_pointer,
 //      SAADC_INTEN_RESULTDONE_Msk  |       // debug only.
         SAADC_INTEN_STOPPED_Msk     ;
 
-    saadc_instance_0.destination_length     = destination_length;
-    saadc_instance_0.destination_pointer    = destination_pointer;
-    saadc_instance_0.handler                = saadc_handler;
-
-    saadc_registers->RESULT.MAXCNT = destination_length;
+    /* In order to receive the event EVENTS_END the MAXCNT size must equal
+     * the number of channels being converted. Therefore use the channel_count
+     * and not the destination_length for the MAXCNT value.
+     * This works well for non-buffered low-latency requirements when using
+     * the double buffered approach (setting the buffer on EVENTS_STARTED).
+     * If accumulated long chains of conversions are desired then a different
+     * approach might be better.
+     */
+    saadc_registers->RESULT.MAXCNT = channel_conversion.channel_count;
     saadc_registers->RESULT.PTR    = reinterpret_cast<uintptr_t>(destination_pointer);
+    saadc_instance_0.sample_data_pointer = destination_pointer;
 
     NVIC_ClearPendingIRQ(saadc_instance_0.irq_type);
     NVIC_EnableIRQ(saadc_instance_0.irq_type);
@@ -345,11 +348,12 @@ void saadc_conversion_start(int16_t*              destination_pointer,
             saadc_instance_0.ppi_trigger = ppi_channel_allocate(
                 &saadc_registers->TASKS_START, event_register, nullptr);
 
-            logger::instance().debug("ppi trigger channel: %u", saadc_instance_0.ppi_trigger);
+            logger::instance().debug("ppi trigger channel: %u",
+                                     saadc_instance_0.ppi_trigger);
         }
         else
         {
-            // Event if already allocated, binding the event and task does no
+            // Even if already allocated, binding the event and task does no
             // harm and insures the association is correct.
             ppi_channel_bind_task(saadc_instance_0.ppi_trigger, &saadc_registers->TASKS_START);
             ppi_channel_bind_event(saadc_instance_0.ppi_trigger, event_register);
@@ -357,6 +361,17 @@ void saadc_conversion_start(int16_t*              destination_pointer,
 
         ppi_channel_enable(saadc_instance_0.ppi_trigger);
     }
+}
+
+void saadc_queue_conversion_buffer(int16_t* destination_pointer,
+                                   uint16_t destination_length)
+{
+    NRF_SAADC_Type *saadc_registers = saadc_instance_0.saadc_registers;
+
+    ASSERT(destination_pointer);
+    ASSERT(saadc_registers->RESULT.MAXCNT <= destination_length);
+
+    saadc_registers->RESULT.PTR = reinterpret_cast<uintptr_t>(destination_pointer);
 }
 
 void saadc_conversion_stop(void)
@@ -382,7 +397,8 @@ struct saadc_conversion_info_t saadc_conversion_info(void)
         .channel_count = 0u
     };
 
-    for (uint8_t input_channel = 0u; input_channel < SAADC_INPUT_COUNT; ++input_channel)
+    for (saadc_input_channel_t input_channel = 0u;
+         input_channel < SAADC_INPUT_COUNT; ++input_channel)
     {
         if (saadc_input_is_enabled(input_channel))
         {
@@ -409,9 +425,9 @@ static uint32_t saadc_make_limits(int16_t limit_lower, int16_t limit_upper)
     return limits;
 }
 
-void saadc_enable_limits_event(uint8_t input_channel,
-                               int16_t limit_lower,
-                               int16_t limit_upper)
+void saadc_enable_limits_event(saadc_input_channel_t    input_channel,
+                               int16_t                  limit_lower,
+                               int16_t                  limit_upper)
 {
     ASSERT(input_channel < SAADC_INPUT_COUNT);
 
@@ -438,17 +454,17 @@ void saadc_enable_limits_event(uint8_t input_channel,
     }
 }
 
-void saadc_enable_lower_limit_event(uint8_t input_channel, uint16_t limit_lower)
+void saadc_enable_lower_limit_event(saadc_input_channel_t input_channel, uint16_t limit_lower)
 {
     saadc_enable_limits_event(input_channel, limit_lower, INT16_MAX);
 }
 
-void saadc_enable_upper_limit_event(uint8_t input_channel, int16_t limit_upper)
+void saadc_enable_upper_limit_event(saadc_input_channel_t input_channel, int16_t limit_upper)
 {
     saadc_enable_limits_event(input_channel, INT16_MIN, limit_upper);
 }
 
-void saadc_disable_limit_event(uint8_t input_channel)
+void saadc_disable_limit_event(saadc_input_channel_t input_channel)
 {
     ASSERT(input_channel < SAADC_INPUT_COUNT);
     uint32_t const limits             = saadc_make_limits(INT16_MIN, INT16_MAX);
@@ -461,7 +477,7 @@ void saadc_disable_limit_event(uint8_t input_channel)
     saadc_registers->CH[input_channel].LIMIT = limits;
 }
 
-struct saadc_limits_t saadc_get_channel_limits(uint8_t input_channel)
+struct saadc_limits_t saadc_get_channel_limits(saadc_input_channel_t input_channel)
 {
     NRF_SAADC_Type *saadc_registers = saadc_instance_0.saadc_registers;
 
@@ -484,76 +500,130 @@ bool saadc_conversion_in_progress(void)
 static void irq_handler_saadc(struct saadc_control_block_t* saadc_control)
 {
     NRF_SAADC_Type *saadc_registers = saadc_control->saadc_registers;
-    int16_t const event_value_ignore = -1;
     logger& logger = logger::instance();
 
     if (saadc_registers->EVENTS_STARTED)
     {
-        logger.debug("IRQ: EVENTS_STARTED");
-        // If the PPI channel saadc_instance_0.ppi_sample  were not used
+        // If the PPI channel saadc_instance_0.ppi_sample were not used
         // saadc_registers->TASKS_SAMPLE = 1u; would be required here.
         saadc_clear_event_register(&saadc_registers->EVENTS_STARTED);
-        saadc_control->handler(saadc_event_conversion_start,
-                               event_value_ignore,
+
+        union saadc_event_info_t const event_info = {
+            .conversion = {
+                .data   = reinterpret_cast<int16_t const*>(saadc_registers->RESULT.PTR),
+                .length = static_cast<uint16_t>(saadc_registers->RESULT.AMOUNT),
+            }
+        };
+
+        logger.debug("IRQ: EVENTS_STARTED: data: 0x%p, length: %u",
+                     event_info.conversion.data,
+                     event_info.conversion.length);
+
+        saadc_control->handler(saadc_event_conversion_started,
+                               &event_info,
                                saadc_control->context);
     }
 
     if (saadc_registers->EVENTS_END)
     {
-        logger.debug("IRQ: EVENTS_END");
         saadc_clear_event_register(&saadc_registers->EVENTS_END);
+
+        union saadc_event_info_t const event_info = {
+            .conversion = {
+                .data   = saadc_instance_0.sample_data_pointer,
+                .length = static_cast<uint16_t>(saadc_registers->RESULT.AMOUNT),
+            }
+        };
+
+        logger.debug("IRQ: EVENTS_END: data: 0x%p, length: %u",
+                     event_info.conversion.data,
+                     event_info.conversion.length);
+
         saadc_control->handler(saadc_event_conversion_complete,
-                               saadc_registers->RESULT.AMOUNT,
+                               &event_info,
                                saadc_control->context);
+
+        saadc_instance_0.sample_data_pointer =
+            reinterpret_cast<int16_t *>(saadc_registers->RESULT.PTR);
     }
 
     if (saadc_registers->EVENTS_DONE)
     {
-        logger.debug("IRQ: EVENTS_DONE");
         saadc_clear_event_register(&saadc_registers->EVENTS_DONE);
+        logger.debug("IRQ: EVENTS_DONE");
     }
 
     if (saadc_registers->EVENTS_RESULTDONE)
     {
-        logger.debug("IRQ: EVENTS_RESULTDONE");
         saadc_clear_event_register(&saadc_registers->EVENTS_RESULTDONE);
+        logger.debug("IRQ: EVENTS_RESULTDONE");
     }
 
     if (saadc_registers->EVENTS_CALIBRATEDONE)
     {
-        logger.debug("IRQ: EVENTS_CALIBRATEDONE");
         saadc_clear_event_register(&saadc_registers->EVENTS_CALIBRATEDONE);
+        logger.debug("IRQ: EVENTS_CALIBRATEDONE");
         saadc_control->handler(saddc_event_calibration_complete,
-                               event_value_ignore,
+                               nullptr,
                                saadc_control->context);
     }
 
     if (saadc_registers->EVENTS_STOPPED)
     {
-        logger.debug("IRQ: EVENTS_STOPPED");
         saadc_clear_event_register(&saadc_registers->EVENTS_STOPPED);
+
+        union saadc_event_info_t const event_info = {
+            .conversion = {
+                .data   = reinterpret_cast<int16_t const*>(saadc_registers->RESULT.PTR),
+                .length = static_cast<uint16_t>(saadc_registers->RESULT.AMOUNT),
+            }
+        };
+
+        logger.debug("IRQ: EVENTS_STOPPED: data: 0x%p, length: %u",
+                     event_info.conversion.data,
+                     event_info.conversion.length);
+
         saadc_control->handler(saadc_event_conversion_stop,
-                               saadc_registers->RESULT.AMOUNT,
+                               &event_info,
                                saadc_control->context);
+
+        saadc_instance_0.sample_data_pointer = nullptr;
     }
 
-    for (uint8_t input_channel = 0u; input_channel < SAADC_INPUT_COUNT; ++input_channel)
+    for (saadc_input_channel_t input_channel = 0u;
+         input_channel < SAADC_INPUT_COUNT; ++input_channel)
     {
         if (saadc_registers->EVENTS_CH[input_channel].LIMITL)
         {
-            logger.debug("IRQ: LIMITL[%u]: 0x%08x", input_channel, saadc_registers->CH[input_channel].LIMIT);
             saadc_clear_event_register(&saadc_registers->EVENTS_CH[input_channel].LIMITL);
+            logger.debug("IRQ: LIMITL[%u]: 0x%08x", input_channel,
+                         saadc_registers->CH[input_channel].LIMIT);
+
+            union saadc_event_info_t const event_info = {
+                .limits_exceeded = {
+                    .input_channel = input_channel
+                }
+            };
+
             saadc_control->handler(saadc_event_limit_lower,
-                                   input_channel,
+                                   &event_info,
                                    saadc_control->context);
         }
 
         if (saadc_registers->EVENTS_CH[input_channel].LIMITH)
         {
-            logger.debug("IRQ: LIMITH[%u]: 0x%08x", input_channel, saadc_registers->CH[input_channel].LIMIT);
             saadc_clear_event_register(&saadc_registers->EVENTS_CH[input_channel].LIMITH);
+            logger.debug("IRQ: LIMITH[%u]: 0x%08x", input_channel,
+                         saadc_registers->CH[input_channel].LIMIT);
+
+            union saadc_event_info_t const event_info = {
+                .limits_exceeded = {
+                    .input_channel = input_channel
+                }
+            };
+
             saadc_control->handler(saadc_event_limit_upper,
-                                   input_channel,
+                                   &event_info,
                                    saadc_control->context);
         }
     }

@@ -62,15 +62,16 @@ static ble_uuid_t nordic_uuid_type(ble::att::uuid const &uuid)
     else
     {
         // Convert from uuid big-endian to little-endian.
+        ble::att::uuid uuid_base = uuid.reverse();
+#if 0
         // For the base: zero out bytes [12:15], the least significant 32-bits.
         // Note: Nordic appears to ignore [12:15] within sd_ble_uuid_vs_add()
         // and internal table, but be safe anyway.
-        ble::att::uuid uuid_base = uuid.reverse();
         uuid_base.data[12u] = 0u;
         uuid_base.data[13u] = 0u;
         uuid_base.data[14u] = 0u;
         uuid_base.data[15u] = 0u;
-
+#endif
         ble_uuid128_t nordic_uuid_128;
         memcpy(nordic_uuid_128.uuid128, uuid_base.data, sizeof(nordic_uuid_128.uuid128));
         static_assert(sizeof(nordic_uuid_128.uuid128) == sizeof(uuid_base.data));
@@ -91,11 +92,13 @@ static ble_uuid_t nordic_uuid_type(ble::att::uuid const &uuid)
         uint32_t const error = sd_ble_uuid_vs_add(&nordic_uuid_128, &nordic_index);
         if (error == NRF_SUCCESS)
         {
-            logger &logger = logger::instance();
-            logger.debug("sd_ble_uuid_vs_add() OK: index: %u", nordic_index);
-            logger.write_data(logger::level::debug,
-                              nordic_uuid_128.uuid128,
-                              sizeof(nordic_uuid_128.uuid128));
+            if (false)      // Debug of uuid -> Nordic uuid conversion
+            {
+                char uuid_char_buffer[ble::att::uuid::conversion_length];
+                uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
+                logger::instance().debug("sd_ble_uuid_vs_add(%s) OK: index: %u",
+                                         uuid_char_buffer, nordic_index);
+            }
 
             ble_uuid_t const nordic_uuid = {
                 .uuid = uuid.get_u16(),
@@ -106,9 +109,12 @@ static ble_uuid_t nordic_uuid_type(ble::att::uuid const &uuid)
         }
         else
         {
+            char uuid_char_buffer[ble::att::uuid::conversion_length];
+            uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
+
             logger &logger = logger::instance();
-            logger.error("error: sd_ble_uuid_vs_add() failed: %u", error);
-            logger.error("error: nordic_index: %u, nordic uuid:", nordic_index);
+            logger.error("sd_ble_uuid_vs_add(%s) failed: %u", uuid_char_buffer, error);
+            logger.error("nordic_index: %u, nordic uuid:", nordic_index);
             logger.write_data(logger::level::error,
                               nordic_uuid_128.uuid128,
                               sizeof(nordic_uuid_128.uuid128));
@@ -215,7 +221,7 @@ static uint32_t gatts_characteristic_add(uint16_t service_handle,
     ble::gatt::characteristic_presentation_format_descriptor  *presd = nullptr;
 
     // Loop through the characteritic descriptors and find the ones supported by Nordic.
-    for (ble::gatt::characteristic_base_descriptor &node : characteristic.descriptor_list)
+    for (ble::gatt::attribute &node : characteristic.descriptor_list)
     {
         // Note: with --rtti turned off in the compiler we have to use
         // reinterpret_cast<> instead of dynamic_cast<>.
@@ -298,7 +304,7 @@ static uint32_t gatts_characteristic_add(uint16_t service_handle,
     }
     else
     {
-        logger.error("error: sd_ble_gatts_characteristic_add(%s) failed: %u",
+        logger.error("sd_ble_gatts_characteristic_add(%s) failed: %u",
                      uuid_char_buffer, error);
     }
 
@@ -331,10 +337,12 @@ static uint32_t nordic_add_gap_service(ble::gatt::service const& service)
     uint32_t error_return = NRF_SUCCESS;
     logger   &logger      = logger::instance();
 
-    for (ble::gatt::characteristic const &node : service.characteristic_list)
+    for (ble::gatt::attribute const &attr_node : service.characteristic_list)
     {
         uint32_t error = NRF_SUCCESS;
 
+        ble::gatt::characteristic const& node =
+            reinterpret_cast<ble::gatt::characteristic const&>(attr_node);
         auto const uuid = static_cast<ble::gatt::characteristics>(node.uuid.get_u16());
         switch(uuid)
         {
@@ -352,7 +360,7 @@ static uint32_t nordic_add_gap_service(ble::gatt::service const& service)
 
                 if (error != NRF_SUCCESS)
                 {
-                    logger.error("error: sd_ble_gap_device_name_set() failed: %u", error);
+                    logger.error("sd_ble_gap_device_name_set() failed: %u", error);
                 }
             }
             break;
@@ -370,7 +378,7 @@ static uint32_t nordic_add_gap_service(ble::gatt::service const& service)
 
                 if (error != NRF_SUCCESS)
                 {
-                    logger.error("error: sd_ble_gap_appearance_set() failed: %u", error);
+                    logger.error("sd_ble_gap_appearance_set() failed: %u", error);
                 }
             }
             break;
@@ -396,7 +404,7 @@ static uint32_t nordic_add_gap_service(ble::gatt::service const& service)
 
                 if (error != NRF_SUCCESS)
                 {
-                    logger.error("error: sd_ble_gap_ppcp_set() failed: %u", error);
+                    logger.error("sd_ble_gap_ppcp_set() failed: %u", error);
                 }
             }
             break;
@@ -424,11 +432,6 @@ uint32_t gatts_service_add(ble::gatt::service& service)
     char uuid_char_buffer[ble::att::uuid::conversion_length];
     service.uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
 
-    if (nordic_uuid.type == BLE_UUID_TYPE_BLE)
-    {
-        logger.debug("BLE UUID: 0x%04x", nordic_uuid.uuid);
-    }
-
     // The GAP service 0x1800 and the GATT service 0x1801 will return NRF_ERROR_FORBIDDEN
     // if they are added to the service tree using sd_ble_gatts_service_add().
     // Nordic provides other means for these since they affect the GAP and GATT handling.
@@ -442,7 +445,7 @@ uint32_t gatts_service_add(ble::gatt::service& service)
         }
         else
         {
-            logger.error("error: nordic_add_gap_service (0x%04x): failed: %u",
+            logger.error("nordic_add_gap_service (0x%04x): failed: %u",
                          nordic_uuid.uuid, error);
         }
     }
@@ -460,7 +463,6 @@ uint32_t gatts_service_add(ble::gatt::service& service)
     }
     else
     {
-        logger.debug("sd_ble_gatts_service_add(%s)", uuid_char_buffer);
         error = sd_ble_gatts_service_add(nordic_type,
                                          &nordic_uuid,
                                          &service.decl.handle);
@@ -469,25 +471,21 @@ uint32_t gatts_service_add(ble::gatt::service& service)
         {
             logger.debug("sd_ble_gatts_service_add(%s): OK", uuid_char_buffer);
 
-            for (ble::gatt::characteristic &node : service.characteristic_list)
+            for (ble::gatt::attribute &attr_node : service.characteristic_list)
             {
-                node.uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
+                ble::gatt::characteristic& node =
+                    reinterpret_cast<ble::gatt::characteristic&>(attr_node);
+
                 error = gatts_characteristic_add(service.decl.handle, node);
-                if (error == NRF_SUCCESS)
+                if (error != NRF_SUCCESS)
                 {
-                    logger.debug("gatts_characteristic_add(%s): OK", uuid_char_buffer);
-                }
-                else
-                {
-                    logger.error("error: gatts_characteristic_add(%s) failed: %u",
-                                 uuid_char_buffer, error);
                     break;
                 }
             }
         }
         else
         {
-            logger.error("error: sd_ble_gatts_service_add(%s) failed: %u",
+            logger.error("sd_ble_gatts_service_add(%s) failed: %u",
                          uuid_char_buffer, error);
         }
     }
@@ -501,5 +499,6 @@ uint32_t gatts_serivce_include_add(uint16_t service_handle, )
 
 }
 #endif
+
 } // namespace nordic
 

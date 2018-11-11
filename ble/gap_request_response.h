@@ -27,10 +27,6 @@ namespace gap
 class request_response
 {
 public:
-    /**
-     * @todo Consider using exceptions?
-     *
-     */
     enum class status
     {
         success = 0,

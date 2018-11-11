@@ -35,6 +35,34 @@ ble::att::op_code nordic_write_type_opcode(uint8_t write_type)
     return static_cast<ble::att::op_code>(0u);
 }
 
+/**
+ * BLE_GATTS_EVT_SYS_ATTR_MISSING
+ * A persistent system attribute access is pending or missing.
+ *
+ * This call is only allowed for active connections, and is usually
+ * made immediately after a connection is established
+ * with an known bonded device.
+ *
+ * There is very little documentation related to what this message means or
+ * how its response function sd_ble_gatts_sys_attr_set() is to be used.
+ * The default usage of (null, 0, 0) appears to clear the persistent storage
+ * for the connection.
+ *
+ * @see github issue #7.
+ */
+static void handle_system_attribute_missing(uint16_t conection_handle,
+                                            uint8_t  hint)
+{
+    uint8_t const error_code = sd_ble_gatts_sys_attr_set(conection_handle, nullptr, 0, 0);
+
+    if (error_code != NRF_SUCCESS)
+    {
+        logger::instance().error(
+            "GATTS system_attribute_missing: sd_ble_gatts_sys_attr_set() failed: %u", error_code);
+        ASSERT(0);
+    }
+}
+
 template<>
 void ble_event_observable<ble_gatts_event_observer>::notify(
     ble_gatts_event_observer::event_enum_t event_type,
@@ -134,21 +162,15 @@ void ble_event_observable<ble_gatts_event_observer>::notify(
             break;
 
         case BLE_GATTS_EVT_SYS_ATTR_MISSING:
-            // A persistent system attribute access is pending or missing
-            // in the persistent storage.
-            // See @ref ble_gatts_evt_sys_attr_missing_t.
-            // Respond with @ref sd_ble_gatts_sys_attr_set.
-
-            // This call is only allowed for active connections, and is usually
-            // made immediately after a connection is established
-            // with an known bonded device.
-
+            // Note: This is a Nordic specific GATTS operation and not part of
+            // the Bluetooth Core specification. Handle it within this module.
+            // See comments in handle_system_attribute_missing();
             logger::instance().debug(
                 "BLE_GATTS_EVT_SYS_ATTR_MISSING: c: 0x%04x, hint: 0x%02x",
                 event_data.conn_handle,
                 event_data.params.sys_attr_missing.hint);
 
-            observer.interface_reference.system_attribute_missing(
+            handle_system_attribute_missing(
                 event_data.conn_handle,
                 event_data.params.sys_attr_missing.hint);
             break;
