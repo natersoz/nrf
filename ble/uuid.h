@@ -59,9 +59,9 @@ struct uuid: public boost::uuids::uuid
     /**
      * The Bluetooth LE Base UUID.
      * @note 16-bit uuid shortened values are encoded into
-     * bytes [2:3] in big-endian order.
+     *       bytes [2:3] in big-endian order.
      * @note 32-bit uuid shortened values are encoded into
-     * bytes [0:3] in big-endian order.
+     *       bytes [0:3] in big-endian order.
      */
     static constexpr boost::uuids::uuid const base
     {{

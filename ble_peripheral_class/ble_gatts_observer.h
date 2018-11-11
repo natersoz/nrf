@@ -16,10 +16,22 @@ private:
 public:
     virtual ~ble_gatts_observer() override;
 
-    /// inherit base class ctors.
-    using super::super;
+    ble_gatts_observer(ble_gatts_observer const&)            = delete;
+    ble_gatts_observer(ble_gatts_observer &&)                = delete;
+    ble_gatts_observer& operator=(ble_gatts_observer const&) = delete;
+    ble_gatts_observer& operator=(ble_gatts_observer&&)      = delete;
 
     ble_gatts_observer();
+
+    /**
+     * Post constructor initialization.
+     * Attach the this observer to the Noridc BLE GATT server observable.
+     *
+     * This is required since C++ does not provide ordering for statically
+     * allocated modules across classes. The Nordic BLE GATT server may not
+     * be initialized prior to this ctor being called.
+     */
+    void init();
 
 protected:
     void write(uint16_t             conection_handle,
@@ -50,9 +62,6 @@ protected:
                                      ble::att::length_t length,
                                      void const*        data) override;
 
-    void system_attribute_missing(uint16_t  conection_handle,
-                                  uint8_t   hint) override;
-
     void service_change_confirmation(uint16_t conection_handle) override;
 
     void handle_value_confirmation(uint16_t conection_handle,
@@ -67,5 +76,7 @@ protected:
                                                  uint8_t    count) override;
 
 private:
+    // This is where/how this generic interface ties in with the Nordic BLE
+    // GATT server events.
     nordic::ble_gatts_event_observer nordic_gatts_event_observer_;
 };

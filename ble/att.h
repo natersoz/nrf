@@ -6,6 +6,8 @@
  */
 
 #pragma once
+
+#include <type_traits>
 #include <cstdint>
 
 namespace ble
@@ -24,14 +26,14 @@ namespace att
  * @todo - make this size_t?
  */
 using length_t          = uint16_t;
-using signed_length_t   =  int16_t;
+using signed_length_t   = std::make_signed<length_t>::type;
 
 /**
  * @see Bluetooth Core Specification 5.0, Volume 3, Part F
  * Section 5.2.1 ATT_MTU, Table 5.1: LE L2CAP ATT_MTU
  */
 static constexpr length_t const mtu_length_minimum =  23u;
-static constexpr length_t const mtu_length_maximum = 255u;  ///< @todo check.
+static constexpr length_t const mtu_length_maximum = 251u;
 
 enum class permissions
 {

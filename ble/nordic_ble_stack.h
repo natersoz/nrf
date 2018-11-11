@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "ble/att.h"
 #include "ble/stack.h"
 #include <cstdint>
 
@@ -65,18 +66,85 @@ public:
     std::errc disable() override;
     bool      is_enabled() const override;
 
+    /**
+     * Set the softdevice peripheral and central connection counts
+     * and the event length. The default values for the link counts are:
+     * peripheral: 1, central: 0
+     *
+     * @param peripheral_link_count The number of peripherals that can be supported
+     *                              simultaneously by the softdevice.
+     * @param central_link_count    The number of centrals that can be supported
+     *                              simultaneously by the softdevice.
+     * @note                        For Nodic, the default number of connections is
+     *                              BLE_GAP_CONN_COUNT_DEFAULT.
+     * @param event_length          The time set aside for this connection on every
+     *                              connection interval in 1.25 ms units.
+     *                              Minimum event length: BLE_GAP_EVENT_LENGTH_MIN
+     *                              See the SoftDevice Specification for details.
+     * @return std::errc
+     */
+    std::errc set_link_count(uint8_t  peripheral_link_count,
+                             uint8_t  central_link_count,
+                             uint16_t event_length);
+
+    /**
+     * Set the softdevice peripheral and central connection counts
+     * and the default event length BLE_GAP_EVENT_LENGTH_DEFAULT.
+     * Set the softdevice connection counts, peripheral and central, as well
+     * as the event length.
+     */
+    std::errc set_link_count(uint8_t peripheral_link_count,
+                             uint8_t central_link_count);
+
+    /**
+     * Set the maximum number of 128-bit UUIDs that will be used by the all
+     * BLE applications.
+     *
+     * @param uuid_count The number of 128-bit UUIDs. This is used in a Nordic
+     * internal table which contains 128-bit UUIDs and maps them to 16-bit calls.
+     *
+     * @note Speculation: If all custom 128-bit UUIDs use the same base value
+     * and only the 16-bt value changes, this value can be one.
+     *
+     * @return std::errc The standard error code.
+     */
+    std::errc set_gatt_custom_uuid_count(uint8_t uuid_count);
+
+    /**
+     * @todo I have no idea what this does.
+     * @param gatt_table_size Must be a multiple of 4u.
+     * @return std::errc The standard error code.
+     */
+    std::errc set_gatt_table_size(size_t gatt_table_size);
+
+    /**
+     * Add the 'service changed' characteristic 0x2a05 to the
+     * 'generic_attribute' 0x1801 service. If the services of the GATTS change
+     * then this attribute indicates to the client the event.
+     *
+     * @param service_changed true:  the characteristic is included;
+     *                        false: not included.
+     * @return std::errc The standard error code.
+     */
+    std::errc set_service_changed_characteristic(bool service_changed);
+
+    /**
+     * Set the maximum ATT MTU size, in octets.
+     *
+     * @param att::length The maximum number of octets within on ATT MTU.
+     * The minimum length is  23 octets: ble::att::mtu_length_minimum.
+     * The maximum length is 251 octets: ble::att::mtu_length_maximum
+     * @return std::errc The standard error code.
+     */
+    std::errc set_mtu_max_size(ble::att::length_t mtu_max_size);
+
 private:
+    /// The RAM region base address reserved for use by the softdevice.
+    static uintptr_t const ram_base_address;
+
     /// See doc/nordic_ble_conn_cfg.h
     /// for evolving documentation on this tag's usage and meaning.
     uint8_t const connection_configuration_tag_;
-
-    uint32_t set_configuration(uintptr_t    ram_base_address,
-                               uint8_t      total_link_count,
-                               uint8_t      peripheral_link_count,
-                               uint16_t     mtu_size,
-                               uint8_t      gatt_uuid_count,
-                               uint32_t     gatt_table_size,
-                               bool         service_changed);
 };
 
 } // namespace nordic

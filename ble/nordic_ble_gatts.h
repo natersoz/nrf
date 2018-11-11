@@ -8,6 +8,8 @@
 #pragma once
 
 #include "ble/gatt_service.h"
+#include "ble/gatt_service_container.h"
+
 #include <cstdint>
 
 namespace nordic

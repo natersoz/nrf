@@ -73,6 +73,10 @@ struct properties
         return prop_bits;
     }
 
+    bool is_writable()   const { return this->get() & write; }
+    bool is_readable()   const { return this->get() &  read; }
+    bool is_read_write() const { return this->is_readable() && this->is_writable(); }
+
     uint8_t     bits;
     uint8_t     bits_ext;
 };

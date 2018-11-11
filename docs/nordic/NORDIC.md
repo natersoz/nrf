@@ -361,7 +361,6 @@ Softdevice version information:
 	SD_MINOR_VERSION
 	SD_BUGFIX_VERSION
 
-
 Softdevice RAM
 --------------
 To enable the softdevice the SD interface function `sd_ble_enable()` is called.

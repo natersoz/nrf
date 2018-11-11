@@ -10,6 +10,7 @@
 #include "ble/gap_connection_parameters.h"
 #include "ble/gap_event_observer.h"
 #include "ble/gap_request_response.h"
+#include "ble/profile_connectable_accessor.h"
 
 namespace ble
 {
@@ -20,7 +21,8 @@ namespace gap
  * @class ble::gap::connection
  * @note The inherited GAP event observer is protected from meddling.
  */
-class connection: protected ble::gap::event_observer
+class connection: protected ble::gap::event_observer,
+                  public ble::profile::connectable_accessor
 {
 public:
     virtual ~connection()                       = default;

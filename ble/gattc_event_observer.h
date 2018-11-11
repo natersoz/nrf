@@ -8,6 +8,7 @@
 #include "ble/att.h"
 #include "ble/uuid.h"
 #include "ble/gatt_declaration.h"
+#include "ble/profile_connectable_accessor.h"
 
 namespace ble
 {
@@ -34,7 +35,7 @@ struct attribute_info
     uint16_t                            handle;
 };
 
-class event_observer
+class event_observer: public ble::profile::connectable_accessor
 {
 public:
     virtual ~event_observer()                        = default;

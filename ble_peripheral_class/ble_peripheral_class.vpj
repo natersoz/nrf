@@ -266,7 +266,9 @@
             <F N="ble_event_handler.cc"/>
             <F N="ble_gap_connection.cc"/>
             <F N="ble_gatts_observer.cc"/>
+            <F N="ble_peripheral_init.cc"/>
             <F N="main.cc"/>
+            <F N="nordic_saadc_sensor_acquisition.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -280,6 +282,8 @@
             </Folder>
             <F N="ble_gap_connection.h"/>
             <F N="ble_gatts_observer.h"/>
+            <F N="ble_peripheral_init.h"/>
+            <F N="nordic_saadc_sensor_acquisition.h"/>
         </Folder>
         <Folder
             Name="Resource Files"

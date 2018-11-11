@@ -19,28 +19,34 @@ BOOST_ROOT=/opt/boost
 
 SOURCE_FILES =
 SOURCE_FILES += ./main.cc
+SOURCE_FILES += ./ble_peripheral_init.cc
 SOURCE_FILES += ./ble_gap_connection.cc
 SOURCE_FILES += ./ble_gatts_observer.cc
+SOURCE_FILES += ./nordic_saadc_sensor_acquisition.cc
 SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/gcc_startup_nrf52.s
 SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/gcc_stubs.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/app_timer.cc
 SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/stack_usage.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/app_error_fault_handler.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/nordic_critical_section.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/buttons_pca10040.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/clocks.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/leds_pca10040.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/rtc.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/gpio.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/saadc.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/timer.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/leds_pca10040.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/mwu.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/mwu_debug.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/ppi.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/rtc.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/saadc.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/timer.cc
 
 SOURCE_FILES += $(PROJECT_ROOT)/ble/uuid.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_att.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/gatt_attribute.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/gatt_characteristic.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/gatt_service.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/gatt_service_container.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/gatts_event_observer.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/tlv_encode.cc
-SOURCE_FILES += $(PROJECT_ROOT)/ble/peripheral_trivial.cc
-SOURCE_FILES += $(PROJECT_ROOT)/ble/service/battery_service.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_common_event_observable.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_common_event_observer.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_event_observables.cc
@@ -49,14 +55,16 @@ SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gap_event_observable.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gap_request_response.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gattc_event_observable.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts_operations.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts_event_observable.cc
-SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts_event_observer.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_peer.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_stack.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_error.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_req_observable.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_soc_observable.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_state_observable.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/service/battery_service.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/service/custom_uuid.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/project_assert.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/format_conversion.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/int_to_string.cc
@@ -174,12 +182,13 @@ NORDIC_DEFS += -D FLOAT_ABI_HARD
 
 NORDIC_DEFS += -D NRF_SD_BLE_API_VERSION=5
 NORDIC_DEFS += -D S132
-NORDIC_DEFS += -D SOFTDEVICE_PRESENT
+NORDIC_DEFS += -D SOFTDEVICE_PRESENT=1
 
 NORDIC_DEFS += -D CONFIG_GPIO_AS_PINRESET
 NORDIC_DEFS += -D SWI_DISABLE0
 
 NORDIC_DEFS += -D RTC1_ENABLED
+NORDIC_DEFS += -D TIMER1_ENABLED
 
 CXXFLAGS    += $(NORDIC_DEFS)
 CFLAGS      += $(NORDIC_DEFS)

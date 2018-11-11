@@ -21,8 +21,10 @@ private:
 public:
     virtual ~ble_gap_connection() override;
 
-    /// inherit base class ctors.
-    using super::super;
+    ble_gap_connection(ble_gap_connection const&)             = delete;
+    ble_gap_connection(ble_gap_connection &&)                 = delete;
+    ble_gap_connection& operator=(ble_gap_connection const&)  = delete;
+    ble_gap_connection& operator=(ble_gap_connection&&)       = delete;
 
     /** Constructor which uses the default connection parameters. */
     ble_gap_connection(ble::gap::request_response&  request_response,
@@ -33,6 +35,16 @@ public:
         ble::gap::request_response&            request_response,
         ble::gap::advertising&                 advertising,
         ble::gap::connection_parameters const& connect_params);
+
+    /**
+     * Post constructor initialization.
+     * Attach the this observer to the Noridc BLE GAP observable.
+     *
+     * This is required since C++ does not provide ordering for statically
+     * allocated modules across classes. The Nordic BLE GAP observable may not
+     * be initialized prior to this ctor being called.
+     */
+    void init();
 
 protected:
     /**

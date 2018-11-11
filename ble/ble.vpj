@@ -263,8 +263,13 @@
                 Name="service"
                 AutoCustom="1"
                 GUID="{018847CB-0035-43E7-917D-D755719E5CDF}">
+                <F N="service/custom_uuid.cc"/>
                 <F N="service/battery_service.cc"/>
             </Folder>
+            <F N="gatt_characteristic.cc"/>
+            <F N="gatt_service.cc"/>
+            <F N="gatt_service_container.cc"/>
+            <F N="gatts_event_observer.cc"/>
             <F N="nordic_ble_common_event_observable.cc"/>
             <F N="nordic_ble_common_event_observer.cc"/>
             <F N="nordic_ble_event_observables.cc"/>
@@ -274,16 +279,16 @@
             <F N="nordic_ble_gattc_event_observable.cc"/>
             <F N="nordic_ble_gatts.cc"/>
             <F N="nordic_ble_gatts_event_observable.cc"/>
-            <F N="nordic_ble_gatts_event_observer.cc"/>
             <F N="nordic_ble_peer.cc"/>
-            <F N="nordic_ble_peripheral.cc"/>
             <F N="nordic_ble_stack.cc"/>
             <F N="nordic_req_observable.cc"/>
             <F N="nordic_soc_observable.cc"/>
             <F N="nordic_state_observable.cc"/>
-            <F N="peripheral_trivial.cc"/>
             <F N="tlv_encode.cc"/>
             <F N="uuid.cc"/>
+            <F N="nordic_ble_att.cc"/>
+            <F N="nordic_ble_gatts_operations.cc"/>
+            <F N="gatt_attribute.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -295,9 +300,12 @@
                 GUID="{D3C94F7E-4BD1-4C0B-A779-A33520AA4FCD}">
                 <F N="service/gatt_service.h"/>
                 <F N="service/device_information_service.h"/>
+                <F N="service/adc_sensor_service.h"/>
                 <F N="service/current_time_service.h"/>
                 <F N="service/battery_service.h"/>
+                <F N="service/custom_uuid.h"/>
                 <F N="service/gap_service.h"/>
+                <F N="service/nordic_saadc_sensor_service.h"/>
             </Folder>
             <F N="address.h"/>
             <F N="att.h"/>
@@ -307,7 +315,6 @@
             <F N="gap_connection.h"/>
             <F N="gap_connection_parameters.h"/>
             <F N="gap_event_observer.h"/>
-            <F N="gap_request_reply.h"/>
             <F N="gap_request_response.h"/>
             <F N="gap_types.h"/>
             <F N="gatt_appearance.h"/>
@@ -316,9 +323,12 @@
             <F N="gatt_descriptors.h"/>
             <F N="gatt_format.h"/>
             <F N="gatt_service.h"/>
+            <F N="gatt_service_container.h"/>
+            <F N="gatt_service_include.h"/>
             <F N="gatt_uuids.h"/>
             <F N="gattc_event_observer.h"/>
             <F N="gatts_event_observer.h"/>
+            <F N="gatts_operations.h"/>
             <F N="hci_error_codes.h"/>
             <F N="nordic_ble_event_observable.h"/>
             <F N="nordic_ble_event_observer.h"/>
@@ -326,8 +336,8 @@
             <F N="nordic_ble_gap_advertising_params.h"/>
             <F N="nordic_ble_gap_request_response.h"/>
             <F N="nordic_ble_gatts.h"/>
+            <F N="nordic_ble_gatts_operations.h"/>
             <F N="nordic_ble_peer.h"/>
-            <F N="nordic_ble_peripheral.h"/>
             <F N="nordic_ble_stack.h"/>
             <F N="nordic_req_observable.h"/>
             <F N="nordic_req_observer.h"/>
@@ -335,11 +345,15 @@
             <F N="nordic_soc_observer.h"/>
             <F N="nordic_state_observable.h"/>
             <F N="nordic_state_observer.h"/>
-            <F N="peripheral.h"/>
             <F N="peripheral_connection.h"/>
+            <F N="profile_connectable.h"/>
+            <F N="profile_connectable_accessor.h"/>
+            <F N="profile_peripheral.h"/>
             <F N="stack.h"/>
             <F N="tlv_encode.h"/>
             <F N="uuid.h"/>
+            <F N="nordic_ble_att.h"/>
+            <F N="gatt_attribute.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
