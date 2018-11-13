@@ -7,19 +7,27 @@
 
 #pragma once
 
+#include "ble/att.h"
+
 #include <cstdint>
 #include <cstddef>
 #include <cstring>
+#include <array>
 
 namespace ble
 {
 namespace gap
 {
 
+/// @todo Verify response data length
+//static constexpr att::length_t const scan_repsonse_max_length = 31u;
+
 class advertising_data_t
 {
 public:
-    static std::size_t const length = 31u;
+    static constexpr std::size_t const max_length = 31u;
+
+    using container = std::array<uint8_t, max_length>;
 
     ~advertising_data_t()                                       = default;
 
@@ -28,25 +36,25 @@ public:
     advertising_data_t& operator=(advertising_data_t const&)    = delete;
     advertising_data_t& operator=(advertising_data_t&&)         = delete;
 
-    advertising_data_t(): data_index_(0u)
+    advertising_data_t(): data_(), index_(data_.begin())
     {
-        memset(this->data_, 0, sizeof(this->data_));
+        this->data_.fill(0);
     }
 
-    std::size_t size()     const { return this->data_index_; }
-    std::size_t capacity() const { return sizeof(this->data_); }
+    void push_back(uint8_t value) { *this->index_++ = value; }
 
-    uint8_t*       begin()       { return &this->data_[0]; }
-    uint8_t const* begin() const { return &this->data_[0]; }
+    std::size_t size()     const { return this->index_ - this->data_.begin(); }
+    std::size_t capacity() const { return this->data_.max_size(); }
 
-    uint8_t*       end()         { return &this->data_[this->data_index_]; }
-    uint8_t const* end()   const { return &this->data_[this->data_index_]; }
+    container::const_iterator end() const { return this->index_; }
+    container::iterator       end()       { return this->index_; }
 
-    void push_back(uint8_t value) { this->data_[this->data_index_++] = value; }
+    uint8_t const* data() const { return this->data_.data(); }
+    uint8_t*       data()       { return this->data_.data(); }
 
 private:
-    uint8_t                     data_index_;
-    uint8_t                     data_[length];
+    container data_;
+    container::iterator index_;
 };
 
 } // namespace gap
