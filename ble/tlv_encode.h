@@ -13,7 +13,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
-#include <vector>
 #include <boost/endian/conversion.hpp>
 
 namespace ble
