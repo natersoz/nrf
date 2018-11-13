@@ -26,16 +26,17 @@ void gap_advertising::start()
 {
     logger &logger = logger::instance();
 
-    logger.debug("adv_data: %p, %u", &*this->advertising_data.begin(), this->advertising_data.size());
+    logger.debug("adv_data: %p, %u",
+                 this->advertising_data.data(), this->advertising_data.size());
     logger.write_data(logger::level::debug,
-                      &*this->advertising_data.begin(),
+                      this->advertising_data.data(),
                       this->advertising_data.size(),
                       true);
 
     uint32_t sd_result = sd_ble_gap_adv_data_set(
-        &*this->advertising_data.begin(),               // advertising data
+        this->advertising_data.data(),              // advertising data
         this->advertising_data.size(),
-        nullptr,                                        // scan response data
+        nullptr,                                    // scan response data
         0u);
 
     ASSERT(sd_result == NRF_SUCCESS);
