@@ -4,7 +4,7 @@
 ###
 
 PROJECT_ROOT := ../../..
-SDK_ROOT := $(PROJECT_ROOT)/sdk
+SDK_ROOT     := $(PROJECT_ROOT)/sdk
 
 # The executable name
 TARGET_NAME = gpio_te_test
@@ -50,8 +50,7 @@ SOURCE_FILES += $(PROJECT_ROOT)/utilities/std_stubs.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/vwritef.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/write_data.cc
 
-# SDK source files:
-SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
+SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
 
 # Include folders:
 INCLUDE_PATHS  =
@@ -65,9 +64,7 @@ INCLUDE_PATHS += $(PROJECT_ROOT)/utilities
 INCLUDE_PATHS += ./config
 INCLUDE_PATHS += $(BOOST_ROOT)/include
 
-# Note: hard coded to s312 below
-INCLUDE_PATHS += $(SDK_ROOT)/components/device
-INCLUDE_PATHS += $(SDK_ROOT)/components/softdevice/s132/headers
+INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/mdk
 INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain
 INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
 

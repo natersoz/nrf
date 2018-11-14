@@ -1,10 +1,9 @@
 NORDIC Notes
 ============
 
-Unless otherwise specified these notes pertain to softdevice 5.0 and SDK version 14.2.
-i.e. `nRF5_SDK_14.2.0_17b948a`.
-
-Softdevice 6.0 is delivered with SDK version 15.x.
+Unless otherwise specified these notes pertain to softdevice 6.1 and
+[SDK version 15.2](http://infocenter.nordicsemi.com/topic/com.nordic.infocenter.sdk5.v15.2.0/index.html)
+i.e. `nRF5_SDK_15.2.0_9412b96`.
 
 Nordic Development Boards
 -------------------------
@@ -65,7 +64,7 @@ The prefixes are used to iterate through the observers the user,
 via the SDK, registers with the softdevice. This is the means by which
 the softdevice calls back to the application: through these observers.
 
-Each observer has 2 parts:
+Each observer has 2 parameters:
 
 + A handler, which is the callback function the softdevice will call.
 + A context, which is a `void*`, which is cast back within the `SDK/app`
@@ -77,6 +76,8 @@ See also the macros defined in nrf_section.h:
 + `NRF_SECTION_ITEM_GET()` using the `__start_` and `section_name`,
   extract the data pointer from the section name.
 + `NRF_SECTION_ITEM_COUNT()` The number of data nodes within the section.
++ A simplified yet completely functional example of dispatching the Nordic
+  events is now part of the code base. See ble/nordic_ble_stack_observer.cc
 
 #### `.sdh_soc_observers`
 
@@ -130,8 +131,6 @@ Examples of this can be found in the `ble_peripheral_class` project directory.
 See files: `ble_gap_connection.cc, .h`, `ble_gatts_observer.cc, .h`.
 The private data members in the namespace `nordic` and their usage provide the pattern
 for linking Nordic events with generic C++ interface based events.
-
-
 
 Notes:
 

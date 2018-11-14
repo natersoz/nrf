@@ -45,6 +45,9 @@ public:
 
     /** Stop advertising. */
     virtual void stop() override;
+
+private:
+    uint8_t advertising_handle_;
 };
 
 } // namespace nordic

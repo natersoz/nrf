@@ -9,7 +9,6 @@
 #include "clocks.h"
 #include "rtc.h"
 #include "rtc_debug.h"
-#include "nrf_gpio.h"
 
 #include "logger.h"
 #include "segger_rtt_output_stream.h"

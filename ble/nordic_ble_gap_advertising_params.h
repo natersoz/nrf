@@ -15,6 +15,7 @@ struct gap_advertising_params_t: public ::ble_gap_adv_params_t
 {
 public:
     static uint16_t const interval_unspecified = 0xFFFFu;
+    static uint16_t const interval_unlimited   = 0x0000u;
 
     ~gap_advertising_params_t()                                          = default;
 
@@ -23,23 +24,25 @@ public:
     gap_advertising_params_t& operator=(gap_advertising_params_t const&) = default;
     gap_advertising_params_t& operator=(gap_advertising_params_t&&)      = default;
 
-    gap_advertising_params_t(
-        uint8_t               type          = BLE_GAP_ADV_TYPE_ADV_IND,
-        ble_gap_addr_t const* peer_address  = nullptr,
-        uint8_t               filter_policy = BLE_GAP_ADV_FP_ANY,
-        uint16_t              interval      = interval_unspecified,
-        uint16_t              timeout       = 0u)
+    gap_advertising_params_t(uint16_t interval)
     {
-        this->type          = type;
-        this->p_peer_addr   = peer_address;
-        this->fp            = filter_policy;
-        this->interval      = interval;
-        this->timeout       = timeout;
-        this->channel_mask  = {
-            .ch_37_off  = false,
-            .ch_38_off  = false,
-            .ch_39_off  = false,
-        };
+        memset(this, 0, sizeof(*this));
+
+        this->properties.type               = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
+        this->properties.anonymous          = false;
+        this->properties.include_tx_power   = false;
+
+        this->p_peer_addr                   = nullptr;
+
+        this->interval                      = interval;
+        this->duration                      = interval_unlimited;
+        this->max_adv_evts                  = interval_unlimited;
+
+        this->filter_policy                 = BLE_GAP_ADV_FP_ANY;
+        this->primary_phy                   = BLE_GAP_PHY_AUTO;
+        this->secondary_phy                 = BLE_GAP_PHY_AUTO;
+        this->set_id                        = 0u;
+        this->scan_req_notification         = 0u;
     }
 };
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Replace Nordic SDK 14.2 source and header files
+# Replace Nordic SDK source and header files
 
 function move_sdk_file() {
     sdk_file=$1
@@ -38,13 +38,13 @@ fi
 sdk_file=$SDK_ROOT/components/libraries/util/nrf_assert.h
 move_sdk_file $sdk_file
 
-sdk_file=$SDK_ROOT/components/ble/ble_db_discovery/ble_db_discovery.h
-move_sdk_file    $sdk_file
-replace_sdk_file $sdk_file
+# sdk_file=$SDK_ROOT/components/ble/ble_db_discovery/ble_db_discovery.h
+# move_sdk_file    $sdk_file
+# replace_sdk_file $sdk_file
 
-sdk_file=$SDK_ROOT/components/libraries/util/app_error_weak.c
-move_sdk_file    $sdk_file
-replace_sdk_file $sdk_file
+# sdk_file=$SDK_ROOT/components/libraries/util/app_error_weak.c
+# move_sdk_file    $sdk_file
+# replace_sdk_file $sdk_file
 
 sdk_file=$SDK_ROOT/components/toolchain/cmsis/include/cmsis_gcc.h
 move_sdk_file    $sdk_file
