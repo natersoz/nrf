@@ -55,10 +55,11 @@ SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gap_event_observable.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gap_request_response.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gattc_event_observable.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts.cc
-SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts_operations.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts_event_observable.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts_operations.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_peer.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_stack.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_stack_observer.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_error.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_req_observable.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_soc_observable.cc
@@ -108,8 +109,9 @@ SOURCE_FILES += $(SDK_ROOT)/components/libraries/experimental_section_vars/nrf_s
 
 SOURCE_FILES += $(SDK_ROOT)/components/libraries/util/sdk_mapped_flags.c
 SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c
-SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c
+#SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c
 #SOURCE_FILES += $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c
+
 SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf52.c
 
 # Note nrf_sdh_ble.c is where the service discrovery BLE events are dispatched from.
