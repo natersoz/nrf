@@ -21,7 +21,7 @@ ppi_channel_t ppi_channel_allocate(uint32_t volatile *task_register_pointer,
     ASSERT((task_register_pointer != nullptr) || (event_register_pointer != nullptr));
     NRF_PPI_Type* const ppi_registers = reinterpret_cast<NRF_PPI_Type *>(NRF_PPI_BASE);
 
-    for (PPI_CH_Type const &ppi_ch : ppi_registers->CH)
+    for (PPI_CH_Type const volatile &ppi_ch : ppi_registers->CH)
     {
         if ((ppi_ch.EEP == 0u) && (ppi_ch.TEP == 0u))
         {

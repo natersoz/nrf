@@ -75,9 +75,10 @@ typedef struct app_timer_t* app_timer_id_t;
  *
  * @param timer_id Name of the timer identifier variable that will be used to control the timer.
  */
-#define APP_TIMER_DEF(timer_id)                                      \
-    static app_timer_t CONCAT_2(timer_id,_data) = { {0} };           \
-    static const app_timer_id_t timer_id = &CONCAT_2(timer_id,_data)
+#define APP_TIMER_CONCAT_2(x, y)    x##y
+#define APP_TIMER_DEF(timer_id)                                         \
+    static app_timer_t APP_TIMER_CONCAT_2(timer_id,_data) = { {0} };    \
+    static const app_timer_id_t timer_id = &APP_TIMER_CONCAT_2(timer_id,_data)
 
 /**
  * Convert the time interval in milliseconds to the same timer interval

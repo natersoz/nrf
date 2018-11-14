@@ -259,19 +259,157 @@
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
             GUID="{7209E883-9257-47AD-A288-998C738448C9}">
+            <Folder
+                Name="peripherals"
+                AutoCustom="1"
+                GUID="{2066D73E-A977-4A26-BB7A-2BCDD2C2FC8E}">
+                <F N="peripherals/spim_debug.cc"/>
+                <F N="peripherals/spim.cc"/>
+                <F N="peripherals/saadc.cc"/>
+                <F N="peripherals/clocks.cc"/>
+                <F N="peripherals/spis_debug.cc"/>
+                <F N="peripherals/gpio_te.cc"/>
+                <F N="peripherals/spi_common.cc"/>
+                <F N="peripherals/buttons_pca10040.cc"/>
+                <F N="peripherals/mwu_debug.cc"/>
+                <F N="peripherals/rtc.cc"/>
+                <F N="peripherals/gpio.cc"/>
+                <F N="peripherals/mwu.cc"/>
+                <F N="peripherals/timer.cc"/>
+                <F N="peripherals/rtc_debug.cc"/>
+                <F N="peripherals/temperature_sensor.cc"/>
+                <F N="peripherals/ppi.cc"/>
+                <F N="peripherals/leds_pca10040.cc"/>
+                <F N="peripherals/spis.cc"/>
+            </Folder>
+            <Folder
+                Name="sdk-modified"
+                AutoCustom="1"
+                GUID="{8AD14B38-0E51-4B9A-87D8-9B9F821EE09E}">
+                <F N="sdk-modified/app_error_weak.c"/>
+            </Folder>
+            <Folder
+                Name="tests"
+                AutoCustom="1"
+                GUID="{E82C63E4-1E3E-47F5-9C0B-1A425CF4F3E9}">
+                <Folder
+                    Name="app_timer_test"
+                    AutoCustom="1"
+                    GUID="{49F13BA3-C737-4ACE-A5CE-6299DFD8BF08}">
+                    <F N="tests/app_timer_test/main.cc"/>
+                </Folder>
+                <Folder
+                    Name="buttons_leds_test"
+                    AutoCustom="1"
+                    GUID="{2E764231-CD71-4526-8730-6A1DF4E4F3D5}">
+                    <F N="tests/buttons_leds_test/main.cc"/>
+                </Folder>
+                <Folder
+                    Name="gpio_te_test"
+                    AutoCustom="1"
+                    GUID="{8EB49C6F-FD76-488F-ABDB-A52B5A745B54}">
+                    <F N="tests/gpio_te_test/main.cc"/>
+                </Folder>
+                <Folder
+                    Name="rtc_test"
+                    AutoCustom="1"
+                    GUID="{C04CBCA9-3495-4558-9B72-87AF87139C81}">
+                    <F N="tests/rtc_test/main.cc"/>
+                </Folder>
+                <Folder
+                    Name="saadc_test"
+                    AutoCustom="1"
+                    GUID="{A8572C61-538F-45F1-917D-25D91892578C}">
+                    <F N="tests/saadc_test/main.cc"/>
+                </Folder>
+                <Folder
+                    Name="spi_test"
+                    AutoCustom="1"
+                    GUID="{16408F1D-C2F9-4A68-99AD-CA587A48D77A}">
+                    <F N="tests/spi_test/main.cc"/>
+                </Folder>
+                <Folder
+                    Name="timer_test"
+                    AutoCustom="1"
+                    GUID="{0F4B91C2-6EC9-40A7-B17E-B01662554354}">
+                    <F N="tests/timer_test/main.cc"/>
+                </Folder>
+            </Folder>
+            <F N="app_error_fault_handler.cc"/>
             <F N="app_timer.cc"/>
+            <F N="nordic_critical_section.cc"/>
+            <F N="nordic_error.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
             GUID="{81D230E7-6884-4216-8E14-D216E7ABF729}">
             <Folder
-                Name="sdk-changed"
+                Name="peripherals"
                 AutoCustom="1"
-                GUID="{B4E7D66E-F85F-465B-A095-9BAC5F9CB3B4}">
-                <F N="sdk-changed/ble_db_discovery.h"/>
+                GUID="{5EDB5B11-047D-4FBE-847C-3C02834FDE5D}">
+                <F N="peripherals/timer_observer_generic.h"/>
+                <F N="peripherals/rtc_debug.h"/>
+                <F N="peripherals/spim.h"/>
+                <F N="peripherals/clocks.h"/>
+                <F N="peripherals/timer_observable_generic.h"/>
+                <F N="peripherals/temperature_sensor.h"/>
+                <F N="peripherals/spis_debug.h"/>
+                <F N="peripherals/leds.h"/>
+                <F N="peripherals/spi_common.h"/>
+                <F N="peripherals/spim_debug.h"/>
+                <F N="peripherals/timer_observer.h"/>
+                <F N="peripherals/timer.h"/>
+                <F N="peripherals/gpio_pin.h"/>
+                <F N="peripherals/ppi.h"/>
+                <F N="peripherals/gpio.h"/>
+                <F N="peripherals/spis.h"/>
+                <F N="peripherals/rtc.h"/>
+                <F N="peripherals/rtc_observer.h"/>
+                <F N="peripherals/mwu.h"/>
+                <F N="peripherals/gpio_te.h"/>
+                <F N="peripherals/saadc.h"/>
+                <F N="peripherals/buttons.h"/>
+            </Folder>
+            <Folder
+                Name="sdk-modified"
+                AutoCustom="1"
+                GUID="{C2B14894-73FD-4D75-885E-634E6FE7F1C5}">
+                <F N="sdk-modified/ble_db_discovery.h"/>
+                <F N="sdk-modified/cmsis_gcc.h"/>
+            </Folder>
+            <Folder
+                Name="tests"
+                AutoCustom="1"
+                GUID="{E2CC7EE4-E160-4272-8E0F-0F55CE41678A}">
+                <Folder
+                    Name="app_timer_test"
+                    AutoCustom="1"
+                    GUID="{ED09B77C-57EB-4AA5-9E7E-DC864B70984E}">
+                    <Folder
+                        Name="config"
+                        AutoCustom="1"
+                        GUID="{0BB21D0A-9FC9-4EBD-A4B6-BDA7A8C24A52}">
+                        <F N="tests/app_timer_test/config/sdk_config.h"/>
+                    </Folder>
+                </Folder>
+                <Folder
+                    Name="rtc_test"
+                    AutoCustom="1"
+                    GUID="{96D1B604-CD01-492B-8E54-2248E08C180B}">
+                    <F N="tests/rtc_test/rtc_observer_test.h"/>
+                </Folder>
+                <Folder
+                    Name="timer_test"
+                    AutoCustom="1"
+                    GUID="{5071E678-69E3-4F8C-BF34-02A73FCD5D29}">
+                    <F N="tests/timer_test/timer_observer_test.h"/>
+                </Folder>
             </Folder>
             <F N="app_timer.h"/>
+            <F N="device_address.h"/>
+            <F N="nordic_critical_section.h"/>
+            <F N="nordic_error.h"/>
             <F N="nrf_assert.h"/>
             <F N="nrf_cmsis.h"/>
             <F N="nrf_log.h"/>

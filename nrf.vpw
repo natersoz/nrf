@@ -3,19 +3,13 @@
 	<Projects>
 		<Project File="ble/ble.vpj"/>
 		<Project File="ble_peripheral_class/ble_peripheral_class.vpj"/>
-		<Project File="ble_peripheral_thermometer/ble_peripheral_thermometer.vpj"/>
+		<Project File="nordic/tests/buttons_leds_test/buttons_leds_test.vpj"/>
 		<Project File="gcc-arm/gcc-arm.vpj"/>
+		<Project File="nordic/tests/gpio_te_test/gpio_te_test.vpj"/>
 		<Project File="logger/logger.vpj"/>
 		<Project File="nordic/nordic.vpj"/>
-		<Project File="nordic/peripherals/peripherals.vpj"/>
-		<Project File="nordic/tests/buttons_leds_test/buttons_leds_test.vpj"/>
-		<Project File="nordic/tests/gpio_te_test/gpio_te_test.vpj"/>
-		<Project File="nordic/tests/rtc_test/rtc_test.vpj"/>
-		<Project File="nordic/tests/saadc_test/saadc_test.vpj"/>
-		<Project File="nordic/tests/spi_test/spi_test.vpj"/>
-		<Project File="nordic/tests/timer_test/timer_test.vpj"/>
+		<Project File="nRF5_SDK15.2.vpj"/>
 		<Project File="unit_tests/unit_tests.vpj"/>
 		<Project File="utilities/utilities.vpj"/>
-		<Project File="nRF5_SDK14.vpj"/>
 	</Projects>
 </Workspace>

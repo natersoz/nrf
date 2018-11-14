@@ -381,6 +381,10 @@ void ble_event_observable<ble_gap_event_observer>::notify(
                     event_data.params.adv_report.direct_addr.addr,
                     event_data.params.adv_report.direct_addr.addr_type);
 
+                // Note: unused report fields:
+                // primary_phy, secondary_phy, ch_index, set_id, data_id
+                // aux_pointer
+
                 logger::instance().debug("GAP advert report: h: 0x%04x, rssi: %d",
                                          event_data.conn_handle, event_data.params.adv_report.rssi);
 
@@ -389,9 +393,9 @@ void ble_event_observable<ble_gap_event_observer>::notify(
                     peer_address,
                     direct_address,
                     event_data.params.adv_report.rssi,
-                    event_data.params.adv_report.scan_rsp,
-                    event_data.params.adv_report.data,
-                    event_data.params.adv_report.dlen);
+                    false,
+                    event_data.params.adv_report.data.p_data,
+                    event_data.params.adv_report.data.len);
             }
             break;
 

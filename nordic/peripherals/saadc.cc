@@ -91,12 +91,6 @@ static void saadc_clear_event_register(uint32_t volatile* saadc_register)
     (void) dummy;
 }
 
-static void saadc_check_sizes(void)
-{
-    NRF_SAADC_Type saadc_registers_check;
-    static_assert(SAADC_INPUT_COUNT == std::size(saadc_registers_check.CH));
-}
-
 static uint32_t t_acq_usec(enum saadc_tacq_t t_acq)
 {
     switch (t_acq)
@@ -206,14 +200,14 @@ void saadc_init(enum saadc_conversion_resolution_t  resolution,
     ASSERT(not saadc_is_enabled(&saadc_instance_0));
     ASSERT(interrupt_priority_is_valid(irq_priority));
 
-    saadc_check_sizes();
-
     // Short hand for readability.
     NRF_SAADC_Type* const saadc_registers = saadc_instance_0.saadc_registers;
 
     saadc_instance_0.sample_data_pointer = nullptr;
     saadc_instance_0.handler = saadc_handler;
     saadc_instance_0.context = context;
+
+    ASSERT(SAADC_INPUT_COUNT == std::size(saadc_registers->CH));
 
     // During the life time of this driver - until deinit() is called -
     // the SAADC EVENTS_STARTED event will trigger the SAADC TASKS_SAMPLE
