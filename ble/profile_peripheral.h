@@ -26,12 +26,6 @@ namespace profile
 class peripheral: public connectable
 {
 public:
-    // These trival observers do nothing.
-    // They stand in for the GATTS or GATTC references when none
-    // is supplied in the ctor.
-    static ble::gattc::event_observer ble_gattc_event_observer_trivial;
-    static ble::gatts::event_observer ble_gatts_event_observer_trivial;
-
     virtual ~peripheral()                     = default;
 
     peripheral()                              = delete;
