@@ -1,5 +1,5 @@
 /**
- * @file ble_peripheral_class/ble_gap_connection.h
+ * @file ble_peripheral/ble_gap_connection.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
@@ -11,7 +11,7 @@
 
 /**
  * An implementation of the interface ble::gap::event_observer specific
- * to the nrf/ble_peripheral_class.
+ * to the nrf/ble_peripheral.
  */
 class ble_gap_connection: public ble::gap::peripheral_connection
 {

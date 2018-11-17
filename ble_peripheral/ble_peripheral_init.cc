@@ -1,5 +1,5 @@
 /**
- * @file ble_peripheral_class/ble_peripheral_init.cc
+ * @file ble_peripheral/ble_peripheral_init.cc
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
@@ -33,9 +33,9 @@ static constexpr uint16_t const advertising_interval =
     ble::gap::advertising::interval_msec(100u);
 static nordic::gap_advertising ble_advertising(advertising_interval);
 
-static constexpr char   const device_name[]       = "periph_class";
+static constexpr char   const device_name[]       = "periph";
 static constexpr size_t const device_name_length  = std::size(device_name) - 1u;
-static constexpr char   const short_name[]        = "cls";
+static constexpr char   const short_name[]        = "periph";
 static constexpr size_t const short_name_length   = std::size(short_name) - 1u;
 
 static size_t set_advertising_data(ble::gap::advertising_data_t &data)
@@ -43,7 +43,6 @@ static size_t set_advertising_data(ble::gap::advertising_data_t &data)
     ble::gatt::services const services_16[] = {
         ble::gatt::services::device_information,
         ble::gatt::services::battery_service,
-        ble::gatt::services::current_time_service
     };
 
     size_t length = 0u;
@@ -74,8 +73,8 @@ static ble::gap::connection_parameters const connection_parameters(
     0u,
     ble::gap::supervision_timeout_msec(4000u));
 
-constexpr uint8_t const                     notdic_config_tag = 1u;
-static nordic::ble_stack                    ble_stack(notdic_config_tag);
+constexpr uint8_t const                     nordic_config_tag = 1u;
+static nordic::ble_stack                    ble_stack(nordic_config_tag);
 
 static nordic::ble_gap_request_response     ble_gap_request_response;
 static ble_gap_connection                   ble_gap_connection(
