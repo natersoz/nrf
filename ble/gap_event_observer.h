@@ -19,9 +19,6 @@ namespace gap
 /**
  * @interface ble::gap::event_observer
  * An interface for processing GAP events.
- *
- * Instead of pure virtual functions each method has a trivial {}
- * implementation. Inherit and override specific methods as required.
  */
 class event_observer
 {
