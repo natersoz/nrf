@@ -1,5 +1,5 @@
 /**
- * @file ble_peripheral_class/main.cc
+ * @file ble_peripheral/main.cc
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
@@ -33,7 +33,7 @@ int main(void)
     logger.set_level(logger::level::info);
     logger.set_output_stream(rtt_os);
 
-    logger.info("--- BLE peripheral classes ---");
+    logger.info("--- BLE peripheral ---");
 
     ble::profile::peripheral& ble_peripheral = ble_peripheral_init();
     ble_peripheral.advertising().start();

@@ -1,5 +1,5 @@
 /**
- * @file ble_peripheral_class/ble_gap_connection.cc
+ * @file ble_peripheral/ble_gap_connection.cc
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 

@@ -9,7 +9,7 @@ PROJECT_ROOT := ..
 SDK_ROOT     := $(PROJECT_ROOT)/sdk
 
 # The executable name
-TARGET_NAME = ble_peripheral_class
+TARGET_NAME = ble_peripheral
 
 # Where the compiled files are built.
 BUILD_PATH = _build

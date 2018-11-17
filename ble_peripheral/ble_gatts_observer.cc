@@ -1,5 +1,5 @@
 /**
- * @file ble_peripheral_class/ble_gatts_observer.cc
+ * @file ble_peripheral/ble_gatts_observer.cc
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
