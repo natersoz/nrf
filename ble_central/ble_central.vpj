@@ -9,7 +9,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdble.a"
+        OutputFile="%bdble_central"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -32,7 +32,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='ar -rs %xup "%o" %f'/>
+                <Exec CmdLine='g++ %xup -g -o "%o" %f %libs'/>
             </Target>
             <Target
                 Name="Build"
@@ -61,7 +61,7 @@
                 Deletable="0"
                 SaveOption="SaveNone"
                 RunFromDir="%rw">
-                <Exec CmdLine=""/>
+                <Exec CmdLine='vsdebugio -prog "%o"'/>
             </Target>
             <Target
                 Name="Execute"
@@ -72,7 +72,7 @@
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
                 RunFromDir="%rw">
-                <Exec CmdLine=""/>
+                <Exec CmdLine='"%o"'/>
             </Target>
             <Target
                 Name="dash"
@@ -126,7 +126,7 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="StaticLibrary"/>
+                Value="Executable"/>
         </List>
     </Config>
     <Config
@@ -134,7 +134,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdble.a"
+        OutputFile="%bdble_central"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -157,7 +157,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='ar -rs %xup "%o" %f'/>
+                <Exec CmdLine='g++ %xup -o "%o" %f %libs'/>
             </Target>
             <Target
                 Name="Build"
@@ -186,7 +186,7 @@
                 Deletable="0"
                 SaveOption="SaveNone"
                 RunFromDir="%rw">
-                <Exec CmdLine=""/>
+                <Exec CmdLine='vsdebugio -prog "%o"'/>
             </Target>
             <Target
                 Name="Execute"
@@ -197,7 +197,7 @@
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
                 RunFromDir="%rw">
-                <Exec CmdLine=""/>
+                <Exec CmdLine='"%o"'/>
             </Target>
             <Target
                 Name="dash"
@@ -251,124 +251,40 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="StaticLibrary"/>
+                Value="Executable"/>
         </List>
     </Config>
     <Files>
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{C652FBB5-D101-416F-8408-86EECAF1CBE9}">
-            <Folder
-                Name="service"
-                AutoCustom="1"
-                GUID="{018847CB-0035-43E7-917D-D755719E5CDF}">
-                <F N="service/custom_uuid.cc"/>
-                <F N="service/battery_service.cc"/>
-            </Folder>
-            <F N="gatt_attribute.cc"/>
-            <F N="gatt_characteristic.cc"/>
-            <F N="gatt_service.cc"/>
-            <F N="gatt_service_container.cc"/>
-            <F N="gatts_event_observer.cc"/>
-            <F N="nordic_ble_att.cc"/>
-            <F N="nordic_ble_common_event_observable.cc"/>
-            <F N="nordic_ble_common_event_observer.cc"/>
-            <F N="nordic_ble_event_observables.cc"/>
-            <F N="nordic_ble_gap_advertising.cc"/>
-            <F N="nordic_ble_gap_event_observable.cc"/>
-            <F N="nordic_ble_gap_request_response.cc"/>
-            <F N="nordic_ble_gattc_event_observable.cc"/>
-            <F N="nordic_ble_gatts.cc"/>
-            <F N="nordic_ble_gatts_event_observable.cc"/>
-            <F N="nordic_ble_gatts_operations.cc"/>
-            <F N="nordic_ble_peer.cc"/>
-            <F N="nordic_ble_stack.cc"/>
-            <F N="nordic_ble_stack_observer.cc"/>
-            <F N="nordic_req_observable.cc"/>
-            <F N="nordic_soc_observable.cc"/>
-            <F N="nordic_state_observable.cc"/>
-            <F N="tlv_encode.cc"/>
-            <F N="uuid.cc"/>
+            GUID="{E52CA2F0-E823-4C0C-A343-18D7DBE1A630}">
+            <F N="ble_central_init.cc"/>
+            <F N="main.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{0AD1F050-F4C1-4392-BD1F-BDE278D30C33}">
+            GUID="{73E11B4E-C365-4EC3-AF4D-66D7C08E979A}">
             <Folder
-                Name="service"
+                Name="config"
                 AutoCustom="1"
-                GUID="{D3C94F7E-4BD1-4C0B-A779-A33520AA4FCD}">
-                <F N="service/gatt_service.h"/>
-                <F N="service/device_information_service.h"/>
-                <F N="service/adc_sensor_service.h"/>
-                <F N="service/current_time_service.h"/>
-                <F N="service/battery_service.h"/>
-                <F N="service/custom_uuid.h"/>
-                <F N="service/gap_service.h"/>
-                <F N="service/nordic_saadc_sensor_service.h"/>
+                GUID="{6CFCF999-BE35-4170-8D10-AA7BC052723E}">
+                <F N="config/sdk_config.h"/>
             </Folder>
-            <F N="address.h"/>
-            <F N="att.h"/>
-            <F N="central_connection.h"/>
-            <F N="common_event_observer.h"/>
-            <F N="gap_advertising.h"/>
-            <F N="gap_advertising_data.h"/>
-            <F N="gap_connection.h"/>
-            <F N="gap_connection_parameters.h"/>
-            <F N="gap_event_observer.h"/>
-            <F N="gap_request_response.h"/>
-            <F N="gap_types.h"/>
-            <F N="gatt_appearance.h"/>
-            <F N="gatt_attribute.h"/>
-            <F N="gatt_characteristic.h"/>
-            <F N="gatt_declaration.h"/>
-            <F N="gatt_descriptors.h"/>
-            <F N="gatt_format.h"/>
-            <F N="gatt_service.h"/>
-            <F N="gatt_service_container.h"/>
-            <F N="gatt_service_include.h"/>
-            <F N="gatt_uuids.h"/>
-            <F N="gattc_event_observer.h"/>
-            <F N="gatts_event_observer.h"/>
-            <F N="gatts_operations.h"/>
-            <F N="hci_error_codes.h"/>
-            <F N="nordic_ble_att.h"/>
-            <F N="nordic_ble_event_observable.h"/>
-            <F N="nordic_ble_event_observer.h"/>
-            <F N="nordic_ble_gap_advertising.h"/>
-            <F N="nordic_ble_gap_advertising_params.h"/>
-            <F N="nordic_ble_gap_request_response.h"/>
-            <F N="nordic_ble_gatts.h"/>
-            <F N="nordic_ble_gatts_operations.h"/>
-            <F N="nordic_ble_peer.h"/>
-            <F N="nordic_ble_stack.h"/>
-            <F N="nordic_req_observable.h"/>
-            <F N="nordic_req_observer.h"/>
-            <F N="nordic_soc_observable.h"/>
-            <F N="nordic_soc_observer.h"/>
-            <F N="nordic_state_observable.h"/>
-            <F N="nordic_state_observer.h"/>
-            <F N="peripheral_connection.h"/>
-            <F N="profile_central.h"/>
-            <F N="profile_connectable.h"/>
-            <F N="profile_connectable_accessor.h"/>
-            <F N="profile_peripheral.h"/>
-            <F N="stack.h"/>
-            <F N="tlv_encode.h"/>
-            <F N="uuid.h"/>
+            <F N="ble_central_init.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"
-            GUID="{2C654DE4-7707-41D6-B203-C245BEEE59B2}"/>
+            GUID="{9D16A3D5-BC54-4908-9F36-E262C4BCF2CB}"/>
         <Folder
             Name="Bitmaps"
             Filters="*.bmp"
-            GUID="{DCF8CD41-97C4-482E-A597-9EF60360673E}"/>
+            GUID="{685EA035-B319-4EC6-8FB0-6C35E2F4D29D}"/>
         <Folder
             Name="Other Files"
             Filters=""
-            GUID="{0C078649-513B-4F30-9FF2-39F6D2158F62}"></Folder>
+            GUID="{CA765A29-52B2-4D48-B3A2-5DEB487FB97C}"/>
     </Files>
 </Project>

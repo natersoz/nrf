@@ -28,7 +28,7 @@ namespace gap
 class advertising
 {
 public:
-    /// Used to specify that the advertising interval can be anything.
+    /// Unspecified advertising interval; can be anything.
     static uint16_t const interval_unspecified = 0xFFFFu;
 
     /**

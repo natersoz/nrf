@@ -51,6 +51,28 @@ uuid::uuid(uint32_t uuid_32):
 {
 }
 
+uuid::uuid(uint8_t const* uuid_bytes):
+    boost::uuids::uuid {{
+        uuid_bytes[15u],    // Note that byte reversal is performed here.
+        uuid_bytes[14u],    // This eliminates the need to call reverse()
+        uuid_bytes[13u],    // after passing in a Nordic
+        uuid_bytes[12u],    // ble_uuid128_t::uuid128[] array.
+        uuid_bytes[11u],
+        uuid_bytes[10u],
+        uuid_bytes[ 9u],
+        uuid_bytes[ 8u],
+        uuid_bytes[ 7u],
+        uuid_bytes[ 6u],
+        uuid_bytes[ 5u],
+        uuid_bytes[ 4u],
+        uuid_bytes[ 3u],
+        uuid_bytes[ 2u],
+        uuid_bytes[ 1u],
+        uuid_bytes[ 0u]
+    }}
+{
+}
+
 bool uuid::is_ble() const
 {
     auto this_iter = this->begin() + uuid::base_offset;

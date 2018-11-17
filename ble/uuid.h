@@ -5,14 +5,17 @@
 
 #pragma once
 
-#include <cstdint>
 #include <boost/uuid/uuid.hpp>
 #include "charconv.h"
+
+#include <array>
+#include <cstdint>
 
 namespace ble
 {
 namespace att
 {
+
 /**
  * @struct ble::uuid
  * The bluetooth base UUID:
@@ -50,6 +53,7 @@ struct uuid: public boost::uuids::uuid
 
     uuid(boost::uuids::uuid const &other);
     uuid(uint32_t uuid_32);
+    uuid(uint8_t const* uuid_bytes);
 
     uuid(uuid const&)               = default;
     uuid(uuid &&)                   = default;

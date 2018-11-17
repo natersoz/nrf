@@ -16,6 +16,10 @@ namespace ble
 namespace gatts
 {
 
+/**
+ * @class ble::gatts::event_observer
+ * The Generic Attribute (GATT) Server observer.
+ */
 class event_observer: public ble::profile::connectable_accessor
 {
 public:

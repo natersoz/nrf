@@ -21,6 +21,13 @@ namespace att
 {
 
 /**
+ * The invalid attribute handle value.
+ * @note This is different than the ble::gap::invalid_handle value.
+ *       A conneciton handle value zero is expected and is normal.
+ */
+static constexpr uint16_t const invalid_handle = 0u;
+
+/**
  * @typedef ble::att::length_t
  * Define an attribute lenth type similar to std::size_t but for use with BLE.
  * @todo - make this size_t?
@@ -123,6 +130,11 @@ enum class error_code : uint16_t
  */
 enum class op_code: uint8_t
 {
+    /// @note 'invalid' is not part of Core specification.
+    /// It is added here to indicate the op_code type is invalid and does
+    /// not map to a known op_code.
+    invalid                     = 0x00,
+
     error_response              = 0x01,
 
     mtu_exchange_request        = 0x02,
