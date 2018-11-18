@@ -55,8 +55,8 @@ int main(void)
     constexpr uint8_t const             nordic_config_tag = 1u;
     nordic::ble_stack                   ble_stack(nordic_config_tag);
 
-    nordic::ble_gap_request_response    ble_gap_request_response;
-    ble_gap_connection                  ble_gap_connection(ble_gap_request_response);
+    nordic::ble_gap_operations          ble_gap_operations;
+    ble_gap_connection                  ble_gap_connection(ble_gap_operations);
     ble_gattc_observer                  ble_gattc_observer;
     ble::profile::central               ble_central(ble_stack,
                                                     ble_gap_connection,

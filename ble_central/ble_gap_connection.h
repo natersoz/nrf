@@ -7,7 +7,7 @@
 
 #include "ble/central_connection.h"
 #include "ble/nordic_ble_event_observable.h"
-#include "ble/nordic_ble_gap_request_response.h"
+#include "ble/nordic_ble_gap_operations.h"
 
 /**
  * An implementation of the interface ble::gap::event_observer specific
@@ -27,7 +27,7 @@ public:
     ble_gap_connection& operator=(ble_gap_connection&&)       = delete;
 
     /** Constructor which uses the default connection parameters. */
-    ble_gap_connection(ble::gap::request_response& request_response);
+    ble_gap_connection(ble::gap::operations& operations);
 
     /**
      * Post constructor initialization.

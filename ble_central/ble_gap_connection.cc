@@ -18,8 +18,8 @@ ble_gap_connection::~ble_gap_connection()
 }
 
 /** Constructor which uses the default connection parameters. */
-ble_gap_connection::ble_gap_connection(ble::gap::request_response& request_response):
-    super(request_response),
+ble_gap_connection::ble_gap_connection(ble::gap::operations& operations):
+    super(operations),
     nordic_gap_event_observer_(*this)
 {
 }
@@ -40,7 +40,7 @@ void ble_gap_connection::connect(uint16_t                    connection_handle,
     /// @todo It would probably be better to get the ble::service::gap_service
     /// preferred connection parameters and use those. It would eliminated
     /// duplication of the connection parameters value.
-    this->request_response().connection_parameter_update_request(
+    this->operations().connection_parameter_update_request(
         this->get_handle(),
         this->get_parameters());
 }

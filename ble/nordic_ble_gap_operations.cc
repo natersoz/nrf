@@ -1,9 +1,9 @@
 /**
- * @file ble/nordic_ble_gap_request_response.cc
+ * @file ble/nordic_ble_gap_operations.cc
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
-#include "ble/nordic_ble_gap_request_response.h"
+#include "ble/nordic_ble_gap_operations.h"
 #include "ble_gap.h"
 #include "project_assert.h"
 #include "nrf_error.h"
@@ -13,7 +13,7 @@
 namespace nordic
 {
 
-using status = ble::gap::request_response::status;
+using status = ble::gap::operations::status;
 
 status status_code(uint32_t nordic_error_code)
 {
@@ -31,14 +31,14 @@ status status_code(uint32_t nordic_error_code)
     }
 }
 
-status ble_gap_request_response::connect(
+status ble_gap_operations::connect(
     ble::gap::address                       peer_address,
     ble::gap::connection_parameters const&  connection_parameters)
 {
     return status::unimplemented;
 }
 
-status ble_gap_request_response::scan(
+status ble_gap_operations::scan(
     uint16_t                scan_interval,
     uint16_t                scan_window,
     uint16_t                scan_timeout,
@@ -48,7 +48,7 @@ status ble_gap_request_response::scan(
     return status::unimplemented;
 }
 
-status ble_gap_request_response::disconnect(
+status ble_gap_operations::disconnect(
     uint16_t             connection_handle,
     ble::hci::error_code reason)
 {
@@ -57,7 +57,7 @@ status ble_gap_request_response::disconnect(
     return status_code(error_code);
 }
 
-status ble_gap_request_response::connection_parameter_update_request(
+status ble_gap_operations::connection_parameter_update_request(
     uint16_t                                connection_handle,
     ble::gap::connection_parameters const&  connection_parameters)
 {
@@ -73,7 +73,7 @@ status ble_gap_request_response::connection_parameter_update_request(
     return status_code(error_code);
 }
 
-status ble_gap_request_response::link_layer_length_update_request(
+status ble_gap_operations::link_layer_length_update_request(
     uint16_t connection_handle,
     uint16_t rx_length_max,
     uint16_t rx_interval_usec_max,
@@ -106,7 +106,7 @@ status ble_gap_request_response::link_layer_length_update_request(
     return status_code(error_code);
 }
 
-status ble_gap_request_response::phy_update_request(
+status ble_gap_operations::phy_update_request(
     uint16_t                        connection_handle,
     ble::gap::phy_layer_parameters  phy_rx,
     ble::gap::phy_layer_parameters  phy_tx)
@@ -120,7 +120,7 @@ status ble_gap_request_response::phy_update_request(
     return status_code(error_code);
 }
 
-status ble_gap_request_response::pairing_request(
+status ble_gap_operations::pairing_request(
     uint16_t                                    connection_handle,
     bool                                        create_bond,
     ble::gap::security::pairing_request const&  pairing_request)
@@ -152,7 +152,7 @@ status ble_gap_request_response::pairing_request(
     return status_code(error_code);
 }
 
-status ble_gap_request_response::pairing_response(
+status ble_gap_operations::pairing_response(
     uint16_t                                    connection_handle,
     bool                                        create_bond,
     ble::gap::security::pairing_response const& pairing_response)
@@ -211,7 +211,7 @@ status ble_gap_request_response::pairing_response(
     return status_code(error_code);
 }
 
-status ble_gap_request_response::security_authentication_key_response(
+status ble_gap_operations::security_authentication_key_response(
     uint16_t connection_handle,
     uint8_t  key_type,
     uint8_t* key_data)
@@ -222,7 +222,7 @@ status ble_gap_request_response::security_authentication_key_response(
     return status_code(error_code);
 }
 
-status ble_gap_request_response::pairing_dhkey_response(
+status ble_gap_operations::pairing_dhkey_response(
     uint16_t                         connection_handle,
     ble::gap::security::dhkey const& dhkey)
 {
@@ -239,7 +239,7 @@ status ble_gap_request_response::pairing_dhkey_response(
 }
 
 /** @todo Need to understand
-status ble_gap_request_response::sd_ble_gap_sec_info_reply(
+status ble_gap_operations::sd_ble_gap_sec_info_reply(
     uint16_t                connection_handle,
     ble_gap_enc_info_t      gap_enc_info,
     ble_gap_irk_t           gap_irk,

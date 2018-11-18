@@ -1,17 +1,17 @@
 /**
- * @file ble/nordic_ble_gap_request_response.h
+ * @file ble/nordic_ble_gap_operations.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
 #pragma once
 
-#include "ble/gap_request_response.h"
+#include "ble/gap_operations.h"
 
 namespace nordic
 {
 
 /**
- * @interface ble::gap::request_response
+ * @interface ble::gap::operations
  *
  * A generic BLE set of GAP commands for sending GAP requests and responses.
  * This is a pure virtual interface intended to be override by a
@@ -21,18 +21,18 @@ namespace nordic
  * ble::gap::connection to create a command/response structure for handling
  * the BLE GAP.
  */
-class ble_gap_request_response: public ble::gap::request_response
+class ble_gap_operations: public ble::gap::operations
 {
 public:
-    using status = ble::gap::request_response::status;
+    using status = ble::gap::operations::status;
 
-    virtual ~ble_gap_request_response() override                          = default;
+    virtual ~ble_gap_operations() override                    = default;
 
-    ble_gap_request_response()                                            = default;
-    ble_gap_request_response(ble_gap_request_response const&)             = delete;
-    ble_gap_request_response(ble_gap_request_response &&)                 = delete;
-    ble_gap_request_response& operator=(ble_gap_request_response const&)  = delete;
-    ble_gap_request_response& operator=(ble_gap_request_response&&)       = delete;
+    ble_gap_operations()                                      = default;
+    ble_gap_operations(ble_gap_operations const&)             = delete;
+    ble_gap_operations(ble_gap_operations &&)                 = delete;
+    ble_gap_operations& operator=(ble_gap_operations const&)  = delete;
+    ble_gap_operations& operator=(ble_gap_operations&&)       = delete;
 
     virtual status connect(
         ble::gap::address                       peer_address,

@@ -31,9 +31,9 @@
 constexpr uint8_t const                     nordic_config_tag = 1u;
 static nordic::ble_stack                    ble_stack(nordic_config_tag);
 
-static nordic::ble_gap_request_response     ble_gap_request_response;
+static nordic::ble_gap_operations           ble_gap_operations;
 static ble_gap_connection                   ble_gap_connection(
-                                                ble_gap_request_response);
+                                                ble_gap_operations);
 
 static ble_gatts_observer                   ble_gatts_observer;
 static nordic::ble_gatts_operations         gatts_operations;

@@ -8,7 +8,7 @@
 #include "ble/att.h"
 #include "ble/gap_connection.h"
 #include "ble/gap_advertising.h"
-#include "ble/gap_request_response.h"
+#include "ble/gap_operations.h"
 
 namespace ble
 {
@@ -32,17 +32,17 @@ public:
     peripheral_connection& operator=(peripheral_connection&&)       = delete;
 
     /** Constructor which uses the default connection parameters. */
-    peripheral_connection(ble::gap::request_response&     request_response,
-                          ble::gap::advertising&          advertising):
-        super(request_response),
+    peripheral_connection(ble::gap::operations&     operations,
+                          ble::gap::advertising&    advertising):
+        super(operations),
         advertising_(advertising)
     {}
 
     /** Constructor which specifies the peripheral_connection parameters. */
-    peripheral_connection(ble::gap::request_response&            request_response,
+    peripheral_connection(ble::gap::operations&                  operations,
                           ble::gap::advertising&                 advertising,
                           ble::gap::connection_parameters const& connection_parameters):
-        super(request_response, connection_parameters),
+        super(operations, connection_parameters),
         advertising_(advertising)
     {}
 

@@ -9,7 +9,7 @@
 #include "ble/gap_types.h"
 #include "ble/gap_connection_parameters.h"
 #include "ble/gap_event_observer.h"
-#include "ble/gap_request_response.h"
+#include "ble/gap_operations.h"
 #include "ble/profile_connectable_accessor.h"
 
 namespace ble
@@ -34,26 +34,26 @@ public:
     connection& operator=(connection&&)         = delete;
 
     /** Constructor which uses the default connection parameters. */
-    connection(ble::gap::request_response& request_response):
+    connection(ble::gap::operations& gap_ops):
         super(),
         handle_(invalid_handle),
         mtu_size_(ble::att::mtu_length_minimum),
-        request_response_(request_response),
+        operations_(gap_ops),
         parameters_()
     {}
 
     /** Constructor which specifies the connection parameters. */
-    connection(ble::gap::request_response&            request_response,
+    connection(ble::gap::operations&                  gap_ops,
                ble::gap::connection_parameters const& connection_parameters):
         super(),
         handle_(invalid_handle),
         mtu_size_(ble::att::mtu_length_minimum),
-        request_response_(request_response),
+        operations_(gap_ops),
         parameters_(connection_parameters)
     {}
 
-    ble::gap::request_response& request_response() {
-        return this->request_response_;
+    ble::gap::operations& operations() {
+        return this->operations_;
     }
 
     uint16_t get_handle() const { return this->handle_; }
@@ -88,7 +88,7 @@ private:
 
     uint16_t                        handle_;
     ble::att::length_t              mtu_size_;
-    ble::gap::request_response&     request_response_;
+    ble::gap::operations&           operations_;
     ble::gap::connection_parameters parameters_;
 };
 

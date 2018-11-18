@@ -1,5 +1,5 @@
 /**
- * @file ble/gap_request_response.h
+ * @file ble/gap_operations.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
@@ -14,7 +14,7 @@ namespace gap
 {
 
 /**
- * @interface ble::gap::request_response
+ * @interface ble::gap::operations
  *
  * A generic BLE set of GAP commands for sending GAP requests and responses.
  * This is a pure virtual interface intended to be override by a
@@ -24,7 +24,7 @@ namespace gap
  * ble::gap::connection to create a command/response structure for handling
  * the BLE GAP.
  */
-class request_response
+class operations
 {
 public:
     enum class status
@@ -53,13 +53,13 @@ public:
         unknown_error
     };
 
-    virtual ~request_response()                           = default;
+    virtual ~operations()                     = default;
 
-    request_response()                                    = default;
-    request_response(request_response const&)             = delete;
-    request_response(request_response &&)                 = delete;
-    request_response& operator=(request_response const&)  = delete;
-    request_response& operator=(request_response&&)       = delete;
+    operations()                              = default;
+    operations(operations const&)             = delete;
+    operations(operations &&)                 = delete;
+    operations& operator=(operations const&)  = delete;
+    operations& operator=(operations&&)       = delete;
 
     virtual status connect(
         ble::gap::address                       peer_address,

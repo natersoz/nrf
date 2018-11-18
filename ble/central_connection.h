@@ -8,7 +8,7 @@
 #include "ble/att.h"
 #include "ble/gap_connection.h"
 #include "ble/gap_advertising.h"
-#include "ble/gap_request_response.h"
+#include "ble/gap_operations.h"
 
 namespace ble
 {
@@ -32,14 +32,15 @@ public:
     central_connection& operator=(central_connection&&)       = delete;
 
     /** Constructor which uses the default connection parameters. */
-    central_connection(ble::gap::request_response& request_response):
-        super(request_response)
+    central_connection(ble::gap::operations& operations):
+        super(operations)
     {}
 
     /** Constructor which specifies the central_connection parameters. */
-    central_connection(ble::gap::request_response&            request_response,
-                       ble::gap::connection_parameters const& connection_parameters):
-        super(request_response, connection_parameters)
+    central_connection(
+        ble::gap::operations&                   operations,
+        ble::gap::connection_parameters const&  connection_parameters)
+        : super(operations, connection_parameters)
     {}
 
     /**

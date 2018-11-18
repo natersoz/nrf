@@ -260,6 +260,8 @@
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
             GUID="{E52CA2F0-E823-4C0C-A343-18D7DBE1A630}">
             <F N="ble_central_init.cc"/>
+            <F N="ble_gap_connection.cc"/>
+            <F N="ble_gattc_observer.cc"/>
             <F N="main.cc"/>
         </Folder>
         <Folder
@@ -273,6 +275,8 @@
                 <F N="config/sdk_config.h"/>
             </Folder>
             <F N="ble_central_init.h"/>
+            <F N="ble_gap_connection.h"/>
+            <F N="ble_gattc_observer.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
