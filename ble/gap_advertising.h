@@ -35,9 +35,8 @@ public:
      * Convert from milliseconds to BLE advertising interval units of 0.625 msec.
      *
      * @param interval_msec A time interval expressed in milliseconds.
-     *
-     * @return uint16_t The number of 0.625 msec ticks used by the BLE advertising
-     * interval tick count.
+     * @return uint16_t     The number of 0.625 msec ticks used by the BLE
+     *                      advertising interval tick count.
      */
     inline static constexpr uint16_t interval_msec(uint32_t interval_msec)
     {

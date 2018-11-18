@@ -19,9 +19,6 @@ namespace ble
 namespace gap
 {
 
-/// @todo Verify response data length
-//static constexpr att::length_t const scan_repsonse_max_length = 31u;
-
 class advertising_data_t
 {
 public:

@@ -44,12 +44,6 @@ public:
     ble_gap_operations& operator=(ble_gap_operations const&)  = delete;
     ble_gap_operations& operator=(ble_gap_operations&&)       = delete;
 
-    virtual status scan(uint16_t    scan_interval,
-                        uint16_t    scan_window,
-                        uint16_t    scan_timeout,
-                        bool        use_whitelist,
-                        bool        report_directed) override;
-
     virtual status connect(
         ble::gap::address                       peer_address,
         ble::gap::connection_parameters const&  connection_parameters) override;

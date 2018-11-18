@@ -26,8 +26,8 @@ public:
     ble_gap_connection& operator=(ble_gap_connection const&)  = delete;
     ble_gap_connection& operator=(ble_gap_connection&&)       = delete;
 
-    /** Constructor which uses the default connection parameters. */
-    ble_gap_connection(ble::gap::operations& operations);
+    ble_gap_connection(ble::gap::operations& operations,
+                       ble::gap::scanning&   scanning);
 
     /**
      * Post constructor initialization.

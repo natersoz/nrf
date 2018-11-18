@@ -278,6 +278,7 @@
             <F N="nordic_ble_gap_advertising.cc"/>
             <F N="nordic_ble_gap_event_observable.cc"/>
             <F N="nordic_ble_gap_operations.cc"/>
+            <F N="nordic_ble_gap_scanning.cc"/>
             <F N="nordic_ble_gattc_event_observable.cc"/>
             <F N="nordic_ble_gatts.cc"/>
             <F N="nordic_ble_gatts_event_observable.cc"/>
@@ -318,6 +319,7 @@
             <F N="gap_connection_parameters.h"/>
             <F N="gap_event_observer.h"/>
             <F N="gap_operations.h"/>
+            <F N="gap_scanning.h"/>
             <F N="gap_types.h"/>
             <F N="gatt_appearance.h"/>
             <F N="gatt_attribute.h"/>
@@ -339,6 +341,7 @@
             <F N="nordic_ble_gap_advertising.h"/>
             <F N="nordic_ble_gap_advertising_params.h"/>
             <F N="nordic_ble_gap_operations.h"/>
+            <F N="nordic_ble_gap_scanning.h"/>
             <F N="nordic_ble_gatts.h"/>
             <F N="nordic_ble_gatts_operations.h"/>
             <F N="nordic_ble_peer.h"/>

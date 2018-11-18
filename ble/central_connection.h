@@ -7,7 +7,7 @@
 
 #include "ble/att.h"
 #include "ble/gap_connection.h"
-#include "ble/gap_advertising.h"
+#include "ble/gap_scanning.h"
 #include "ble/gap_operations.h"
 
 namespace ble
@@ -22,6 +22,9 @@ namespace gap
  */
 class central_connection: public connection
 {
+private:
+    using super = ble::gap::connection;
+
 public:
     virtual ~central_connection()                             = default;
 
@@ -31,23 +34,14 @@ public:
     central_connection& operator=(central_connection const&)  = delete;
     central_connection& operator=(central_connection&&)       = delete;
 
-    /** Constructor which uses the default connection parameters. */
-    central_connection(ble::gap::operations& operations):
-        super(operations)
+    central_connection(ble::gap::operations&    operations,
+                       ble::gap::scanning&      scanning)
+    : super(operations),
+      scanning_(scanning)
     {}
 
-    /** Constructor which specifies the central_connection parameters. */
-    central_connection(
-        ble::gap::operations&                   operations,
-        ble::gap::connection_parameters const&  connection_parameters)
-        : super(operations, connection_parameters)
-    {}
-
-    /**
-     * Scan for advertising peripherals.
-     * @todo If the peripheral supports responses then scan for that also?
-     */
-    void scan();
+    ble::gap::scanning const& scanning() const { return this->scanning_; }
+    ble::gap::scanning&       scanning()       { return this->scanning_; }
 
 protected:
     void connect(uint16_t                   connection_handle,
@@ -61,10 +55,11 @@ protected:
                     ble::hci::error_code    error_code) override
     {
         super::disconnect(connection_handle, error_code);
+        this->scanning().start();
     }
 
 private:
-    using super = ble::gap::connection;
+    ble::gap::scanning& scanning_;
 };
 
 } // namespace gap

@@ -61,12 +61,6 @@ public:
     operations& operator=(operations const&)  = delete;
     operations& operator=(operations&&)       = delete;
 
-    virtual status scan(uint16_t    scan_interval,
-                        uint16_t    scan_window,
-                        uint16_t    scan_timeout,
-                        bool        use_whitelist,
-                        bool        report_directed) = 0;
-
     virtual status connect(
         ble::gap::address                       peer_address,
         ble::gap::connection_parameters const&  connection_parameters) = 0;

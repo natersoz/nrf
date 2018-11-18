@@ -26,6 +26,9 @@ namespace profile
  */
 class central: public connectable
 {
+private:
+    using super = ble::profile::connectable;
+
 public:
     virtual ~central()                  = default;
 
@@ -45,7 +48,8 @@ public:
                   ble_gap_connection,
                   ble_gatts_event_observer,
                   ble_gatts_operations,
-                  ble_gattc_event_observer)
+                  ble_gattc_event_observer),
+      scanning_(ble_gap_connection.scanning())
     {
     }
 
@@ -57,7 +61,8 @@ public:
     : connectable(ble_stack,
                   ble_gap_connection,
                   ble_gatts_event_observer,
-                  ble_gatts_operations)
+                  ble_gatts_operations),
+      scanning_(ble_gap_connection.scanning())
     {
     }
 
@@ -67,12 +72,16 @@ public:
                ble::gattc::event_observer&      ble_gattc_event_observer)
     : connectable(ble_stack,
                   ble_gap_connection,
-                  ble_gattc_event_observer)
+                  ble_gattc_event_observer),
+      scanning_(ble_gap_connection.scanning())
     {
     }
 
+    ble::gap::scanning const& scanning() const { return this->scanning_; }
+    ble::gap::scanning&       scanning()       { return this->scanning_; }
+
 private:
-    using super = ble::profile::connectable;
+    ble::gap::scanning& scanning_;
 };
 
 } // namespace profile

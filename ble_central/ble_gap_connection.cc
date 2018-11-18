@@ -18,8 +18,9 @@ ble_gap_connection::~ble_gap_connection()
 }
 
 /** Constructor which uses the default connection parameters. */
-ble_gap_connection::ble_gap_connection(ble::gap::operations& operations):
-    super(operations),
+ble_gap_connection::ble_gap_connection(ble::gap::operations& operations,
+                                       ble::gap::scanning&   scanning):
+    super(operations, scanning),
     nordic_gap_event_observer_(*this)
 {
 }

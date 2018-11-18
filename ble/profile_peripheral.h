@@ -25,6 +25,9 @@ namespace profile
  */
 class peripheral: public connectable
 {
+private:
+    using super = ble::profile::connectable;
+
 public:
     virtual ~peripheral()                     = default;
 
@@ -77,8 +80,6 @@ public:
     ble::gap::advertising&       advertising()       { return this->advertising_; }
 
 private:
-    using super = ble::profile::connectable;
-
     ble::gap::advertising& advertising_;
 };
 

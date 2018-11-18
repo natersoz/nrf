@@ -22,6 +22,9 @@ namespace gap
  */
 class peripheral_connection: public connection
 {
+private:
+    using super = ble::gap::connection;
+
 public:
     virtual ~peripheral_connection()                                = default;
 
@@ -68,8 +71,6 @@ protected:
     }
 
 private:
-    using super = ble::gap::connection;
-
     ble::gap::advertising& advertising_;
 };
 

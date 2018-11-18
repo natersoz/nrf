@@ -47,16 +47,6 @@ int8_t ble_gap_operations::tx_power_level(int8_t tx_power_dBm)
     return *tx_power_ptr;
 }
 
-status ble_gap_operations::scan(
-    uint16_t                scan_interval,
-    uint16_t                scan_window,
-    uint16_t                scan_timeout,
-    bool                    use_whitelist,
-    bool                    report_directed)
-{
-    return status::unimplemented;
-}
-
 status ble_gap_operations::connect(
     ble::gap::address                       peer_address,
     ble::gap::connection_parameters const&  connection_parameters)
