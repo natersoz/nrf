@@ -71,8 +71,15 @@ public:
 protected:
     void set_handle(uint16_t handle) { this->handle_ = handle; }
 
-    /// @note This method overrides ble::gap::event_observer::connect().
-    /// A client wishing to connect would call this->operations_.connect();
+    /**
+     * @note This method overrides ble::gap::event_observer::connect()
+     * with the default behavior of setting this classes' connection handle
+     * A client wishing to connect would call this->operations_.connect();
+     *
+     * @param connection_handle The conneciton handle of the new connection.
+     * @param peer_address      The peer address to which we connected.
+     * @param peer_address_id   A nordic index into nordic's stored addresses.
+     */
     void connect(uint16_t                   connection_handle,
                  ble::gap::address const&   peer_address,
                  uint8_t                    peer_address_id) override
@@ -80,8 +87,14 @@ protected:
         this->set_handle(connection_handle);
     }
 
-    /// @note This method overrides ble::gap::event_observer::disconnect().
-    /// A client wishing to connect would call this->operations_.disconnect();
+    /**
+     * @note This method overrides ble::gap::event_observer::disconnect()
+     * with the default behavior of invalidating the connection handle.
+     * A client wishing to connect would call this->operations_.disconnect();
+     *
+     * @param connection_handle The connection that was disconnected.
+     * @param error_code        The reason for disconnection.
+     */
     void disconnect(uint16_t                connection_handle,
                     ble::hci::error_code    error_code) override
     {

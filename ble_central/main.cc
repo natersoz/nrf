@@ -23,8 +23,7 @@
 
 #include "ble/profile_central.h"
 #include "ble/gap_connection.h"
-// #include "ble/service/gap_service.h"
-// #include "ble/service/gatt_service.h"
+#include "ble/nordic_ble_gap_operations.h"
 
 #include "ble/nordic_ble_stack.h"
 #include "ble/nordic_ble_peer.h"

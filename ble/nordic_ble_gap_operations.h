@@ -26,6 +26,16 @@ class ble_gap_operations: public ble::gap::operations
 public:
     using status = ble::gap::operations::status;
 
+    /**
+     * Get the nearest Nordic valid Transmit power level which is greater than
+     * or equal to the target power level in dBm. When calling the function
+     * sd_ble_gap_tx_power_set() the parameter tx_power must be a valid value.
+     *
+     * @param target_power_dBm The desired transmit power level in dBm.
+     * @return int8_t          The valid Nordic power level in dBm.
+     */
+    static int8_t tx_power_level(int8_t target_power_dBm);
+
     virtual ~ble_gap_operations() override                    = default;
 
     ble_gap_operations()                                      = default;
@@ -34,16 +44,17 @@ public:
     ble_gap_operations& operator=(ble_gap_operations const&)  = delete;
     ble_gap_operations& operator=(ble_gap_operations&&)       = delete;
 
+    virtual status scan(uint16_t    scan_interval,
+                        uint16_t    scan_window,
+                        uint16_t    scan_timeout,
+                        bool        use_whitelist,
+                        bool        report_directed) override;
+
     virtual status connect(
         ble::gap::address                       peer_address,
         ble::gap::connection_parameters const&  connection_parameters) override;
 
-    virtual status scan(
-        uint16_t                scan_interval,
-        uint16_t                scan_window,
-        uint16_t                scan_timeout,
-        bool                    use_whitelist,
-        bool                    report_directed) override;
+    virtual status connect_cancel() override;
 
     virtual status disconnect(
         uint16_t             connection_handle,

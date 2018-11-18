@@ -8,6 +8,8 @@
 #include "project_assert.h"
 #include "nrf_error.h"
 #include "ble_err.h"
+
+#include <algorithm>
 #include <cstring>
 
 namespace nordic
@@ -31,11 +33,18 @@ static status status_code(uint32_t nordic_error_code)
     }
 }
 
-status ble_gap_operations::connect(
-    ble::gap::address                       peer_address,
-    ble::gap::connection_parameters const&  connection_parameters)
+int8_t ble_gap_operations::tx_power_level(int8_t tx_power_dBm)
 {
-    return status::unimplemented;
+    int8_t const nordic_tx_power[] = { -40, -20, -16, -12, -8, -4, 0, +3, 4 };
+
+    // tx_power_ptr points to the first Nordic Tx power >= tx_power_dBm.
+    int8_t const* tx_power_ptr = std::lower_bound(
+        std::begin(nordic_tx_power), std::end(nordic_tx_power), tx_power_dBm);
+
+    // Request > highest nordic_tx_power[] value? truncate to highest.
+    tx_power_ptr = std::min(tx_power_ptr, std::end(nordic_tx_power) - 1);
+
+    return *tx_power_ptr;
 }
 
 status ble_gap_operations::scan(
@@ -44,6 +53,18 @@ status ble_gap_operations::scan(
     uint16_t                scan_timeout,
     bool                    use_whitelist,
     bool                    report_directed)
+{
+    return status::unimplemented;
+}
+
+status ble_gap_operations::connect(
+    ble::gap::address                       peer_address,
+    ble::gap::connection_parameters const&  connection_parameters)
+{
+    return status::unimplemented;
+}
+
+status ble_gap_operations::connect_cancel()
 {
     return status::unimplemented;
 }
