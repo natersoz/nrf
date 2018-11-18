@@ -19,9 +19,10 @@ namespace gap
 
 /**
  * @class ble::gap::connection
- * @note The inherited GAP event observer is protected from meddling.
+ * Tie together the gap::event_observer (inheritance) and
+ * gap_operations (aggregation).
  */
-class connection: protected ble::gap::event_observer,
+class connection: public ble::gap::event_observer,
                   public ble::profile::connectable_accessor
 {
 public:
@@ -34,21 +35,21 @@ public:
     connection& operator=(connection&&)         = delete;
 
     /** Constructor which uses the default connection parameters. */
-    connection(ble::gap::operations& gap_ops):
+    connection(ble::gap::operations& gap_operations):
         super(),
         handle_(invalid_handle),
         mtu_size_(ble::att::mtu_length_minimum),
-        operations_(gap_ops),
+        operations_(gap_operations),
         parameters_()
     {}
 
     /** Constructor which specifies the connection parameters. */
-    connection(ble::gap::operations&                  gap_ops,
+    connection(ble::gap::operations&                  gap_operations,
                ble::gap::connection_parameters const& connection_parameters):
         super(),
         handle_(invalid_handle),
         mtu_size_(ble::att::mtu_length_minimum),
-        operations_(gap_ops),
+        operations_(gap_operations),
         parameters_(connection_parameters)
     {}
 
@@ -70,6 +71,8 @@ public:
 protected:
     void set_handle(uint16_t handle) { this->handle_ = handle; }
 
+    /// @note This method overrides ble::gap::event_observer::connect().
+    /// A client wishing to connect would call this->operations_.connect();
     void connect(uint16_t                   connection_handle,
                  ble::gap::address const&   peer_address,
                  uint8_t                    peer_address_id) override
@@ -77,6 +80,8 @@ protected:
         this->set_handle(connection_handle);
     }
 
+    /// @note This method overrides ble::gap::event_observer::disconnect().
+    /// A client wishing to connect would call this->operations_.disconnect();
     void disconnect(uint16_t                connection_handle,
                     ble::hci::error_code    error_code) override
     {

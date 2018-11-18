@@ -15,7 +15,7 @@ namespace nordic
 
 using status = ble::gap::operations::status;
 
-status status_code(uint32_t nordic_error_code)
+static status status_code(uint32_t nordic_error_code)
 {
     switch (nordic_error_code)
     {
