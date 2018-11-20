@@ -20,13 +20,13 @@ static_assert(
 namespace nordic
 {
 
-gap_advertising::gap_advertising(uint16_t advertising_interval):
+ble_gap_advertising::ble_gap_advertising(uint16_t advertising_interval):
     ble::gap::advertising(advertising_interval),
     advertising_handle_(0u)
 {
 }
 
-void gap_advertising::start()
+void ble_gap_advertising::start()
 {
     logger &logger = logger::instance();
 
@@ -70,7 +70,7 @@ void gap_advertising::start()
     ASSERT(error_code == NRF_SUCCESS);
 }
 
-void gap_advertising::stop()
+void ble_gap_advertising::stop()
 {
     sd_ble_gap_adv_stop(this->advertising_handle_);
 }

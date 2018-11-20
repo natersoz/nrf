@@ -16,17 +16,17 @@ namespace nordic
  * @class nordic::gap_advertising
  * Base implementation for Nordic softdevce based advertising.
  */
-class gap_advertising: public ble::gap::advertising
+class ble_gap_advertising: public ble::gap::advertising
 {
 public:
 
-    virtual ~gap_advertising()                          = default;
-    gap_advertising()                                   = delete;
+    virtual ~ble_gap_advertising()                              = default;
+    ble_gap_advertising()                                       = delete;
 
-    gap_advertising(gap_advertising const&)             = delete;
-    gap_advertising(gap_advertising &&)                 = delete;
-    gap_advertising& operator=(gap_advertising const&)  = delete;
-    gap_advertising& operator=(gap_advertising&&)       = delete;
+    ble_gap_advertising(ble_gap_advertising const&)             = delete;
+    ble_gap_advertising(ble_gap_advertising &&)                 = delete;
+    ble_gap_advertising& operator=(ble_gap_advertising const&)  = delete;
+    ble_gap_advertising& operator=(ble_gap_advertising&&)       = delete;
 
     /**
      * Create the advertising class with a specific intreval based on
@@ -34,7 +34,7 @@ public:
      *
      * @param advertising_interval The advertising interval in 0.625 msec ticks.
      */
-    gap_advertising(uint16_t advertising_interval = advertising::interval_unspecified);
+    ble_gap_advertising(uint16_t advertising_interval = advertising::interval_unspecified);
 
     /**
      * Start advertising.

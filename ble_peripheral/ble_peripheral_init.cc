@@ -31,7 +31,7 @@
 
 static constexpr uint16_t const advertising_interval =
     ble::gap::advertising::interval_msec(100u);
-static nordic::gap_advertising ble_advertising(advertising_interval);
+static nordic::ble_gap_advertising ble_advertising(advertising_interval);
 
 static constexpr char   const device_name[]       = "periph";
 static constexpr size_t const device_name_length  = std::size(device_name) - 1u;
