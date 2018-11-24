@@ -11,51 +11,12 @@
 #include "ble/gatt_descriptors.h"
 #include "ble/gatt_uuids.h"
 
+#include "gregorian.h"
+
 namespace ble
 {
 namespace service
 {
-
-struct gregorian
-{
-    static constexpr uint8_t const month_unknown = 0u;
-    static constexpr uint8_t const day_unknown   = 0u;
-
-    ~gregorian() = default;
-    gregorian(): year(0u), month(0u), day(0u), hours(0u), minutes(0u), seconds(0u)
-    {
-    }
-
-    gregorian(uint16_t _year,
-              uint8_t  _month,
-              uint8_t  _day,
-              uint8_t  _hours,
-              uint8_t  _minutes,
-              uint8_t  _seconds):
-        year(_year),   month(_month),     day(_day),
-        hours(_hours), minutes(_minutes), seconds(_seconds)
-    {
-    }
-
-    uint16_t year;              ///< [1582:9999]
-    uint8_t  month;             ///< [1:12], 0: unknown
-    uint8_t  day;               ///< [1:31], 0: unknown
-    uint8_t  hours;             ///< [0:23]
-    uint8_t  minutes;           ///< [0:59]
-    uint8_t  seconds;           ///< [0:59]
-};
-
-enum class day_of_week: uint8_t
-{
-    unknown     = 0,
-    monday      = 1,
-    tuesday     = 2,
-    wednesday   = 3,
-    thursday    = 4,
-    friday      = 5,
-    saturday    = 6,
-    sunday      = 7,
-};
 
 /**
  * @class date_time
@@ -93,7 +54,7 @@ struct date_time: public gatt::characteristic
 
     gatt::client_characteristic_configuration_descriptor cccd;
 
-    gregorian greg_date;
+    utility::gregorian greg_date;
 };
 
 /**
@@ -115,7 +76,7 @@ struct day_date_time: public gatt::characteristic
                              gatt::properties::write |
                              gatt::properties::notify),
         cccd(*this),
-        week_day(day_of_week::unknown)
+        week_day(utility::gregorian::dow_invalid)
     {
         this->descriptor_add(this->cccd);
     }
@@ -130,8 +91,8 @@ struct day_date_time: public gatt::characteristic
 
     gatt::client_characteristic_configuration_descriptor cccd;
 
-    gregorian   greg_date;
-    day_of_week week_day;
+    utility::gregorian              greg_date;
+    utility::gregorian::day_of_week week_day;
 };
 
 struct exact_time_256: public gatt::characteristic
@@ -149,7 +110,7 @@ struct exact_time_256: public gatt::characteristic
                              gatt::properties::write |
                              gatt::properties::notify),
         cccd(*this),
-        week_day(day_of_week::unknown),
+        week_day(utility::gregorian::dow_invalid),
         seconds_fraction_256(0u)
    {
        this->descriptor_add(this->cccd);
@@ -167,9 +128,9 @@ struct exact_time_256: public gatt::characteristic
 
     gatt::client_characteristic_configuration_descriptor cccd;
 
-    gregorian   greg_date;
-    day_of_week week_day;
-    uint8_t     seconds_fraction_256;
+    utility::gregorian              greg_date;
+    utility::gregorian::day_of_week week_day;
+    uint8_t                         seconds_fraction_256;
 };
 
 /**
@@ -203,7 +164,7 @@ struct current_time: public gatt::characteristic
                              gatt::properties::write |
                              gatt::properties::notify),
         cccd(*this),
-        week_day(day_of_week::unknown),
+        week_day(utility::gregorian::dow_invalid),
         seconds_fraction_256(0u),
         adjust_reason(adjust_reason::none)
      {
@@ -223,10 +184,10 @@ struct current_time: public gatt::characteristic
 
     gatt::client_characteristic_configuration_descriptor cccd;
 
-    gregorian       greg_date;
-    day_of_week     week_day;
-    uint8_t         seconds_fraction_256;
-    adjust_reason   adjust_reason;
+    utility::gregorian              greg_date;
+    utility::gregorian::day_of_week week_day;
+    uint8_t                         seconds_fraction_256;
+    adjust_reason                   adjust_reason;
 };
 
 /**

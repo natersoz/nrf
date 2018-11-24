@@ -282,6 +282,10 @@
             <F N="test_format_conversion.cc"/>
             <F N="test_make_array.cc"/>
             <F N="test_bit_manip.cc"/>
+            <F N="test_assert.cc"/>
+            <F N="test_logger.cc"/>
+            <F N="test_fixed_allocator.cc"/>
+            <F N="test_gregorian.cc"/>
         </Folder>
         <Folder
             Name="Header Files"

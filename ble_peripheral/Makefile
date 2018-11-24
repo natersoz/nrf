@@ -70,6 +70,7 @@ SOURCE_FILES += $(PROJECT_ROOT)/ble/service/custom_uuid.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/tlv_encode.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/uuid.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/format_conversion.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/gregorian.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/int_to_string.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/project_assert.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/std_stubs.cc

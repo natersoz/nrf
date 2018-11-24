@@ -15,6 +15,7 @@
 #include "ble/service/gap_service.h"
 #include "ble/service/gatt_service.h"
 #include "ble/service/battery_service.h"
+#include "ble/service/current_time_service.h"
 #include "ble/service/nordic_saadc_sensor_service.h"
 
 #include "ble/nordic_ble_stack.h"
@@ -111,6 +112,9 @@ static ble::service::battery_service        battery_service;
 static ble::service::battery_level          battery_level_characteristic;
 static ble::service::battery_power_state    battery_power_characteristic;
 
+// ----- Current Time Service
+static ble::service::current_time_service   current_time_service;
+
 // ----- Custom ADC Sensor Service
 static nordic::saadc_sensor_service         adc_sensor_service;
 static nordic::saadc_samples_characteristic adc_samples_characteristic;
@@ -154,6 +158,7 @@ ble::profile::peripheral& ble_peripheral_init()
     ble_peripheral.service_add(gap_service);
     ble_peripheral.service_add(gatt_service);
     ble_peripheral.service_add(battery_service);
+    ble_peripheral.service_add(current_time_service);
     ble_peripheral.service_add(adc_sensor_service);
 
     set_advertising_data(ble_peripheral.advertising().advertising_data);

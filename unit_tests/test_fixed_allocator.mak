@@ -11,6 +11,8 @@ BUILD_PATH	= _build
 
 INCLUDE_PATH	+= -I .
 INCLUDE_PATH	+= -I ../utilities
+INCLUDE_PATH    += -I ../logger
+INCLUDE_PATH    += -I ../nordic/peripherals
 
 vpath %.cc .
 vpath %.cc ../utilities
@@ -30,7 +32,8 @@ CXXFLAGS  = -g $(WARNINGS) $(DEFINES) -std=c++17
 CFLAGS    = -g $(WARNINGS) $(DEFINES) -std=c99
 
 SRC += test_fixed_allocator.cc
-SRC += unit_test_assert.cc
+SRC += test_logger.cc
+SRC += test_assert.cc
 
 OBJ_CXX	= $(SRC:.cc=.o)
 OBJ_C	= $(OBJ_CXX:.c=.o)
