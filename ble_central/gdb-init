@@ -1,0 +1,5 @@
+target remote localhost:2331
+file _build/ble_central.out
+load
+monitor reset
+
