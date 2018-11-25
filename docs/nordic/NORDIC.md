@@ -296,14 +296,26 @@ Explains why a volatile dummy read is required after clearing an interrupt.
 
 Noridc SDK Version
 ------------------
-+ Nordic SDK Version = `nRF5_SDK_14.2.0_17b948a`
+Nordic SDK Version = `nRF5_SDK_15.2.0_9412b96`
 
-    Note: In my opinion, SDK-15 was a step in the wrong direction.
-    More interdependencies with even more horrific macros.
+The main differences between SDK 14.2 and 15.x: are primarily the GAP.
 
-+ Set as symlink at top level dir:
++ GAP Advertising and Scanning
+  + Supports extended channels.
+  + Supports extended data lengths.
+  + Uses a handle based mechanism (which I am not a fan of, but oh well).
 
-        $ ln -s <path to Nordic SDK> sdk
++ Phy layer 2 Mbps and Viterbi coding.
+
+In the project the following symbolic links are checked in and point to
+different SDK versions:
+
+	sdk@ -> sdk-15
+	sdk-14@ -> sdk-14.2
+	sdk-14.2@ -> ../../nRF/SDK/nRF5_SDK_14.2.0_17b948a
+	sdk-15@ -> sdk-15.2
+	sdk-15.0@ -> ../../nRF/SDK/nRF5_SDK_15.0.0_a53641a
+	sdk-15.2@ -> ../../nRF/SDK/nRF5_SDK_15.2.0_9412b96
 
 Nordic SDK modifications
 ------------------------
@@ -380,3 +392,15 @@ interrupt and call the application fault handler `app_error_fault_handler()`.
 If this happens you will receive a non-descript memory access violation
 with no other hints regarding what triggered the fault. But Nordic can
 definitely determine that it was on your side of the code; not theirs.
+
+Softdevice Debugging
+--------------------
+Why am I getting Nordic Softdevice Asserts?
+
+When you halt the Noridc softdevice, typically through a break point in the
+debugger, guess what happens: Noridc throws you an assert via an interrupt into
+their softdevice handler and the only way to recover is through a reset of your
+device.
+
+Apparently when the softdevice detects that the BLE timing has been disturbed,
+which halting with a debugger will do, you earn an assert award.
