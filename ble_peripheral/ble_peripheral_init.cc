@@ -127,7 +127,9 @@ static nordic::saadc_sensor_acquisition     adc_sensor_acq(
 
 ble::profile::peripheral& ble_peripheral_init()
 {
-    ble_peripheral.ble_stack().init();
+    unsigned int const peripheral_count = 1u;
+    unsigned int const central_count    = 0u;
+    ble_peripheral.ble_stack().init(peripheral_count, central_count);
     ble_peripheral.ble_stack().enable();
 
     /// @todo consider having each gap, gatts, gattc interface expose a

@@ -3,8 +3,6 @@
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
-// #include "ble_central_init.h"
-
 #include "cmsis_gcc.h"
 #include "clocks.h"
 #include "leds.h"
@@ -65,7 +63,9 @@ int main(void)
     ble_gap_connection.init();
     ble_gattc_observer.init();
 
-    ble_stack.init();
+    unsigned int const peripheral_count = 0u;
+    unsigned int const central_count    = 1u;
+    ble_stack.init(peripheral_count, central_count);
     ble_stack.enable();
 
     ble_peer_init();

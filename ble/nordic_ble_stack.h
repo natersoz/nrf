@@ -61,10 +61,14 @@ public:
         connection_configuration_tag_(conn_cfg_tag)
     {}
 
-    std::errc init() override;
+    std::errc init(unsigned int peripheral_count,
+                   unsigned int central_count) override;
+
     std::errc enable() override;
     std::errc disable() override;
     bool      is_enabled() const override;
+
+    std::errc set_mtu_max_size(ble::att::length_t mtu_max_size) override;
 
     /**
      * Set the softdevice peripheral and central connection counts
@@ -127,16 +131,6 @@ public:
      * @return std::errc The standard error code.
      */
     std::errc set_service_changed_characteristic(bool service_changed);
-
-    /**
-     * Set the maximum ATT MTU size, in octets.
-     *
-     * @param att::length The maximum number of octets within on ATT MTU.
-     * The minimum length is  23 octets: ble::att::mtu_length_minimum.
-     * The maximum length is 251 octets: ble::att::mtu_length_maximum
-     * @return std::errc The standard error code.
-     */
-    std::errc set_mtu_max_size(ble::att::length_t mtu_max_size);
 
 private:
     /// The RAM region base address reserved for use by the softdevice.

@@ -60,9 +60,10 @@ uintptr_t const ble_stack::ram_base_address = reinterpret_cast<uintptr_t>(&__dat
  *
  * @todo nrf_sdh_enable_request() calls nrf_sdh_enable_request() which uses
  * #define NRF_SDH_CLOCK_LF_SRC in sdk_config.h; NRF_CLOCK_LF_SRC_XTAL (1).
- * MAke this parameterized within this class.
+ * These should be parameterized within this class.
  */
-std::errc ble_stack::init(void)
+std::errc ble_stack::init(unsigned int peripheral_count,
+                          unsigned int central_count)
 {
     uint32_t error_code = NRF_SUCCESS;
 
@@ -81,7 +82,7 @@ std::errc ble_stack::init(void)
     // functions with their application specific settings.
     // Note: the BLE MYU is set to maximum by default to accomodate client
     // requests that are in the valid range. Otherwise we cannot fill the request.
-    std::errc error_link_count      = set_link_count(1u, 0u);
+    std::errc error_link_count      = set_link_count(peripheral_count, central_count);
     std::errc error_custom_uuid     = set_gatt_custom_uuid_count(8u);
     std::errc error_table_size      = set_gatt_table_size(2048u);
     std::errc error_service_changed = set_service_changed_characteristic(false);
@@ -128,6 +129,30 @@ bool ble_stack::is_enabled() const
     uint8_t is_enabled = 0u;
     sd_softdevice_is_enabled(&is_enabled);      // Always returns NRF_SUCCESS.
     return bool(is_enabled);
+}
+
+std::errc ble_stack::set_mtu_max_size(ble::att::length_t mtu_max_size)
+{
+    ble_cfg_t ble_cfg;
+    memset(&ble_cfg, 0, sizeof(ble_cfg));
+
+    ble_cfg.conn_cfg.conn_cfg_tag = this->connection_configuration_tag_;
+    ble_cfg.conn_cfg.params.gatt_conn_cfg.att_mtu = mtu_max_size;
+
+    uint32_t const error_code = sd_ble_cfg_set(BLE_CONN_CFG_GATT,
+                                               &ble_cfg,
+                                               ram_base_address);
+    if (error_code != NRF_SUCCESS)
+    {
+        logger::instance().error("set_mtu_max_size(%u): failed: %u",
+                                 mtu_max_size, error_code);
+    }
+    else
+    {
+        this->constraints_.att_mtu_maximum_length = mtu_max_size;
+    }
+
+    return nordic_to_system_error(error_code);
 }
 
 std::errc ble_stack::set_link_count(uint8_t  peripheral_link_count,
@@ -237,30 +262,6 @@ std::errc ble_stack::set_service_changed_characteristic(bool service_changed)
     {
         logger::instance().error("set_service_changed_characteristic(%u) %u",
                                  service_changed, error_code);
-    }
-
-    return nordic_to_system_error(error_code);
-}
-
-std::errc ble_stack::set_mtu_max_size(ble::att::length_t mtu_max_size)
-{
-    ble_cfg_t ble_cfg;
-    memset(&ble_cfg, 0, sizeof(ble_cfg));
-
-    ble_cfg.conn_cfg.conn_cfg_tag = this->connection_configuration_tag_;
-    ble_cfg.conn_cfg.params.gatt_conn_cfg.att_mtu = mtu_max_size;
-
-    uint32_t const error_code = sd_ble_cfg_set(BLE_CONN_CFG_GATT,
-                                               &ble_cfg,
-                                               ram_base_address);
-    if (error_code != NRF_SUCCESS)
-    {
-        logger::instance().error("set_mtu_max_size(%u): failed: %u",
-                                 mtu_max_size, error_code);
-    }
-    else
-    {
-        this->constraints_.att_mtu_maximum_length = mtu_max_size;
     }
 
     return nordic_to_system_error(error_code);
