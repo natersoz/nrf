@@ -56,10 +56,7 @@ public:
     ble_stack& operator=(ble_stack const&)  = delete;
     ble_stack& operator=(ble_stack&&)       = delete;
 
-    ble_stack(uint8_t conn_cfg_tag):
-        ble::stack(),
-        connection_configuration_tag_(conn_cfg_tag)
-    {}
+    ble_stack(uint8_t conn_cfg_tag);
 
     std::errc init(unsigned int peripheral_count,
                    unsigned int central_count) override;
@@ -67,6 +64,8 @@ public:
     std::errc enable() override;
     std::errc disable() override;
     bool      is_enabled() const override;
+
+    version get_version() const override;
 
     std::errc set_mtu_max_size(ble::att::length_t mtu_max_size) override;
 

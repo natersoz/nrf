@@ -51,6 +51,12 @@ namespace nordic
 
 uintptr_t const ble_stack::ram_base_address = reinterpret_cast<uintptr_t>(&__data_start__);
 
+ble_stack::ble_stack(uint8_t conn_cfg_tag):
+    ble::stack(),
+    connection_configuration_tag_(conn_cfg_tag)
+{
+}
+
 /**
  * Initialize the SoftDevice and the BLE event interrupt.
  *
@@ -95,6 +101,36 @@ std::errc ble_stack::init(unsigned int peripheral_count,
     if (is_failure(error_mtu_max_size))     { return error_mtu_max_size; }
 
     return errc_success;
+}
+
+ble::stack::version ble_stack::get_version() const
+{
+    uint32_t sd_version = 0u;
+    sd_version |= SD_VARIANT_ID;
+    sd_version <<= 8u;
+    sd_version |= SD_MAJOR_VERSION;
+    sd_version <<= 8u;
+    sd_version |= SD_MINOR_VERSION;
+    sd_version <<= 8u;
+    sd_version |= SD_BUGFIX_VERSION;
+
+    ble_version_t nordic_version;
+    uint32_t const error_code = sd_ble_version_get(&nordic_version);
+    if (error_code != NRF_SUCCESS)
+    {
+        memset(&nordic_version, 0, sizeof(nordic_version));
+    }
+
+    version const version_info = {
+        .link_layer_version = nordic_version.version_number,
+        .company_id         = nordic_version.company_id,
+        .vendor_specific    = {
+            nordic_version.subversion_number,
+            sd_version
+        }
+    };
+
+    return version_info;
 }
 
 std::errc ble_stack::enable()

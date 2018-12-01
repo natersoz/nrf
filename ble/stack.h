@@ -6,6 +6,8 @@
 #pragma once
 
 #include <system_error>
+#include <array>
+
 #include "ble/att.h"
 
 namespace ble
@@ -21,6 +23,24 @@ struct stack
         }
 
         uint8_t att_mtu_maximum_length;
+    };
+
+    struct version
+    {
+        /**
+         * The Bluetooth core specification version.
+         * @see https://www.bluetooth.com/specifications/assigned-numbers/link-layer
+         */
+        uint8_t  link_layer_version;
+
+        /**
+         * The Bluetooth company identifier.
+         * @see https://www.bluetooth.com/specifications/assigned-numbers/company-identifiers
+         */
+        uint16_t company_id;
+
+        /** Vendor specific information */
+        std::array<uint32_t, 2u> vendor_specific;
     };
 
     virtual ~stack()                = default;
@@ -62,6 +82,8 @@ struct stack
     constraints const& get_constraints() const {
         return this->constraints_;
     }
+
+    virtual version get_version() const = 0;
 
 protected:
     constraints constraints_;

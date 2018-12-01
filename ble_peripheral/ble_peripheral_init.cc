@@ -131,6 +131,20 @@ ble::profile::peripheral& ble_peripheral_init()
     unsigned int const central_count    = 0u;
     ble_peripheral.ble_stack().init(peripheral_count, central_count);
     ble_peripheral.ble_stack().enable();
+    ble::stack::version const version = ble_peripheral.ble_stack().get_version();
+
+    logger::instance().info(
+        "BLE stack version: link layer: %u, company id: 0x%04x, vendor: 0x%x",
+        version.link_layer_version,
+        version.company_id,
+        version.vendor_specific[0u]);
+
+    logger::instance().info(
+        "BLE softdevice %u, version: %u.%u.%u",
+        static_cast<uint8_t>(version.vendor_specific[1] >> 24u),
+        static_cast<uint8_t>(version.vendor_specific[1] >> 16u),
+        static_cast<uint8_t>(version.vendor_specific[1] >>  8u),
+        static_cast<uint8_t>(version.vendor_specific[1] >>  0u));
 
     /// @todo consider having each gap, gatts, gattc interface expose a
     /// post ctor init() method so that these init() calls can be made from
