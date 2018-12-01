@@ -15,6 +15,8 @@
 
 namespace ble
 {
+namespace gap
+{
 
 /**
  * @enum flags
@@ -64,7 +66,7 @@ enum flags : uint8_t
  * https://www.bluetooth.com/specifications/bluetooth-core-specification
  * This is the document which describes each of the types enumerated below.
  */
-enum class gap_type : uint8_t
+enum class type : uint8_t
 {
     /// @see enum flags
     flags = 0x01,
@@ -250,9 +252,6 @@ enum class gap_type : uint8_t
      */
     manufacturer_specific_data = 0xFF,
 };
-
-namespace gap
-{
 
 /// Use to initialize BLE connection handles which have yet to be assigned and
 /// to test handles for being valid.

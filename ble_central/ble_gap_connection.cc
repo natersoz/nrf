@@ -42,8 +42,7 @@ void ble_gap_connection::connect(uint16_t                    connection_handle,
     /// preferred connection parameters and use those. It would eliminated
     /// duplication of the connection parameters value.
     this->operations().connection_parameter_update_request(
-        this->get_handle(),
-        this->get_parameters());
+        this->get_handle(), this->get_parameters());
 }
 
 void ble_gap_connection::disconnect(uint16_t                connection_handle,
@@ -205,6 +204,23 @@ void ble_gap_connection::advertising_report(
     void const*                 data,
     uint8_t                     data_length)
 {
+    super::advertising_report(connection_handle,
+                              peer_address,
+                              direct_address,
+                              rssi_dBm,
+                              scan_response,
+                              data,
+                              data_length);
+
+    // For Nordic, each time a report is issued scanning needs to be stopped and
+    // restarted to get another report.
+    // See comments at the top of struct ble_gap_evt_adv_report_t:
+    // "scanning will be paused."
+    // If the scan is not stopped before restarting then the
+    // error NRF_ERROR_INVALID_STATE is returned.
+    // This is a rather stupid implementation on Nordic's part.
+    this->scanning().stop();
+    this->scanning().start();
 }
 
 void ble_gap_connection::scan_report_request(

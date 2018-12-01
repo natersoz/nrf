@@ -49,11 +49,11 @@ static size_t set_advertising_data(ble::gap::advertising_data_t &data)
     size_t length = 0u;
 
     length += ble::tlv_encode(data,
-                              ble::gap_type::flags,
-                              ble::le_general_discovery);
+                              ble::gap::type::flags,
+                              ble::gap::le_general_discovery);
 
     length += ble::tlv_encode(data,
-                              ble::gap_type::local_name_short,
+                              ble::gap::type::local_name_short,
                               short_name, short_name_length);
 
     length += ble::tlv_encode_address(data,
@@ -61,7 +61,7 @@ static size_t set_advertising_data(ble::gap::advertising_data_t &data)
                                       nordic::get_device_address());
 
     length += ble::tlv_encode(data,
-                              ble::gap_type::uuid_service_16_incomplete,
+                              ble::gap::type::uuid_service_16_incomplete,
                               services_16,
                               std::size(services_16));
     return length;

@@ -22,7 +22,7 @@ void tlv_encode_push_back(gap::advertising_data_t&  encoded,
 }
 
 size_t tlv_encode(gap::advertising_data_t&  encoded,
-                  gap_type                  type,
+                  gap::type                 type,
                   std::string const&        string)
 {
     size_t const length = string.size();
@@ -32,7 +32,7 @@ size_t tlv_encode(gap::advertising_data_t&  encoded,
     }
 
     auto const end_start = encoded.end();
-    encoded.push_back(static_cast<uint8_t>(length + sizeof(gap_type)));
+    encoded.push_back(static_cast<uint8_t>(length + sizeof(gap::type)));
     encoded.push_back(static_cast<uint8_t>(type));
     tlv_encode_push_back(encoded, string.c_str(), length);
 
@@ -40,7 +40,7 @@ size_t tlv_encode(gap::advertising_data_t&  encoded,
 }
 
 size_t tlv_encode(gap::advertising_data_t&  encoded,
-                  gap_type                  type,
+                  gap::type                 type,
                   char const*               char_string)
 {
     if (encoded.capacity() - encoded.size() < tlv_header_length)
@@ -60,7 +60,7 @@ size_t tlv_encode(gap::advertising_data_t&  encoded,
     }
 
     // The length is now known and can be set.
-    *begin = (data_ptr_8 - data_ptr_begin) + sizeof(gap_type);
+    *begin = (data_ptr_8 - data_ptr_begin) + sizeof(gap::type);
 
     return std::distance(begin, encoded.end());
 }
@@ -76,8 +76,8 @@ size_t tlv_encode_address(gap::advertising_data_t&  encoded,
     }
 
     auto const begin = encoded.end();
-    encoded.push_back(static_cast<uint8_t>(length + sizeof(gap_type)));
-    encoded.push_back(static_cast<uint8_t>(gap_type::device_dddress));
+    encoded.push_back(static_cast<uint8_t>(length + sizeof(gap::type)));
+    encoded.push_back(static_cast<uint8_t>(gap::type::device_dddress));
     encoded.push_back(static_cast<uint8_t>(address_is_random));
     tlv_encode_push_back(encoded, address_pointer, length - 1u);
 
