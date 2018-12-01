@@ -29,17 +29,18 @@ Boost Libraries
 
 Nordic SDK
 ----------
-+ Install the [Nordic SDK](http://infocenter.nordicsemi.com/topic/com.nordic.infocenter.sdk/dita/sdk/nrf5_sdk.html)
-  version 14.2 `nRF5_SDK_14.2.0_17b948a`
++ Install the [Nordic SDK](https://www.nordicsemi.com/DocLib/Content/SDK_Doc/nRF5_SDK/v15-2-0/index)
+  version 15.2 `nRF5_SDK_15.2.0_9412b96`
 + The symlinks are set in git as:
 
-		sdk@      -> sdk-14
-		sdk-14@   -> ../../nRF/SDK/nRF5_SDK_14.2.0_17b948a
-		sdk-15@   -> ../../nRF/SDK/nRF5_SDK_15.2.0_9412b96
-		sdk-15.0@ -> ../../nRF/SDK/nRF5_SDK_15.0.0_a53641a
-		sdk-15.2@ -> ../../nRF/SDK/nRF5_SDK_15.2.0_9412b96
+                sdk@ -> sdk-15
+                sdk-14@ -> sdk-14.2
+                sdk-14.2@ -> ../../nRF/SDK/nRF5_SDK_14.2.0_17b948a
+                sdk-15@ -> sdk-15.2
+                sdk-15.0@ -> ../../nRF/SDK/nRF5_SDK_15.0.0_a53641a
+                sdk-15.2@ -> ../../nRF/SDK/nRF5_SDK_15.2.0_9412b96
 
-+ Some SDK files need replaced or moved out of the way.
++ A few SDK files need replaced or moved out of the way.
   For more details see doc/NORDIC.md section "Nordic SDK modifications".
   To quickly get going:
 

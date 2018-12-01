@@ -82,7 +82,7 @@ See also the macros defined in nrf_section.h:
 #### `.sdh_soc_observers`
 
 + Nordic 'SoC' events are enumerated with `enum NRF_SOC_EVTS` in file
-  `nRF5_SDK_14.2.0_17b948a/components/softdevice/s132/headers/nrf_soc.h`.
+  `components/softdevice/s132/headers/nrf_soc.h`.
 + Within the class structure of this code base these events can be observered
   through the use of classes:
 
@@ -143,7 +143,7 @@ Notes:
 
 + Nordic requests for the softdevice state change can be observed on this interface.
 + The Noridc event `enum nrf_sdh_req_evt_t` is found in
-  `nRF5_SDK_14.2.0_17b948a/components/softdevice/common/nrf_sdh.h`.
+  `components/softdevice/common/nrf_sdh.h`.
 + There are only 2 event types on this interface:
 
         NRF_SDH_EVT_ENABLE_REQUEST,     //!< Request to enable the SoftDevice.
@@ -167,7 +167,7 @@ Notes:
   change to proceed then the `.sdh_state_observers` will receive notifications about
   the state change.
 + The Noridc event `enum nrf_sdh_state_evt_t` is found in
-  `nRF5_SDK_14.2.0_17b948a/components/softdevice/common/nrf_sdh.h`.
+  `components/softdevice/common/nrf_sdh.h`.
 + There are 4 event types on this interface:
 
         NRF_SDH_EVT_STATE_ENABLE_PREPARE,   //!< SoftDevice is going to be enabled.
@@ -322,8 +322,8 @@ Nordic SDK modifications
 + A bash script in `nrf/nordic/sdk-modified/replace_sdk_files` can be used to
   replace SDK files which require changes.
 + The script must be run from the directory `nrf/nordic/sdk-modified`.
-+ The link `nrf/sdk` must point to the Nordic SDK 14.2 root:
-  `sdk@ -> ../../nRF/SDK/nRF5_SDK_14.2.0_17b948a`
++ The link `nrf/sdk` must point to the Nordic SDK 15.2 root:
+  `sdk@ -> ../../nRF/SDK/nRF5_SDK_15.2.0_9412b96`
 
 The following files have been modified from the original:
 
