@@ -60,7 +60,7 @@ public:
      * @param advertising_interval The advertising interval in 0.625 msec ticks.
      */
     advertising(uint16_t advertising_interval = advertising::interval_unspecified):
-        advertising_data(),
+        data(),
         interval(advertising_interval)
     {
     }
@@ -79,7 +79,7 @@ public:
      * Use the tlv_encode functions to set the advertising data into
      * this data struct.
      */
-    advertising_data_t advertising_data;
+    advertising_data data;
 
     /// The advertising interval in 0.625 msec units.
     uint16_t interval;

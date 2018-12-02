@@ -23,24 +23,24 @@ namespace ble
  */
 static constexpr size_t const tlv_header_length = 2u * sizeof(uint8_t);
 
-void tlv_encode_push_back(gap::advertising_data_t&  encoded,
+void tlv_encode_push_back(gap::advertising_data&    encoded,
                           void const*               data,
                           size_t                    length);
 
-size_t tlv_encode(gap::advertising_data_t&  encoded,
+size_t tlv_encode(gap::advertising_data&    encoded,
                   gap::type                 type,
                   std::string const&        string);
 
-size_t tlv_encode(gap::advertising_data_t&  encoded,
+size_t tlv_encode(gap::advertising_data&    encoded,
                   gap::type                 type,
                   char const*               char_string);
 
-size_t tlv_encode_address(gap::advertising_data_t&  encoded,
+size_t tlv_encode_address(gap::advertising_data&    encoded,
                           bool                      address_is_random,
                           void const*               address_pointer);
 
 template <typename data_type>
-std::size_t tlv_encode(gap::advertising_data_t&     encoded,
+std::size_t tlv_encode(gap::advertising_data&       encoded,
                        gap::type                    type,
                        data_type const*             data,
                        std::size_t                  data_length)
@@ -65,7 +65,7 @@ std::size_t tlv_encode(gap::advertising_data_t&     encoded,
 }
 
 template <typename data_type>
-std::size_t tlv_encode(gap::advertising_data_t&     encoded,
+std::size_t tlv_encode(gap::advertising_data&       encoded,
                        gap::type                    type,
                        data_type const&             data)
 {

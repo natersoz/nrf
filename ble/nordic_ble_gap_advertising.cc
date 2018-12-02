@@ -15,7 +15,7 @@
 #include "nrf_error.h"
 
 static_assert(
-    ble::gap::advertising_data_t::max_length == BLE_GAP_ADV_SET_DATA_SIZE_MAX);
+    ble::gap::advertising_data::max_length == BLE_GAP_ADV_SET_DATA_SIZE_MAX);
 
 namespace nordic
 {
@@ -30,20 +30,17 @@ void ble_gap_advertising::start()
 {
     logger &logger = logger::instance();
 
-    logger.debug("adv_data: %p, %u",
-                 this->advertising_data.data(), this->advertising_data.size());
+    logger.debug("adv_data: %p, %u", this->data.data(), this->data.size());
 
     logger.write_data(logger::level::debug,
-                      this->advertising_data.data(),
-                      this->advertising_data.size(),
-                      true);
+                      this->data.data(), this->data.size(), true);
 
     this->advertising_handle_ = 0u;
     ble_gap_adv_data_t const nordic_advertising_data = {
         // Advertising data:
         .adv_data = {
-            .p_data = this->advertising_data.data(),
-            .len    = static_cast<uint16_t>(this->advertising_data.size())
+            .p_data = this->data.data(),
+            .len    = static_cast<uint16_t>(this->data.size())
         },
         // Scan/Response data:
         .scan_rsp_data = {

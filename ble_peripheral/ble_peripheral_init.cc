@@ -39,7 +39,7 @@ static constexpr size_t const device_name_length  = std::size(device_name) - 1u;
 static constexpr char   const short_name[]        = "periph";
 static constexpr size_t const short_name_length   = std::size(short_name) - 1u;
 
-static size_t set_advertising_data(ble::gap::advertising_data_t &data)
+static size_t set_advertising_data(ble::gap::advertising_data &data)
 {
     ble::gatt::services const services_16[] = {
         ble::gatt::services::device_information,
@@ -177,7 +177,7 @@ ble::profile::peripheral& ble_peripheral_init()
     ble_peripheral.service_add(current_time_service);
     ble_peripheral.service_add(adc_sensor_service);
 
-    set_advertising_data(ble_peripheral.advertising().advertising_data);
+    set_advertising_data(ble_peripheral.advertising().data);
 
     return ble_peripheral;
 }

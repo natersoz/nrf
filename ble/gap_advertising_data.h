@@ -19,21 +19,21 @@ namespace ble
 namespace gap
 {
 
-class advertising_data_t
+class advertising_data
 {
 public:
     static constexpr std::size_t const max_length = 31u;
 
     using container = std::array<uint8_t, max_length>;
 
-    ~advertising_data_t()                                       = default;
+    ~advertising_data()                                       = default;
 
-    advertising_data_t(advertising_data_t const&)               = delete;
-    advertising_data_t(advertising_data_t &&)                   = delete;
-    advertising_data_t& operator=(advertising_data_t const&)    = delete;
-    advertising_data_t& operator=(advertising_data_t&&)         = delete;
+    advertising_data(advertising_data const&)               = delete;
+    advertising_data(advertising_data &&)                   = delete;
+    advertising_data& operator=(advertising_data const&)    = delete;
+    advertising_data& operator=(advertising_data&&)         = delete;
 
-    advertising_data_t(): data_(), index_(data_.begin())
+    advertising_data(): data_(), index_(data_.begin())
     {
         this->data_.fill(0);
     }
