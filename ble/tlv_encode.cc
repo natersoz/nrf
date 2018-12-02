@@ -48,7 +48,7 @@ size_t tlv_encode(gap::advertising_data&    encoded,
         return 0u;
     }
 
-    auto const begin = encoded.end();
+    uint8_t* length_pointer = encoded.end_pointer();
     encoded.push_back(0u);
     encoded.push_back(static_cast<uint8_t>(type));
 
@@ -60,9 +60,9 @@ size_t tlv_encode(gap::advertising_data&    encoded,
     }
 
     // The length is now known and can be set.
-    *begin = (data_ptr_8 - data_ptr_begin) + sizeof(gap::type);
+    *length_pointer = (data_ptr_8 - data_ptr_begin) + sizeof(gap::type);
 
-    return std::distance(begin, encoded.end());
+    return std::distance(length_pointer, encoded.end_pointer());
 }
 
 size_t tlv_encode_address(gap::advertising_data&    encoded,

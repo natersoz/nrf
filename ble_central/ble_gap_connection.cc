@@ -4,6 +4,7 @@
  */
 
 #include "ble_gap_connection.h"
+#include "ble/gap_advertising_data.h"
 #include "logger.h"
 
 #include "ble_gap.h"
@@ -211,6 +212,11 @@ void ble_gap_connection::advertising_report(
                               scan_response,
                               data,
                               data_length);
+
+    ble::gap::advertising_data const advertising_data(data, data_length);
+    for (ble::gap::tlv_data const tlv : advertising_data)
+    {
+    }
 
     // For Nordic, each time a report is issued scanning needs to be stopped and
     // restarted to get another report.
