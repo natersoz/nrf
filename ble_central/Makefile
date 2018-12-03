@@ -65,7 +65,6 @@ SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_soc_observable.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_state_observable.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/service/battery_service.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/service/custom_uuid.cc
-SOURCE_FILES += $(PROJECT_ROOT)/ble/tlv_encode.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/uuid.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/format_conversion.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/int_to_string.cc

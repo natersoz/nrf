@@ -8,7 +8,7 @@
 #include "ble/att.h"
 #include "ble/gap_types.h"
 #include "ble/gatt_uuids.h"
-#include "ble/tlv_encode.h"
+#include "ble/ltv_encode.h"
 
 #include "ble/profile_peripheral.h"
 #include "ble/gap_connection.h"
@@ -48,22 +48,22 @@ static size_t set_advertising_data(ble::gap::advertising_data &data)
 
     size_t length = 0u;
 
-    length += ble::tlv_encode(data,
-                              ble::gap::type::flags,
-                              ble::gap::le_general_discovery);
+    length += ble::gap::ltv_encode(data,
+                                   ble::gap::type::flags,
+                                   ble::gap::le_general_discovery);
 
-    length += ble::tlv_encode(data,
-                              ble::gap::type::local_name_short,
-                              short_name, short_name_length);
+    length += ble::gap::ltv_encode(data,
+                                   ble::gap::type::local_name_short,
+                                   short_name, short_name_length);
 
-    length += ble::tlv_encode_address(data,
-                                      false,
-                                      nordic::get_device_address());
+    length += ble::gap::ltv_encode_address(data,
+                                           false,
+                                           nordic::get_device_address());
 
-    length += ble::tlv_encode(data,
-                              ble::gap::type::uuid_service_16_incomplete,
-                              services_16,
-                              std::size(services_16));
+    length += ble::gap::ltv_encode(data,
+                                   ble::gap::type::uuid_service_16_incomplete,
+                                   services_16,
+                                   std::size(services_16));
     return length;
 }
 

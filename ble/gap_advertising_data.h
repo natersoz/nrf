@@ -15,62 +15,64 @@
 #include <cstring>
 #include <array>
 
+#include <boost/operators.hpp>
+
 namespace ble
 {
 namespace gap
 {
 
 /**
- * @struct tlv_data
- * Wraps raw TLV data in a read-only accessor.
+ * @struct ltv_data
+ * Wraps raw ltv data in a read-only accessor.
  */
-struct tlv_data
+struct ltv_data
 {
 public:
     static constexpr uint8_t offset_length  = 0u;
     static constexpr uint8_t offset_type    = 1u;
     static constexpr uint8_t offset_data    = 2u;
 
-    ~tlv_data()                             = default;
+    ~ltv_data()                             = default;
 
-    tlv_data()                              = delete;
-    tlv_data(tlv_data const&)               = delete;
-    tlv_data(tlv_data &&)                   = delete;
-    tlv_data& operator=(tlv_data const&)    = delete;
-    tlv_data& operator=(tlv_data&&)         = delete;
+    ltv_data()                              = delete;
+    ltv_data(ltv_data const&)               = delete;
+    ltv_data(ltv_data &&)                   = delete;
+    ltv_data& operator=(ltv_data const&)    = delete;
+    ltv_data& operator=(ltv_data&&)         = delete;
 
-    tlv_data(void const *tlv)
-    : tlv_pointer(reinterpret_cast<uint8_t const*>(tlv))
+    ltv_data(void const *ltv)
+    : ltv_pointer(reinterpret_cast<uint8_t const*>(ltv))
     {
     }
 
     /**
-     * Determine the length of the value data field within the TLV encoded
+     * Determine the length of the value data field within the LTV encoded
      * object.
      *
-     * @return att::length_t The length of the value portion of the TLV encoded
+     * @return att::length_t The length of the value portion of the LTV encoded
      * data.
      * @note The length includes the type octect as well as the payload data
      * length octets. It does not include the length octect itself.
      */
-    att::length_t length() const { return this->tlv_pointer[offset_length]; };
+    att::length_t length() const { return this->ltv_pointer[offset_length]; };
 
     /**
-     * Determine the type the TLV encoded object.
+     * Determine the type the LTV encoded object.
      *
-     * @return ble::gap::type The TLV object type.
+     * @return ble::gap::type The LTV object type.
      */
     ble::gap::type type() const {
-        return static_cast<ble::gap::type>(this->tlv_pointer[offset_type]);
+        return static_cast<ble::gap::type>(this->ltv_pointer[offset_type]);
     };
 
-    /// @return void const* The pointer to the data portion of the TLV object.
-    void const* data() const { return &this->tlv_pointer[offset_data]; };
+    /// @return void const* The pointer to the data portion of the LTV object.
+    void const* data() const { return &this->ltv_pointer[offset_data]; };
 
-    uint8_t const* const tlv_pointer;
+    uint8_t const* const ltv_pointer;
 
-    uint8_t const* begin() const { return &this->tlv_pointer[0u]; };
-    uint8_t const* end()   const { return &this->tlv_pointer[this->length()]; };
+    uint8_t const* begin() const { return &this->ltv_pointer[0u]; };
+    uint8_t const* end()   const { return &this->ltv_pointer[this->length()]; };
 };
 
 /**
@@ -83,8 +85,10 @@ public:
     /**
      * @class advertising_data::iterator
      * Define a class which can const iterate forward through advertising data.
+     * Inherits from less_than_comparable<> to get operators <=, >, >=.
      */
-    class iterator : public std::iterator<std::input_iterator_tag, tlv_data>
+    class iterator : public std::iterator<std::input_iterator_tag, ltv_data>,
+                     public boost::less_than_comparable<iterator>
     {
     public:
         ~iterator()                             = default;
@@ -94,28 +98,28 @@ public:
         iterator& operator=(iterator const&)    = default;
         iterator& operator=(iterator&&)         = default;
 
-        iterator(void const* tlv)
-        : tlv_pointer(reinterpret_cast<uint8_t const*>(tlv))
+        iterator(void const* ltv)
+        : ltv_pointer(reinterpret_cast<uint8_t const*>(ltv))
         {
         }
 
         /**
          * Pre-increment operator: ++iterator.
-         * Move the iterator to the next instance of TLV data.
+         * Move the iterator to the next instance of LTV data.
          * @return iterator& The iterator after incrementation.
          */
         iterator& operator++()
         {
-            // The TLV pointer points to the length part of the TLV object.
+            // The LTV pointer points to the length part of the LTV object.
             // The length contains the type octet and the data payload octets
             // but not the length octet itself.
-            this->tlv_pointer += this->tlv_pointer[tlv_data::offset_length] + 1u;
+            this->ltv_pointer += this->ltv_pointer[ltv_data::offset_length] + 1u;
             return *this;
         }
 
         /**
          * Post-increment operator: iterator++.
-         * Move the iterator to the next instance of TLV data.
+         * Move the iterator to the next instance of LTV data.
          * @return iterator& The iterator before incrementation.
          */
         iterator operator++(int)
@@ -125,20 +129,25 @@ public:
             return retval;
         }
 
+        /**
+         * @note Since advertising data may be malformed, and the iterator
+         * relies on the length parameter, operator != is not defined.
+         * Use < rather than != to bound malformed advertising data iteration.
+         */
         bool operator==(iterator const& other) const
         {
-            return (this->tlv_pointer == other.tlv_pointer);
+            return (this->ltv_pointer == other.ltv_pointer);
         }
 
-        bool operator!=(iterator const& other) const
+        bool operator<(iterator const& other) const
         {
-            return not (*this == other);
+            return (this->ltv_pointer < other.ltv_pointer);
         }
 
-        value_type operator*() const { return tlv_data(this->tlv_pointer); }
+        value_type operator*() const { return ltv_data(this->ltv_pointer); }
 
     private:
-        uint8_t const* tlv_pointer;
+        uint8_t const* ltv_pointer;
     };
 
     static constexpr att::length_t const max_length = 31u;
@@ -177,11 +186,11 @@ public:
 
     /** @{
      * In he peripheral role the push_back functions are used when forming
-     * advertising data in the peripheral role using the tlv_encode functions.
+     * advertising data in the peripheral role using the ltv_encode functions.
      */
     void push_back(uint8_t value) { *this->index_++ = value; }
-    void push_back(tlv_data const& tlv) {
-        for (uint8_t data : tlv) { this->push_back(data); }
+    void push_back(ltv_data const& ltv) {
+        for (uint8_t data : ltv) { this->push_back(data); }
     }
     /// @}
 
@@ -196,7 +205,7 @@ public:
     /** @{
      * The advertising_data::iterator allows forward, const iteration within
      * the advertising data typically for parsing the data received from a scan.
-     * The dereferenced iterator type is tlv_data.
+     * The dereferenced iterator type is ltv_data.
      */
     iterator begin() const { return iterator(this->data()); }
     iterator end()   const { return iterator(this->index_); }

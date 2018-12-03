@@ -76,7 +76,7 @@ public:
     virtual void stop() = 0;
 
     /**
-     * Use the tlv_encode functions to set the advertising data into
+     * Use the ltv_encode functions to set the advertising data into
      * this data struct.
      */
     advertising_data data;

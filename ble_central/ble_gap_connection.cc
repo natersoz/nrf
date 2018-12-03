@@ -214,7 +214,7 @@ void ble_gap_connection::advertising_report(
                               data_length);
 
     ble::gap::advertising_data const advertising_data(data, data_length);
-    for (ble::gap::tlv_data const tlv : advertising_data)
+    for (ble::gap::ltv_data const ltv : advertising_data)
     {
     }
 

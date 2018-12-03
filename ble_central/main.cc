@@ -17,7 +17,6 @@
 #include "ble/att.h"
 #include "ble/gap_types.h"
 #include "ble/gatt_uuids.h"
-#include "ble/tlv_encode.h"
 
 #include "ble/profile_central.h"
 #include "ble/gap_connection.h"
