@@ -9,6 +9,9 @@
 
 #include "ble_gap.h"
 
+#include <algorithm>
+#include <cstring>
+
 ble_gap_connection::~ble_gap_connection()
 {
     if (this->nordic_gap_event_observer_.is_attached())
@@ -196,6 +199,15 @@ void ble_gap_connection::rssi_update(uint16_t connection_handle,
 {
 }
 
+static bool check_name(ble::gap::ltv_data const &ltv)
+{
+    constexpr char const  device_name[]      = "periph";
+    constexpr std::size_t device_name_length = std::size(device_name) - 1u;
+
+    return strncmp(device_name, reinterpret_cast<char const *>(ltv.data()),
+                   device_name_length) == 0;
+}
+
 void ble_gap_connection::advertising_report(
     uint16_t                    connection_handle,
     ble::gap::address const&    peer_address,
@@ -214,8 +226,33 @@ void ble_gap_connection::advertising_report(
                               data_length);
 
     ble::gap::advertising_data const advertising_data(data, data_length);
-    for (ble::gap::ltv_data const ltv : advertising_data)
+
+    // Note: Since advertising data may be malformed, and the iterator relies
+    // on the length parameter, don't rely on the iterator != operator for
+    // loop completion.
+    // Use < rather than != to bound malformed advertising data.
+    for (ble::gap::advertising_data::iterator adv_iter = advertising_data.begin();
+         adv_iter < advertising_data.end(); ++adv_iter)
     {
+        switch ((*adv_iter).type())
+        {
+        case ble::gap::type::local_name_complete:
+        case ble::gap::type::local_name_short:
+            if (check_name(*adv_iter))
+            {
+                ble::gap::connection_parameters const connection_parameters(
+                    ble::gap::connection_interval_msec(100),
+                    ble::gap::connection_interval_msec(200),
+                    0u,
+                    ble::gap::supervision_timeout_msec(4000u));
+
+                this->operations().connect(peer_address, connection_parameters);
+            }
+            break;
+
+        default:
+            break;
+        }
     }
 
     // For Nordic, each time a report is issued scanning needs to be stopped and
