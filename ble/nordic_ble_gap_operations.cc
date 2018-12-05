@@ -48,7 +48,7 @@ int8_t ble_gap_operations::tx_power_level(int8_t tx_power_dBm)
 }
 
 status ble_gap_operations::connect(
-    ble::gap::address                       peer_address,
+    ble::gap::address               const&  peer_address,
     ble::gap::connection_parameters const&  connection_parameters)
 {
     return status::unimplemented;

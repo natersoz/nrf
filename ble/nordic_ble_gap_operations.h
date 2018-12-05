@@ -45,7 +45,7 @@ public:
     ble_gap_operations& operator=(ble_gap_operations&&)       = delete;
 
     virtual status connect(
-        ble::gap::address                       peer_address,
+        ble::gap::address               const&  peer_address,
         ble::gap::connection_parameters const&  connection_parameters) override;
 
     virtual status connect_cancel() override;
