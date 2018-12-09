@@ -18,7 +18,7 @@ static constexpr char const color_red_string[]      = { 0x1B, '[', '9', '1', 'm'
 static constexpr char const color_yellow_string[]   = { 0x1B, '[', '9', '3', 'm' };
 
 static constexpr size_t const color_reset_string_length = sizeof(color_reset_string);
-
+static constexpr char   const new_line = '\n';
 
 static logger logger_instance;
 
@@ -49,7 +49,6 @@ size_t logger::error(char const *fmt, ...)
         va_end(args);
 
         n_written += this->os_->write(color_reset_string, sizeof(color_reset_string));
-        char const new_line = '\n';
         n_written += this->os_->write(&new_line, sizeof(new_line));
     }
 
@@ -73,7 +72,6 @@ size_t logger::warn( char const *fmt, ...)
             va_end(args);
 
             n_written += this->os_->write(color_reset_string, sizeof(color_reset_string));
-            char const new_line = '\n';
             n_written += this->os_->write(&new_line, sizeof(new_line));
         }
     }
@@ -96,7 +94,6 @@ size_t logger::info( char const *fmt, ...)
             n_written = vwritef(*this->os_, fmt, args);
             va_end(args);
 
-            char const new_line = '\n';
             n_written += this->os_->write(&new_line, sizeof(new_line));
         }
     }
@@ -119,7 +116,6 @@ size_t logger::debug(char const *fmt, ...)
             n_written = vwritef(*this->os_, fmt, args);
             va_end(args);
 
-            char const new_line = '\n';
             n_written += this->os_->write(&new_line, sizeof(new_line));
         }
     }
@@ -141,7 +137,6 @@ size_t logger::write(level log_level, char const *fmt, ...)
             n_written = vwritef(*this->os_, fmt, args);
             va_end(args);
 
-            char const new_line = '\n';
             n_written += this->os_->write(&new_line, sizeof(new_line));
         }
     }
@@ -161,7 +156,6 @@ size_t logger::write(char const *fmt, ...)
         n_written = vwritef(*this->os_, fmt, args);
         va_end(args);
 
-        char const new_line = '\n';
         n_written += this->os_->write(&new_line, sizeof(new_line));
     }
 
@@ -178,7 +172,6 @@ size_t logger::vwrite(level log_level, char const *fmt, va_list args)
             n_written += this->log_time();
 
             n_written = vwritef(*this->os_, fmt, args);
-            char const new_line = '\n';
             n_written += this->os_->write(&new_line, sizeof(new_line));
         }
     }
@@ -207,6 +200,16 @@ size_t logger::write_data(level                     log_level,
     }
 
     return n_written;
+}
+
+size_t logger::write_data(level                     log_level,
+                          void const volatile       *data,
+                          size_t                    length,
+                          bool                      char_data,
+                          write_data::data_prefix   prefix)
+{
+    return write_data(log_level, const_cast<void const*>(data),
+                      length, char_data, prefix);
 }
 
 size_t logger::log_time()

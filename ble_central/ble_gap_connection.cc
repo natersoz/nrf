@@ -6,6 +6,7 @@
 #include "ble_gap_connection.h"
 #include "ble/gap_advertising_data.h"
 #include "logger.h"
+#include "std_error.h"
 
 #include "ble_gap.h"
 
@@ -55,6 +56,8 @@ void ble_gap_connection::disconnect(uint16_t                connection_handle,
     super::disconnect(connection_handle, error_code);
     logger::instance().debug("gap::disconnect: 0x%04x -> 0x%04x, reason: 0x%02x",
                              connection_handle, this->get_handle(), error_code);
+
+    this->scanning().start();
 }
 
 void ble_gap_connection::timeout_expiration(
@@ -234,19 +237,33 @@ void ble_gap_connection::advertising_report(
     for (ble::gap::advertising_data::iterator adv_iter = advertising_data.begin();
          adv_iter < advertising_data.end(); ++adv_iter)
     {
-        switch ((*adv_iter).type())
+        ble::gap::ltv_data const& ltv_data = *adv_iter;
+        switch (ltv_data.type())
         {
         case ble::gap::type::local_name_complete:
         case ble::gap::type::local_name_short:
-            if (check_name(*adv_iter))
+            logger::instance().debug("name: ");
+            logger::instance().write_data(logger::level::debug,
+                                          ltv_data.data(),
+                                          ltv_data.length() - 1u,
+                                          true);
+            if (check_name(ltv_data))
             {
-                ble::gap::connection_parameters const connection_parameters(
-                    ble::gap::connection_interval_msec(100),
-                    ble::gap::connection_interval_msec(200),
-                    0u,
-                    ble::gap::supervision_timeout_msec(4000u));
+                logger::instance().debug("connect attempt");
+                std::errc const error_code =
+                    this->scanning().connect(peer_address, this->get_parameters());
 
-                this->operations().connect(peer_address, connection_parameters);
+                if (is_success(error_code))
+                {
+                    // Connection established.
+                    // Return here to avoid calling scanning functions.
+                    // We are done scanning.
+                    return;
+                }
+                else
+                {
+                    ASSERT(0);
+                }
             }
             break;
 

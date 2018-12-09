@@ -1,5 +1,5 @@
 /**
- * @file address.h
+ * @file ble/gap_address.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
@@ -29,7 +29,8 @@ struct address
         public_device                   = 0x00,
         random_static                   = 0x01,
         random_private_resolvable,
-        random_private_non_resolvable
+        random_private_non_resolvable,
+        anonymous
     };
 
     ~address()                          = default;

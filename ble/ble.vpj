@@ -271,6 +271,7 @@
             <F N="gatt_service.cc"/>
             <F N="gatt_service_container.cc"/>
             <F N="gatts_event_observer.cc"/>
+            <F N="ltv_encode.cc"/>
             <F N="nordic_ble_att.cc"/>
             <F N="nordic_ble_common_event_observable.cc"/>
             <F N="nordic_ble_common_event_observer.cc"/>
@@ -278,6 +279,7 @@
             <F N="nordic_ble_gap_advertising.cc"/>
             <F N="nordic_ble_gap_event_observable.cc"/>
             <F N="nordic_ble_gap_operations.cc"/>
+            <F N="nordic_ble_gap_scan_parameters.cc"/>
             <F N="nordic_ble_gap_scanning.cc"/>
             <F N="nordic_ble_gattc_event_observable.cc"/>
             <F N="nordic_ble_gatts.cc"/>
@@ -289,7 +291,6 @@
             <F N="nordic_req_observable.cc"/>
             <F N="nordic_soc_observable.cc"/>
             <F N="nordic_state_observable.cc"/>
-            <F N="tlv_encode.cc"/>
             <F N="uuid.cc"/>
         </Folder>
         <Folder
@@ -309,16 +310,17 @@
                 <F N="service/custom_uuid.h"/>
                 <F N="service/gap_service.h"/>
             </Folder>
-            <F N="address.h"/>
             <F N="att.h"/>
             <F N="central_connection.h"/>
             <F N="common_event_observer.h"/>
+            <F N="gap_address.h"/>
             <F N="gap_advertising.h"/>
             <F N="gap_advertising_data.h"/>
             <F N="gap_connection.h"/>
             <F N="gap_connection_parameters.h"/>
             <F N="gap_event_observer.h"/>
             <F N="gap_operations.h"/>
+            <F N="gap_scan_parameters.h"/>
             <F N="gap_scanning.h"/>
             <F N="gap_types.h"/>
             <F N="gatt_appearance.h"/>
@@ -335,12 +337,15 @@
             <F N="gatts_event_observer.h"/>
             <F N="gatts_operations.h"/>
             <F N="hci_error_codes.h"/>
+            <F N="ltv_encode.h"/>
             <F N="nordic_ble_att.h"/>
             <F N="nordic_ble_event_observable.h"/>
             <F N="nordic_ble_event_observer.h"/>
+            <F N="nordic_ble_gap_address.h"/>
             <F N="nordic_ble_gap_advertising.h"/>
             <F N="nordic_ble_gap_advertising_params.h"/>
             <F N="nordic_ble_gap_operations.h"/>
+            <F N="nordic_ble_gap_scan_parameters.h"/>
             <F N="nordic_ble_gap_scanning.h"/>
             <F N="nordic_ble_gatts.h"/>
             <F N="nordic_ble_gatts_operations.h"/>
@@ -358,7 +363,6 @@
             <F N="profile_connectable_accessor.h"/>
             <F N="profile_peripheral.h"/>
             <F N="stack.h"/>
-            <F N="tlv_encode.h"/>
             <F N="uuid.h"/>
         </Folder>
         <Folder

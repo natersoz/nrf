@@ -6,37 +6,14 @@
  */
 
 #include "ble/nordic_ble_gap_scanning.h"
+#include "ble/nordic_ble_gap_address.h"
+#include "nordic_error.h"
 #include "logger.h"
 #include "project_assert.h"
 #include <cstring>
 
 namespace nordic
 {
-
-scan_parameters::scan_parameters()
-{
-    // Setting all fiels to zero provides a good starting point.
-    // Specifically the channel mask is cleared, enabling scanning on
-    // all appropriate channels.
-    memset(this, 0, sizeof(*this));
-
-    this->extended               = false;
-    this->active                 = false;
-    this->report_incomplete_evts = false;
-    this->filter_policy          = BLE_GAP_SCAN_FP_ACCEPT_ALL;
-    this->scan_phys              = BLE_GAP_PHY_AUTO;
-
-    /**
-     * Default values for scan interval and window are fast scanning.
-     * See BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part C
-     * Table A.1: Defined GAP timers (Sheet 5 of 6)
-     *
-     * T GAP: scan_fast_interval: 30-60 msec, scan_fast_window: 30 msec
-     */
-    this->interval  = ble::gap::scanning::interval_msec(40u);
-    this->window    = ble::gap::scanning::interval_msec(30u);
-    this->timeout   = ble::gap::scanning::timeout_unlimited;
-}
 
 void ble_gap_scanning::init_response_data()
 {
@@ -60,7 +37,7 @@ ble_gap_scanning::ble_gap_scanning(uint16_t scanning_interval,
     ble_gap_scanning::init_response_data();
 }
 
-void ble_gap_scanning::start()
+std::errc ble_gap_scanning::start()
 {
     uint32_t const error_code =
         sd_ble_gap_scan_start(&this->scan_parameters_,
@@ -72,9 +49,11 @@ void ble_gap_scanning::start()
                                  error_code);
         ASSERT(0);
     }
+
+    return nordic_to_system_error(error_code);
 }
 
-void ble_gap_scanning::stop()
+std::errc ble_gap_scanning::stop()
 {
     uint32_t const error_code = sd_ble_gap_scan_stop();
     if (error_code != NRF_SUCCESS)
@@ -83,26 +62,35 @@ void ble_gap_scanning::stop()
                                  error_code);
         ASSERT(0);
     }
+
+    return nordic_to_system_error(error_code);
 }
 
-uint16_t ble_gap_scanning::interval_get() const
+std::errc ble_gap_scanning::connect(
+    ble::gap::address               const&  peer_address,
+    ble::gap::connection_parameters const&  connection_parameters)
 {
-    return this->scan_parameters_.interval;
-}
+    nordic::ble_gap_address gap_addr(peer_address);
 
-void ble_gap_scanning::interval_set(uint16_t scan_interval)
-{
-    this->scan_parameters_.interval = scan_interval;
-}
+    ble_gap_conn_params_t const gap_conn_params = {
+        .min_conn_interval  = connection_parameters.interval_min,
+        .max_conn_interval  = connection_parameters.interval_max,
+        .slave_latency      = connection_parameters.slave_latency,
+        .conn_sup_timeout   = connection_parameters.supervision_timeout
+    };
 
-uint16_t ble_gap_scanning::window_get() const
-{
-    return this->scan_parameters_.window;
-}
+    uint32_t const error_code = sd_ble_gap_connect(&gap_addr,
+                                                   &this->scan_parameters_,
+                                                   &gap_conn_params,
+                                                   1u);
+    if (error_code != NRF_SUCCESS)
+    {
+        logger::instance().error("sd_ble_gap_connect() failed: 0x%04x",
+                                 error_code);
+        ASSERT(0);
+    }
 
-void ble_gap_scanning::window_set(uint16_t scan_window)
-{
-    this->scan_parameters_.window = scan_window;
+    return nordic_to_system_error(error_code);
 }
 
 } // namespace nordic

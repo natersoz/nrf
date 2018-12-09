@@ -131,13 +131,12 @@ public:
      */
     std::errc set_service_changed_characteristic(bool service_changed);
 
-private:
     /// The RAM region base address reserved for use by the softdevice.
     static uintptr_t const ram_base_address;
 
     /// See doc/nordic_ble_conn_cfg.h
     /// for evolving documentation on this tag's usage and meaning.
-    uint8_t const connection_configuration_tag_;
+    uint8_t const connection_configuration_tag;
 };
 
 } // namespace nordic

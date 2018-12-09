@@ -58,6 +58,12 @@ public:
                       bool                    char_data = false,
                       write_data::data_prefix prefix    = write_data::data_prefix::index);
 
+    size_t write_data(level                   log_level,
+                      void const volatile     *data,
+                      size_t                  length,
+                      bool                    char_data = false,
+                      write_data::data_prefix prefix    = write_data::data_prefix::index);
+
     void set_output_stream(output_stream& os)
     {
         this->os_ = &os;

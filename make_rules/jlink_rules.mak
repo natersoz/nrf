@@ -56,6 +56,7 @@ ifneq (,$(findstring Linux,$(OS_NAME)))
 	SEGGER_JLINK_ROOT := /opt/JLink
 	JLINK_EXE         := "$(SEGGER_JLINK_ROOT)/JLinkExe"
 	JLINK_GDB_SERVER  := "$(SEGGER_JLINK_ROOT)/JLinkGDBServerCLExe"
+	JLINK_RTT_CLIENT  := "$(SEGGER_JLINK_ROOT)/JLinkRTTClient"
 endif
 
 ifneq (,$(findstring Darwin,$(OS_NAME)))
@@ -63,13 +64,15 @@ ifneq (,$(findstring Darwin,$(OS_NAME)))
 	SEGGER_JLINK_ROOT := /Applications/SEGGER/JLink
 	JLINK_EXE         := "$(SEGGER_JLINK_ROOT)/JLinkExe"
 	JLINK_GDB_SERVER  := "$(SEGGER_JLINK_ROOT)/JLinkGDBServerCLExe"
+	JLINK_RTT_CLIENT  := "$(SEGGER_JLINK_ROOT)/JLinkRTTClient"
 endif
 
 ifneq (,$(findstring CYGWIN,$(OS_NAME)))
 	SUDO              :=
 	SEGGER_JLINK_ROOT := "C:/Program\ Files\ \(x86\)/SEGGER/JLink_V510g"
 	JLINK_EXE         := "$(SEGGER_JLINK_ROOT)"/JLink.exe
-	JLINK_GDB_SERVER  := "$(SEGGER_JLINK_ROOT)"/JLinkGDBServerCLExe.exe
+	JLINK_GDB_SERVER  := "$(SEGGER_JLINK_ROOT)"/JLinkGDBServerCL.exe
+	JLINK_RTT_CLIENT  := "$(SEGGER_JLINK_ROOT)"/JLinkRTTClient.exe
 endif
 
 ###
@@ -91,7 +94,7 @@ JLINK_GDB_OPTS	+= -endian little
 JLINK_GDB_OPTS	+= -port $(GDB_PORT)
 JLINK_GDB_OPTS	+= -swoport $(SWO_PORT)
 JLINK_GDB_OPTS	+= -telnetport $(TELNET_PORT)
-JLINK_GDB_OPTS  += -RTTTelnetport $(RTT_PORT)
+JLINK_GDB_OPTS  += -rtttelnetport $(RTT_PORT)
 JLINK_GDB_OPTS	+= -vd
 JLINK_GDB_OPTS	+= -noir
 JLINK_GDB_OPTS	+= -localhostonly 1
@@ -103,7 +106,12 @@ ifneq (,$(SEGGER_SN))
 JLINK_GDB_OPTS	+= -select USB=$(SEGGER_SN)
 endif
 
-.PHONY: gdb-server flash-all flash flash-softdevice flash-erase flash-erase-all flash-app-valid flash-app-invalid jlink-help
+###
+# Segger JLink RTT Client
+###
+JLINK_RTT_OPTS  += -rtttelnetport $(RTT_PORT)
+
+.PHONY: rttc gdb-server flash-all flash flash-softdevice flash-erase flash-erase-all flash-app-valid flash-app-invalid jlink-help
 
 ###
 # gdb-server does not have any dependencies since you may
@@ -111,6 +119,12 @@ endif
 ###
 gdb-server:
 	$(SUDO) $(JLINK_GDB_SERVER) $(JLINK_OPTS) $(JLINK_GDB_OPTS)
+
+###
+# rttc does not have any dependencies. Just run it using the correct port.
+###
+rttc:
+	$(JLINK_RTT_CLIENT) $(JLINK_RTT_OPTS)
 
 ###
 # JLink related flashing and debug init commands
@@ -198,12 +212,13 @@ $(BUILD_PATH)/flash_app_invalid.jlink:
 
 jlink-help:
 	@printf "targets:\n"
-	@printf "\tflash-all       : Flash the build target and softdevice\n"
-	@printf "\tflash           : Flash the build target\n"
-	@printf "\tflash-softdevice: Flash the softdevice\n"
-	@printf "\tflash-erase:    : Erase the program flash\n"
-	@printf "\tflash-erase-all : Erase all flash using special Nordic registers\n"
-	@printf "\tgdb-server      : Start the gdb server - resets the device\n"
+	@printf "\tflash-all            Flash the build target and softdevice\n"
+	@printf "\tflash                Flash the build target\n"
+	@printf "\tflash-softdevice     Flash the softdevice\n"
+	@printf "\tflash-erase          Erase the program flash\n"
+	@printf "\tflash-erase-all      Erase all flash using special Nordic registers\n"
+	@printf "\tgdb-server           Start the gdb server - resets the device\n"
+	@printf "\trttc                 Start the Jlink RTT Client\n"
 	@printf "\n"
 
 jlink-info:

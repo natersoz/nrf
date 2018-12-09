@@ -8,10 +8,11 @@
 #pragma once
 
 #include "ble/att.h"
+#include "ble/gap_address.h"
+#include "ble/gap_scan_parameters.h"
+#include "ble/gap_connection_parameters.h"
 
-#include <algorithm>
-#include <cstddef>
-#include <cstring>
+#include <system_error>
 
 namespace ble
 {
@@ -34,23 +35,6 @@ class scanning
 public:
     static constexpr att::length_t const repsonse_max_length = 31u;
 
-    /// The minimum scan interval in 625 usec units: 2.5 msec.
-    constexpr static const uint16_t interval_minimum = 0x0004u;
-    constexpr static const uint16_t interval_maximum = 0xFFFFu;
-
-    /// Timeout values are in 10 msec ticks.
-    constexpr static const uint16_t timeout_minimum   = 0x0001u;
-    constexpr static const uint16_t timeout_unlimited = 0x0000u;
-
-    /**
-     * Convert from milliseconds to BLE scanning interval units of 0.625 msec.
-     *
-     * @param interval_msec A time interval expressed in milliseconds.
-     * @return uint16_t     The number of 0.625 msec ticks used by the BLE
-     *                      scanning interval tick count.
-     */
-    static constexpr uint16_t interval_msec(uint32_t interval_msec);
-
     virtual ~scanning()                   = default;
 
     scanning()                            = default;
@@ -59,33 +43,40 @@ public:
     scanning& operator=(scanning const&)  = delete;
     scanning& operator=(scanning&&)       = delete;
 
+    scanning(ble::gap::scan_parameters const &scan_params):
+        scan_parameters(scan_params)
+    {
+    }
+
     /**
      * Start scanning.
-     * The scanning data contained in the public member scanning_data
-     * will be used when scanning starts.
+     * The scan_parameters member variable will be used to determine the scan
+     * rate and window.
      */
-    virtual void start() = 0;
+    virtual std::errc start() = 0;
 
     /** Stop scanning. */
-    virtual void stop() = 0;
+    virtual std::errc stop() = 0;
 
-    virtual uint16_t interval_get() const = 0;
-    virtual void     interval_set(uint16_t scan_interval) = 0;
+    /**
+     * Central connections are establshed within the ble::gap::scanning module
+     * since the process of connecting involves scanning for a peripheral which
+     * matches the central criteria.
+     *
+     * @todo At present the central needs to know the peripheral's BLE address.
+     *
+     * @param peer_address The peripheral's BLE address.
+     * @param connection_parameters Once the connection is established the
+     *        central's preferred connection parameters.
+     *
+     * @return std::errc The resulting error code; zero for success.
+     */
+    virtual std::errc connect(
+        ble::gap::address               const&  peer_address,
+        ble::gap::connection_parameters const&  connection_parameters) = 0;
 
-    virtual uint16_t window_get() const = 0;
-    virtual void     window_set(uint16_t scan_window) = 0;
+    ble::gap::scan_parameters scan_parameters;
 };
-
-inline constexpr uint16_t scanning::interval_msec(uint32_t interval_msec)
-{
-    interval_msec *= 1000u;
-    interval_msec /=  625u;
-
-    interval_msec = std::min(static_cast<uint32_t>(interval_maximum),
-                             interval_msec);
-
-    return std::max(interval_minimum, static_cast<uint16_t>(interval_msec));
-}
 
 } // namespace gap
 } // namespace ble

@@ -7,7 +7,7 @@
 
 // ble::gap namespace types declared/defined externally for readability.
 // They belong as part of the ble::gap class collection.
-#include "ble/address.h"
+#include "ble/gap_address.h"
 #include "ble/gap_connection_parameters.h"
 
 #include <cstdint>

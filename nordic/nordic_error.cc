@@ -83,7 +83,7 @@ std::errc nordic_to_system_error(uint32_t nordic_error)
 
     if (nordic_error != NRF_SUCCESS)
     {
-        logger.error("Nordic error: %u", nordic_error);
+        logger.error("Nordic error: 0x%04x", nordic_error);
     }
 
     return error_code;

@@ -53,7 +53,7 @@ uintptr_t const ble_stack::ram_base_address = reinterpret_cast<uintptr_t>(&__dat
 
 ble_stack::ble_stack(uint8_t conn_cfg_tag):
     ble::stack(),
-    connection_configuration_tag_(conn_cfg_tag)
+    connection_configuration_tag(conn_cfg_tag)
 {
 }
 
@@ -172,7 +172,7 @@ std::errc ble_stack::set_mtu_max_size(ble::att::length_t mtu_max_size)
     ble_cfg_t ble_cfg;
     memset(&ble_cfg, 0, sizeof(ble_cfg));
 
-    ble_cfg.conn_cfg.conn_cfg_tag = this->connection_configuration_tag_;
+    ble_cfg.conn_cfg.conn_cfg_tag = this->connection_configuration_tag;
     ble_cfg.conn_cfg.params.gatt_conn_cfg.att_mtu = mtu_max_size;
 
     uint32_t const error_code = sd_ble_cfg_set(BLE_CONN_CFG_GATT,
@@ -203,7 +203,7 @@ std::errc ble_stack::set_link_count(uint8_t  peripheral_link_count,
     // Note: any of the configuration settings which are part of the
     // struct ble_conn_cfg_t member conn_cfg require the conn_cfg_tag.
     // For other settings, this tag must not be set.
-    ble_cfg.conn_cfg.conn_cfg_tag = this->connection_configuration_tag_;
+    ble_cfg.conn_cfg.conn_cfg_tag = this->connection_configuration_tag;
 
     ble_cfg.conn_cfg.params.gap_conn_cfg.conn_count = peripheral_link_count +
                                                       central_link_count;

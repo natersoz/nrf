@@ -17,6 +17,35 @@
 namespace nordic
 {
 
+char const* ble_gap_addr_type_string(uint8_t addr_type)
+{
+    switch (addr_type)
+    {
+    case BLE_GAP_ADDR_TYPE_PUBLIC:
+        return "public";
+    case BLE_GAP_ADDR_TYPE_RANDOM_STATIC:
+        return "random static";
+    case BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE:
+        return "random resolvable";
+    case BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE:
+        return "random non-resolvable";
+    case BLE_GAP_ADDR_TYPE_ANONYMOUS:
+        return "anonymous";
+    default:
+        return "invalid";
+    }
+}
+
+void log_address(logger::level log_level, ble_gap_addr_t const &addr)
+{
+    logger::instance().write(
+        log_level, "%02x:%02x:%02x:%02x:%02x:%02x, peer_id: %u, type: %u '%s'",
+        addr.addr[0u], addr.addr[1u], addr.addr[2u],
+        addr.addr[3u], addr.addr[4u], addr.addr[5u],
+        addr.addr_id_peer, addr.addr_type,
+        ble_gap_addr_type_string(addr.addr_type));
+}
+
 /**
  * Convert Nordic BLE_GAP_SEC_STATUS GAP Security status values to
  * ble::gap::pairing_failure enum values.
@@ -63,19 +92,10 @@ void ble_event_observable<ble_gap_event_observer>::notify(
         {
         case BLE_GAP_EVT_CONNECTED:
             {
-                logger::instance().debug(
-                    "GAP connect: h: 0x%04x, peer: %02x:%02x:%02x:%02x:%02x:%02x, type: %u, id: %u, role: %u",
-                    event_data.conn_handle,
-                    event_data.params.connected.peer_addr.addr[0],
-                    event_data.params.connected.peer_addr.addr[1],
-                    event_data.params.connected.peer_addr.addr[2],
-                    event_data.params.connected.peer_addr.addr[3],
-                    event_data.params.connected.peer_addr.addr[4],
-                    event_data.params.connected.peer_addr.addr[5],
-                    event_data.params.connected.peer_addr.addr_type,
-                    event_data.params.connected.peer_addr.addr_id_peer,
-                    event_data.params.connected.role
-                    );
+                logger::instance().debug("GAP connect: h: 0x%04x, role: %u, peer: ",
+                    event_data.conn_handle, event_data.params.connected.role);
+                log_address(logger::level::debug,
+                            event_data.params.connected.peer_addr);
 
                 ble::gap::address peer_address(
                     event_data.params.connected.peer_addr.addr,
@@ -385,8 +405,15 @@ void ble_event_observable<ble_gap_event_observer>::notify(
                 // primary_phy, secondary_phy, ch_index, set_id, data_id
                 // aux_pointer
 
-                logger::instance().debug("GAP advert report: h: 0x%04x, rssi: %d",
-                                         event_data.conn_handle, event_data.params.adv_report.rssi);
+                logger::instance().debug(
+                    "GAP advert report: h: 0x%04x, rssi: %d, peer: ",
+                    event_data.conn_handle, event_data.params.adv_report.rssi);
+                log_address(logger::level::debug,
+                            event_data.params.adv_report.peer_addr);
+
+                logger::instance().debug("direct: ");
+                log_address(logger::level::debug,
+                            event_data.params.adv_report.direct_addr);
 
                 observer.interface_reference.advertising_report(
                     event_data.conn_handle,
@@ -448,17 +475,11 @@ void ble_event_observable<ble_gap_event_observer>::notify(
                     event_data.params.scan_req_report.peer_addr.addr_type);
 
                 logger::instance().debug(
-                    "GAP scan request report: h: 0x%04x, peer: %02x:%02x:%02x:%02x:%02x:%02x, type: %u, id: %u",
-                    event_data.conn_handle,
-                    event_data.params.connected.peer_addr.addr[0],
-                    event_data.params.connected.peer_addr.addr[1],
-                    event_data.params.connected.peer_addr.addr[2],
-                    event_data.params.connected.peer_addr.addr[3],
-                    event_data.params.connected.peer_addr.addr[4],
-                    event_data.params.connected.peer_addr.addr[5],
-                    event_data.params.connected.peer_addr.addr_type,
-                    event_data.params.connected.peer_addr.addr_id_peer
-                    );
+                    "GAP scan request report: h: 0x%04x, rssi: %d, peer: ",
+                    event_data.conn_handle, event_data.params.scan_req_report.rssi);
+
+                log_address(logger::level::debug,
+                            event_data.params.scan_req_report.peer_addr);
 
                 observer.interface_reference.scan_report_request(
                     event_data.conn_handle,

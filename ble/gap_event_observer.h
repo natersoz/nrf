@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "ble/address.h"
+#include "ble/gap_address.h"
 #include "ble/hci_error_codes.h"
 #include "ble/gap_types.h"
 
