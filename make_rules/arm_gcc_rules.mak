@@ -118,7 +118,7 @@ ARM_GCC_FLAGS += $(ARM_FLAGS)
 ARM_GCC_FLAGS += $(OPT_FLAGS)
 ARM_GCC_FLAGS += -ffunction-sections
 ARM_GCC_FLAGS += -fdata-sections
-ARM_GCC_FLAGS += -fno-strict-aliasing
+# ARM_GCC_FLAGS += -fno-strict-aliasing
 ARM_GCC_FLAGS += -fno-builtin
 ARM_GCC_FLAGS += -fshort-enums
 
