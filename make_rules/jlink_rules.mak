@@ -172,7 +172,7 @@ $(BUILD_PATH)/flash_app_valid.jlink:
 	$(VERBOSE) printf "r\n"                    >> $@
 	$(VERBOSE) printf "exit\n"                 >> $@
 
-# Indicate to the bootloader that the application is valid
+# Indicate to the bootloader that the application is not valid
 $(BUILD_PATH)/flash_app_invalid.jlink:
 	$(VERBOSE) printf "h\n"                     > $@
 	$(VERBOSE) printf "w4 0x0003fc00 0x0000\n" >> $@
