@@ -11,6 +11,12 @@ SDK_ROOT     := $(PROJECT_ROOT)/sdk
 # The executable name
 TARGET_NAME = ble_central
 
+GDB_PORT			?= 2431
+SWO_PORT			?= 2432
+TELNET_PORT			?= 2433
+RTT_PORT			?= 2434
+SEGGER_SN			?= 682762758
+
 # Where the compiled files are built.
 BUILD_PATH = _build
 

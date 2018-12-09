@@ -8,11 +8,15 @@ Debugging and Flashing nRF5x
 + OSX:      `/Applications/SEGGER/JLink/JLinkExe`
 + Linux:    `/opt/JLink` (or where ever ...)
 
-### JLinkClient
-To get the Jlink RTT Client running, JLink Commander (JLinkExe) needs to be running first.
+### JLinkRTTClient
+Note that JLinkRTTClient is a telnet program. Telnet seems to work just as well.
+
+To get the Jlink RTT Client running, JLink Commander (JLinkExe) or
+the JLink GDB Server (JLinkGDBServer) needs to be running first.
+
 A script `nrf/scripts/jlink-nrf` provides a short cut for the command line invocation.
-After running JLinkExe the JLinkClient can be started and will find the telnet
-port to connect. Starting JLinkClient first does not seem to work.
+After running JLinkExe the JLinkRTTClient can be started and will find the telnet
+port to connect. Starting JLinkRTTClient first does not seem to work.
 
 If JLinkExe is terminated then JLinkClient will need to restart.
 
@@ -64,5 +68,10 @@ the board USB. Reconnect the USB and start over.
 
         gdb-arm --quiet --command=./gdb-init
 
+### Multiple GDB and JLinkRTTClient debug sessions.
+The projects ble_peripheral and ble_central are set up to be debugged
+simultaneously. Different ports are set within each project Makefile.
+The correct serial numbers will need to be set as the variable SEGGER_SN.
 
-
+See my githug gist [JLinkGDBServer Multiple Sessions](https://gist.github.com/natersoz/076cee47d47f87fd67b99c9de61c4d86)
+for more details.

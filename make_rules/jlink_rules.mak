@@ -21,6 +21,10 @@ OS_NAME				= $(shell 'uname')
 VERBOSE				?= @
 
 NORDIC_DEVICE			?= NRF52
+GDB_PORT			?= 2331
+SWO_PORT			?= 2332
+TELNET_PORT			?= 2333
+
 SOFT_DEVICE			?= s132
 SOFT_DEVICE_PATH		:= $(SDK_ROOT)/components/softdevice/$(SOFT_DEVICE)/hex
 SOFT_DEVICE_HEX_FILE		:= $(shell find -L $(SOFT_DEVICE_PATH) -iname '*.hex')
@@ -84,14 +88,20 @@ JLINK_OPTS	+= -speed $(SWD_SPEED)
 # -strict		Exit on invalid parameters in start
 ###
 JLINK_GDB_OPTS	+= -endian little
-JLINK_GDB_OPTS	+= -port 2331
-JLINK_GDB_OPTS	+= -swoport 2332
-JLINK_GDB_OPTS	+= -telnetport 2333
+JLINK_GDB_OPTS	+= -port $(GDB_PORT)
+JLINK_GDB_OPTS	+= -swoport $(SWO_PORT)
+JLINK_GDB_OPTS	+= -telnetport $(TELNET_PORT)
+JLINK_GDB_OPTS  += -RTTTelnetport $(RTT_PORT)
 JLINK_GDB_OPTS	+= -vd
 JLINK_GDB_OPTS	+= -noir
 JLINK_GDB_OPTS	+= -localhostonly 1
 JLINK_GDB_OPTS	+= -strict
 JLINK_GDB_OPTS	+= -timeout 0
+
+# If SEGGER_SN is defined then use it to specify the dev kit board to connect to.
+ifneq (,$(SEGGER_SN))
+JLINK_GDB_OPTS	+= -select USB=$(SEGGER_SN)
+endif
 
 .PHONY: gdb-server flash-all flash flash-softdevice flash-erase flash-erase-all flash-app-valid flash-app-invalid jlink-help
 
