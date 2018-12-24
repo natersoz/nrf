@@ -210,27 +210,49 @@ std::errc ble_stack::set_link_count(uint8_t  peripheral_link_count,
 
     ble_cfg.conn_cfg.params.gap_conn_cfg.event_length = event_length;
 
+    logger.debug("set_link_count(%u, %u), event_length: %u",
+                 peripheral_link_count, central_link_count,
+                 event_length);
+
     uint32_t const error_cfg_gap = sd_ble_cfg_set(BLE_CONN_CFG_GAP,
                                                   &ble_cfg,
                                                   ram_base_address);
     if (error_cfg_gap != NRF_SUCCESS)
     {
-        logger.error("set_link_count(%u, %u), event_length: %u: failed: %u",
-                     peripheral_link_count, central_link_count,
-                     event_length, error_cfg_gap);
+        logger.error("sd_ble_cfg_set(BLE_CONN_CFG_GAP), conn_count: %u, event_length: %u: failed: %u",
+                     ble_cfg.conn_cfg.params.gap_conn_cfg.conn_count,
+                     ble_cfg.conn_cfg.params.gap_conn_cfg.event_length,
+                     error_cfg_gap);
     }
 
     // Configure the connection roles.
     memset(&ble_cfg, 0, sizeof(ble_cfg));
 
-    ble_cfg.gap_cfg.role_count_cfg.periph_role_count = peripheral_link_count;
+    /// @todo For now if using a central, using only one SM for all centrals.
+    uint8_t const central_sm_count = (central_link_count == 0u)
+        ? 0u : BLE_GAP_ROLE_COUNT_CENTRAL_SEC_DEFAULT;
+
+    /// @todo The advertising 'set' count is hard-coded to
+    /// BLE_GAP_ADV_SET_COUNT_DEFAULT (1) for now.
+    ble_cfg.gap_cfg.role_count_cfg.adv_set_count        = BLE_GAP_ADV_SET_COUNT_DEFAULT;
+    ble_cfg.gap_cfg.role_count_cfg.periph_role_count    = peripheral_link_count;
+    ble_cfg.gap_cfg.role_count_cfg.central_role_count   = central_link_count;
+    ble_cfg.gap_cfg.role_count_cfg.central_sec_count    = central_sm_count;
+
+    /// @todo What does this do?
+    ble_cfg.gap_cfg.role_count_cfg.qos_channel_survey_role_available = false;
+
     uint32_t const error_cfg_role = sd_ble_cfg_set(BLE_GAP_CFG_ROLE_COUNT,
                                                    &ble_cfg,
                                                    ram_base_address);
     if (error_cfg_role != NRF_SUCCESS)
     {
-        logger.error("set_role_count: %u: failed: %u",
-                     peripheral_link_count, error_cfg_role);
+        logger.error("sd_ble_cfg_set(BLE_GAP_CFG_ROLE_COUNT): adv: %u, periph: %u, central: %u, sec: %u: failed: %u",
+                     ble_cfg.gap_cfg.role_count_cfg.adv_set_count,
+                     ble_cfg.gap_cfg.role_count_cfg.periph_role_count,
+                     ble_cfg.gap_cfg.role_count_cfg.central_role_count,
+                     ble_cfg.gap_cfg.role_count_cfg.central_sec_count,
+                     error_cfg_role);
     }
 
     uint32_t const error_code = (error_cfg_gap == NRF_SUCCESS) ? error_cfg_role
