@@ -21,13 +21,15 @@ private:
 public:
     virtual ~ble_gap_connection() override;
 
+    ble_gap_connection()                                      = delete;
     ble_gap_connection(ble_gap_connection const&)             = delete;
     ble_gap_connection(ble_gap_connection &&)                 = delete;
     ble_gap_connection& operator=(ble_gap_connection const&)  = delete;
     ble_gap_connection& operator=(ble_gap_connection&&)       = delete;
 
-    ble_gap_connection(ble::gap::operations& operations,
-                       ble::gap::scanning&   scanning);
+    ble_gap_connection(ble::gap::operations&                  operations,
+                       ble::gap::scanning&                    scanning,
+                       ble::gap::connection_parameters const& conn_params);
 
     /**
      * Post constructor initialization.

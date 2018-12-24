@@ -79,6 +79,8 @@ std::errc ble_gap_scanning::connect(
         .conn_sup_timeout   = connection_parameters.supervision_timeout
     };
 
+    logger::instance().debug("ble_gap_scanning::connect:");
+
     /// @todo nordic_config_tag should be obtained from the Nordic
     /// BLE stack implementation.
     constexpr uint8_t const nordic_config_tag = 1u;

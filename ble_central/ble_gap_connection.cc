@@ -22,11 +22,12 @@ ble_gap_connection::~ble_gap_connection()
     }
 }
 
-/** Constructor which uses the default connection parameters. */
-ble_gap_connection::ble_gap_connection(ble::gap::operations& operations,
-                                       ble::gap::scanning&   scanning):
-    super(operations, scanning),
-    nordic_gap_event_observer_(*this)
+ble_gap_connection::ble_gap_connection(
+    ble::gap::operations&                   operations,
+    ble::gap::scanning&                     scanning,
+    ble::gap::connection_parameters const&  conn_params)
+    : super(operations, scanning, conn_params),
+      nordic_gap_event_observer_(*this)
 {
 }
 
@@ -47,7 +48,7 @@ void ble_gap_connection::connect(uint16_t                    connection_handle,
     /// preferred connection parameters and use those. It would eliminated
     /// duplication of the connection parameters value.
     this->operations().connection_parameter_update_request(
-        this->get_handle(), this->get_parameters());
+        this->get_handle(), this->get_connection_parameters());
 }
 
 void ble_gap_connection::disconnect(uint16_t                connection_handle,
@@ -249,9 +250,13 @@ void ble_gap_connection::advertising_report(
                                           true);
             if (check_name(ltv_data))
             {
-                logger::instance().debug("connect attempt");
-                std::errc const error_code =
-                    this->scanning().connect(peer_address, this->get_parameters());
+                logger &logger = logger::instance();
+                logger.debug("connect attempt: addr type: %u", peer_address.type);
+                logger.write_data(logger::level::debug,
+                                  peer_address.octets.data(),
+                                  ble::gap::address::octet_length);
+                std::errc const error_code = this->scanning().connect(
+                    peer_address, this->get_connection_parameters());
 
                 if (is_success(error_code))
                 {

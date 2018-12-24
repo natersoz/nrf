@@ -8,6 +8,7 @@
 
 #include "ble/nordic_ble_event_observable.h"
 #include "ble/nordic_ble_event_observer.h"
+#include "ble/nordic_ble_gap_logger.h"
 
 #include "ble_gap.h"                    // Nordic softdevice header
 #include "make_array.h"
@@ -16,35 +17,6 @@
 
 namespace nordic
 {
-
-char const* ble_gap_addr_type_string(uint8_t addr_type)
-{
-    switch (addr_type)
-    {
-    case BLE_GAP_ADDR_TYPE_PUBLIC:
-        return "public";
-    case BLE_GAP_ADDR_TYPE_RANDOM_STATIC:
-        return "random static";
-    case BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE:
-        return "random resolvable";
-    case BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE:
-        return "random non-resolvable";
-    case BLE_GAP_ADDR_TYPE_ANONYMOUS:
-        return "anonymous";
-    default:
-        return "invalid";
-    }
-}
-
-void log_address(logger::level log_level, ble_gap_addr_t const &addr)
-{
-    logger::instance().write(
-        log_level, "%02x:%02x:%02x:%02x:%02x:%02x, peer_id: %u, type: %u '%s'",
-        addr.addr[0u], addr.addr[1u], addr.addr[2u],
-        addr.addr[3u], addr.addr[4u], addr.addr[5u],
-        addr.addr_id_peer, addr.addr_type,
-        ble_gap_addr_type_string(addr.addr_type));
-}
 
 /**
  * Convert Nordic BLE_GAP_SEC_STATUS GAP Security status values to

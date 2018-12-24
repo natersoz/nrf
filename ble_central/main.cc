@@ -48,17 +48,30 @@ int main(void)
 
     logger.info("--- BLE central ---");
 
+    logger.write_data(logger::level::debug,
+                      NRF_FICR->DEVICEADDR,
+                      8u, false, write_data::data_prefix::address);
+
     constexpr uint8_t const             nordic_config_tag = 1u;
     nordic::ble_stack                   ble_stack(nordic_config_tag);
 
-    nordic::ble_gap_scanning            ble_scanning;
-    nordic::ble_gap_operations          ble_gap_operations;
-    ble_gap_connection                  ble_gap_connection(ble_gap_operations,
-                                                           ble_scanning);
-    ble_gattc_observer                  ble_gattc_observer;
-    ble::profile::central               ble_central(ble_stack,
-                                                    ble_gap_connection,
-                                                    ble_gattc_observer);
+    /// @todo The connection interval needs to be thought through
+    /// for a specific device.
+    ble::gap::connection_parameters const connection_parameters(
+        ble::gap::connection_interval_msec(100),
+        ble::gap::connection_interval_msec(200),
+        0u,
+        ble::gap::supervision_timeout_msec(4000u));
+
+    nordic::ble_gap_scanning        ble_scanning;
+    nordic::ble_gap_operations      ble_gap_operations;
+    ble_gap_connection              ble_gap_connection(ble_gap_operations,
+                                                       ble_scanning,
+                                                       connection_parameters);
+    ble_gattc_observer              ble_gattc_observer;
+    ble::profile::central           ble_central(ble_stack,
+                                                ble_gap_connection,
+                                                ble_gattc_observer);
     ble_gap_connection.init();
     ble_gattc_observer.init();
 

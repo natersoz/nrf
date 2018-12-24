@@ -34,9 +34,10 @@ public:
     central_connection& operator=(central_connection const&)  = delete;
     central_connection& operator=(central_connection&&)       = delete;
 
-    central_connection(ble::gap::operations&    operations,
-                       ble::gap::scanning&      scanning)
-    : super(operations),
+    central_connection(ble::gap::operations&                  operations,
+                       ble::gap::scanning&                    scanning,
+                       ble::gap::connection_parameters const& conn_params)
+    : super(operations, conn_params),
       scanning_(scanning)
     {}
 

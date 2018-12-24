@@ -53,7 +53,7 @@ void ble_gap_connection::connect(uint16_t                    connection_handle,
     /// duplication of the connection parameters value.
     this->operations().connection_parameter_update_request(
         this->get_handle(),
-        this->get_parameters());
+        this->get_connection_parameters());
 }
 
 void ble_gap_connection::disconnect(uint16_t                connection_handle,

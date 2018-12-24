@@ -64,11 +64,11 @@ public:
     uint16_t get_handle() const { return this->handle_; }
     bool is_connected() const { return (this->handle_ != gap::invalid_handle); }
 
-    connection_parameters const& get_parameters() const {
+    connection_parameters const& get_connection_parameters() const {
         return this->parameters_;
     }
 
-    void set_parameters(connection_parameters const& parameters) {
+    void set_connection_parameters(connection_parameters const& parameters) {
         this->parameters_ = parameters;
     }
 

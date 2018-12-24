@@ -292,6 +292,8 @@
             <F N="nordic_soc_observable.cc"/>
             <F N="nordic_state_observable.cc"/>
             <F N="uuid.cc"/>
+            <F N="nordic_ble_gap_logger.cc"/>
+            <F N="nordic_ble_gap_address.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -364,6 +366,7 @@
             <F N="profile_peripheral.h"/>
             <F N="stack.h"/>
             <F N="uuid.h"/>
+            <F N="nordic_ble_gap_logger.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
