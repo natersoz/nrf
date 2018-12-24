@@ -44,6 +44,7 @@ static size_t set_advertising_data(ble::gap::advertising_data &data)
     ble::gatt::services const services_16[] = {
         ble::gatt::services::device_information,
         ble::gatt::services::battery_service,
+        ble::gatt::services::current_time_service,
     };
 
     size_t length = 0u;
