@@ -79,10 +79,13 @@ std::errc ble_gap_scanning::connect(
         .conn_sup_timeout   = connection_parameters.supervision_timeout
     };
 
+    /// @todo nordic_config_tag should be obtained from the Nordic
+    /// BLE stack implementation.
+    constexpr uint8_t const nordic_config_tag = 1u;
     uint32_t const error_code = sd_ble_gap_connect(&gap_addr,
                                                    &this->scan_parameters_,
                                                    &gap_conn_params,
-                                                   1u);
+                                                   nordic_config_tag);
     if (error_code != NRF_SUCCESS)
     {
         logger::instance().error("sd_ble_gap_connect() failed: 0x%04x",

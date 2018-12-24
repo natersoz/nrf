@@ -58,12 +58,12 @@ void ble_gap_advertising::start()
 
     ASSERT(error_code == NRF_SUCCESS);
 
-    /// @todo Still don't know what this config_tag means - for now default.
-    /// @see more comments in ble_gatts.h:
-    /// BLE_CONN_CFGS, BLE_COMMON_CFGS, BLE_GAP_CFGS, BLE_GATTS_CFGS
-    uint8_t const config_tag = 1u;
-
-    error_code = sd_ble_gap_adv_start(this->advertising_handle_, config_tag);
+    /// @todo config_tag should be obtained from nordic::ble_stack.
+    /// @note This must not be BLE_CONN_CFG_TAG_DEFAULT.
+    /// @see  typedef struct ble_conn_cfg_t::conn_cfg_tag comments in
+    ///       Nordic softdevice header ble.h.
+    constexpr uint8_t const nordic_config_tag = 1u;
+    error_code = sd_ble_gap_adv_start(this->advertising_handle_, nordic_config_tag);
     ASSERT(error_code == NRF_SUCCESS);
 }
 
