@@ -37,7 +37,7 @@ ble_gap_address::ble_gap_address(ble::gap::address const& address)
 {
     this->addr_id_peer  = 1u;
     this->addr_type     = address_type(address.type);
-    memcpy(&this->addr, address.octets.data(), ble::gap::address::length);
+    memcpy(&this->addr, address.octets.data(), ble::gap::address::octet_length);
 }
 
 } // namespace nordic

@@ -57,7 +57,6 @@ static size_t set_advertising_data(ble::gap::advertising_data &data)
                                    short_name, short_name_length);
 
     length += ble::gap::ltv_encode_address(data,
-                                           false,
                                            nordic::get_device_address());
 
     length += ble::gap::ltv_encode(data,

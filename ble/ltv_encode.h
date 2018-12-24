@@ -8,6 +8,7 @@
 #pragma once
 
 #include "ble/gap_advertising_data.h"
+#include "ble/gap_address.h"
 #include "ble/gap_types.h"
 
 #include <cstddef>
@@ -41,6 +42,9 @@ size_t ltv_encode(gap::advertising_data&    encoded,
 size_t ltv_encode_address(gap::advertising_data&    encoded,
                           bool                      address_is_random,
                           void const*               address_pointer);
+
+size_t ltv_encode_address(gap::advertising_data&    encoded,
+                          ble::gap::address const&  address);
 
 template <typename data_type>
 std::size_t ltv_encode(gap::advertising_data&       encoded,
