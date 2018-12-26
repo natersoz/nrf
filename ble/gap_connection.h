@@ -61,7 +61,7 @@ public:
         return this->operations_;
     }
 
-    uint16_t get_handle() const { return this->handle_; }
+    uint16_t get_connection_handle() const { return this->handle_; }
     bool is_connected() const { return (this->handle_ != gap::invalid_handle); }
 
     connection_parameters const& get_connection_parameters() const {

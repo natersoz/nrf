@@ -42,13 +42,13 @@ void ble_gap_connection::connect(uint16_t                    connection_handle,
                                  uint8_t                     peer_address_id)
 {
     super::connect(connection_handle, peer_address, peer_address_id);
-    logger::instance().debug("gap::connect: 0x%04x", this->get_handle());
+    logger::instance().debug("gap::connect: 0x%04x", this->get_connection_handle());
 
     /// @todo It would probably be better to get the ble::service::gap_service
     /// preferred connection parameters and use those. It would eliminated
     /// duplication of the connection parameters value.
     this->operations().connection_parameter_update_request(
-        this->get_handle(), this->get_connection_parameters());
+        this->get_connection_handle(), this->get_connection_parameters());
 }
 
 void ble_gap_connection::disconnect(uint16_t                connection_handle,
@@ -56,7 +56,7 @@ void ble_gap_connection::disconnect(uint16_t                connection_handle,
 {
     super::disconnect(connection_handle, error_code);
     logger::instance().debug("gap::disconnect: 0x%04x -> 0x%04x, reason: 0x%02x",
-                             connection_handle, this->get_handle(), error_code);
+                             connection_handle, this->get_connection_handle(), error_code);
 
     /// @todo Note that scanning restarts automatically when the Nordic
     /// central is disconnected. This is observered behavior and specific to Nordic.

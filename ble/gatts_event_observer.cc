@@ -32,6 +32,8 @@ void event_observer::write(uint16_t            conection_handle,
                            att::length_t       length,
                            void const*         data)
 {
+    logger& logger = logger::instance();
+
     ble::profile::connectable* connectable = this->get_connecteable();
     if (not connectable)
     {
@@ -39,13 +41,13 @@ void event_observer::write(uint16_t            conection_handle,
         return;
     }
 
-    if (connectable->connection().get_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != conection_handle)
     {
         /// This GATTS request is from a different connection.
         /// @todo Is it normal for this connection to get notified of other
         /// connection events? Not sure at this point; warn for now:
-        logger::instance().warn("GATTS write(0x%04x, 0x%04x): wrong connection handle",
-                                conection_handle, attribute_handle);
+        logger.warn("GATTS write(0x%04x, 0x%04x): wrong connection handle",
+                    conection_handle, attribute_handle);
         return;
     }
 
@@ -53,15 +55,15 @@ void event_observer::write(uint16_t            conection_handle,
         connectable->service_container().find_characteristic(attribute_handle);
     if (not characteristic)
     {
-        logger::instance().warn("GATTS write(0x%04x, 0x%04x): invalid handle",
-                                conection_handle, attribute_handle);
+        logger.warn("GATTS write(0x%04x, 0x%04x): invalid handle",
+                    conection_handle, attribute_handle);
         return;
     }
 
     if (not characteristic->decl.properties.is_writable())
     {
-        logger::instance().warn("GATTS write(0x%04x, 0x%04x): not writeable",
-                                conection_handle, attribute_handle);
+        logger.warn("GATTS write(0x%04x, 0x%04x): not writeable",
+                    conection_handle, attribute_handle);
     }
 
     ble::att::length_t const written = characteristic->write(
@@ -69,9 +71,8 @@ void event_observer::write(uint16_t            conection_handle,
 
     if (written != length)
     {
-        logger::instance().warn(
-            "GATTS write(0x%04x, 0x%04x): write length: %u / %u",
-            conection_handle, attribute_handle, written, length);
+        logger.warn("GATTS write(0x%04x, 0x%04x): write length: %u / %u",
+                    conection_handle, attribute_handle, written, length);
     }
 }
 
@@ -91,7 +92,7 @@ void event_observer::write_cancel(uint16_t          conection_handle,
         return;
     }
 
-    if (connectable->connection().get_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != conection_handle)
     {
         // This GATTS request is from a different connection.
         return;
@@ -112,7 +113,7 @@ void event_observer::read_authorization_request(uint16_t      conection_handle,
         return;
     }
 
-    if (connectable->connection().get_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != conection_handle)
     {
         // This GATTS request is from a different connection.
         return;
@@ -137,7 +138,7 @@ void event_observer::write_authorization_request(uint16_t      conection_handle,
         return;
     }
 
-    if (connectable->connection().get_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != conection_handle)
     {
         // This GATTS request is from a different connection.
         return;
@@ -175,7 +176,7 @@ void event_observer::exchange_mtu_request(uint16_t      conection_handle,
         return;
     }
 
-    if (connectable->connection().get_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != conection_handle)
     {
         // This GATTS request is from a different connection.
         return;
@@ -201,7 +202,7 @@ void event_observer::timeout(uint16_t   conection_handle,
         return;
     }
 
-    if (connectable->connection().get_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != conection_handle)
     {
         // This GATTS request is from a different connection.
         return;
@@ -222,7 +223,7 @@ void event_observer::handle_value_notifications_tx_completed(uint16_t  conection
         return;
     }
 
-    if (connectable->connection().get_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != conection_handle)
     {
         // This GATTS request is from a different connection.
         return;
