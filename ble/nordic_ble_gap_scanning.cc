@@ -45,8 +45,8 @@ std::errc ble_gap_scanning::start()
 
     if (error_code != NRF_SUCCESS)
     {
-        logger::instance().error("sd_ble_gap_scan_start() failed: 0x%04x",
-                                 error_code);
+        logger::instance().error("sd_ble_gap_scan_start() failed: 0x%04x '%s'",
+                                 error_code, nordic_error_string(error_code));
         ASSERT(0);
     }
 
@@ -58,8 +58,8 @@ std::errc ble_gap_scanning::stop()
     uint32_t const error_code = sd_ble_gap_scan_stop();
     if (error_code != NRF_SUCCESS)
     {
-        logger::instance().error("sd_ble_gap_scan_stop() failed: 0x%04x",
-                                 error_code);
+        logger::instance().error("sd_ble_gap_scan_stop() failed: 0x%04x '%s'",
+                                 error_code, nordic_error_string(error_code));
         ASSERT(0);
     }
 
@@ -90,8 +90,8 @@ std::errc ble_gap_scanning::connect(
                                                    nordic_config_tag);
     if (error_code != NRF_SUCCESS)
     {
-        logger::instance().error("sd_ble_gap_connect() failed: 0x%04x",
-                                 error_code);
+        logger::instance().error("sd_ble_gap_connect() failed: 0x%04x '%s'",
+                                 error_code, nordic_error_string(error_code));
         ASSERT(0);
     }
 
