@@ -83,10 +83,37 @@ std::errc nordic_to_system_error(uint32_t nordic_error)
 
     if (nordic_error != NRF_SUCCESS)
     {
-        logger.error("Nordic error: 0x%04x", nordic_error);
+        logger.error("Nordic error: 0x%04x '%s'",
+                     nordic_error, nordic_error_string(nordic_error));
     }
 
     return error_code;
 }
 
-
+char const* nordic_error_string(uint32_t nordic_error)
+{
+    switch (nordic_error)
+    {
+    case NRF_SUCCESS:                           return "success";
+    case NRF_ERROR_SVC_HANDLER_MISSING:         return "SVC handler missing";
+    case NRF_ERROR_SOFTDEVICE_NOT_ENABLED:      return "softdevice not enabled";
+    case NRF_ERROR_INTERNAL:                    return "internal Error";
+    case NRF_ERROR_NO_MEM:                      return "no memory";
+    case NRF_ERROR_NOT_FOUND:                   return "not found";
+    case NRF_ERROR_NOT_SUPPORTED:               return "not supported";
+    case NRF_ERROR_INVALID_PARAM:               return "invalid parameter";
+    case NRF_ERROR_INVALID_STATE:               return "invalid state";
+    case NRF_ERROR_INVALID_LENGTH:              return "invalid length";
+    case NRF_ERROR_INVALID_FLAGS:               return "invalid flags";
+    case NRF_ERROR_INVALID_DATA:                return "invalid data";
+    case NRF_ERROR_DATA_SIZE:                   return "invalid data size";
+    case NRF_ERROR_TIMEOUT:                     return "timeout";
+    case NRF_ERROR_NULL:                        return "null pointer";
+    case NRF_ERROR_FORBIDDEN:                   return "forbidden";
+    case NRF_ERROR_INVALID_ADDR:                return "invalid memory";
+    case NRF_ERROR_BUSY:                        return "busy";
+    case NRF_ERROR_CONN_COUNT:                  return "too many connections";
+    case NRF_ERROR_RESOURCES:                   return "no resources";
+    default:                                    return "unknown error";
+    }
+}
