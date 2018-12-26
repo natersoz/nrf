@@ -58,7 +58,9 @@ void ble_gap_connection::disconnect(uint16_t                connection_handle,
     logger::instance().debug("gap::disconnect: 0x%04x -> 0x%04x, reason: 0x%02x",
                              connection_handle, this->get_handle(), error_code);
 
-    this->scanning().start();
+    /// @todo Note that scanning restarts automatically when the Nordic
+    /// central is disconnected. This is observered behavior and specific to Nordic.
+//    this->scanning().start();
 }
 
 void ble_gap_connection::timeout_expiration(
