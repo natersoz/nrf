@@ -9,6 +9,7 @@
 #include "ble/gatts_event_observer.h"
 #include "ble/gatts_operations.h"
 #include "ble/gattc_event_observer.h"
+#include "ble/gattc_operations.h"
 #include "ble/gatt_service.h"
 #include "ble/gatt_service_container.h"
 #include "ble/stack.h"
@@ -36,16 +37,18 @@ public:
     connectable& operator=(connectable&&)       = delete;
 
     /// ctor: A connectable with both GATT server and client.
-    connectable(ble::stack                      &ble_stack,
-               ble::gap::connection             &ble_gap_connection,
-               ble::gatts::event_observer       &ble_gatts_event_observer,
-               ble::gatts::operations           &ble_gatts_operations,
-               ble::gattc::event_observer       &ble_gattc_event_observer)
+    connectable(ble::stack&                     ble_stack,
+                ble::gap::connection&           ble_gap_connection,
+                ble::gatts::event_observer&     ble_gatts_event_observer,
+                ble::gatts::operations&         ble_gatts_operations,
+                ble::gattc::event_observer&     ble_gattc_event_observer,
+                ble::gattc::operations&         ble_gattc_operations)
     : ble_stack_(ble_stack),
       gap_connection_(ble_gap_connection),
       gatts_event_observer_(&ble_gatts_event_observer),
       gatts_operations_(&ble_gatts_operations),
-      gattc_event_observer_(&ble_gattc_event_observer)
+      gattc_event_observer_(&ble_gattc_event_observer),
+      gattc_operations_(&ble_gattc_operations)
     {
         this->gap_connection_.set_connecteable(this);
         this->gatts_event_observer_->set_connecteable(this);
@@ -54,15 +57,16 @@ public:
     }
 
     /// ctor: A connectable with a GATT server only; no client.
-    connectable(ble::stack                      &ble_stack,
-               ble::gap::connection             &ble_gap_connection,
-               ble::gatts::event_observer       &ble_gatts_event_observer,
-               ble::gatts::operations           &ble_gatts_operations)
+    connectable(ble::stack&                     ble_stack,
+                ble::gap::connection&           ble_gap_connection,
+                ble::gatts::event_observer&     ble_gatts_event_observer,
+                ble::gatts::operations&         ble_gatts_operations)
     : ble_stack_(ble_stack),
       gap_connection_(ble_gap_connection),
       gatts_event_observer_(&ble_gatts_event_observer),
       gatts_operations_(&ble_gatts_operations),
-      gattc_event_observer_(nullptr)
+      gattc_event_observer_(nullptr),
+      gattc_operations_(nullptr)
     {
         this->gap_connection_.set_connecteable(this);
         this->gatts_event_observer_->set_connecteable(this);
@@ -70,14 +74,16 @@ public:
     }
 
     /// ctor: A connectable with a GATT client only; no server.
-    connectable(ble::stack                      &ble_stack,
-               ble::gap::connection             &ble_gap_connection,
-               ble::gattc::event_observer       &ble_gattc_event_observer)
+    connectable(ble::stack&                     ble_stack,
+                ble::gap::connection&           ble_gap_connection,
+                ble::gattc::event_observer&     ble_gattc_event_observer,
+                ble::gattc::operations&         ble_gattc_operations)
     : ble_stack_(ble_stack),
       gap_connection_(ble_gap_connection),
       gatts_event_observer_(nullptr),
       gatts_operations_(nullptr),
-      gattc_event_observer_(&ble_gattc_event_observer)
+      gattc_event_observer_(&ble_gattc_event_observer),
+      gattc_operations_(&ble_gattc_operations)
     {
         this->gap_connection_.set_connecteable(this);
         this->gattc_event_observer_->set_connecteable(this);
@@ -91,6 +97,9 @@ public:
 
     ble::gatts::operations const* gatts() const { return this->gatts_operations_; }
     ble::gatts::operations*       gatts()       { return this->gatts_operations_; }
+
+    ble::gattc::operations const* gattc() const { return this->gattc_operations_; }
+    ble::gattc::operations*       gattc()       { return this->gattc_operations_; }
 
     ble::gatt::service_container const& service_container() const { return this->service_container_; }
     ble::gatt::service_container&       service_container()       { return this->service_container_; }
@@ -112,6 +121,7 @@ private:
     ble::gatts::event_observer      *gatts_event_observer_;
     ble::gatts::operations          *gatts_operations_;
     ble::gattc::event_observer      *gattc_event_observer_;
+    ble::gattc::operations          *gattc_operations_;
     ble::gatt::service_container    service_container_;
 };
 

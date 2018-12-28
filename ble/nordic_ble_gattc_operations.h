@@ -59,7 +59,9 @@ public:
     ble_gattc_operations& operator=(ble_gattc_operations const&)    = delete;
     ble_gattc_operations& operator=(ble_gattc_operations&&)         = delete;
 
-    virtual ble::gattc::service_discovery const& sdp() const override;
+    virtual ble::gattc::service_discovery const& sdp() const override {
+        return this->sdp_;
+    }
 
     virtual std::errc read(uint16_t                 connection_handle,
                            uint16_t                 attribute_handle,
@@ -125,6 +127,9 @@ public:
      */
     virtual std::errc exchange_mtu_request(uint16_t connection_handle,
                                            ble::att::length_t mtu_size) override;
+
+private:
+    ble_gattc_service_discovery sdp_;
 };
 
 } // namespace nordic

@@ -28,6 +28,7 @@
 
 #include "ble_gap_connection.h"
 #include "ble_gattc_observer.h"
+#include "ble/nordic_ble_gattc_operations.h"
 
 static segger_rtt_output_stream rtt_os;
 static rtc_observable<>         rtc_1(1u, 32u);
@@ -69,9 +70,11 @@ int main(void)
                                                        ble_scanning,
                                                        connection_parameters);
     ble_gattc_observer              ble_gattc_observer;
+    nordic::ble_gattc_operations    ble_gattc_operations;
     ble::profile::central           ble_central(ble_stack,
                                                 ble_gap_connection,
-                                                ble_gattc_observer);
+                                                ble_gattc_observer,
+                                                ble_gattc_operations);
     ble_gap_connection.init();
     ble_gattc_observer.init();
 

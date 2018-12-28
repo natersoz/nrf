@@ -43,12 +43,14 @@ public:
             ble::gap::central_connection&   ble_gap_connection,
             ble::gatts::event_observer&     ble_gatts_event_observer,
             ble::gatts::operations&         ble_gatts_operations,
-            ble::gattc::event_observer&     ble_gattc_event_observer)
+            ble::gattc::event_observer&     ble_gattc_event_observer,
+            ble::gattc::operations&         ble_gattc_operations)
     : connectable(ble_stack,
                   ble_gap_connection,
                   ble_gatts_event_observer,
                   ble_gatts_operations,
-                  ble_gattc_event_observer),
+                  ble_gattc_event_observer,
+                  ble_gattc_operations),
       scanning_(ble_gap_connection.scanning())
     {
     }
@@ -67,12 +69,14 @@ public:
     }
 
     /// ctor: A central with a GATT client only; no server.
-    central(ble::stack&                         ble_stack,
-               ble::gap::central_connection&    ble_gap_connection,
-               ble::gattc::event_observer&      ble_gattc_event_observer)
+    central(ble::stack&                     ble_stack,
+            ble::gap::central_connection&   ble_gap_connection,
+            ble::gattc::event_observer&     ble_gattc_event_observer,
+            ble::gattc::operations&         ble_gattc_operations)
     : connectable(ble_stack,
                   ble_gap_connection,
-                  ble_gattc_event_observer),
+                  ble_gattc_event_observer,
+                  ble_gattc_operations),
       scanning_(ble_gap_connection.scanning())
     {
     }

@@ -38,25 +38,27 @@ public:
     peripheral& operator=(peripheral&&)       = delete;
 
     /// ctor: A peripheral with both GATT server and client.
-    peripheral(ble::stack                       &ble_stack,
-               ble::gap::peripheral_connection  &ble_gap_connection,
-               ble::gatts::event_observer       &ble_gatts_event_observer,
-               ble::gatts::operations           &ble_gatts_operations,
-               ble::gattc::event_observer       &ble_gattc_event_observer)
+    peripheral(ble::stack&                      ble_stack,
+               ble::gap::peripheral_connection& ble_gap_connection,
+               ble::gatts::event_observer&      ble_gatts_event_observer,
+               ble::gatts::operations&          ble_gatts_operations,
+               ble::gattc::event_observer&      ble_gattc_event_observer,
+               ble::gattc::operations&          ble_gattc_operations)
     : connectable(ble_stack,
                   ble_gap_connection,
                   ble_gatts_event_observer,
                   ble_gatts_operations,
-                  ble_gattc_event_observer),
+                  ble_gattc_event_observer,
+                  ble_gattc_operations),
       advertising_(ble_gap_connection.advertising())
     {
     }
 
     /// ctor: A peripheral with a GATT server only; no client.
-    peripheral(ble::stack                       &ble_stack,
-               ble::gap::peripheral_connection  &ble_gap_connection,
-               ble::gatts::event_observer       &ble_gatts_event_observer,
-               ble::gatts::operations           &ble_gatts_operations)
+    peripheral(ble::stack&                      ble_stack,
+               ble::gap::peripheral_connection& ble_gap_connection,
+               ble::gatts::event_observer&      ble_gatts_event_observer,
+               ble::gatts::operations&          ble_gatts_operations)
     : connectable(ble_stack,
                   ble_gap_connection,
                   ble_gatts_event_observer,
@@ -66,12 +68,14 @@ public:
     }
 
     /// ctor: A peripheral with a GATT client only; no server.
-    peripheral(ble::stack                       &ble_stack,
-               ble::gap::peripheral_connection  &ble_gap_connection,
-               ble::gattc::event_observer       &ble_gattc_event_observer)
+    peripheral(ble::stack&                      ble_stack,
+               ble::gap::peripheral_connection& ble_gap_connection,
+               ble::gattc::event_observer&      ble_gattc_event_observer,
+               ble::gattc::operations&          ble_gattc_operations)
     : connectable(ble_stack,
                   ble_gap_connection,
-                  ble_gattc_event_observer),
+                  ble_gattc_event_observer,
+                  ble_gattc_operations),
       advertising_(ble_gap_connection.advertising())
     {
     }
