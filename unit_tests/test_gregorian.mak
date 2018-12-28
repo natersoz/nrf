@@ -4,7 +4,7 @@
 
 NO_ECHO		?= @
 
-TARGET_NAME	= gregorian
+TARGET_NAME	= test_gregorian
 
 OBJ_PATH	= _build
 

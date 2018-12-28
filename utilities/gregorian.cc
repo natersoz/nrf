@@ -1,5 +1,5 @@
 /**
- * @file gregorian.h
+ * @file gregorian.cc
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
@@ -7,7 +7,6 @@
 #include "logger.h"
 #include "project_assert.h"
 
-#include <cstdio>
 #include <stdexcept>
 
 namespace utility
