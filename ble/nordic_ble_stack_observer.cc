@@ -7,6 +7,7 @@
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
 
+#include "ble/nordic_ble_event_strings.h"
 #include "section_macros.h"
 #include "logger.h"
 #include "project_assert.h"
@@ -89,7 +90,13 @@ static void nordic_stack_event_handler(void* context)
         {
         case NRF_SUCCESS:
             // The event was recieved from the Noridc BLE stack. Process it.
-            logger.debug("BLE event: 0x%02x", ble_event_ptr->header.evt_id);
+            // Don't log anything here; debug logging will be handled in
+            // nordic_ble_event_handler() which is dispatched in the section
+            // ".sdh_ble_observers".
+            // Unless you're paranoid. Then uncomment the following line:
+            logger.debug("Nordic BLE event: 0x%02x %s",
+                         ble_event_ptr->header.evt_id,
+                         nordic::event_string(ble_event_ptr->header.evt_id));
             event_notify(ble_event_ptr);
             break;
 

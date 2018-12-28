@@ -4,7 +4,10 @@
  */
 
 #include "ble_gap_connection.h"
+
+#include "ble/profile_connectable.h"
 #include "ble/gap_advertising_data.h"
+
 #include "logger.h"
 #include "std_error.h"
 
@@ -49,6 +52,7 @@ void ble_gap_connection::connect(uint16_t                    connection_handle,
     /// duplication of the connection parameters value.
     this->operations().connection_parameter_update_request(
         this->get_connection_handle(), this->get_connection_parameters());
+    this->get_connecteable()->gattc()->exchange_mtu_request(connection_handle, 240u);
 }
 
 void ble_gap_connection::disconnect(uint16_t                connection_handle,
