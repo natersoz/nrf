@@ -28,9 +28,11 @@ ble_gap_connection::~ble_gap_connection()
 ble_gap_connection::ble_gap_connection(
     ble::gap::operations&                   operations,
     ble::gap::scanning&                     scanning,
-    ble::gap::connection_parameters const&  conn_params)
-    : super(operations, scanning, conn_params),
-      nordic_gap_event_observer_(*this)
+    ble::gap::connection_parameters const&  conn_params,
+    ble::att::length_t                     mtu_size)
+    :   super(operations, scanning, conn_params),
+        nordic_gap_event_observer_(*this),
+        mtu_size_(mtu_size)
 {
 }
 
@@ -47,12 +49,10 @@ void ble_gap_connection::connect(uint16_t                    connection_handle,
     super::connect(connection_handle, peer_address, peer_address_id);
     logger::instance().debug("gap::connect: 0x%04x", this->get_connection_handle());
 
-    /// @todo It would probably be better to get the ble::service::gap_service
-    /// preferred connection parameters and use those. It would eliminated
-    /// duplication of the connection parameters value.
     this->operations().connection_parameter_update_request(
         this->get_connection_handle(), this->get_connection_parameters());
-    this->get_connecteable()->gattc()->exchange_mtu_request(connection_handle, 240u);
+    this->get_connecteable()->gattc()->exchange_mtu_request(
+        connection_handle, this->mtu_size_);
 }
 
 void ble_gap_connection::disconnect(uint16_t                connection_handle,

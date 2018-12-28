@@ -29,7 +29,8 @@ public:
 
     ble_gap_connection(ble::gap::operations&                  operations,
                        ble::gap::scanning&                    scanning,
-                       ble::gap::connection_parameters const& conn_params);
+                       ble::gap::connection_parameters const& conn_params,
+                       ble::att::length_t                     mtu_size);
 
     /**
      * Post constructor initialization.
@@ -368,5 +369,6 @@ protected:
         ) override;
 
 private:
-    nordic::ble_gap_event_observer nordic_gap_event_observer_;
+    nordic::ble_gap_event_observer  nordic_gap_event_observer_;
+    ble::att::length_t              mtu_size_;
 };

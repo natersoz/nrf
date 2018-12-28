@@ -64,11 +64,17 @@ int main(void)
         0u,
         ble::gap::supervision_timeout_msec(4000u));
 
+    /// @todo This also is an arbitrary MTU size just to test the MTU
+    /// exchange operation.
+    /// Chose something more applicable to the specific client application.
+    ble::att::length_t const mtu_size = 240u;
+
     nordic::ble_gap_scanning        ble_scanning;
     nordic::ble_gap_operations      ble_gap_operations;
     ble_gap_connection              ble_gap_connection(ble_gap_operations,
                                                        ble_scanning,
-                                                       connection_parameters);
+                                                       connection_parameters,
+                                                       mtu_size);
     ble_gattc_observer              ble_gattc_observer;
     nordic::ble_gattc_operations    ble_gattc_operations;
     ble::profile::central           ble_central(ble_stack,
