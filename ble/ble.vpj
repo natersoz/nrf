@@ -294,6 +294,8 @@
             <F N="uuid.cc"/>
             <F N="nordic_ble_gap_logger.cc"/>
             <F N="nordic_ble_gap_address.cc"/>
+            <F N="gattc_operations.cc"/>
+            <F N="nordic_ble_gattc_operations.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -367,6 +369,8 @@
             <F N="stack.h"/>
             <F N="uuid.h"/>
             <F N="nordic_ble_gap_logger.h"/>
+            <F N="gattc_operations.h"/>
+            <F N="nordic_ble_gattc_operations.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
