@@ -8,6 +8,8 @@
 #pragma once
 
 #include <cstdint>
+#include <system_error>
+
 #include "ble/att.h"
 #include "ble/gatt_service.h"
 #include "ble/gatt_format.h"
@@ -18,24 +20,6 @@ namespace ble
 {
 namespace gatts
 {
-
-enum class error_code : uint8_t
-{
-    success = 0,            ///< Call succeeded.
-    invalid_state,          ///< GATTS call made within an invalid context.
-    invalid_connection,     ///< The connection handle is invalid.
-    invalid_attribute,      ///< The attribute  handle is invalid.
-    invalid_offset,         ///< The read/write offset is out of range.
-    invalid_length,         ///< The read/write length is out of range.
-    invalid_parameter,
-    resources_in_use,       ///<
-    resources_exhausted,    ///< Too many notifications queued.
-    cccd_not_enabled,       ///< Attempt to notify/indicate data when cccd disabled.
-
-    security_forbidden,
-    missing_attribute,      ///< see sd_ble_gatts_sys_attr_set()
-    unknown_error
-};
 
 class operations: public ble::profile::connectable_accessor
 {
@@ -94,7 +78,7 @@ public:
      *                          parameters are used to update the attribute value.
      * @todo Why is this needed? We can just update the characteristic outselves.
      */
-    virtual error_code read_authorize_reply(
+    virtual std::errc read_authorize_reply(
         uint16_t            connection_handle,
         uint16_t            attribute_handle,
         att::error_code     error_code,
@@ -103,7 +87,7 @@ public:
         att::length_t       length,
         void const*         data) = 0;
 
-    virtual error_code write_authorize_reply(
+    virtual std::errc write_authorize_reply(
         uint16_t            connection_handle,
         uint16_t            attribute_handle,
         att::error_code     error_code,
@@ -118,7 +102,7 @@ public:
      * @param connection_handle
      * @param att_mtu_length
      */
-    virtual error_code exchange_mtu_reply(
+    virtual std::errc exchange_mtu_reply(
         uint16_t            connection_handle,
         att::length_t       att_mtu_length) = 0;
 
@@ -130,7 +114,7 @@ public:
      *
      * @return ble::gatts::error_code
      */
-    virtual error_code service_add(
+    virtual std::errc service_add(
         ble::gatt::service& service) = 0;
 };
 

@@ -43,7 +43,7 @@ public:
         ble::att::length_t      length,
         void const*             data) override;
 
-    virtual ble::gatts::error_code read_authorize_reply(
+    virtual std::errc read_authorize_reply(
         uint16_t                connection_handle,
         uint16_t                attribute_handle,
         ble::att::error_code    error_code,
@@ -52,7 +52,7 @@ public:
         ble::att::length_t      length,
         void const*             data) override;
 
-    virtual ble::gatts::error_code write_authorize_reply(
+    virtual std::errc write_authorize_reply(
         uint16_t                connection_handle,
         uint16_t                attribute_handle,
         ble::att::error_code    error_code,
@@ -61,11 +61,11 @@ public:
         ble::att::length_t      length,
         void const*             data) override;
 
-    virtual ble::gatts::error_code exchange_mtu_reply(
+    virtual std::errc exchange_mtu_reply(
         uint16_t                connection_handle,
         ble::att::length_t      att_mtu_length) override;
 
-    virtual ble::gatts::error_code service_add(
+    virtual std::errc service_add(
         ble::gatt::service& service) override;
 };
 
