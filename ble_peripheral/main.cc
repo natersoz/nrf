@@ -30,7 +30,7 @@ int main(void)
 
     logger& logger = logger::instance();
     logger.set_rtc(rtc_1);
-    logger.set_level(logger::level::info);
+    logger.set_level(logger::level::debug);
     logger.set_output_stream(rtt_os);
 
     logger.info("--- BLE peripheral ---");
