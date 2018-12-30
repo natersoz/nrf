@@ -26,6 +26,43 @@ class connection: public ble::gap::event_observer,
                   public ble::profile::connectable_accessor
 {
 public:
+    class negotiation_state
+    {
+    public:
+        virtual ~negotiation_state()                           = default;
+
+        negotiation_state(negotiation_state const&)            = delete;
+        negotiation_state(negotiation_state &&)                = delete;
+        negotiation_state& operator=(negotiation_state const&) = delete;
+        negotiation_state& operator=(negotiation_state&&)      = delete;
+
+        negotiation_state();
+
+        bool is_any_update_pending() const;
+        void clear_all_pending();
+
+        bool is_gatt_mtu_exchange_pending() const;
+        bool is_gap_connection_parameters_pending() const;
+        bool is_link_layer_update_pending() const;
+        bool is_phy_layer_update_pending() const;
+
+        void set_gatt_mtu_exchange_pending(bool is_pending);
+        void set_gap_connection_parameters_pending(bool is_pending);
+        void set_link_layer_update_pending(bool is_pending);
+        void set_phy_layer_update_pending(bool is_pending);
+
+    protected:
+        void set_pending_state_update(bool is_pending);
+        virtual void timer_start() {};
+        virtual void timer_stop() {};
+
+    private:
+        bool gatt_mtu_exchange_pending_;
+        bool gap_connection_parameters_update_pending_;
+        bool link_layer_update_pending_;
+        bool phy_layer_update_pending_;
+    };
+
     virtual ~connection()                       = default;
 
     connection()                                = delete;
@@ -44,13 +81,14 @@ public:
     {}
 
     /** Constructor which specifies the connection parameters. */
-    connection(ble::gap::operations&                  gap_operations,
-               ble::gap::connection_parameters const& connection_parameters):
+    connection(ble::gap::operations&                    gap_operations,
+               ble::gap::connection_parameters const&   connection_parameters):
         super(),
         handle_(invalid_handle),
         mtu_size_(ble::att::mtu_length_minimum),
         operations_(gap_operations),
-        connection_parameters_(connection_parameters)
+        connection_parameters_(connection_parameters),
+        negotiation_state_()
     {}
 
     ble::gap::operations& operations() {
@@ -70,6 +108,14 @@ public:
 
     void set_connection_parameters(connection_parameters const& parameters) {
         this->connection_parameters_ = parameters;
+    }
+
+    negotiation_state const& get_negotiation_state() const {
+        return this->negotiation_state_;
+    }
+
+    negotiation_state& get_negotiation_state() {
+        return this->negotiation_state_;
     }
 
 protected:
@@ -112,8 +158,8 @@ private:
     ble::att::length_t              mtu_size_;
     ble::gap::operations&           operations_;
     ble::gap::connection_parameters connection_parameters_;
+    negotiation_state               negotiation_state_;
 };
 
 } // namespace gap
 } // namespace ble
-

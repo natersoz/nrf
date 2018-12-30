@@ -369,6 +369,6 @@ protected:
         ) override;
 
 private:
-    nordic::ble_gap_event_observer  nordic_gap_event_observer_;
-    ble::att::length_t              mtu_size_;
+    nordic::ble_gap_event_observer          nordic_gap_event_observer_;
+    ble::att::length_t                      mtu_size_;
 };

@@ -266,6 +266,7 @@
                 <F N="service/custom_uuid.cc"/>
                 <F N="service/battery_service.cc"/>
             </Folder>
+            <F N="gap_connection_negotiation_state.cc"/>
             <F N="gatt_attribute.cc"/>
             <F N="gatt_characteristic.cc"/>
             <F N="gatt_service.cc"/>
@@ -276,12 +277,16 @@
             <F N="nordic_ble_common_event_observable.cc"/>
             <F N="nordic_ble_common_event_observer.cc"/>
             <F N="nordic_ble_event_observables.cc"/>
+            <F N="nordic_ble_event_strings.cc"/>
+            <F N="nordic_ble_gap_address.cc"/>
             <F N="nordic_ble_gap_advertising.cc"/>
             <F N="nordic_ble_gap_event_observable.cc"/>
+            <F N="nordic_ble_gap_logger.cc"/>
             <F N="nordic_ble_gap_operations.cc"/>
             <F N="nordic_ble_gap_scan_parameters.cc"/>
             <F N="nordic_ble_gap_scanning.cc"/>
             <F N="nordic_ble_gattc_event_observable.cc"/>
+            <F N="nordic_ble_gattc_operations.cc"/>
             <F N="nordic_ble_gatts.cc"/>
             <F N="nordic_ble_gatts_event_observable.cc"/>
             <F N="nordic_ble_gatts_operations.cc"/>
@@ -292,10 +297,6 @@
             <F N="nordic_soc_observable.cc"/>
             <F N="nordic_state_observable.cc"/>
             <F N="uuid.cc"/>
-            <F N="nordic_ble_gap_logger.cc"/>
-            <F N="nordic_ble_gap_address.cc"/>
-            <F N="gattc_operations.cc"/>
-            <F N="nordic_ble_gattc_operations.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -338,6 +339,7 @@
             <F N="gatt_service_include.h"/>
             <F N="gatt_uuids.h"/>
             <F N="gattc_event_observer.h"/>
+            <F N="gattc_operations.h"/>
             <F N="gatts_event_observer.h"/>
             <F N="gatts_operations.h"/>
             <F N="hci_error_codes.h"/>
@@ -345,12 +347,15 @@
             <F N="nordic_ble_att.h"/>
             <F N="nordic_ble_event_observable.h"/>
             <F N="nordic_ble_event_observer.h"/>
+            <F N="nordic_ble_event_strings.h"/>
             <F N="nordic_ble_gap_address.h"/>
             <F N="nordic_ble_gap_advertising.h"/>
             <F N="nordic_ble_gap_advertising_params.h"/>
+            <F N="nordic_ble_gap_logger.h"/>
             <F N="nordic_ble_gap_operations.h"/>
             <F N="nordic_ble_gap_scan_parameters.h"/>
             <F N="nordic_ble_gap_scanning.h"/>
+            <F N="nordic_ble_gattc_operations.h"/>
             <F N="nordic_ble_gatts.h"/>
             <F N="nordic_ble_gatts_operations.h"/>
             <F N="nordic_ble_peer.h"/>
@@ -368,9 +373,6 @@
             <F N="profile_peripheral.h"/>
             <F N="stack.h"/>
             <F N="uuid.h"/>
-            <F N="nordic_ble_gap_logger.h"/>
-            <F N="gattc_operations.h"/>
-            <F N="nordic_ble_gattc_operations.h"/>
         </Folder>
         <Folder
             Name="Resource Files"

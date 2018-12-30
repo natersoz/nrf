@@ -16,10 +16,10 @@ private:
 public:
     virtual ~ble_gattc_observer() override;
 
-    ble_gattc_observer(ble_gattc_observer const&)            = delete;
-    ble_gattc_observer(ble_gattc_observer &&)                = delete;
-    ble_gattc_observer& operator=(ble_gattc_observer const&) = delete;
-    ble_gattc_observer& operator=(ble_gattc_observer&&)      = delete;
+    ble_gattc_observer(ble_gattc_observer const&)               = delete;
+    ble_gattc_observer(ble_gattc_observer &&)                   = delete;
+    ble_gattc_observer& operator=(ble_gattc_observer const&)    = delete;
+    ble_gattc_observer& operator=(ble_gattc_observer&&)         = delete;
 
     ble_gattc_observer();
 
@@ -144,5 +144,5 @@ protected:
 private:
     // This is where/how this generic interface ties in with the Nordic BLE
     // GATT server events.
-    nordic::ble_gattc_event_observer nordic_gattc_event_observer_;
+    nordic::ble_gattc_event_observer        nordic_gattc_event_observer_;
 };

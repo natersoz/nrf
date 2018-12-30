@@ -3,6 +3,8 @@
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
+#include "ble/profile_connectable.h"
+#include "ble/gap_connection.h"
 #include "ble_gattc_observer.h"
 #include "logger.h"
 
@@ -217,6 +219,14 @@ void ble_gattc_observer::exchange_mtu_response(
                                  error_code,
                                  error_handle,
                                  server_rx_mtu_size);
+
+    ble::gap::connection& gap_connection = this->get_connecteable()->connection();
+    gap_connection.get_negotiation_state().set_gatt_mtu_exchange_pending(false);
+
+    if (not gap_connection.get_negotiation_state().is_any_update_pending())
+    {
+        logger::instance().debug("--- pending updates complete ---");
+    }
 }
 
 void ble_gattc_observer::timeout(

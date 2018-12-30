@@ -29,7 +29,7 @@ ble_gap_connection::ble_gap_connection(
     ble::gap::operations&                   operations,
     ble::gap::scanning&                     scanning,
     ble::gap::connection_parameters const&  conn_params,
-    ble::att::length_t                     mtu_size)
+    ble::att::length_t                      mtu_size)
     :   super(operations, scanning, conn_params),
         nordic_gap_event_observer_(*this),
         mtu_size_(mtu_size)
@@ -48,6 +48,9 @@ void ble_gap_connection::connect(uint16_t                    connection_handle,
 {
     super::connect(connection_handle, peer_address, peer_address_id);
     logger::instance().debug("gap::connect: 0x%04x", this->get_connection_handle());
+
+    this->get_negotiation_state().set_gap_connection_parameters_pending(true);
+    this->get_negotiation_state().set_gatt_mtu_exchange_pending(true);
 
     this->operations().connection_parameter_update_request(
         this->get_connection_handle(), this->get_connection_parameters());
@@ -81,6 +84,13 @@ void ble_gap_connection::connection_parameter_update(
                              connection_handle,
                              connection_parameters.interval_min, connection_parameters.interval_max,
                              connection_parameters.slave_latency, connection_parameters.supervision_timeout);
+
+    this->get_negotiation_state().set_gap_connection_parameters_pending(false);
+    if (not this->get_negotiation_state().is_any_update_pending())
+    {
+        logger::instance().debug("--- pending updates complete ---");
+    }
+
 #if 0
     ble_gap_conn_params_t const conn_params = {
         .min_conn_interval  = connection_parameters.interval_min,

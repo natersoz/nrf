@@ -48,6 +48,7 @@ SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/rtc.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/saadc.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/timer.cc
 
+SOURCE_FILES += $(PROJECT_ROOT)/ble/gap_connection_negotiation_state.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/gatt_attribute.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/gatt_characteristic.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/gatt_service.cc

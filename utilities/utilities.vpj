@@ -260,32 +260,33 @@
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
             GUID="{6BB44251-229E-4D80-975E-AF6EF065AFE8}">
             <F N="format_conversion.cc"/>
+            <F N="gregorian.cc"/>
             <F N="int_to_string.cc"/>
             <F N="project_assert.cc"/>
             <F N="std_stubs.cc"/>
             <F N="vwritef.cc"/>
             <F N="write_data.cc"/>
-            <F N="gregorian.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
             GUID="{8483D48C-17AD-40B2-8C55-E43E03F2B80F}">
             <F N="bit_manip.h"/>
+            <F N="charconv.h"/>
             <F N="fixed_allocator.h"/>
             <F N="float_to_string.h"/>
             <F N="format_conversion.h"/>
+            <F N="gregorian.h"/>
             <F N="int_to_string.h"/>
+            <F N="make_array.h"/>
+            <F N="observable.h"/>
+            <F N="observer.h"/>
             <F N="project_assert.h"/>
             <F N="section_macros.h"/>
+            <F N="std_error.h"/>
             <F N="stream.h"/>
             <F N="vwritef.h"/>
             <F N="write_data.h"/>
-            <F N="charconv_integer.h"/>
-            <F N="charconv.h"/>
-            <F N="make_array.h"/>
-            <F N="std_error.h"/>
-            <F N="gregorian.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
