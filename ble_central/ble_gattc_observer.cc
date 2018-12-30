@@ -207,16 +207,16 @@ void ble_gattc_observer::handle_indication(
                              length);
 }
 
-void ble_gattc_observer::mtu_rx_size(
+void ble_gattc_observer::exchange_mtu_response(
     uint16_t                    conection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
     uint16_t                    server_rx_mtu_size)
 {
-    super::mtu_rx_size(conection_handle,
-                       error_code,
-                       error_handle,
-                       server_rx_mtu_size);
+    super::exchange_mtu_response(conection_handle,
+                                 error_code,
+                                 error_handle,
+                                 server_rx_mtu_size);
 }
 
 void ble_gattc_observer::timeout(

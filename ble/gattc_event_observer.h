@@ -131,7 +131,7 @@ public:
         ble::att::length_t          length
         ) {}
 
-    virtual void mtu_rx_size(
+    virtual void exchange_mtu_response(
         uint16_t                    conection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,

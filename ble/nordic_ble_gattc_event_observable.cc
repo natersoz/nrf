@@ -335,7 +335,7 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
         case BLE_GATTC_EVT_EXCHANGE_MTU_RSP:
             // Exchange MTU Response event.
             // See ble_gattc_evt_exchange_mtu_rsp_t.
-            observer.interface_reference.mtu_rx_size(
+            observer.interface_reference.exchange_mtu_response(
                 event_data.conn_handle,
                 error_code,
                 event_data.error_handle,
