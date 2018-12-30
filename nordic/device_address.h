@@ -19,6 +19,12 @@ namespace nordic
  *
  * @return ble::gap::address The BD_ADDR address type from the Nordic Factory
  *                           programmed data.
+ *
+ * @note The Nordic programmed factory data is a fixed random address and should
+ * be modified with its upper 2 MSBits set as described in
+ *      BLUETOOTH SPECIFICATION Version 5.0 | Vol 6, Part B page 2556
+ *      1.3.2 Random Device Address
+ * This is not done here; it is done within the ble::gap::address ctor.
  */
 inline ble::gap::address get_device_address()
 {
@@ -26,7 +32,7 @@ inline ble::gap::address get_device_address()
         const_cast<uint32_t const*>(NRF_FICR->DEVICEADDR);
 
     return ble::gap::address(reinterpret_cast<uint8_t const*>(device_addr32),
-                             NRF_FICR->DEVICEADDRTYPE);
+                             NRF_FICR->DEVICEADDRTYPE & 0x1);
 }
 
 } // namespace nordic

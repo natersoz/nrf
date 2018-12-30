@@ -25,9 +25,6 @@ constexpr uint8_t ble_gap_address::address_type(enum ble::gap::address::type add
     case ble::gap::address::type::random_private_non_resolvable:
         return BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE;
 
-    case ble::gap::address::type::anonymous:
-        return BLE_GAP_ADDR_TYPE_ANONYMOUS;
-
     default:
         return BLE_GAP_ADDR_TYPE_ANONYMOUS;
     }
