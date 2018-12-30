@@ -1,5 +1,5 @@
 /**
- * @file timer_observable.h
+ * @file timer_observable_generic.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  *
  * Wrap a timer peripheral into an observer pattern.

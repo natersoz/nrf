@@ -22,9 +22,10 @@
  * @note A expiration tick count of UINT32_MAX is used within this class
  * to mean that the observer is disabled.
  */
-template <typename timer_type>
+template <typename _timer_type>
 class timer_observer_generic
 {
+    using timer_type      = _timer_type;
     using observable_type = timer_observable_generic<timer_type, timer_observer_generic<timer_type>, 6u>;
     friend observable_type;
 
