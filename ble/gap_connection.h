@@ -132,10 +132,7 @@ protected:
      */
     void connect(uint16_t                   connection_handle,
                  ble::gap::address const&   peer_address,
-                 uint8_t                    peer_address_id) override
-    {
-        this->set_handle(connection_handle);
-    }
+                 uint8_t                    peer_address_id) override;
 
     /**
      * @note This method overrides ble::gap::event_observer::disconnect()
@@ -146,10 +143,7 @@ protected:
      * @param error_code        The reason for disconnection.
      */
     void disconnect(uint16_t                connection_handle,
-                    ble::hci::error_code    error_code) override
-    {
-        this->set_handle(ble::gap::invalid_handle);
-    }
+                    ble::hci::error_code    error_code) override;
 
 private:
     using super = ble::gap::event_observer;
