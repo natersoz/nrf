@@ -40,7 +40,7 @@ public:
         handle_(invalid_handle),
         mtu_size_(ble::att::mtu_length_minimum),
         operations_(gap_operations),
-        parameters_()
+        connection_parameters_()
     {}
 
     /** Constructor which specifies the connection parameters. */
@@ -50,7 +50,7 @@ public:
         handle_(invalid_handle),
         mtu_size_(ble::att::mtu_length_minimum),
         operations_(gap_operations),
-        parameters_(connection_parameters)
+        connection_parameters_(connection_parameters)
     {}
 
     ble::gap::operations& operations() {
@@ -65,11 +65,11 @@ public:
     bool is_connected() const { return (this->handle_ != gap::invalid_handle); }
 
     connection_parameters const& get_connection_parameters() const {
-        return this->parameters_;
+        return this->connection_parameters_;
     }
 
     void set_connection_parameters(connection_parameters const& parameters) {
-        this->parameters_ = parameters;
+        this->connection_parameters_ = parameters;
     }
 
 protected:
@@ -111,7 +111,7 @@ private:
     uint16_t                        handle_;
     ble::att::length_t              mtu_size_;
     ble::gap::operations&           operations_;
-    ble::gap::connection_parameters parameters_;
+    ble::gap::connection_parameters connection_parameters_;
 };
 
 } // namespace gap
