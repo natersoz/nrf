@@ -66,11 +66,6 @@ private:
     observer_list observer_list_;
 };
 
-using ble_common_event_observable = ble_event_observable<ble_common_event_observer>;
-using ble_gap_event_observable    = ble_event_observable<ble_gap_event_observer>;
-using ble_gattc_event_observable  = ble_event_observable<ble_gattc_event_observer>;
-using ble_gatts_event_observable  = ble_event_observable<ble_gatts_event_observer>;
-
 struct ble_observables
 {
     static ble_observables& instance();
@@ -83,10 +78,10 @@ struct ble_observables
     ble_observables& operator=(ble_observables const &) = delete;
     ble_observables& operator=(ble_observables&&)       = delete;
 
-    ble_common_event_observable common_event_observable;
-    ble_gap_event_observable    gap_event_observable;
-    ble_gattc_event_observable  gattc_event_observable;
-    ble_gatts_event_observable  gatts_event_observable;
+    ble_event_observable<ble_common_event_observer> common_event_observable;
+    ble_event_observable<ble_gap_event_observer>    gap_event_observable;
+    ble_event_observable<ble_gattc_event_observer>  gattc_event_observable;
+    ble_event_observable<ble_gatts_event_observer>  gatts_event_observable;
 };
 
 } // namespace nordic
