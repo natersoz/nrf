@@ -14,38 +14,53 @@ namespace nordic
 
 class ble_gattc_service_discovery: public ble::gattc::service_discovery
 {
+private:
+    using super = ble::gattc::service_discovery;
+
 public:
     virtual ~ble_gattc_service_discovery()                                      = default;
 
-    ble_gattc_service_discovery()                                               = default;
     ble_gattc_service_discovery(ble_gattc_service_discovery const&)             = delete;
     ble_gattc_service_discovery(ble_gattc_service_discovery &&)                 = delete;
     ble_gattc_service_discovery& operator=(ble_gattc_service_discovery const&)  = delete;
     ble_gattc_service_discovery& operator=(ble_gattc_service_discovery&&)       = delete;
 
+    ble_gattc_service_discovery() :
+        super(),
+        last_requested_(ble::att::handle_invalid, ble::att::handle_invalid)
+    {}
 
-    virtual std::errc discover_primary_services(uint16_t connection_handle,
-                                                uint16_t gatt_handle_start) override;
+    virtual std::errc discover_primary_services(
+        uint16_t connection_handle,
+        uint16_t gatt_handle_start,
+        uint16_t gatt_handle_stop) override;
 
-    virtual std::errc discover_primary_services(uint16_t connection_handle,
-                                                uint16_t gatt_handle_start,
-                                                ble::att::uuid const& uuid) override;
+    virtual std::errc discover_service_relationships(
+        uint16_t connection_handle,
+        uint16_t gatt_handle_start,
+        uint16_t gatt_handle_stop) override;
 
-    virtual std::errc discover_service_relationships(uint16_t connection_handle,
-                                                     uint16_t gatt_handle_start,
-                                                     uint16_t gatt_handle_stop) override;
+    virtual std::errc discover_characteristics(
+        uint16_t connection_handle,
+        uint16_t gatt_handle_start,
+        uint16_t gatt_handle_stop) override;
 
-    virtual std::errc discover_characteristics(uint16_t connection_handle,
-                                               uint16_t gatt_handle_start,
-                                               uint16_t gatt_handle_stop) override;
+    virtual std::errc discover_descriptors(
+        uint16_t connection_handle,
+        uint16_t gatt_handle_start,
+        uint16_t gatt_handle_stop) override;
 
-    virtual std::errc discover_descriptors(uint16_t connection_handle,
-                                           uint16_t gatt_handle_start,
-                                           uint16_t gatt_handle_stop) override;
+    virtual std::errc discover_attributes(
+        uint16_t connection_handle,
+        uint16_t gatt_handle_start,
+        uint16_t gatt_handle_stop) override;
 
-    virtual std::errc discover_attributes(uint16_t connection_handle,
-                                          uint16_t gatt_handle_start,
-                                          uint16_t gatt_handle_stop) override;
+    virtual handle_pair gatt_handles_requested() const override {
+        return this->last_requested_;
+    }
+
+private:
+    handle_pair last_requested_;
 };
 
 class ble_gattc_operations: public ble::gattc::operations
@@ -127,6 +142,21 @@ public:
      */
     virtual std::errc exchange_mtu_request(uint16_t connection_handle,
                                            ble::att::length_t mtu_size) override;
+
+    /**
+     * At this point it appears that 128-bit UUIDs cannot be handled by the
+     * Nordic softdevice unless they are pre-loaded into the softdevice UUID
+     * database. This is a complete kludge and a huge disappointment.
+     * It rules out using the Nordic softdevice in a generic GATT client.
+     *
+     * @note This operation must be performed after the softdevice has been both
+     * initialized and enabled.
+     *
+     * @param uuid The generic UUID to preload into the softdevice database.
+     *
+     * @return std::errc The result of this operation.
+     */
+    std::errc preload_custom_uuid(ble::att::uuid const &uuid);
 
 private:
     ble_gattc_service_discovery sdp_;

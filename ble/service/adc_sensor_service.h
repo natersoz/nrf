@@ -121,9 +121,9 @@ public:
     adc_samples_characteristic& operator=(adc_samples_characteristic&&)       = delete;
 
     adc_samples_characteristic() :
-        gatt::characteristic(
-            uuid_characteristic(custom::characteristics::adc_samples),
-            gatt::properties::read | gatt::properties::notify),
+        gatt::characteristic(uuid_characteristic(custom::services::adc_sensor,
+                                                 custom::characteristics::adc_samples),
+                             gatt::properties::read | gatt::properties::notify),
         cccd(*this),
         adc_sensor_acq_(nullptr)
     {
@@ -221,8 +221,8 @@ public:
     adc_enable_characteristic& operator=(adc_enable_characteristic&&)       = delete;
 
     adc_enable_characteristic():
-        gatt::characteristic(
-            uuid_characteristic(custom::characteristics::adc_enable),
+        gatt::characteristic(uuid_characteristic(custom::services::adc_sensor,
+                                                 custom::characteristics::adc_enable),
             gatt::properties::read_write)
     {
         for (auto &iter : this->sample_enable) { iter = false; }

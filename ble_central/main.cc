@@ -30,6 +30,9 @@
 #include "ble_gattc_observer.h"
 #include "ble/nordic_ble_gattc_operations.h"
 
+// Required (?) by Nordic for apriori 128-bit uuid services.
+#include "ble/service/adc_sensor_service.h"
+
 static segger_rtt_output_stream rtt_os;
 static rtc_observable<>         rtc_1(1u, 32u);
 
@@ -53,8 +56,8 @@ int main(void)
                       NRF_FICR->DEVICEADDR,
                       8u, false, write_data::data_prefix::address);
 
-    constexpr uint8_t const             nordic_config_tag = 1u;
-    nordic::ble_stack                   ble_stack(nordic_config_tag);
+    constexpr uint8_t const         nordic_config_tag = 1u;
+    nordic::ble_stack               ble_stack(nordic_config_tag);
 
     /// @todo The connection interval needs to be thought through
     /// for a specific device.
@@ -108,6 +111,10 @@ int main(void)
 
     logger.info("stack: free: %5u 0x%04x, size: %5u 0x%04x",
                 stack_free(), stack_free(), stack_size(), stack_size());
+
+    // Required by Nordic for apriori 128-bit uuid services.
+    ble::service::custom::adc_sensor_service adc_sensor_service;
+    ble_gattc_operations.preload_custom_uuid(adc_sensor_service.uuid);
 
     ble_central.scanning().start();
 

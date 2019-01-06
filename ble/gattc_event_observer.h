@@ -30,7 +30,7 @@ public:
     event_observer& operator=(event_observer const&) = delete;
     event_observer& operator=(event_observer&&)      = delete;
 
-    virtual void service_discovery_response(
+    virtual void service_discovered(
         uint16_t                    conection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
@@ -39,7 +39,7 @@ public:
         ble::att::uuid const&       uuid
         ) {}
 
-    virtual void relationship_discovery_response(
+    virtual void relationship_discovered(
         uint16_t                    conection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
@@ -49,7 +49,7 @@ public:
         ble::att::uuid const&       uuid
         ) {}
 
-    virtual void characteristic_discovery_response(
+    virtual void characteristic_discovered(
         uint16_t                    conection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
@@ -59,7 +59,7 @@ public:
         ble::gatt::properties       properties
         ) {}
 
-    virtual void descriptor_discovery_response(
+    virtual void descriptor_discovered(
         uint16_t                    conection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
@@ -67,7 +67,7 @@ public:
         ble::att::uuid const&       uuid
         ) {}
 
-    virtual void attribute_uuid_discovery_response(
+    virtual void attribute_discovered(
         uint16_t                    conection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,

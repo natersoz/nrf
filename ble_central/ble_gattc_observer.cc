@@ -17,7 +17,7 @@ ble_gattc_observer::~ble_gattc_observer()
     }
 }
 
-ble_gattc_observer::ble_gattc_observer():
+ble_gattc_observer::ble_gattc_observer() :
     super(),
     nordic_gattc_event_observer_(*this)
 {
@@ -29,7 +29,7 @@ void ble_gattc_observer::init()
     observables.gattc_event_observable.attach(this->nordic_gattc_event_observer_);
 }
 
-void ble_gattc_observer::service_discovery_response(
+void ble_gattc_observer::service_discovered(
     uint16_t                    conection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
@@ -37,15 +37,15 @@ void ble_gattc_observer::service_discovery_response(
     uint16_t                    handle_stop,
     ble::att::uuid const&       uuid)
 {
-    super::service_discovery_response(conection_handle,
-                                      error_code,
-                                      error_handle,
-                                      handle_start,
-                                      handle_stop,
-                                      uuid);
+    super::service_discovered(conection_handle,
+                              error_code,
+                              error_handle,
+                              handle_start,
+                              handle_stop,
+                              uuid);
 }
 
-void ble_gattc_observer::relationship_discovery_response(
+void ble_gattc_observer::relationship_discovered(
     uint16_t                    conection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
@@ -54,16 +54,16 @@ void ble_gattc_observer::relationship_discovery_response(
     uint16_t                    service_handle,
     ble::att::uuid const&       uuid)
 {
-    super::relationship_discovery_response(conection_handle,
-                                           error_code,
-                                           error_handle,
-                                           handle_start,
-                                           handle_stop,
-                                           service_handle,
-                                           uuid);
+    super::relationship_discovered(conection_handle,
+                                   error_code,
+                                   error_handle,
+                                   handle_start,
+                                   handle_stop,
+                                   service_handle,
+                                   uuid);
 }
 
-void ble_gattc_observer::characteristic_discovery_response(
+void ble_gattc_observer::characteristic_discovered(
     uint16_t                    conection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
@@ -72,41 +72,41 @@ void ble_gattc_observer::characteristic_discovery_response(
     ble::att::uuid const&       uuid,
     ble::gatt::properties       properties)
 {
-    super::characteristic_discovery_response(conection_handle,
-                                             error_code,
-                                             error_handle,
-                                             handle,
-                                             handle_stop,
-                                             uuid,
-                                             properties);
+    super::characteristic_discovered(conection_handle,
+                                     error_code,
+                                     error_handle,
+                                     handle,
+                                     handle_stop,
+                                     uuid,
+                                     properties);
 }
 
-void ble_gattc_observer::descriptor_discovery_response(
+void ble_gattc_observer::descriptor_discovered(
     uint16_t                    conection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
     uint16_t                    desciptor_handle,
     ble::att::uuid const&       uuid)
 {
-    super::descriptor_discovery_response(conection_handle,
-                                         error_code,
-                                         error_handle,
-                                         desciptor_handle,
-                                         uuid);
+    super::descriptor_discovered(conection_handle,
+                                 error_code,
+                                 error_handle,
+                                 desciptor_handle,
+                                 uuid);
 }
 
-void ble_gattc_observer::attribute_uuid_discovery_response(
+void ble_gattc_observer::attribute_discovered(
     uint16_t                    conection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
     uint16_t                    handle,
     ble::att::uuid const&       uuid)
 {
-    super::attribute_uuid_discovery_response(conection_handle,
-                                             error_code,
-                                             error_handle,
-                                             handle,
-                                             uuid);
+    super::attribute_discovered(conection_handle,
+                                error_code,
+                                error_handle,
+                                handle,
+                                uuid);
 }
 
 void ble_gattc_observer::read_characteristic_by_uuid_response(
@@ -220,7 +220,7 @@ void ble_gattc_observer::exchange_mtu_response(
                                  error_handle,
                                  server_rx_mtu_size);
 
-    ble::gap::connection& gap_connection = this->get_connecteable()->connection();
+    ble::gap::connection &gap_connection = this->get_connecteable()->connection();
     gap_connection.get_negotiation_state().set_gatt_mtu_exchange_pending(false);
 
     if (not gap_connection.get_negotiation_state().is_any_update_pending())

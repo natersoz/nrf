@@ -34,7 +34,7 @@ public:
     void init();
 
 protected:
-    virtual void service_discovery_response(
+    virtual void service_discovered(
         uint16_t                    conection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
@@ -42,7 +42,7 @@ protected:
         uint16_t                    handle_stop,
         ble::att::uuid const&       uuid) override;
 
-    virtual void relationship_discovery_response(
+    virtual void relationship_discovered(
         uint16_t                    conection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
@@ -51,7 +51,7 @@ protected:
         uint16_t                    service_handle,
         ble::att::uuid const&       uuid) override;
 
-    virtual void characteristic_discovery_response(
+    virtual void characteristic_discovered(
         uint16_t                    conection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
@@ -60,14 +60,14 @@ protected:
         ble::att::uuid const&       uuid,
         ble::gatt::properties       properties) override;
 
-    virtual void descriptor_discovery_response(
+    virtual void descriptor_discovered(
         uint16_t                    conection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
         uint16_t                    desciptor_handle,
         ble::att::uuid const&       uuid) override;
 
-    virtual void attribute_uuid_discovery_response(
+    virtual void attribute_discovered(
         uint16_t                    conection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,

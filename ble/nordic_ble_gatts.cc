@@ -3,13 +3,15 @@
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
-#include "nordic_ble_gatts.h"
-#include "project_assert.h"
-#include "logger.h"
+#include "ble/nordic_ble_gatts.h"
+#include "ble/nordic_ble_att.h"
 
 #include "ble/service/gap_service.h"
 #include "ble/service/gatt_service.h"
 #include "ble/gatt_uuids.h"
+
+#include "project_assert.h"
+#include "logger.h"
 
 #include "ble.h"                    // Softdevice headers
 #include "ble_gatts.h"
@@ -52,29 +54,11 @@ static ble_uuid_t nordic_uuid_type(ble::att::uuid const &uuid)
 {
     if (uuid.is_ble())
     {
-        ble_uuid_t const nordic_uuid = {
-            .uuid = uuid.get_u16(),
-            .type = BLE_UUID_TYPE_BLE
-        };
-
-        return nordic_uuid;
+        return from_att_uuid_16(uuid);
     }
     else
     {
-        // Convert from uuid big-endian to little-endian.
-        ble::att::uuid uuid_base = uuid.reverse();
-#if 0
-        // For the base: zero out bytes [12:15], the least significant 32-bits.
-        // Note: Nordic appears to ignore [12:15] within sd_ble_uuid_vs_add()
-        // and internal table, but be safe anyway.
-        uuid_base.data[12u] = 0u;
-        uuid_base.data[13u] = 0u;
-        uuid_base.data[14u] = 0u;
-        uuid_base.data[15u] = 0u;
-#endif
-        ble_uuid128_t nordic_uuid_128;
-        memcpy(nordic_uuid_128.uuid128, uuid_base.data, sizeof(nordic_uuid_128.uuid128));
-        static_assert(sizeof(nordic_uuid_128.uuid128) == sizeof(uuid_base.data));
+        ble_uuid128_t const nordic_uuid_128 = from_att_uuid_128(uuid);
 
         /*
          * Regarding Nordic handling of 128-bit uuids:
@@ -88,11 +72,12 @@ static ble_uuid_t nordic_uuid_type(ble::att::uuid const &uuid)
          * and Nordic will return the same index for repeated uuid values.
          * The zero value of this index is BLE_UUID_TYPE_VENDOR_BEGIN.
          */
-        uint8_t nordic_index = 0u;
+        uint8_t nordic_index = BLE_UUID_TYPE_VENDOR_BEGIN;
         uint32_t const error = sd_ble_uuid_vs_add(&nordic_uuid_128, &nordic_index);
         if (error == NRF_SUCCESS)
         {
-            if (false)      // Debug of uuid -> Nordic uuid conversion
+            constexpr bool const debug_verbose = false;
+            if (debug_verbose)          // Debug Nordic uuid conversion
             {
                 char uuid_char_buffer[ble::att::uuid::conversion_length];
                 uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));

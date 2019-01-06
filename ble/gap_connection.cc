@@ -21,7 +21,7 @@ namespace gap
     void connection::disconnect(uint16_t                connection_handle,
                                 ble::hci::error_code    error_code)
     {
-        this->set_handle(ble::gap::invalid_handle);
+        this->set_handle(ble::gap::handle_invalid);
         this->get_connecteable()->connection().get_negotiation_state().clear_all_pending();
     }
 

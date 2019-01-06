@@ -56,6 +56,7 @@ ble::att::uuid uuid_service(services service);
  *                          merely for convenience.
  */
 ble::att::uuid& uuid_characteristic(ble::att::uuid& uuid,
+                                    services        service,
                                     characteristics characteristic);
 
 /**
@@ -64,7 +65,8 @@ ble::att::uuid& uuid_characteristic(ble::att::uuid& uuid,
  * @param service           The 16-bit custom ID for the characteristic.
  * @return ble::att::uuid   The uuid set with the custom characteristic value.
  */
-ble::att::uuid uuid_characteristic(characteristics characteristic);
+ble::att::uuid uuid_characteristic(services        service,
+                                   characteristics characteristic);
 
 } // namespace custom
 } // namespace service

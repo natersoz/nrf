@@ -25,6 +25,8 @@ class service_discovery
 //: public ble::profile::connectable_accessor   /// @todo remove?
 {
 public:
+    using handle_pair = std::pair<uint16_t, uint16_t>;
+
     virtual ~service_discovery()                            = default;
 
     service_discovery()                                     = default;
@@ -33,28 +35,50 @@ public:
     service_discovery& operator=(service_discovery const&)  = delete;
     service_discovery& operator=(service_discovery&&)       = delete;
 
-    virtual std::errc discover_primary_services(uint16_t connection_handle,
-                                                uint16_t gatt_handle_start) = 0;
+    /**
+     * Perform the primary service discovery. To acquire all primary services
+     * use the defaults ble::att::handle_minimum, ble::att::handle_maximum
+     * as the gatt handle range.
+     *
+     * @param connection_handle The connection handle obtained from the
+     *        ble::gap::event_observer::connect() notification.
+     * @param gatt_handle_start The starting attribute handle, use
+     *        ble::att::handle_minimum to start from the beginning.
+     * @param gatt_handle_stop The last handle to acquire, including this
+     *        handle vaue if it contains a primary service.
+     *
+     * @return std::errc The error code indicating success or failure.
+     */
+    virtual std::errc discover_primary_services(
+        uint16_t connection_handle,
+        uint16_t gatt_handle_start = ble::att::handle_minimum,
+        uint16_t gatt_handle_stop  = ble::att::handle_maximum) = 0;
 
-    virtual std::errc discover_primary_services(uint16_t connection_handle,
-                                                uint16_t gatt_handle_start,
-                                                ble::att::uuid const& uuid) = 0;
+    virtual std::errc discover_service_relationships(
+        uint16_t connection_handle,
+        uint16_t gatt_handle_start,
+        uint16_t gatt_handle_stop) = 0;
 
-    virtual std::errc discover_service_relationships(uint16_t connection_handle,
-                                                     uint16_t gatt_handle_start,
-                                                     uint16_t gatt_handle_stop) = 0;
+    virtual std::errc discover_characteristics(
+        uint16_t connection_handle,
+        uint16_t gatt_handle_start,
+        uint16_t gatt_handle_stop) = 0;
 
-    virtual std::errc discover_characteristics(uint16_t connection_handle,
-                                               uint16_t gatt_handle_start,
-                                               uint16_t gatt_handle_stop) = 0;
-
-    virtual std::errc discover_descriptors(uint16_t connection_handle,
-                                           uint16_t gatt_handle_start,
-                                           uint16_t gatt_handle_stop) = 0;
+    virtual std::errc discover_descriptors(
+        uint16_t connection_handle,
+        uint16_t gatt_handle_start,
+        uint16_t gatt_handle_stop) = 0;
 
     virtual std::errc discover_attributes(uint16_t connection_handle,
                                           uint16_t gatt_handle_start,
                                           uint16_t gatt_handle_stop) = 0;
+
+    /**
+     * @return The most recent requested GATT start and stop handles.
+     * If an API error occurred, this value is not updated.
+     * If a protocol error occurred, this value is updated.
+     */
+    virtual handle_pair gatt_handles_requested() const = 0;
 };
 
 class operations: public ble::profile::connectable_accessor

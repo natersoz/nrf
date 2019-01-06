@@ -22,10 +22,24 @@ namespace att
 
 /**
  * The invalid attribute handle value.
- * @note This is different than the ble::gap::invalid_handle value.
+ * @note This is different than the ble::gap::handle_invalid value.
  *       A conneciton handle value zero is expected and is normal.
+ * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part F page 2174
+ *      3.2.2 Attribute Handle
  */
-static constexpr uint16_t const invalid_handle = 0u;
+static constexpr uint16_t const handle_invalid = 0u;
+
+/** @{
+ * The minimum and maximum attribute handle value.
+ * Characteristics will always maintain handle values in the range
+ * [ble::att::handle_minimum ... ble::att::handle_maximum].
+ *
+ * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part F page 2174
+ *      3.2.2 Attribute Handle
+ */
+static constexpr uint16_t const handle_minimum = 0x0001u;
+static constexpr uint16_t const handle_maximum = UINT16_MAX;
+/** @} */
 
 /**
  * @typedef ble::att::length_t

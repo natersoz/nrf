@@ -54,9 +54,9 @@ public:
      */
     bool operator==(ble_event_observer const& other) const { return (this == &other); }
 
-private:
-    interface_type &interface_reference;
+    interface_type& interface_reference;
 
+private:
     /// @todo needs volatile
     boost::intrusive::list_member_hook<> hook_;
 

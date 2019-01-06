@@ -10,9 +10,12 @@
 #include "ble/nordic_ble_att.h"
 #include "ble/nordic_ble_event_observable.h"
 #include "ble/nordic_ble_event_observer.h"
+#include "ble/profile_connectable.h"
 #include "ble/gattc_event_observer.h"
+#include "ble/gattc_operations.h"
 
-#include "ble_gatt.h"                       // Nordic softdevice
+#include "ble_gatt.h"
+#include "nordic_error.h"
 #include "logger.h"
 #include "cmsis_gcc.h"
 
@@ -24,14 +27,92 @@
 namespace nordic
 {
 
+/**
+ * Handle the Primary Service Discovery Response event.
+ * @see ble_gattc_evt_prim_srvc_disc_rsp_t.
+ *
+ * @param event_data Nordic BLE event data.
+ * @param observer The observer interface which receives the service
+ *                 handle and UUID information.
+ */
+static void process_service_discovered(
+    ble_gattc_event_observer::event_data_t const& event_data,
+    ble_gattc_event_observer& observer)
+{
+    ble::profile::connectable* connectable =
+        observer.interface_reference.get_connecteable();
+
+    ASSERT(connectable != nullptr);
+    ASSERT(connectable->gattc());
+
+    ble::gattc::service_discovery::handle_pair const service_handles_requested =
+        connectable->gattc()->sdp().gatt_handles_requested();
+
+    logger &logger = logger::instance();
+    logger.info("BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP: count: %u, range: [0x%04x:0x%04x]",
+                event_data.params.prim_srvc_disc_rsp.count,
+                service_handles_requested.first, service_handles_requested.second);
+
+    uint16_t last_service_handle_discovered = ble::att::handle_maximum;
+
+    for (uint16_t iter = 0u;
+         iter < event_data.params.prim_srvc_disc_rsp.count; ++iter)
+    {
+        ble_gattc_service_t const* service =
+            &event_data.params.prim_srvc_disc_rsp.services[iter];
+
+        last_service_handle_discovered = service->handle_range.end_handle;
+
+        // If any of the handles discovered are within the range then report
+        // the service as discovered to the client.
+        // Otherwise return since the request is complete.
+        if (service->handle_range.start_handle > service_handles_requested.second)
+        {
+            return;
+        }
+
+        ble::att::uuid const uuid = nordic::to_att_uuid(service->uuid);
+
+        char uuid_char_buffer[ble::att::uuid::conversion_length];
+        uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
+
+        logger.info("BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP[0x%04x, 0x%04x]: %s",
+                     service->handle_range.start_handle,
+                     service->handle_range.end_handle,
+                     uuid_char_buffer);
+
+        observer.interface_reference.service_discovered(
+            event_data.conn_handle,
+            nordic::to_att_error_code(event_data.gatt_status),
+            event_data.error_handle,
+            service->handle_range.start_handle,
+            service->handle_range.end_handle,
+            uuid);
+    }
+
+    if (last_service_handle_discovered < service_handles_requested.second)
+    {
+        // We have reported some services but not yet filled the request.
+        // Continue discovery.
+        uint16_t const next_service_handle = last_service_handle_discovered + 1u;
+        uint32_t const error_code = sd_ble_gattc_primary_services_discover(
+            event_data.conn_handle, next_service_handle, nullptr);
+        if (error_code != NRF_SUCCESS)
+        {
+            logger.error("sd_ble_gattc_primary_services_discover"
+                         "(0x%04x, 0x%04x) failed: 0x%04x %s",
+                         event_data.conn_handle, next_service_handle,
+                         error_code, nordic_error_string(error_code));
+        }
+    }
+}
+
 template<>
 void ble_event_observable<ble_gattc_event_observer>::notify(
     ble_gattc_event_observer::event_enum_t event_type,
     ble_gattc_event_observer::event_data_t const&  event_data)
 {
     logger &logger = logger::instance();
-
-    ble::att::error_code const error_code = nordic::to_att_error_code(event_data.gatt_status);
 
     for (auto observer_iter  = this->observer_list_.begin();
               observer_iter != this->observer_list_.end(); )
@@ -45,32 +126,7 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
         switch (event_type)
         {
         case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
-            // Primary Service Discovery Response event.
-            // See ble_gattc_evt_prim_srvc_disc_rsp_t.
-            for (uint16_t iter = 0u;
-                 iter < event_data.params.prim_srvc_disc_rsp.count; ++iter)
-            {
-                ble_gattc_service_t const* service =
-                    &event_data.params.prim_srvc_disc_rsp.services[iter];
-
-                ble::att::uuid const uuid = nordic::to_att_uuid(service->uuid);
-
-                char uuid_char_buffer[ble::att::uuid::conversion_length];
-                uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
-
-                logger.info("BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP[0x%04, 0x%04x]: %s",
-                            service->handle_range.start_handle,
-                            service->handle_range.end_handle,
-                            uuid_char_buffer);
-
-                observer.interface_reference.service_discovery_response(
-                    event_data.conn_handle,
-                    error_code,
-                    event_data.error_handle,
-                    service->handle_range.start_handle,
-                    service->handle_range.end_handle,
-                    uuid);
-            }
+            process_service_discovered(event_data, observer);
             break;
 
         case BLE_GATTC_EVT_REL_DISC_RSP:
@@ -95,9 +151,9 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
                             include_disc_rsp->handle,
                             uuid_char_buffer);
 
-                observer.interface_reference.relationship_discovery_response(
+                observer.interface_reference.relationship_discovered(
                     event_data.conn_handle,
-                    error_code,
+                    nordic::to_att_error_code(event_data.gatt_status),
                     event_data.error_handle,
                     service->handle_range.start_handle,
                     service->handle_range.end_handle,
@@ -130,9 +186,9 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
                             properties.get(),
                             uuid_char_buffer);
 
-                observer.interface_reference.characteristic_discovery_response(
+                observer.interface_reference.characteristic_discovered(
                     event_data.conn_handle,
-                    error_code,
+                    nordic::to_att_error_code(event_data.gatt_status),
                     event_data.error_handle,
                     char_disc_rsp->handle_decl,
                     char_disc_rsp->handle_value,
@@ -158,9 +214,9 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
                 logger.info("BLE_GATTC_EVT_CHAR_DISC_RSP[0x%04]: %s",
                             desc_disc_rsp->handle, uuid_char_buffer);
 
-                observer.interface_reference.descriptor_discovery_response(
+                observer.interface_reference.descriptor_discovered(
                     event_data.conn_handle,
-                    error_code,
+                    nordic::to_att_error_code(event_data.gatt_status),
                     event_data.error_handle,
                     desc_disc_rsp->handle,
                     uuid);
@@ -187,9 +243,9 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
                     logger.info("BLE_GATTC_EVT_ATTR_INFO_DISC_RSP [0x%04]: 0x%04x",
                                 gattc_attr->handle, gattc_attr->uuid);
 
-                    observer.interface_reference.attribute_uuid_discovery_response(
+                    observer.interface_reference.attribute_discovered(
                         event_data.conn_handle,
-                        error_code,
+                        nordic::to_att_error_code(event_data.gatt_status),
                         event_data.error_handle,
                         gattc_attr->handle,
                         uuid);
@@ -211,9 +267,9 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
                     logger.info("BLE_GATTC_EVT_ATTR_INFO_DISC_RSP [0x%04]: %s",
                                 gattc_attr->handle, uuid);
 
-                    observer.interface_reference.attribute_uuid_discovery_response(
+                    observer.interface_reference.attribute_discovered(
                         event_data.conn_handle,
-                        error_code,
+                        nordic::to_att_error_code(event_data.gatt_status),
                         event_data.error_handle,
                         gattc_attr->handle,
                         uuid);
@@ -250,7 +306,7 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
 
                     observer.interface_reference.read_characteristic_by_uuid_response(
                         event_data.conn_handle,
-                        error_code,
+                        nordic::to_att_error_code(event_data.gatt_status),
                         event_data.error_handle,
                         handle,
                         &hv_pair_ptr,
@@ -266,7 +322,7 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
             // See ble_gattc_evt_read_rsp_t.
             observer.interface_reference.read_response(
                 event_data.conn_handle,
-                error_code,
+                nordic::to_att_error_code(event_data.gatt_status),
                 event_data.error_handle,
                 event_data.params.read_rsp.handle,
                 event_data.params.read_rsp.data,
@@ -279,7 +335,7 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
             // See ble_gattc_evt_char_vals_read_rsp_t.
             observer.interface_reference.read_multi_response(
                 event_data.conn_handle,
-                error_code,
+                nordic::to_att_error_code(event_data.gatt_status),
                 event_data.error_handle,
                 event_data.params.char_vals_read_rsp.values,
                 event_data.params.char_vals_read_rsp.len);
@@ -290,7 +346,7 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
             // See ble_gattc_evt_write_rsp_t.
             observer.interface_reference.write_response(
                 event_data.conn_handle,
-                error_code,
+                nordic::to_att_error_code(event_data.gatt_status),
                 event_data.error_handle,
                 nordic::to_att_write_op_code(event_data.params.write_rsp.write_op),
                 event_data.params.write_rsp.handle,
@@ -308,7 +364,7 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
             case BLE_GATT_HVX_NOTIFICATION:
                 observer.interface_reference.handle_notification(
                     event_data.conn_handle,
-                    error_code,
+                    nordic::to_att_error_code(event_data.gatt_status),
                     event_data.error_handle,
                     event_data.params.hvx.handle,
                     event_data.params.hvx.data,
@@ -318,7 +374,7 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
             case BLE_GATT_HVX_INDICATION:
                 observer.interface_reference.handle_indication(
                     event_data.conn_handle,
-                    error_code,
+                    nordic::to_att_error_code(event_data.gatt_status),
                     event_data.error_handle,
                     event_data.params.hvx.handle,
                     event_data.params.hvx.data,
@@ -337,7 +393,7 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
             // See ble_gattc_evt_exchange_mtu_rsp_t.
             observer.interface_reference.exchange_mtu_response(
                 event_data.conn_handle,
-                error_code,
+                nordic::to_att_error_code(event_data.gatt_status),
                 event_data.error_handle,
                 event_data.params.exchange_mtu_rsp.server_rx_mtu);
             break;
@@ -347,7 +403,7 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
             // See ble_gattc_evt_timeout_t.
             observer.interface_reference.timeout(
                 event_data.conn_handle,
-                error_code,
+                nordic::to_att_error_code(event_data.gatt_status),
                 event_data.error_handle);
             break;
 
@@ -356,7 +412,7 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
             // See ble_gattc_evt_write_cmd_tx_complete_t.
             observer.interface_reference.write_command_tx_completed(
                 event_data.conn_handle,
-                error_code,
+                nordic::to_att_error_code(event_data.gatt_status),
                 event_data.error_handle,
                 event_data.params.write_cmd_tx_complete.count);
             break;

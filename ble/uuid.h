@@ -51,8 +51,27 @@ struct uuid: public boost::uuids::uuid
     ~uuid()                         = default;
     uuid();
 
+    /** Constructor for ble::att::uuid from a boost uuid. */
     uuid(boost::uuids::uuid const &other);
+
+    /**
+     * Create a ble::att::uuid from a 16-bit or 32-bit unsigned integer.
+     *
+     * @example When converting a 16-bit uuid to a 128-bit ble::att::uuid
+     * The 16-bit uuid 0x2A01 the result ble::att::uuid will be:
+     * 00002A01-0010-0080-00805F9834FB
+     * @cite Heydon, Robin "Bluetooth Low Energy: The Developer's Handbook"
+     *       10.2.3. Attribute Type, p. 190
+     *
+     * @param uuid_32 The short uuid, either 16-bit or 32-bit will work,
+     *                in native CPU format (little-endian most likely).
+     */
     uuid(uint32_t uuid_32);
+
+    /**
+     * Create a ble::att::uuid from an array of 16 bytes.
+     * The expected length of the uuid_bytes is not (caonnot) be checked.
+     */
     uuid(uint8_t const* uuid_bytes);
 
     uuid(uuid const&)               = default;

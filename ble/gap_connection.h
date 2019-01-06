@@ -74,7 +74,7 @@ public:
     /** Constructor which uses the default connection parameters. */
     connection(ble::gap::operations& gap_operations):
         super(),
-        handle_(invalid_handle),
+        handle_(handle_invalid),
         mtu_size_(ble::att::mtu_length_minimum),
         operations_(gap_operations),
         connection_parameters_()
@@ -84,7 +84,7 @@ public:
     connection(ble::gap::operations&                    gap_operations,
                ble::gap::connection_parameters const&   connection_parameters):
         super(),
-        handle_(invalid_handle),
+        handle_(handle_invalid),
         mtu_size_(ble::att::mtu_length_minimum),
         operations_(gap_operations),
         connection_parameters_(connection_parameters),
@@ -100,7 +100,7 @@ public:
     }
 
     uint16_t get_connection_handle() const { return this->handle_; }
-    bool is_connected() const { return (this->handle_ != gap::invalid_handle); }
+    bool is_connected() const { return (this->handle_ != gap::handle_invalid); }
 
     connection_parameters const& get_connection_parameters() const {
         return this->connection_parameters_;

@@ -1,5 +1,5 @@
 /**
- * @file ble/nordic_error.cc
+ * @file nordic_error.cc
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 

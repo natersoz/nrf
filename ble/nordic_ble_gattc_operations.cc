@@ -4,9 +4,12 @@
  */
 
 #include "ble/nordic_ble_gattc_operations.h"
+#include "ble/nordic_ble_att.h"
 #include "logger.h"
 #include "nordic_error.h"
+#include "project_assert.h"
 
+#include "ble.h"
 #include "ble_gatt.h"
 #include "ble_gattc.h"
 
@@ -15,37 +18,20 @@ namespace nordic
 
 std::errc ble_gattc_service_discovery::discover_primary_services(
     uint16_t connection_handle,
-    uint16_t gatt_handle_start)
-{
-    uint32_t const error_code = sd_ble_gattc_primary_services_discover(
-        connection_handle,
-        gatt_handle_start,
-        nullptr);
-
-    if (error_code != NRF_SUCCESS)
-    {
-        logger::instance().error(
-            "sd_ble_gattc_primary_services_discover("
-            "c: 0x%04x, h: 0x%04x) failed: 0x%04x '%s'",
-            connection_handle, gatt_handle_start,
-            error_code, nordic_error_string(error_code));
-    }
-
-    return nordic_to_system_error(error_code);
-}
-
-std::errc ble_gattc_service_discovery::discover_primary_services(
-    uint16_t connection_handle,
     uint16_t gatt_handle_start,
-    ble::att::uuid const& uuid)
+    uint16_t gatt_handle_stop)
 {
-    /// @todo Figure out how to wedge in Nordic's UUID here:
     uint32_t const error_code = sd_ble_gattc_primary_services_discover(
         connection_handle,
         gatt_handle_start,
         nullptr);
 
-    if (error_code != NRF_SUCCESS)
+    if (error_code == NRF_SUCCESS)
+    {
+        this->last_requested_.first  = gatt_handle_start;
+        this->last_requested_.second = gatt_handle_stop;
+    }
+    else
     {
         logger::instance().error(
             "sd_ble_gattc_primary_services_discover("
@@ -70,7 +56,12 @@ std::errc ble_gattc_service_discovery::discover_service_relationships(
     uint32_t const error_code = sd_ble_gattc_relationships_discover(
         connection_handle, &gatt_handle_range);
 
-    if (error_code != NRF_SUCCESS)
+    if (error_code == NRF_SUCCESS)
+    {
+        this->last_requested_.first  = gatt_handle_start;
+        this->last_requested_.second = gatt_handle_stop;
+    }
+    else
     {
         logger::instance().error(
             "sd_ble_gattc_relationships_discover("
@@ -95,7 +86,12 @@ std::errc ble_gattc_service_discovery::discover_characteristics(
     uint32_t const error_code = sd_ble_gattc_characteristics_discover(
         connection_handle, &gatt_handle_range);
 
-    if (error_code != NRF_SUCCESS)
+    if (error_code == NRF_SUCCESS)
+    {
+        this->last_requested_.first  = gatt_handle_start;
+        this->last_requested_.second = gatt_handle_stop;
+    }
+    else
     {
         logger::instance().error(
             "sd_ble_gattc_characteristics_discover("
@@ -120,7 +116,12 @@ std::errc ble_gattc_service_discovery::discover_descriptors(
     uint32_t const error_code = sd_ble_gattc_descriptors_discover(
         connection_handle, &gatt_handle_range);
 
-    if (error_code != NRF_SUCCESS)
+    if (error_code == NRF_SUCCESS)
+    {
+        this->last_requested_.first  = gatt_handle_start;
+        this->last_requested_.second = gatt_handle_stop;
+    }
+    else
     {
         logger::instance().error(
             "sd_ble_gattc_descriptors_discover("
@@ -145,7 +146,12 @@ std::errc ble_gattc_service_discovery::discover_attributes(
     uint32_t const error_code = sd_ble_gattc_attr_info_discover(
         connection_handle, &gatt_handle_range);
 
-    if (error_code != NRF_SUCCESS)
+    if (error_code == NRF_SUCCESS)
+    {
+        this->last_requested_.first  = gatt_handle_start;
+        this->last_requested_.second = gatt_handle_stop;
+    }
+    else
     {
         logger::instance().error(
             "sd_ble_gattc_attr_info_discover("
@@ -361,6 +367,21 @@ std::errc ble_gattc_operations::exchange_mtu_request(
             error_code, nordic_error_string(error_code));
     }
 
+    return nordic_to_system_error(error_code);
+}
+
+std::errc ble_gattc_operations::preload_custom_uuid(ble::att::uuid const &uuid)
+{
+    ble_uuid128_t const uuid_128 = nordic::from_att_uuid_128(uuid);
+    uint8_t uuid_type = BLE_UUID_TYPE_VENDOR_BEGIN;
+    uint32_t const error_code = sd_ble_uuid_vs_add(&uuid_128, &uuid_type);
+
+    char buffer[ble::att::uuid::conversion_length];
+    uuid.to_chars(std::begin(buffer), std::end(buffer));
+    logger::instance().info(
+        "sd_ble_uuid_vs_add(%s): %u, uuid_type = %u", buffer, error_code, uuid_type);
+
+    ASSERT(error_code == NRF_SUCCESS);
     return nordic_to_system_error(error_code);
 }
 

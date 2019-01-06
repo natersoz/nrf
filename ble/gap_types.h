@@ -255,7 +255,7 @@ enum class type : uint8_t
 
 /// Use to initialize BLE connection handles which have yet to be assigned and
 /// to test handles for being valid.
-static constexpr uint16_t const invalid_handle = 0xFFFFu;
+static constexpr uint16_t const handle_invalid = UINT16_MAX;
 
 enum class phy_layer_parameters
 {

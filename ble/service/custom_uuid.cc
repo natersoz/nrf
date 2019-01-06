@@ -14,19 +14,21 @@ namespace custom
 
 /**
  * The Bluetooth LE Custom Base UUID
- * 0000-0000-BB9B-494C-86C6-052628E7D83F
+ * 0000-CCCC-SSSS-494C-86C6-052628E7D83F
  *
  * @note 16-bit uuid service value will be set in
- *       bytes [0:1] in big-endian order.
+ *       bytes [4:5] in big-endian order.
  * @note 16-bit uuid characteristic value will set set in
  *       bytes [2:3] in big-endian order.
+ * @note Bytes [0:1] must remain zero in order for Nordic GATT clients to
+ *       peform service discovery.
  */
 constexpr boost::uuids::uuid const uuid_base
 {{
-    0x00, 0x00,		// Increment for each service.
+    0x00, 0x00,		// Must be set to zero for Nordic GATTC to work.
     0x00, 0x00,		// Increment for characteristics within services.
-    0xBB, 0x9B,		// Fixed ...
-    0x49, 0x4C,
+    0x00, 0x00,		// Increment for each service.
+    0x49, 0x4C,     // Fixed ...
     0x86, 0xC6,
     0x05, 0x26, 0x28, 0xE7, 0xD8, 0x3F
 }};
@@ -34,7 +36,7 @@ constexpr boost::uuids::uuid const uuid_base
 static void uuid_set_service(ble::att::uuid& uuid, services service)
 {
     uint16_t const service_u16 = static_cast<uint16_t>(service);
-    uint8_t *uuid_ptr = uuid.begin();
+    uint8_t *uuid_ptr = uuid.begin() + 4u;
     *uuid_ptr++ = static_cast<uint8_t>(service_u16 >> 16u);
     *uuid_ptr++ = static_cast<uint8_t>(service_u16 >>  0u);
 }
@@ -63,16 +65,20 @@ ble::att::uuid uuid_service(services service)
 }
 
 ble::att::uuid& uuid_characteristic(ble::att::uuid& uuid,
+                                    services        service,
                                     characteristics characteristic)
 {
     uuid = uuid_base;
+    uuid_set_service(uuid, service),
     uuid_set_characteristic(uuid, characteristic);
     return uuid;
 }
 
-ble::att::uuid uuid_characteristic(characteristics characteristic)
+ble::att::uuid uuid_characteristic(services        service,
+                                   characteristics characteristic)
 {
     ble::att::uuid uuid(uuid_base);
+    uuid_set_service(uuid, service),
     uuid_set_characteristic(uuid, characteristic);
     return uuid;
 }

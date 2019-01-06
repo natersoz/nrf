@@ -14,6 +14,52 @@
 namespace nordic
 {
 
+ble::att::uuid to_att_uuid(ble_uuid_t const& nrf_uuid)
+{
+    if (nrf_uuid.type == BLE_UUID_TYPE_BLE)
+    {
+        return ble::att::uuid(nrf_uuid.uuid);
+    }
+
+    ble::att::uuid uuid;
+    uint8_t uuid_len = 0u;
+    sd_ble_uuid_encode(&nrf_uuid, &uuid_len, uuid.data);
+    return uuid.reverse();
+}
+
+ble::att::uuid to_att_uuid(ble_uuid128_t const& nrf_uuid)
+{
+    return ble::att::uuid(nrf_uuid.uuid128);
+}
+
+ble_uuid128_t from_att_uuid_128(ble::att::uuid const& att_uuid)
+{
+    ble_uuid128_t const uuid_128 = {
+        .uuid128 = {
+            att_uuid.data[15u], att_uuid.data[14u], att_uuid.data[13u], att_uuid.data[12u],
+            att_uuid.data[11u], att_uuid.data[10u],
+            att_uuid.data[ 9u], att_uuid.data[ 8u],
+            att_uuid.data[ 7u], att_uuid.data[ 6u],
+            att_uuid.data[ 5u], att_uuid.data[ 4u], att_uuid.data[ 3u],
+            att_uuid.data[ 2u], att_uuid.data[ 1u], att_uuid.data[ 0u]
+        }
+    };
+
+    return uuid_128;
+}
+
+ble_uuid_t from_att_uuid_16(ble::att::uuid const& uuid)
+{
+    ASSERT(uuid.is_ble());
+
+    ble_uuid_t const nrf_uuid = {
+        .uuid = uuid.get_u16(),
+        .type = BLE_UUID_TYPE_BLE
+    };
+
+    return nrf_uuid;
+}
+
 uint16_t from_att_error_code(ble::att::error_code error_code)
 {
     if (error_code == ble::att::error_code::success)
@@ -47,20 +93,6 @@ ble::att::error_code to_att_error_code(uint16_t nordic_error_code)
     }
 
     return ble::att::error_code::unknown;
-}
-
-ble::att::uuid to_att_uuid(ble_uuid_t const& nrf_uuid)
-{
-    if (nrf_uuid.type == BLE_UUID_TYPE_BLE)
-    {
-        return ble::att::uuid(nrf_uuid.uuid);
-    }
-
-    ble::att::uuid uuid;
-    uint8_t uuid_len = 0u;
-    sd_ble_uuid_encode(&nrf_uuid, &uuid_len, uuid.data);
-    uuid.reverse();
-    return uuid;
 }
 
 ble::gatt::properties to_att_properties(ble_gatt_char_props_t     props,
