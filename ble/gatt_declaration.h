@@ -100,7 +100,9 @@ struct declaration
     declaration& operator=(declaration&&)       = default;
 
     declaration(enum attribute_type attr_type, uint16_t props):
-        properties(props), handle(0u), attribute_type(attr_type)
+        properties(props),
+        handle(ble::att::handle_invalid),
+        attribute_type(attr_type)
     {}
 
     struct properties           properties;
