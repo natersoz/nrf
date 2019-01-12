@@ -22,9 +22,8 @@ namespace gatt
  * Consists of:
  * - A declaration, which contains:
  *   - A set of properties.
- *   - A handle (of the declaration).
- *   - The UUID 0x2803, attribute_types::characteristic.
- * - A handle.
+ *   - The handle of this attribute.
+ *   - The attribute type, @see enum attribute_type.
  * - A uuid.
  * - Data which can be manipulated according to the properties.
  */
