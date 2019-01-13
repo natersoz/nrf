@@ -264,14 +264,7 @@
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{6164466E-D3C7-4F91-A32C-ED23CFAC31B8}">
-            <Folder
-                Name="config"
-                AutoCustom="1"
-                GUID="{8E2784EE-5F97-4529-8DBC-8A5061AB66DA}">
-                <F N="config/sdk_config.h"/>
-            </Folder>
-        </Folder>
+            GUID="{6164466E-D3C7-4F91-A32C-ED23CFAC31B8}"></Folder>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"
@@ -283,11 +276,6 @@
         <Folder
             Name="Other Files"
             Filters=""
-            GUID="{CC9B953E-98D6-4B13-88C4-9A3F0425ACFC}">
-            <F N="gpio_te_test.ld"/>
-            <F
-                N="Makefile"
-                Type="Makefile"/>
-        </Folder>
+            GUID="{CC9B953E-98D6-4B13-88C4-9A3F0425ACFC}"></Folder>
     </Files>
 </Project>

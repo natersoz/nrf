@@ -266,6 +266,7 @@
                 <F N="service/custom_uuid.cc"/>
                 <F N="service/battery_service.cc"/>
             </Folder>
+            <F N="gap_connection.cc"/>
             <F N="gap_connection_negotiation_state.cc"/>
             <F N="gatt_attribute.cc"/>
             <F N="gatt_characteristic.cc"/>
@@ -340,6 +341,7 @@
             <F N="gatt_uuids.h"/>
             <F N="gattc_event_observer.h"/>
             <F N="gattc_operations.h"/>
+            <F N="gattc_service_builder.h"/>
             <F N="gatts_event_observer.h"/>
             <F N="gatts_operations.h"/>
             <F N="hci_error_codes.h"/>

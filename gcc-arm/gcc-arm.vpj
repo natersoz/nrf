@@ -259,10 +259,9 @@
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
             GUID="{26EDE2B6-8AB4-4F2B-A440-92379F24FF57}">
-            <F N="gcc_startup_nrf52.s"/>
+            <F N="gcc_exception_stubs.cc"/>
             <F N="gcc_stubs.cc"/>
             <F N="stack_usage.cc"/>
-            <F N="gcc_exception_stubs.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -282,8 +281,6 @@
         <Folder
             Name="Other Files"
             Filters=""
-            GUID="{7C4F4391-942B-43F1-A3B0-2CF82E089A97}">
-            <F N="gcc-arm.vpj"/>
-        </Folder>
+            GUID="{7C4F4391-942B-43F1-A3B0-2CF82E089A97}"></Folder>
     </Files>
 </Project>
