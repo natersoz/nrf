@@ -89,24 +89,12 @@ void ble_gap_connection::connection_parameter_update(
     if (not this->get_negotiation_state().is_any_update_pending())
     {
         logger::instance().debug("--- pending updates complete ---");
+
+        /// @todo This is a kludgey way to do this, clean it up by added an
+        /// observable interface to negotiation_state completion.
+        /// @note This is also making the assumption that the last update is the conection parameter update.
+        this->get_connecteable()->gattc()->sdp().discover_primary_services(connection_handle);
     }
-
-#if 0
-    ble_gap_conn_params_t const conn_params = {
-        .min_conn_interval  = connection_parameters.interval_min,
-        .max_conn_interval  = connection_parameters.interval_max,
-        .slave_latency      = connection_parameters.slave_latency,
-        .conn_sup_timeout   = connection_parameters.supervision_timeout
-    };
-
-    uint32_t const error_code = sd_ble_gap_conn_param_update(connection_handle,
-                                                             &conn_params);
-
-    logger::instance().debug("sd_ble_gap_conn_param_update(): 0x%x", error_code);
-
-    // NRF_ERROR_BUSY may be valid if there is already a pending request.
-    ASSERT(error_code == NRF_SUCCESS);
-#endif
 }
 
 void ble_gap_connection::connection_parameter_update_request(
