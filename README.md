@@ -2,6 +2,12 @@ project: natersoz/nrf
 ====================
 Copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 
+Quick Start
+-----------
+See:
++ [docs/BUILD.md](https://github.com/natersoz/nrf/blob/master/docs/BUILD.md)
++ [docs/DEBUG.md](https://github.com/natersoz/nrf/blob/master/docs/DEBUG.md)
+
 LICENSING
 ---------
 + File which contain a Nordic Semiconductor License in the comments header

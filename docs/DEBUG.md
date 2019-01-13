@@ -1,7 +1,7 @@
 Debugging and Flashing nRF5x
 ============================
 
-### Jlink Commander (on OSX JLinkExe)
+### Jlink Commander (on OSX this is called JLinkExe)
 
   See script nrf/scripts/jlink-nrf
 
@@ -55,23 +55,37 @@ the board USB. Reconnect the USB and start over.
   Change these as needed.
 
 + gdb initialization
+
   The gdb server setting must be matched with the gdb client settings.
   Using a gdb initialization file makes connecting and setting up gdb faster
-  and easier. Example:
+  and easier. Each project which runs under gdb contains a gdb-init file
+  which is checked into git. An example:
 
         target remote localhost:2331
         file _build/<targetname.out>
         load
         monitor reset
 
-  Obviously the port must match the port defined in jlink-rules.mak
+  It should be noted that the ble_central/gdb-init file differs from the others;
+  its port assignment is 2431. This matches the GDB_PORT value set in the Makefile
+  which is used by jlink-rules.mak. This allows for simultaneous debugging of the
+  ble_peripheral and ble_central projects.
 
-        gdb-arm --quiet --command=./gdb-init
+  There is a Makefile target `gdb-server` which can be invoked:
+  `$ make gdb-server`
+  Which will start the gdb server.
 
-### Multiple GDB and JLinkRTTClient debug sessions.
-The projects ble_peripheral and ble_central are set up to be debugged
-simultaneously. Different ports are set within each project Makefile.
-The correct serial numbers will need to be set as the variable SEGGER_SN.
+  Once started, the server can be attached to using:
+  `$ <path>/gcc-arm-none-eabi/bin/arm-none-eabi-gdb --quiet --command=./gdb-init
 
-See my githug gist [JLinkGDBServer Multiple Sessions](https://gist.github.com/natersoz/076cee47d47f87fd67b99c9de61c4d86)
-for more details.
+### JLinkRTTClient
+The logger class within the `nrf` projects uses the JLinkRTTClient for outputting
+debug, info, warning and error information. There is a Makefile target `rttc`
+which should allow you to easily get the RTTC output in a shell:
+
+	`$ make rttc`
+
+### Additional Information
+More information is available in my github gist:
+[JLinkGDBServer Multiple Sessions](https://gist.github.com/natersoz/076cee47d47f87fd67b99c9de61c4d86)
+
