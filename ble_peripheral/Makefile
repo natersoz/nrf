@@ -15,7 +15,11 @@ GDB_PORT			?= 2331
 SWO_PORT			?= 2332
 TELNET_PORT			?= 2333
 RTT_PORT			?= 2334
-SEGGER_SN			?= 682117419
+
+# Include the file which defines the SEGGER_SN symbol
+# If it does not exist, debugging ble_central and ble_peripheral simultaneously
+# will be less convenient (although it can be done).
+-include .segger_sn
 
 # Where the compiled files are built.
 BUILD_PATH = _build
@@ -23,7 +27,7 @@ BUILD_PATH = _build
 # Set for Debug or Release build types.
 BUILD_TYPE	?= Debug
 
-# Path to boost installation. Using 1.65.1
+# Path to boost installation.
 BOOST_ROOT=/opt/boost
 
 SOURCE_FILES =
