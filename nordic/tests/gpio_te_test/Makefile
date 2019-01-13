@@ -15,7 +15,7 @@ BUILD_PATH = _build
 # Set for Debug or Release build types.
 BUILD_TYPE	?= Debug
 
-# Path to boot installation. Using 1.65.1
+# Path to boot installation.
 BOOST_ROOT=/opt/boost
 
 # It is important to list the more specialized source files first.
