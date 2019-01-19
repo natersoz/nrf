@@ -6,22 +6,14 @@
 #include "ble_gap_connection.h"
 #include "logger.h"
 
-#include "ble_gap.h"
-
 ble_gap_connection::~ble_gap_connection()
 {
-    if (this->nordic_gap_event_observer_.is_attached())
-    {
-        nordic::ble_observables &observables = nordic::ble_observables::instance();
-        observables.gap_event_observable.detach(this->nordic_gap_event_observer_);
-    }
 }
 
 /** Constructor which uses the default connection parameters. */
 ble_gap_connection::ble_gap_connection(ble::gap::operations&    operations,
-                                       ble::gap::advertising&   advertising):
-    super(operations, advertising),
-    nordic_gap_event_observer_(*this)
+                                       ble::gap::advertising&   advertising)
+    :   super(operations, advertising)
 {
 }
 
@@ -29,16 +21,9 @@ ble_gap_connection::ble_gap_connection(ble::gap::operations&    operations,
 ble_gap_connection::ble_gap_connection(
     ble::gap::operations&                  operations,
     ble::gap::advertising&                 advertising,
-    ble::gap::connection_parameters const& connect_params):
-        super(operations, advertising, connect_params),
-        nordic_gap_event_observer_(*this)
+    ble::gap::connection_parameters const& connect_params)
+    :   super(operations, advertising, connect_params)
 {
-}
-
-void ble_gap_connection::init()
-{
-    nordic::ble_observables& observables = nordic::ble_observables::instance();
-    observables.gap_event_observable.attach(this->nordic_gap_event_observer_);
 }
 
 void ble_gap_connection::connect(uint16_t                    connection_handle,

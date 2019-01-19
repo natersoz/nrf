@@ -6,7 +6,6 @@
 #pragma once
 
 #include "ble/gattc_event_observer.h"
-#include "ble/nordic_ble_event_observable.h"
 
 class ble_gattc_observer: public ble::gattc::event_observer
 {
@@ -23,57 +22,7 @@ public:
 
     ble_gattc_observer();
 
-    /**
-     * Post constructor initialization.
-     * Attach the this observer to the Noridc BLE GATT server observable.
-     *
-     * This is required since C++ does not provide ordering for statically
-     * allocated modules across classes. The Nordic BLE GATT server may not
-     * be initialized prior to this ctor being called.
-     */
-    void init();
-
 protected:
-    virtual void service_discovered(
-        uint16_t                    conection_handle,
-        ble::att::error_code        error_code,
-        uint16_t                    error_handle,
-        uint16_t                    handle_start,
-        uint16_t                    handle_stop,
-        ble::att::uuid const&       uuid) override;
-
-    virtual void relationship_discovered(
-        uint16_t                    conection_handle,
-        ble::att::error_code        error_code,
-        uint16_t                    error_handle,
-        uint16_t                    handle_start,
-        uint16_t                    handle_stop,
-        uint16_t                    service_handle,
-        ble::att::uuid const&       uuid) override;
-
-    virtual void characteristic_discovered(
-        uint16_t                    conection_handle,
-        ble::att::error_code        error_code,
-        uint16_t                    error_handle,
-        uint16_t                    handle,
-        uint16_t                    handle_stop,
-        ble::att::uuid const&       uuid,
-        ble::gatt::properties       properties) override;
-
-    virtual void descriptor_discovered(
-        uint16_t                    conection_handle,
-        ble::att::error_code        error_code,
-        uint16_t                    error_handle,
-        uint16_t                    desciptor_handle,
-        ble::att::uuid const&       uuid) override;
-
-    virtual void attribute_discovered(
-        uint16_t                    conection_handle,
-        ble::att::error_code        error_code,
-        uint16_t                    error_handle,
-        uint16_t                    handle,
-        ble::att::uuid const&       uuid) override;
-
     virtual void read_characteristic_by_uuid_response(
         uint16_t                    conection_handle,
         ble::att::error_code        error_code,
@@ -140,9 +89,4 @@ protected:
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
         uint8_t                     count) override;
-
-private:
-    // This is where/how this generic interface ties in with the Nordic BLE
-    // GATT server events.
-    nordic::ble_gattc_event_observer        nordic_gattc_event_observer_;
 };

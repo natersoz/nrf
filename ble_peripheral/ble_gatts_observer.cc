@@ -8,23 +8,10 @@
 
 ble_gatts_observer::~ble_gatts_observer()
 {
-    if (this->nordic_gatts_event_observer_.is_attached())
-    {
-        nordic::ble_observables &observables = nordic::ble_observables::instance();
-        observables.gatts_event_observable.detach(this->nordic_gatts_event_observer_);
-    }
 }
 
-ble_gatts_observer::ble_gatts_observer():
-    super(),
-    nordic_gatts_event_observer_(*this)
+ble_gatts_observer::ble_gatts_observer(): super()
 {
-}
-
-void ble_gatts_observer::init()
-{
-    nordic::ble_observables &observables = nordic::ble_observables::instance();
-    observables.gatts_event_observable.attach(this->nordic_gatts_event_observer_);
 }
 
 void ble_gatts_observer::write(uint16_t             conection_handle,

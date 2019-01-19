@@ -404,3 +404,33 @@ device.
 
 Apparently when the softdevice detects that the BLE timing has been disturbed,
 which halting with a debugger will do, you earn an assert award.
+
+Nordic Softdevice Service Discovery
+-----------------------------------
+The softdevice does not provide a direct means for performing service discovery
+for 128-bit UUIDs. Based on the softdevice, the 128-bit UUIDs need to be defined
+ahead of time using `sd_ble_uuid_vs_add()`.
+
+There is a work-around which allows generic service discovery on the Nordic
+Softdevice:
+
+If after calling `sd_ble_gattc_primary_services_discover()` response you
+resceive the response with the uuid type `BLE_UUID_TYPE_UNKNOWN` then you can
+get the full 128-bit UUID by issuing `sd_ble_gattc_read()` (raw GATTC READ
+command) on the very same handle.
+
+The Response contains the full 128-bit Service UUID in the
+`gattc_evt.params.read_rsp` structure).
+
+At this point call `sd_ble_uuid_vs_add()` call followed by repeated
+`sd_ble_gattc_primary_services_discover()` (on the same start handle) which will
+return the correct `BLE_UUID_TYPE_VENDOR_BEGIN` type and 16-bit short Service
+UUID in the response.
+
+The drawback of this solution is that there are exactly two more
+command-response GATT messages which makes Service Discovery longer by at
+least 4 connection intervals per unknown 128-bit UUID entries.
+
+Reference Link:
+https://devzone.nordicsemi.com/f/nordic-q-a/3656/s130-custom-uuid-service-discovery/13264#13264
+

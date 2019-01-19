@@ -69,6 +69,7 @@ SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gap_event_observable.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gap_logger.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gap_operations.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gattc_event_observable.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gattc_discovery_observable.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts_event_observable.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_gatts_operations.cc

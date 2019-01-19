@@ -40,9 +40,24 @@ static void nordic_ble_event_handler(ble_evt_t const *ble_event, void *context)
     else if ((ble_event->header.evt_id >= BLE_GATTC_EVT_BASE) &&
              (ble_event->header.evt_id <= BLE_GATTC_EVT_LAST))
     {
-        ble_observables->gattc_event_observable.notify(
-            static_cast<enum BLE_GATTC_EVTS>(ble_event->header.evt_id),
-            ble_event->evt.gattc_evt);
+        enum BLE_GATTC_EVTS const gattc_event =
+            static_cast<enum BLE_GATTC_EVTS>(ble_event->header.evt_id);
+
+        // Note that GATTC events are broken up into 2 parts within this C++
+        // framework: gattc responses and discovery responses.
+        // They are demultiplexed here into separate observers.
+        // The Nordic response for reading by UUID marks the beginning of
+        // the non-discovery responses.
+        if (gattc_event >= BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP)
+        {
+            ble_observables->gattc_event_observable.notify(
+                gattc_event, ble_event->evt.gattc_evt);
+        }
+        else
+        {
+            ble_observables->gattc_discovery_observable.notify(
+                gattc_event, ble_event->evt.gattc_evt);
+        }
     }
     else if ((ble_event->header.evt_id >= BLE_GATTS_EVT_BASE) &&
              (ble_event->header.evt_id <= BLE_GATTS_EVT_LAST))

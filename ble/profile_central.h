@@ -7,13 +7,6 @@
 
 #include "ble/profile_connectable.h"
 #include "ble/central_connection.h"
-#include "ble/gatts_event_observer.h"
-#include "ble/gattc_event_observer.h"
-#include "ble/gatt_service.h"
-#include "ble/gatt_service_container.h"
-#include "ble/stack.h"
-#include "ble/uuid.h"
-#include "ble/hci_error_codes.h"
 
 namespace ble
 {
@@ -44,13 +37,15 @@ public:
             ble::gatts::event_observer&     ble_gatts_event_observer,
             ble::gatts::operations&         ble_gatts_operations,
             ble::gattc::event_observer&     ble_gattc_event_observer,
-            ble::gattc::operations&         ble_gattc_operations)
+            ble::gattc::operations&         ble_gattc_operations,
+            ble::gattc::service_builder&    ble_gattc_service_builder)
     : connectable(ble_stack,
                   ble_gap_connection,
                   ble_gatts_event_observer,
                   ble_gatts_operations,
                   ble_gattc_event_observer,
-                  ble_gattc_operations),
+                  ble_gattc_operations,
+                  ble_gattc_service_builder),
       scanning_(ble_gap_connection.scanning())
     {
     }
@@ -72,11 +67,13 @@ public:
     central(ble::stack&                     ble_stack,
             ble::gap::central_connection&   ble_gap_connection,
             ble::gattc::event_observer&     ble_gattc_event_observer,
-            ble::gattc::operations&         ble_gattc_operations)
+            ble::gattc::operations&         ble_gattc_operations,
+            ble::gattc::service_builder&    ble_gattc_service_builder)
     : connectable(ble_stack,
                   ble_gap_connection,
                   ble_gattc_event_observer,
-                  ble_gattc_operations),
+                  ble_gattc_operations,
+                  ble_gattc_service_builder),
       scanning_(ble_gap_connection.scanning())
     {
     }

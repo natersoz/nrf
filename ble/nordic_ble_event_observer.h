@@ -10,6 +10,7 @@
 #include "ble/common_event_observer.h"      // Abstract BLE obsevers.
 #include "ble/gap_event_observer.h"
 #include "ble/gattc_event_observer.h"
+#include "ble/gattc_discovery_observer.h"
 #include "ble/gatts_event_observer.h"
 
 #include "ble.h"                            // Nordic softdevice headers
@@ -70,10 +71,11 @@ private:
     friend observable_type;
 };
 
-using ble_common_event_observer = ble_event_observer<ble::common::event_observer, enum BLE_COMMON_EVTS, ble_common_evt_t>;
-using ble_gap_event_observer    = ble_event_observer<ble::gap::event_observer,    enum BLE_GAP_EVTS,    ble_gap_evt_t>;
-using ble_gattc_event_observer  = ble_event_observer<ble::gattc::event_observer,  enum BLE_GATTC_EVTS,  ble_gattc_evt_t>;
-using ble_gatts_event_observer  = ble_event_observer<ble::gatts::event_observer,  enum BLE_GATTS_EVTS,  ble_gatts_evt_t>;
+using ble_common_event_observer    = ble_event_observer<ble::common::event_observer,    enum BLE_COMMON_EVTS, ble_common_evt_t>;
+using ble_gap_event_observer       = ble_event_observer<ble::gap::event_observer,       enum BLE_GAP_EVTS,    ble_gap_evt_t>;
+using ble_gattc_event_observer     = ble_event_observer<ble::gattc::event_observer,     enum BLE_GATTC_EVTS,  ble_gattc_evt_t>;
+using ble_gattc_discovery_observer = ble_event_observer<ble::gattc::discovery_observer, enum BLE_GATTC_EVTS,  ble_gattc_evt_t>;
+using ble_gatts_event_observer     = ble_event_observer<ble::gatts::event_observer,     enum BLE_GATTS_EVTS,  ble_gatts_evt_t>;
 // TBD using ble_l2cap_event_observer    = ble_event_observer<enum BLE_L2CAP_EVTS, >;
 
 } // namespace nordic

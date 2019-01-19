@@ -12,20 +12,20 @@
 namespace nordic
 {
 
-class ble_gattc_service_discovery: public ble::gattc::service_discovery
+class ble_gattc_discovery_operations: public ble::gattc::discovery_operations
 {
 private:
-    using super = ble::gattc::service_discovery;
+    using super = ble::gattc::discovery_operations;
 
 public:
-    virtual ~ble_gattc_service_discovery()                                      = default;
+    virtual ~ble_gattc_discovery_operations()                                         = default;
 
-    ble_gattc_service_discovery(ble_gattc_service_discovery const&)             = delete;
-    ble_gattc_service_discovery(ble_gattc_service_discovery &&)                 = delete;
-    ble_gattc_service_discovery& operator=(ble_gattc_service_discovery const&)  = delete;
-    ble_gattc_service_discovery& operator=(ble_gattc_service_discovery&&)       = delete;
+    ble_gattc_discovery_operations(ble_gattc_discovery_operations const&)             = delete;
+    ble_gattc_discovery_operations(ble_gattc_discovery_operations &&)                 = delete;
+    ble_gattc_discovery_operations& operator=(ble_gattc_discovery_operations const&)  = delete;
+    ble_gattc_discovery_operations& operator=(ble_gattc_discovery_operations&&)       = delete;
 
-    ble_gattc_service_discovery() :
+    ble_gattc_discovery_operations() :
         super(),
         last_requested_(ble::att::handle_invalid, ble::att::handle_invalid)
     {}
@@ -73,10 +73,6 @@ public:
     ble_gattc_operations(ble_gattc_operations &&)                   = delete;
     ble_gattc_operations& operator=(ble_gattc_operations const&)    = delete;
     ble_gattc_operations& operator=(ble_gattc_operations&&)         = delete;
-
-    virtual ble::gattc::service_discovery const& sdp() const override {
-        return this->sdp_;
-    }
 
     virtual std::errc read(uint16_t                 connection_handle,
                            uint16_t                 attribute_handle,
@@ -157,9 +153,6 @@ public:
      * @return std::errc The result of this operation.
      */
     std::errc preload_custom_uuid(ble::att::uuid const &uuid);
-
-private:
-    ble_gattc_service_discovery sdp_;
 };
 
 } // namespace nordic

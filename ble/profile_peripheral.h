@@ -43,13 +43,15 @@ public:
                ble::gatts::event_observer&      ble_gatts_event_observer,
                ble::gatts::operations&          ble_gatts_operations,
                ble::gattc::event_observer&      ble_gattc_event_observer,
-               ble::gattc::operations&          ble_gattc_operations)
+               ble::gattc::operations&          ble_gattc_operations,
+               ble::gattc::service_builder&     ble_gattc_service_builder)
     : connectable(ble_stack,
                   ble_gap_connection,
                   ble_gatts_event_observer,
                   ble_gatts_operations,
                   ble_gattc_event_observer,
-                  ble_gattc_operations),
+                  ble_gattc_operations,
+                  ble_gattc_service_builder),
       advertising_(ble_gap_connection.advertising())
     {
     }
@@ -71,11 +73,13 @@ public:
     peripheral(ble::stack&                      ble_stack,
                ble::gap::peripheral_connection& ble_gap_connection,
                ble::gattc::event_observer&      ble_gattc_event_observer,
-               ble::gattc::operations&          ble_gattc_operations)
+               ble::gattc::operations&          ble_gattc_operations,
+               ble::gattc::service_builder&     ble_gattc_service_builder)
     : connectable(ble_stack,
                   ble_gap_connection,
                   ble_gattc_event_observer,
-                  ble_gattc_operations),
+                  ble_gattc_operations,
+                  ble_gattc_service_builder),
       advertising_(ble_gap_connection.advertising())
     {
     }

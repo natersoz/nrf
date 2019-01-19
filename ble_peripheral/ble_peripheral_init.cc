@@ -10,20 +10,22 @@
 #include "ble/gatt_uuids.h"
 #include "ble/ltv_encode.h"
 
-#include "ble/profile_peripheral.h"
 #include "ble/gap_connection.h"
+#include "ble/profile_peripheral.h"
 #include "ble/service/gap_service.h"
 #include "ble/service/gatt_service.h"
 #include "ble/service/battery_service.h"
 #include "ble/service/current_time_service.h"
 #include "ble/service/nordic_saadc_sensor_service.h"
 
-#include "ble/nordic_ble_stack.h"
+#include "ble/nordic_ble_event_observable.h"
+#include "ble/nordic_ble_event_observer.h"
 #include "ble/nordic_ble_gap_advertising.h"
-#include "ble/nordic_ble_peer.h"
+#include "ble/nordic_ble_gap_operations.h"
 #include "ble/nordic_ble_gatts.h"
 #include "ble/nordic_ble_gatts_operations.h"
-
+#include "ble/nordic_ble_peer.h"
+#include "ble/nordic_ble_stack.h"
 #include "nordic/device_address.h"
 
 #include "ble_gap_connection.h"
@@ -32,7 +34,7 @@
 
 static constexpr uint16_t const advertising_interval =
     ble::gap::advertising::interval_msec(100u);
-static nordic::ble_gap_advertising ble_advertising(advertising_interval);
+static nordic::ble_gap_advertising gap_advertising(advertising_interval);
 
 static constexpr char   const device_name[]       = "periph";
 static constexpr size_t const device_name_length  = std::size(device_name) - 1u;
@@ -68,7 +70,7 @@ static size_t set_advertising_data(ble::gap::advertising_data &data)
 }
 
 /// @todo The connection interval needs to be thought through for a specific device.
-static ble::gap::connection_parameters const connection_parameters(
+static ble::gap::connection_parameters const gap_connection_parameters(
     ble::gap::connection_interval_msec(100),
     ble::gap::connection_interval_msec(200),
     0u,
@@ -77,18 +79,22 @@ static ble::gap::connection_parameters const connection_parameters(
 constexpr uint8_t const                     nordic_config_tag = 1u;
 static nordic::ble_stack                    ble_stack(nordic_config_tag);
 
-static nordic::ble_gap_operations           ble_gap_operations;
-static ble_gap_connection                   ble_gap_connection(
-                                                ble_gap_operations,
-                                                ble_advertising,
-                                                connection_parameters);
+static nordic::ble_gap_operations           gap_operations;
+static ble_gap_connection                   gap_connection(
+                                                gap_operations,
+                                                gap_advertising,
+                                                gap_connection_parameters);
 
-static ble_gatts_observer                   ble_gatts_observer;
+static ble_gatts_observer                   gatts_observer;
 static nordic::ble_gatts_operations         gatts_operations;
 static ble::profile::peripheral             ble_peripheral(ble_stack,
-                                                           ble_gap_connection,
-                                                           ble_gatts_observer,
+                                                           gap_connection,
+                                                           gatts_observer,
                                                            gatts_operations);
+
+static nordic::ble_gap_event_observer       nordic_gap_event_observer(gap_connection);
+static nordic::ble_gatts_event_observer     nordic_gatts_event_observer(gatts_observer);
+
 // GAP service: 0x1800
 //   device name: uuid = 0x2a00
 //   appearance : uuid = 0x2a01
@@ -98,7 +104,7 @@ static ble::service::device_name            device_name_characteristic(
                                                 device_name_length);
 static ble::service::appearance             appearance_characteristic(
                                                 ble::gatt::appearance::unknown);
-static ble::service::ppcp                   ppcp(connection_parameters);
+static ble::service::ppcp                   ppcp(gap_connection_parameters);
 static ble::service::gap_service            gap_service;
 
 // Note that using the Nordic softdevice the GATT service does not have
@@ -146,11 +152,10 @@ ble::profile::peripheral& ble_peripheral_init()
         static_cast<uint8_t>(version.vendor_specific[1] >>  8u),
         static_cast<uint8_t>(version.vendor_specific[1] >>  0u));
 
-    /// @todo consider having each gap, gatts, gattc interface expose a
-    /// post ctor init() method so that these init() calls can be made from
-    /// the interface level; like so: ble_peripheral.connection().init().
-    ble_gap_connection.init();
-    ble_gatts_observer.init();
+    nordic::ble_observables& nordic_observables = nordic::ble_observables::instance();
+
+    nordic_observables.gap_event_observable.attach(nordic_gap_event_observer);
+    nordic_observables.gatts_event_observable.attach(nordic_gatts_event_observer);
 
     ble_peer_init();
 

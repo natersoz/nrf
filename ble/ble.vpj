@@ -272,6 +272,7 @@
             <F N="gatt_characteristic.cc"/>
             <F N="gatt_service.cc"/>
             <F N="gatt_service_container.cc"/>
+            <F N="gattc_service_builder.cc"/>
             <F N="gatts_event_observer.cc"/>
             <F N="ltv_encode.cc"/>
             <F N="nordic_ble_att.cc"/>
@@ -286,6 +287,7 @@
             <F N="nordic_ble_gap_operations.cc"/>
             <F N="nordic_ble_gap_scan_parameters.cc"/>
             <F N="nordic_ble_gap_scanning.cc"/>
+            <F N="nordic_ble_gattc_discovery_observable.cc"/>
             <F N="nordic_ble_gattc_event_observable.cc"/>
             <F N="nordic_ble_gattc_operations.cc"/>
             <F N="nordic_ble_gatts.cc"/>
@@ -339,6 +341,7 @@
             <F N="gatt_service_container.h"/>
             <F N="gatt_service_include.h"/>
             <F N="gatt_uuids.h"/>
+            <F N="gattc_discovery_observer.h"/>
             <F N="gattc_event_observer.h"/>
             <F N="gattc_operations.h"/>
             <F N="gattc_service_builder.h"/>

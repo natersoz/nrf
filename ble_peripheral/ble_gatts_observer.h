@@ -6,7 +6,6 @@
 #pragma once
 
 #include "ble/gatts_event_observer.h"
-#include "ble/nordic_ble_event_observable.h"
 
 class ble_gatts_observer: public ble::gatts::event_observer
 {
@@ -74,9 +73,4 @@ protected:
 
     void handle_value_notifications_tx_completed(uint16_t   conection_handle,
                                                  uint8_t    count) override;
-
-private:
-    // This is where/how this generic interface ties in with the Nordic BLE
-    // GATT server events.
-    nordic::ble_gatts_event_observer nordic_gatts_event_observer_;
 };

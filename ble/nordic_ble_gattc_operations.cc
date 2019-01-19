@@ -16,7 +16,7 @@
 namespace nordic
 {
 
-std::errc ble_gattc_service_discovery::discover_primary_services(
+std::errc ble_gattc_discovery_operations::discover_primary_services(
     uint16_t connection_handle,
     uint16_t gatt_handle_start,
     uint16_t gatt_handle_stop)
@@ -43,7 +43,7 @@ std::errc ble_gattc_service_discovery::discover_primary_services(
     return nordic_to_system_error(error_code);
 }
 
-std::errc ble_gattc_service_discovery::discover_service_relationships(
+std::errc ble_gattc_discovery_operations::discover_service_relationships(
     uint16_t            connection_handle,
     uint16_t            gatt_handle_start,
     uint16_t            gatt_handle_stop)
@@ -73,7 +73,7 @@ std::errc ble_gattc_service_discovery::discover_service_relationships(
     return nordic_to_system_error(error_code);
 }
 
-std::errc ble_gattc_service_discovery::discover_characteristics(
+std::errc ble_gattc_discovery_operations::discover_characteristics(
     uint16_t            connection_handle,
     uint16_t            gatt_handle_start,
     uint16_t            gatt_handle_stop)
@@ -103,7 +103,7 @@ std::errc ble_gattc_service_discovery::discover_characteristics(
     return nordic_to_system_error(error_code);
 }
 
-std::errc ble_gattc_service_discovery::discover_descriptors(
+std::errc ble_gattc_discovery_operations::discover_descriptors(
     uint16_t            connection_handle,
     uint16_t            gatt_handle_start,
     uint16_t            gatt_handle_stop)
@@ -133,7 +133,7 @@ std::errc ble_gattc_service_discovery::discover_descriptors(
     return nordic_to_system_error(error_code);
 }
 
-std::errc ble_gattc_service_discovery::discover_attributes(
+std::errc ble_gattc_discovery_operations::discover_attributes(
     uint16_t            connection_handle,
     uint16_t            gatt_handle_start,
     uint16_t            gatt_handle_stop)

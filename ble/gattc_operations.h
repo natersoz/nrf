@@ -21,19 +21,18 @@ namespace ble
 namespace gattc
 {
 
-class service_discovery
-//: public ble::profile::connectable_accessor   /// @todo remove?
+class discovery_operations
 {
 public:
     using handle_pair = std::pair<uint16_t, uint16_t>;
 
-    virtual ~service_discovery()                            = default;
+    virtual ~discovery_operations()                               = default;
 
-    service_discovery()                                     = default;
-    service_discovery(service_discovery const&)             = delete;
-    service_discovery(service_discovery &&)                 = delete;
-    service_discovery& operator=(service_discovery const&)  = delete;
-    service_discovery& operator=(service_discovery&&)       = delete;
+    discovery_operations()                                        = default;
+    discovery_operations(discovery_operations const&)             = delete;
+    discovery_operations(discovery_operations &&)                 = delete;
+    discovery_operations& operator=(discovery_operations const&)  = delete;
+    discovery_operations& operator=(discovery_operations&&)       = delete;
 
     /**
      * Perform the primary service discovery. To acquire all primary services
@@ -91,12 +90,6 @@ public:
     operations(operations &&)                   = delete;
     operations& operator=(operations const&)    = delete;
     operations& operator=(operations&&)         = delete;
-
-    virtual service_discovery const& sdp() const = 0;
-
-    service_discovery& sdp() {
-        return const_cast<service_discovery&>(std::as_const(*this).sdp());
-    }
 
     virtual std::errc read(uint16_t                 connection_handle,
                            uint16_t                 attribute_handle,

@@ -2,7 +2,7 @@
  * @file nordic_ble_gattc_event_observable.cc
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  *
- * Provide attachment and notifications for the ble::gap::event_observer class
+ * Provide attachment and notifications for the ble::gattc::event_observer class
  * into the Nordic BLE observables.
  */
 
@@ -17,94 +17,51 @@
 #include "ble_gatt.h"
 #include "nordic_error.h"
 #include "logger.h"
+#include "project_assert.h"
 #include "cmsis_gcc.h"
 
-/**
- * @todo Check list:
- * + Check on uuid 16 bit and 128 bit reverse() requirement and usage when
- *   converting from Nordic uuid types ble_uuid_t and ble_uuid128_t.
- */
+#include <cstring>
+
 namespace nordic
 {
 
-/**
- * Handle the Primary Service Discovery Response event.
- * @see ble_gattc_evt_prim_srvc_disc_rsp_t.
- *
- * @param event_data Nordic BLE event data.
- * @param observer The observer interface which receives the service
- *                 handle and UUID information.
- */
-static void process_service_discovered(
-    ble_gattc_event_observer::event_data_t const& event_data,
-    ble_gattc_event_observer& observer)
+struct uuid128_read_pending_t
 {
-    ble::profile::connectable* connectable =
-        observer.interface_reference.get_connecteable();
+    uint16_t connection_handle;
+    uint16_t gattc_handle;
+};
 
-    ASSERT(connectable != nullptr);
-    ASSERT(connectable->gattc());
+static uuid128_read_pending_t uuid128_read_pending = {
+    .connection_handle  = ble::gap::handle_invalid,
+    .gattc_handle       = ble::att::handle_invalid
+};
 
-    ble::gattc::service_discovery::handle_pair const service_handles_requested =
-        connectable->gattc()->sdp().gatt_handles_requested();
+/**
+ * @todo This will work fine for single connection GATT clients.
+ * The struct uuid128_read_pending_t instance needs to be included somewhere in
+ * the ble::gattc::connectable heirarchy so that there is one instance per
+ * connection. Otherwise 2 connections attempting to acquire 128-bit UUIDs are
+ * going to collide.
+ */
+uint32_t gattc_uuid128_acquire(uint16_t connection_handle, uint16_t gatt_handle)
+{
+    logger& logger = logger::instance();
 
-    logger &logger = logger::instance();
-    logger.info("BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP: count: %u, range: [0x%04x:0x%04x]",
-                event_data.params.prim_srvc_disc_rsp.count,
-                service_handles_requested.first, service_handles_requested.second);
+    logger.debug("gattc_uuid128_acquire(c: 0x%04x, h: 0x%04x)",
+                 connection_handle, gatt_handle);
 
-    uint16_t last_service_handle_discovered = ble::att::handle_maximum;
+    ASSERT(uuid128_read_pending.connection_handle == ble::gap::handle_invalid);
+    ASSERT(uuid128_read_pending.gattc_handle      == ble::att::handle_invalid);
 
-    for (uint16_t iter = 0u;
-         iter < event_data.params.prim_srvc_disc_rsp.count; ++iter)
-    {
-        ble_gattc_service_t const* service =
-            &event_data.params.prim_srvc_disc_rsp.services[iter];
+    uuid128_read_pending.connection_handle = connection_handle;
+    uuid128_read_pending.gattc_handle      = gatt_handle;
 
-        last_service_handle_discovered = service->handle_range.end_handle;
+    uint32_t const error_code = sd_ble_gattc_read(
+        uuid128_read_pending.connection_handle,
+        uuid128_read_pending.gattc_handle,
+        0u);
 
-        // If any of the handles discovered are within the range then report
-        // the service as discovered to the client.
-        // Otherwise return since the request is complete.
-        if (service->handle_range.start_handle > service_handles_requested.second)
-        {
-            return;
-        }
-
-        ble::att::uuid const uuid = nordic::to_att_uuid(service->uuid);
-
-        char uuid_char_buffer[ble::att::uuid::conversion_length];
-        uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
-
-        logger.info("BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP[0x%04x, 0x%04x]: %s",
-                     service->handle_range.start_handle,
-                     service->handle_range.end_handle,
-                     uuid_char_buffer);
-
-        observer.interface_reference.service_discovered(
-            event_data.conn_handle,
-            nordic::to_att_error_code(event_data.gatt_status),
-            event_data.error_handle,
-            service->handle_range.start_handle,
-            service->handle_range.end_handle,
-            uuid);
-    }
-
-    if (last_service_handle_discovered < service_handles_requested.second)
-    {
-        // We have reported some services but not yet filled the request.
-        // Continue discovery.
-        uint16_t const next_service_handle = last_service_handle_discovered + 1u;
-        uint32_t const error_code = sd_ble_gattc_primary_services_discover(
-            event_data.conn_handle, next_service_handle, nullptr);
-        if (error_code != NRF_SUCCESS)
-        {
-            logger.error("sd_ble_gattc_primary_services_discover"
-                         "(0x%04x, 0x%04x) failed: 0x%04x %s",
-                         event_data.conn_handle, next_service_handle,
-                         error_code, nordic_error_string(error_code));
-        }
-    }
+    return error_code;
 }
 
 template<>
@@ -125,165 +82,6 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
 
         switch (event_type)
         {
-        case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
-            process_service_discovered(event_data, observer);
-            break;
-
-        case BLE_GATTC_EVT_REL_DISC_RSP:
-            // Relationship Discovery Response event.
-            // See ble_gattc_evt_rel_disc_rsp_t.
-            for (uint16_t iter = 0u;
-                 iter < event_data.params.rel_disc_rsp.count;++iter)
-            {
-                ble_gattc_include_t const* include_disc_rsp =
-                    &event_data.params.rel_disc_rsp.includes[iter];
-
-                ble_gattc_service_t const* service = &include_disc_rsp->included_srvc;
-
-                ble::att::uuid const uuid = nordic::to_att_uuid(service->uuid);
-
-                char uuid_char_buffer[ble::att::uuid::conversion_length];
-                uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
-
-                logger.info("BLE_GATTC_EVT_REL_DISC_RSP[0x%04, 0x%04x]: incl: 0x%04x, %s",
-                            service->handle_range.start_handle,
-                            service->handle_range.end_handle,
-                            include_disc_rsp->handle,
-                            uuid_char_buffer);
-
-                observer.interface_reference.relationship_discovered(
-                    event_data.conn_handle,
-                    nordic::to_att_error_code(event_data.gatt_status),
-                    event_data.error_handle,
-                    service->handle_range.start_handle,
-                    service->handle_range.end_handle,
-                    include_disc_rsp->handle,
-                    uuid);
-            }
-            break;
-
-        case BLE_GATTC_EVT_CHAR_DISC_RSP:
-            // Characteristic Discovery Response event.
-            // See ble_gattc_evt_char_disc_rsp_t.
-            for (uint16_t iter = 0u;
-                 iter < event_data.params.char_disc_rsp.count; ++iter)
-            {
-                ble_gattc_char_t const* char_disc_rsp =
-                    &event_data.params.char_disc_rsp.chars[iter];
-
-                ble::att::uuid const uuid = nordic::to_att_uuid(char_disc_rsp->uuid);
-
-                char uuid_char_buffer[ble::att::uuid::conversion_length];
-                uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
-
-                ble::gatt::properties const properties = nordic::to_att_properties(
-                    char_disc_rsp->char_props);
-
-                logger.info("BLE_GATTC_EVT_CHAR_DISC_RSP: "
-                            "decl: 0x%04x, value: 0x%04x, props: 0x%04x, %s",
-                            char_disc_rsp->handle_decl,
-                            char_disc_rsp->handle_value,
-                            properties.get(),
-                            uuid_char_buffer);
-
-                observer.interface_reference.characteristic_discovered(
-                    event_data.conn_handle,
-                    nordic::to_att_error_code(event_data.gatt_status),
-                    event_data.error_handle,
-                    char_disc_rsp->handle_decl,
-                    char_disc_rsp->handle_value,
-                    uuid,
-                    properties);
-            }
-            break;
-
-        case BLE_GATTC_EVT_DESC_DISC_RSP:
-            // Descriptor Discovery Response event.
-            // See ble_gattc_evt_desc_disc_rsp_t.
-            for (uint16_t iter = 0u;
-                 iter < event_data.params.desc_disc_rsp.count; ++iter)
-            {
-                ble_gattc_desc_t const* desc_disc_rsp =
-                    &event_data.params.desc_disc_rsp.descs[iter];
-
-                ble::att::uuid const uuid = nordic::to_att_uuid(desc_disc_rsp->uuid);
-
-                char uuid_char_buffer[ble::att::uuid::conversion_length];
-                uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
-
-                logger.info("BLE_GATTC_EVT_CHAR_DISC_RSP[0x%04]: %s",
-                            desc_disc_rsp->handle, uuid_char_buffer);
-
-                observer.interface_reference.descriptor_discovered(
-                    event_data.conn_handle,
-                    nordic::to_att_error_code(event_data.gatt_status),
-                    event_data.error_handle,
-                    desc_disc_rsp->handle,
-                    uuid);
-            }
-            break;
-
-        case BLE_GATTC_EVT_ATTR_INFO_DISC_RSP:
-            // Attribute Information Response event.
-            // See ble_gattc_evt_attr_info_disc_rsp_t.
-            switch (event_data.params.attr_info_disc_rsp.format)
-            {
-            case BLE_GATTC_ATTR_INFO_FORMAT_16BIT:
-                for (uint16_t iter = 0u;
-                     iter < event_data.params.attr_info_disc_rsp.count; ++iter)
-                {
-                    ble_gattc_attr_info16_t const* gattc_attr =
-                        &event_data.params.attr_info_disc_rsp.info.attr_info16[iter];
-
-                    ble::att::uuid uuid(gattc_attr->uuid.uuid);
-
-                    // char uuid_char_buffer[ble::att::uuid::conversion_length];
-                    // uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
-
-                    logger.info("BLE_GATTC_EVT_ATTR_INFO_DISC_RSP [0x%04]: 0x%04x",
-                                gattc_attr->handle, gattc_attr->uuid);
-
-                    observer.interface_reference.attribute_discovered(
-                        event_data.conn_handle,
-                        nordic::to_att_error_code(event_data.gatt_status),
-                        event_data.error_handle,
-                        gattc_attr->handle,
-                        uuid);
-                }
-                break;
-
-            case BLE_GATTC_ATTR_INFO_FORMAT_128BIT:
-                for (uint16_t iter = 0u;
-                     iter < event_data.params.attr_info_disc_rsp.count; ++iter)
-                {
-                    ble_gattc_attr_info128_t const* gattc_attr =
-                        &event_data.params.attr_info_disc_rsp.info.attr_info128[iter];
-
-                    ble::att::uuid uuid(gattc_attr->uuid.uuid128);
-
-                    char uuid_char_buffer[ble::att::uuid::conversion_length];
-                    uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
-
-                    logger.info("BLE_GATTC_EVT_ATTR_INFO_DISC_RSP [0x%04]: %s",
-                                gattc_attr->handle, uuid);
-
-                    observer.interface_reference.attribute_discovered(
-                        event_data.conn_handle,
-                        nordic::to_att_error_code(event_data.gatt_status),
-                        event_data.error_handle,
-                        gattc_attr->handle,
-                        uuid);
-                }
-                break;
-
-            default:
-                logger.error("unknown Nordic attribute uuid discovery format: %u",
-                             event_data.params.attr_info_disc_rsp.format);
-                ASSERT(0);
-                break;
-            }
-            break;
-
         case BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP:
             // Read By UUID Response event.
             // See ble_gattc_evt_char_val_by_uuid_read_rsp_t.
@@ -320,14 +118,64 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
         case BLE_GATTC_EVT_READ_RSP:
             // Read Response event.
             // See ble_gattc_evt_read_rsp_t.
-            observer.interface_reference.read_response(
-                event_data.conn_handle,
-                nordic::to_att_error_code(event_data.gatt_status),
-                event_data.error_handle,
-                event_data.params.read_rsp.handle,
-                event_data.params.read_rsp.data,
-                event_data.params.read_rsp.offset,
-                event_data.params.read_rsp.len);
+            if ((uuid128_read_pending.connection_handle == event_data.conn_handle) &&
+                (uuid128_read_pending.gattc_handle      == event_data.params.read_rsp.handle))
+            {
+                ble_uuid128_t uuid_128;
+                ASSERT(event_data.params.read_rsp.len >= sizeof(uuid_128.uuid128));
+                memcpy(uuid_128.uuid128,
+                       event_data.params.read_rsp.data,
+                       sizeof(uuid_128.uuid128));
+
+                uint8_t uuid_type = BLE_UUID_TYPE_VENDOR_BEGIN;
+                uint32_t error_code = sd_ble_uuid_vs_add(&uuid_128, &uuid_type);
+
+                if (error_code == NRF_SUCCESS)
+                {
+                    uint16_t const connection_handle = uuid128_read_pending.connection_handle;
+                    uint16_t const gattc_handle      = uuid128_read_pending.gattc_handle;
+
+                    uuid128_read_pending.connection_handle = ble::gap::handle_invalid;
+                    uuid128_read_pending.gattc_handle      = ble::att::handle_invalid;
+
+                    /// @todo Hardcoded to primary services discovery.
+                    /// This needs to be made generic by adding a functor to the
+                    /// state storage struct uuid128_read_pending_t.
+                    uint32_t const error_code = sd_ble_gattc_primary_services_discover(
+                        connection_handle, gattc_handle, nullptr);
+
+                    if (error_code != NRF_SUCCESS)
+                    {
+                        logger::instance().error(
+                            "sd_ble_gattc_primary_services_discover() failed: 0x%04x '%s'",
+                            error_code, nordic_error_string(error_code));
+                    }
+                }
+                else
+                {
+                    ASSERT(uuid128_read_pending.connection_handle == ble::gap::handle_invalid);
+                    ASSERT(uuid128_read_pending.gattc_handle      == ble::att::handle_invalid);
+
+                    ble::att::uuid uuid = nordic::to_att_uuid(uuid_128);
+                    char uuid_char_buffer[ble::att::uuid::conversion_length];
+                    uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
+
+                    logger::instance().error(
+                        "sd_ble_uuid_vs_add(%s) failed: 0x%04x '%s'",
+                        uuid_char_buffer, error_code, nordic_error_string(error_code));
+                }
+            }
+            else
+            {
+                observer.interface_reference.read_response(
+                    event_data.conn_handle,
+                    nordic::to_att_error_code(event_data.gatt_status),
+                    event_data.error_handle,
+                    event_data.params.read_rsp.handle,
+                    event_data.params.read_rsp.data,
+                    event_data.params.read_rsp.offset,
+                    event_data.params.read_rsp.len);
+            }
             break;
 
         case BLE_GATTC_EVT_CHAR_VALS_READ_RSP:

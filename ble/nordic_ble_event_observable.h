@@ -18,6 +18,7 @@
 
 #include "nordic_ble_event_observer.h"
 #include "project_assert.h"
+#include <cstdint>
 
 namespace nordic
 {
@@ -78,10 +79,22 @@ struct ble_observables
     ble_observables& operator=(ble_observables const &) = delete;
     ble_observables& operator=(ble_observables&&)       = delete;
 
-    ble_event_observable<ble_common_event_observer> common_event_observable;
-    ble_event_observable<ble_gap_event_observer>    gap_event_observable;
-    ble_event_observable<ble_gattc_event_observer>  gattc_event_observable;
-    ble_event_observable<ble_gatts_event_observer>  gatts_event_observable;
+    ble_event_observable<ble_common_event_observer>     common_event_observable;
+    ble_event_observable<ble_gap_event_observer>        gap_event_observable;
+    ble_event_observable<ble_gattc_event_observer>      gattc_event_observable;
+    ble_event_observable<ble_gattc_discovery_observer>  gattc_discovery_observable;
+    ble_event_observable<ble_gatts_event_observer>      gatts_event_observable;
 };
+
+/**
+ * Specialized Nordic hack to aquire 128-bit UUIDs which have not been
+ * pre-registered with the softdevice.
+ *
+ * @param connection_handle
+ * @param gatt_handle
+ *
+ * @return uint32_t
+ */
+uint32_t gattc_uuid128_acquire(uint16_t connection_handle, uint16_t gatt_handle);
 
 } // namespace nordic

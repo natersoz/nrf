@@ -7,7 +7,6 @@
 
 #include "ble/att.h"
 #include "ble/uuid.h"
-#include "ble/gatt_declaration.h"
 #include "ble/profile_connectable_accessor.h"
 
 namespace ble
@@ -29,51 +28,6 @@ public:
     event_observer(event_observer &&)                = delete;
     event_observer& operator=(event_observer const&) = delete;
     event_observer& operator=(event_observer&&)      = delete;
-
-    virtual void service_discovered(
-        uint16_t                    conection_handle,
-        ble::att::error_code        error_code,
-        uint16_t                    error_handle,
-        uint16_t                    handle_start,
-        uint16_t                    handle_stop,
-        ble::att::uuid const&       uuid
-        ) {}
-
-    virtual void relationship_discovered(
-        uint16_t                    conection_handle,
-        ble::att::error_code        error_code,
-        uint16_t                    error_handle,
-        uint16_t                    handle_start,
-        uint16_t                    handle_stop,
-        uint16_t                    service_handle,
-        ble::att::uuid const&       uuid
-        ) {}
-
-    virtual void characteristic_discovered(
-        uint16_t                    conection_handle,
-        ble::att::error_code        error_code,
-        uint16_t                    error_handle,
-        uint16_t                    handle_decl,
-        uint16_t                    handle_value,
-        ble::att::uuid const&       uuid,
-        ble::gatt::properties       properties
-        ) {}
-
-    virtual void descriptor_discovered(
-        uint16_t                    conection_handle,
-        ble::att::error_code        error_code,
-        uint16_t                    error_handle,
-        uint16_t                    desciptor_handle,
-        ble::att::uuid const&       uuid
-        ) {}
-
-    virtual void attribute_discovered(
-        uint16_t                    conection_handle,
-        ble::att::error_code        error_code,
-        uint16_t                    error_handle,
-        uint16_t                    handle,
-        ble::att::uuid const&       uuid
-        ) {}
 
     virtual void read_characteristic_by_uuid_response(
         uint16_t                    conection_handle,

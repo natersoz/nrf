@@ -11,18 +11,11 @@
 #include "logger.h"
 #include "std_error.h"
 
-#include "ble_gap.h"
-
 #include <algorithm>
 #include <cstring>
 
 ble_gap_connection::~ble_gap_connection()
 {
-    if (this->nordic_gap_event_observer_.is_attached())
-    {
-        nordic::ble_observables &observables = nordic::ble_observables::instance();
-        observables.gap_event_observable.detach(this->nordic_gap_event_observer_);
-    }
 }
 
 ble_gap_connection::ble_gap_connection(
@@ -31,15 +24,8 @@ ble_gap_connection::ble_gap_connection(
     ble::gap::connection_parameters const&  conn_params,
     ble::att::length_t                      mtu_size)
     :   super(operations, scanning, conn_params),
-        nordic_gap_event_observer_(*this),
         mtu_size_(mtu_size)
 {
-}
-
-void ble_gap_connection::init()
-{
-    nordic::ble_observables& observables = nordic::ble_observables::instance();
-    observables.gap_event_observable.attach(this->nordic_gap_event_observer_);
 }
 
 void ble_gap_connection::connect(uint16_t                    connection_handle,
@@ -80,20 +66,28 @@ void ble_gap_connection::connection_parameter_update(
     uint16_t                                connection_handle,
     ble::gap::connection_parameters const&  connection_parameters)
 {
-    logger::instance().debug("gap::connection_parameter_update: h: 0x%04x, interval: (%u, %u), latency: %u, sup_timeout: %u",
-                             connection_handle,
-                             connection_parameters.interval_min, connection_parameters.interval_max,
-                             connection_parameters.slave_latency, connection_parameters.supervision_timeout);
+    logger::instance().debug(
+        "gap::connection_parameter_update: h: 0x%04x, "
+        "interval: (%u, %u), latency: %u, sup_timeout: %u",
+        connection_handle,
+        connection_parameters.interval_min,
+        connection_parameters.interval_max,
+        connection_parameters.slave_latency,
+        connection_parameters.supervision_timeout);
 
     this->get_negotiation_state().set_gap_connection_parameters_pending(false);
     if (not this->get_negotiation_state().is_any_update_pending())
     {
         logger::instance().debug("--- pending updates complete ---");
 
-        /// @todo This is a kludgey way to do this, clean it up by added an
-        /// observable interface to negotiation_state completion.
-        /// @note This is also making the assumption that the last update is the conection parameter update.
-        this->get_connecteable()->gattc()->sdp().discover_primary_services(connection_handle);
+        /// @todo This is a kludgey way to do initiate service discovery
+        /// From the get_negotiation_state object.
+        /// Clean it up by adding an observable interface to negotiation_state
+        /// completion.
+        /// @note This is also making the assumption that the last update is
+        /// the conection parameter update.
+        this->get_connecteable()->service_builder()->discover_services(
+            connection_handle, this->get_connecteable()->service_container());
     }
 }
 

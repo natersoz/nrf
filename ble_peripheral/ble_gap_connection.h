@@ -6,8 +6,6 @@
 #pragma once
 
 #include "ble/peripheral_connection.h"
-#include "ble/nordic_ble_event_observable.h"
-#include "ble/nordic_ble_gap_operations.h"
 
 /**
  * An implementation of the interface ble::gap::event_observer specific
@@ -35,16 +33,6 @@ public:
         ble::gap::operations&                   operations,
         ble::gap::advertising&                  advertising,
         ble::gap::connection_parameters const&  connect_params);
-
-    /**
-     * Post constructor initialization.
-     * Attach the this observer to the Noridc BLE GAP observable.
-     *
-     * This is required since C++ does not provide ordering for statically
-     * allocated modules across classes. The Nordic BLE GAP observable may not
-     * be initialized prior to this ctor being called.
-     */
-    void init();
 
 protected:
     /**
@@ -371,7 +359,4 @@ protected:
         ble::gap::address const&    peer_address,
         int8_t                      rssi_dBm
         ) override;
-
-private:
-    nordic::ble_gap_event_observer nordic_gap_event_observer_;
 };

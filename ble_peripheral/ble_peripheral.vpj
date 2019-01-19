@@ -263,7 +263,6 @@
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
             GUID="{48553D21-D6F9-401C-90C9-BF9AB9E75BA5}">
-            <F N="ble_event_handler.cc"/>
             <F N="ble_gap_connection.cc"/>
             <F N="ble_gatts_observer.cc"/>
             <F N="ble_peripheral_init.cc"/>

@@ -129,6 +129,8 @@ protected:
      * @param connection_handle The conneciton handle of the new connection.
      * @param peer_address      The peer address to which we connected.
      * @param peer_address_id   A nordic index into nordic's stored addresses.
+     *
+     * @todo remove peer_address_id - this is Nordic specific.
      */
     void connect(uint16_t                   connection_handle,
                  ble::gap::address const&   peer_address,
