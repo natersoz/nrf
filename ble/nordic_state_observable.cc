@@ -28,7 +28,7 @@ namespace nordic
     {
         ASSERT(observer.is_attached());
         observer.observable_ = nullptr;
-        this->observer_list_.remove(observer);
+        observer.hook_.unlink();
     }
 
     void state_observable::notify(nrf_sdh_state_evt_t state_event_type)

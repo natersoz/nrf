@@ -32,15 +32,10 @@ public:
 
     bool is_attached() const { return bool(this->observable_); }
 
-    /**
-     * Since soc_observer is not copyable in any form, the means for
-     * testing equality is whether they are the same instance in memory.
-     */
-    bool operator==(soc_observer const& other) const { return (this == &other); }
-
 private:
-    /// @todo needs volatile
-    boost::intrusive::list_member_hook<> hook_;
+    boost::intrusive::list_member_hook<
+            boost::intrusive::link_mode<boost::intrusive::auto_unlink>
+        > hook_;
 
     soc_observable volatile *observable_;
 };

@@ -123,7 +123,7 @@ public:
         boost::intrusive::link_mode<boost::intrusive::auto_unlink>
         >;
 
-    list_hook_type hook_;
+    list_hook_type hook;
 
 private:
     ble::profile::connectable *connectable_;

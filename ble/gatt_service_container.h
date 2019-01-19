@@ -29,7 +29,7 @@ using service_list_type =
         boost::intrusive::constant_time_size<false>,
         boost::intrusive::member_hook<service,
                                       service::list_hook_type,
-                                      &service::hook_>
+                                      &service::hook>
     >;
 
 class service_container: public service_list_type

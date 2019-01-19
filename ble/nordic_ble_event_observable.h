@@ -46,23 +46,25 @@ public:
     {
         ASSERT(observer.is_attached());
         observer.observable_ = nullptr;
-        this->observer_list_.remove(observer);
+        observer.hook_.unlink();
     }
 
     void notify(typename observer_type::event_enum_t         event_type,
                 typename observer_type::event_data_t const&  event_data);
 
 private:
-    /**
-     * @note Do not call the hook method unlink().
-     * Call timer_observable_generic::detach() to keep the attached count correct.
-     */
     using observer_list =
         boost::intrusive::list<
             observer_type,
-            boost::intrusive::member_hook<observer_type,
-                                          boost::intrusive::list_member_hook<>,
-                                          &observer_type::hook_> >;
+            boost::intrusive::constant_time_size<false>,
+            boost::intrusive::member_hook<
+                observer_type,
+                boost::intrusive::list_member_hook<
+//                  nordic::ble_event_observer::list_hook_type
+                    boost::intrusive::link_mode<boost::intrusive::auto_unlink>
+                >,
+            &observer_type::hook_>
+        >;
 
     observer_list observer_list_;
 };
@@ -87,13 +89,15 @@ struct ble_observables
 };
 
 /**
- * Specialized Nordic hack to aquire 128-bit UUIDs which have not been
- * pre-registered with the softdevice.
+ * Specialized hack to aquire 128-bit UUIDs which have not been
+ * pre-registered with the Nordic softdevice.
  *
- * @param connection_handle
- * @param gatt_handle
+ * @param connection_handle The connection handle to re-request the GATT handle
+ *                          from in order to resolve it.
+ * @param gatt_handle       The attribute handle for which a 128-bit UUID was
+ *                          reported by the Nordic softdevice as 'unknown'.
  *
- * @return uint32_t
+ * @return uint32_t         NRF_SUCCESS if successful.
  */
 uint32_t gattc_uuid128_acquire(uint16_t connection_handle, uint16_t gatt_handle);
 

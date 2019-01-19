@@ -67,7 +67,6 @@ struct characteristic: public attribute
     att::uuid               uuid;
     ble::gatt::service*     service_;   ///< The service owning this characteristic.
 
-    list_hook_type          hook_;
     list_type               descriptor_list;
 };
 

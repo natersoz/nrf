@@ -147,19 +147,15 @@ public:
 
     observable_type const* attached_observable() const { return this->observable_; }
 
-    /**
-     * Since timer_observable is not copyable in any form, the means for
-     * testing equality is whether they are the same instance in memory.
-     */
-    bool operator==(timer_observer_generic const& other) const { return (this == &other); }
-
 private:
     /// The timer_observable to which this oberser is attached.
     /// If null then the observer is unattached.
     observable_type * volatile observable_;
 
     /// Alias the list hood class to something a little
-    using list_hook = boost::intrusive::list_member_hook<>;
+    using list_hook = boost::intrusive::list_member_hook<
+        boost::intrusive::link_mode<boost::intrusive::auto_unlink>
+        >;
 
     /// @todo needs volatile
     list_hook hook_;

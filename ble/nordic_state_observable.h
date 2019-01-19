@@ -38,9 +38,15 @@ private:
     using observer_list =
         boost::intrusive::list<
             state_observer,
-            boost::intrusive::member_hook<state_observer,
-                                          boost::intrusive::list_member_hook<>,
-                                          &state_observer::hook_> >;
+            boost::intrusive::constant_time_size<false>,
+            boost::intrusive::member_hook<
+                state_observer,
+                boost::intrusive::list_member_hook<
+                    boost::intrusive::link_mode<boost::intrusive::auto_unlink>
+                >,
+                &state_observer::hook_
+            >
+        >;
 
     observer_list observer_list_;
 };

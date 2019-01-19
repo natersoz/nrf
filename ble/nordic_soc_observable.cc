@@ -28,7 +28,7 @@ namespace nordic
     {
         ASSERT(observer.is_attached());
         observer.observable_ = nullptr;
-        this->observer_list_.remove(observer);
+        observer.hook_.unlink();
     }
 
     void soc_observable::notify(enum NRF_SOC_EVTS soc_event_type)

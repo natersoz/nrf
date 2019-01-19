@@ -7,14 +7,14 @@
 
 #pragma once
 
-#include "ble/common_event_observer.h"      // Abstract BLE obsevers.
+#include "ble/common_event_observer.h"      // Abstract BLE event observers
 #include "ble/gap_event_observer.h"
 #include "ble/gattc_event_observer.h"
 #include "ble/gattc_discovery_observer.h"
 #include "ble/gatts_event_observer.h"
 
-#include "ble.h"                            // Nordic softdevice headers
-#include "ble_gap.h"
+#include "ble.h"                            // Nordic softdevice headers,
+#include "ble_gap.h"                        // required for enum BLE_XXX types.
 #include "ble_gattc.h"
 #include "ble_gatts.h"
 
@@ -49,22 +49,19 @@ public:
 
     bool is_attached() const { return bool(this->observable_); }
 
-    /**
-     * Since ble_event_observer is not copyable in any form, the means for
-     * testing equality is whether they are the same instance in memory.
-     */
-    bool operator==(ble_event_observer const& other) const { return (this == &other); }
-
     interface_type& interface_reference;
 
 private:
-    /// @todo needs volatile
-    boost::intrusive::list_member_hook<> hook_;
+    using list_hook_type = boost::intrusive::list_member_hook<
+        boost::intrusive::link_mode<boost::intrusive::auto_unlink>
+        >;
+
+    list_hook_type hook_;
 
     using observable_type =
         ble_event_observable<ble_event_observer<interface_type,
                                                 event_enum_type,
-                                                event_data_type>>;
+                                                event_data_type> >;
 
     observable_type volatile *observable_;
 

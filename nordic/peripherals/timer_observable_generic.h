@@ -237,7 +237,7 @@ public:
     {
         ASSERT(observer.is_attached());
 
-        this->cc_assoc_[observer.cc_index_].observer_list_.remove(observer);
+        observer.hook_.unlink();
         if (this->cc_assoc_[observer.cc_index_].observer_list_.size() == 0u)
         {
             this->cc_disable(observer.cc_index_);
@@ -276,9 +276,14 @@ private:
     using observer_list =
         boost::intrusive::list<
             observer_type,
-            boost::intrusive::member_hook<observer_type,
-                                          boost::intrusive::list_member_hook<>,
-                                          &observer_type::hook_>
+            boost::intrusive::constant_time_size<false>,
+            boost::intrusive::member_hook<
+                observer_type,
+                boost::intrusive::list_member_hook<
+                    boost::intrusive::link_mode<boost::intrusive::auto_unlink>
+                >,
+                &observer_type::hook_
+            >
         >;
 
     /**

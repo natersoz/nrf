@@ -103,7 +103,7 @@ struct attribute
         boost::intrusive::link_mode<boost::intrusive::auto_unlink>
         >;
 
-    list_hook_type hook_;
+    list_hook_type hook;
 
     /**
      * This attribute base class does not have a list.
@@ -115,7 +115,7 @@ struct attribute
             attribute,
             boost::intrusive::constant_time_size<false>,
             boost::intrusive::member_hook<
-                attribute, list_hook_type, &attribute::hook_>
+                attribute, list_hook_type, &attribute::hook>
         >;
 };
 
