@@ -12,7 +12,8 @@
 #include "clocks.h"
 
 #include "logger.h"
-#include "segger_rtt_output_stream.h"
+#include "rtt_output_stream.h"
+#include "segger_rtt.h"
 #include "project_assert.h"
 
 #include "nrf_cmsis.h"
@@ -22,7 +23,7 @@
 
 static rtc   rtc_1(1u);
 static timer timer_1(1u);
-static segger_rtt_output_stream rtt_os;
+static char  rtt_os_buffer[4096u];
 
 // ADC channel convesions destination buffer;
 static int16_t saadc_buffer[2u][2u];
@@ -87,7 +88,7 @@ static void saadc_event_handler(saadc_event_type_t              event_type,
                               event_info->conversion.data,
                               event_info->conversion.length * sizeof(int16_t),
                               false,
-                              write_data::data_prefix::address);
+                              io::data_prefix::address);
         }
         break;
     case saadc_event_limit_lower:
@@ -145,10 +146,14 @@ int main()
     leds_board_init();
     led_state_set(0u, true);
 
+    rtt_output_stream rtt_os(rtt_os_buffer, sizeof(rtt_os_buffer));
     logger& logger = logger::instance();
     logger.set_level(logger::level::info);
     logger.set_output_stream(rtt_os);
     logger.set_rtc(rtc_1);
+
+    segger_rtt_enable();
+
 
     logger.info("---------- SAADC test ----------");
     logger.debug("timer: %8u ticks", measurement_timer.expiration_get_ticks());

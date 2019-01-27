@@ -45,8 +45,7 @@
 #include <stdint.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void app_util_critical_region_enter(uint8_t *p_nested);
@@ -86,4 +85,39 @@ void app_util_critical_region_exit(uint8_t nested);
 
 #ifdef __cplusplus
 }
-#endif
+
+namespace nordic
+{
+
+class critical_section
+{
+public:
+    ~critical_section()                                        = default;
+    critical_section(critical_section const&)             = delete;
+    critical_section(critical_section &&)                 = delete;
+    critical_section& operator=(critical_section const&)  = delete;
+    critical_section& operator=(critical_section&&)       = delete;
+
+    critical_section() : cr_nested(0u) {}
+
+    void enter() { app_util_critical_region_enter(&this->cr_nested); }
+    void exit()  { app_util_critical_region_exit(this->cr_nested); }
+
+private:
+    uint8_t cr_nested;
+};
+
+
+class auto_critical_section: protected critical_section
+{
+public:
+    using critical_section::critical_section;
+
+    ~auto_critical_section() { this->exit(); }
+    auto_critical_section() : critical_section() { this->enter(); }
+};
+
+}  // namespace nordic
+
+
+#endif  // __cplusplus

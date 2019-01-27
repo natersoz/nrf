@@ -8,7 +8,7 @@
 #include "ble/gatt_service.h"
 #include "ble/profile_connectable.h"
 #include "ble/gatt_descriptors.h"
-#include "ble/gatt_uuids.h"
+#include "ble/gatt_enum_types.h"
 #include "ble/service/custom_uuid.h"
 #include "logger.h"
 

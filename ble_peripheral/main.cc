@@ -10,30 +10,44 @@
 #include "leds.h"
 #include "buttons.h"
 #include "logger.h"
-#include "segger_rtt_output_stream.h"
+#include "segger_rtt.h"
+#include "rtt_output_stream.h"
 #include "rtc_observer.h"
 #include "timer_observer.h"
 #include "stack_usage.h"
+#include "version_info.h"
 #include "project_assert.h"
 
-static segger_rtt_output_stream rtt_os;
-static rtc_observable<>         rtc_1(1u, 32u);
+// The RTT output stream buffer allocation.
+static char rtt_os_buffer[4096u];
 
 int main(void)
 {
     stack_fill(0xabcd1234);
     lfclk_enable(LFCLK_SOURCE_XO);
+
+    rtc_observable<> rtc_1(1u, 32u);
     rtc_1.start();
 
-    leds_board_init();
-    buttons_board_init();
-
+    rtt_output_stream rtt_os(rtt_os_buffer, sizeof(rtt_os_buffer));
     logger& logger = logger::instance();
     logger.set_rtc(rtc_1);
     logger.set_level(logger::level::debug);
     logger.set_output_stream(rtt_os);
 
+    segger_rtt_enable();
+
+    leds_board_init();
+    buttons_board_init();
+
     logger.info("--- BLE peripheral ---");
+
+    logger::instance().info("version: %s, git hash: %02x%02x%02x%02x",
+                            version_info.version,
+                            version_info.git_hash[0u],
+                            version_info.git_hash[1u],
+                            version_info.git_hash[2u],
+                            version_info.git_hash[3u]);
 
     ble::profile::peripheral& ble_peripheral = ble_peripheral_init();
     ble_peripheral.advertising().start();

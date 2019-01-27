@@ -264,6 +264,7 @@
             <F N="int_to_string.cc"/>
             <F N="project_assert.cc"/>
             <F N="std_stubs.cc"/>
+            <F N="version_info.c"/>
             <F N="vwritef.cc"/>
             <F N="write_data.cc"/>
         </Folder>
@@ -285,6 +286,7 @@
             <F N="section_macros.h"/>
             <F N="std_error.h"/>
             <F N="stream.h"/>
+            <F N="version_info.h"/>
             <F N="vwritef.h"/>
             <F N="write_data.h"/>
         </Folder>

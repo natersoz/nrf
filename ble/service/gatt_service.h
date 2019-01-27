@@ -10,7 +10,7 @@
 
 #include "ble/gatt_service.h"
 #include "ble/gatt_descriptors.h"
-#include "ble/gatt_uuids.h"
+#include "ble/gatt_enum_types.h"
 
 namespace ble
 {
@@ -28,7 +28,7 @@ public:
     service_changed& operator=(service_changed&&)       = delete;
 
     service_changed() :
-        gatt::characteristic(gatt::characteristics::service_changed,
+        gatt::characteristic(gatt::characteristic_type::service_changed,
                              gatt::properties::indicate),
         cccd_(*this)
     {
@@ -82,7 +82,7 @@ public:
 
     /// Construct a Generic Attribute (GATT) Service as a primary service.
     gatt_service():
-        service(gatt::services::generic_attribute,
+        service(gatt::service_type::generic_attribute,
                 gatt::attribute_type::primary_service)
     {
         this->characteristic_add(this->service_changed);

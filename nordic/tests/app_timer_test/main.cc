@@ -11,7 +11,8 @@
 #include "rtc_debug.h"
 
 #include "logger.h"
-#include "segger_rtt_output_stream.h"
+#include "rtt_output_stream.h"
+#include "segger_rtt.h"
 #include "project_assert.h"
 
 APP_TIMER_DEF(timer_1);
@@ -21,6 +22,8 @@ APP_TIMER_DEF(timer_3);
 static uint32_t timer_expiration_count_1 = 0u;
 static uint32_t timer_expiration_count_2 = 0u;
 static uint32_t timer_expiration_count_3 = 0u;
+
+static char rtt_os_buffer[4096u];
 
 void timer_expiration_notify_1(void *context)
 {
@@ -54,8 +57,6 @@ void timer_expiration_notify_3(void *context)
     logger.info("notify_3: %10u", *count);
 }
 
-static segger_rtt_output_stream rtt_os;
-
 rtc_observable<> rtc_1(1u, 1u);
 
 int main()
@@ -64,10 +65,13 @@ int main()
     rtc_1.start();
     leds_board_init();
 
+    rtt_output_stream rtt_os(rtt_os_buffer, sizeof(rtt_os_buffer));
     logger& logger = logger::instance();
     logger.set_level(logger::level::debug);
     logger.set_output_stream(rtt_os);
     logger.set_rtc(rtc_1);
+
+    segger_rtt_enable();
 
     app_timer_init(rtc_1);
 

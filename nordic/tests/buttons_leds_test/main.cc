@@ -12,7 +12,8 @@
 #include "clocks.h"
 
 #include "logger.h"
-#include "segger_rtt_output_stream.h"
+#include "rtt_output_stream.h"
+#include "segger_rtt.h"
 #include "project_assert.h"
 
 #include "nrf_cmsis.h"
@@ -68,9 +69,9 @@ static void gpio_port_event_handler(uint32_t latched, void* context)
                  button_state_get(3u));
 }
 
-static rtc                          rtc_1(1u);
-static segger_rtt_output_stream     rtt_os;
-static rtc_observable<>             rtc1_observable(1u);
+static rtc                  rtc_1(1u);
+static rtc_observable<>     rtc1_observable(1u);
+static char                 rtt_os_buffer[4096u];
 
 int main()
 {
@@ -80,10 +81,12 @@ int main()
     leds_board_init();
     buttons_board_init();
 
+    rtt_output_stream rtt_os(rtt_os_buffer, sizeof(rtt_os_buffer));
     logger& logger = logger::instance();
     logger.set_level(logger::level::info);
     logger.set_output_stream(rtt_os);
     logger.set_rtc(rtc_1);
+    logger.set_output_stream(rtt_os);
 
     logger.info("---------- Buttons, LEDs test ----------");
 

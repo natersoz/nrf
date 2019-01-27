@@ -43,36 +43,27 @@ attribute const* service::find_attribute(uint16_t handle) const
 
 attribute* service::find_attribute(uint16_t handle)
 {
-    for (attribute& attr : this->characteristic_list)
-    {
-        characteristic& chr = reinterpret_cast<characteristic&>(attr);
-        attribute* attr_found = chr.find_attribute(handle);
-        if (attr_found) { return attr_found; }
-    }
-
-    return nullptr;
+    return const_cast<ble::gatt::attribute*>(
+        std::as_const(*this).find_attribute(handle)
+        );
 }
 
-characteristic const* service::find_characteristic(ble::att::uuid const& uuid) const
+characteristic const* service::find_characteristic(ble::att::uuid const& chr_uuid) const
 {
     for (attribute const& attr : this->characteristic_list)
     {
         characteristic const& chr = reinterpret_cast<characteristic const&>(attr);
-        if (chr.uuid == uuid) { return &chr; }
+        if (chr.uuid == chr_uuid) { return &chr; }
     }
 
     return nullptr;
 }
 
-characteristic* service::find_characteristic(ble::att::uuid const& uuid)
+characteristic* service::find_characteristic(ble::att::uuid const& chr_uuid)
 {
-    for (attribute& attr : this->characteristic_list)
-    {
-        characteristic& chr = reinterpret_cast<characteristic&>(attr);
-        if (chr.uuid == uuid) { return &chr; }
-    }
-
-    return nullptr;
+    return const_cast<ble::gatt::characteristic*>(
+        std::as_const(*this).find_characteristic(chr_uuid)
+        );
 }
 
 } // namespace gatt

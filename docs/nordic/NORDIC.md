@@ -294,9 +294,14 @@ Section 15.8.1 Peripheral Interface, Interrupt clearing
 
 Explains why a volatile dummy read is required after clearing an interrupt.
 
-Noridc SDK Version
+Noridc SDK
 ------------------
-Nordic SDK Version = `nRF5_SDK_15.2.0_9412b96`
+The Nordic SDK 15.2 is
+
+
+### Nordic SDK Version 15.2
+
+	`nRF5_SDK_15.2.0_9412b96`
 
 The main differences between SDK 14.2 and 15.x: are primarily the GAP.
 
@@ -310,12 +315,7 @@ The main differences between SDK 14.2 and 15.x: are primarily the GAP.
 In the project the following symbolic links are checked in and point to
 different SDK versions:
 
-	sdk@ -> sdk-15
-	sdk-14@ -> sdk-14.2
-	sdk-14.2@ -> ../../nRF/SDK/nRF5_SDK_14.2.0_17b948a
-	sdk-15@ -> sdk-15.2
-	sdk-15.0@ -> ../../nRF/SDK/nRF5_SDK_15.0.0_a53641a
-	sdk-15.2@ -> ../../nRF/SDK/nRF5_SDK_15.2.0_9412b96
+    sdk@ -> external/nRF5_SDK_15.2.0_9412b96
 
 Nordic SDK modifications
 ------------------------

@@ -7,9 +7,11 @@
 
 #include "ble/uuid.h"
 #include "ble/att.h"
-#include "ble/gatt_uuids.h"
+#include "ble/gatt_enum_types.h"
+#include "charconv.h"       /// @todo Issue 17
 
 #include <cstdint>
+#include <cstddef>
 
 namespace ble
 {
@@ -75,10 +77,24 @@ struct properties
 
     bool is_writable()   const { return this->get() & write; }
     bool is_readable()   const { return this->get() &  read; }
-    bool is_read_write() const { return this->is_readable() && this->is_writable(); }
+    bool is_read_write() const { return this->is_readable() &&
+                                        this->is_writable(); }
 
     uint8_t     bits;
     uint8_t     bits_ext;
+
+    /**
+     * Convert properties to a string.
+     * The conversion form is: "0x0000 brwniNSRA"
+     * (17 bytes including the null terminator).
+     *
+     * @param begin The buffer into which the conversion will take place.
+     * @param end   One past the valid buffer size; i.e. begin + length.
+     *
+     * @return std::to_chars_result The conversion result
+     */
+    std::to_chars_result to_chars(char *begin, char *end) const;
+    static constexpr size_t const conversion_length = 17u;
 };
 
 /**
@@ -107,7 +123,21 @@ struct declaration
 
     struct properties           properties;
     uint16_t                    handle;
-    enum attribute_type const   attribute_type;
+    ble::gatt::attribute_type   attribute_type;
+
+    /**
+     * Convert ble::gatt::declaration to a string.
+     * The conversion form is: "type: 0x0000 props: ", gatt::properties
+     * 13 + properties::conversion_length, includes null terminator.
+     *
+     * @param begin The buffer into which the conversion will take place.
+     * @param end   One past the valid buffer size; i.e. begin + length.
+     *
+     * @return std::to_chars_result The conversion result
+     */
+    std::to_chars_result to_chars(char *begin, char *end) const;
+    static constexpr size_t const conversion_length = 20u +
+        properties::conversion_length;
 };
 
 } // namespace gatt

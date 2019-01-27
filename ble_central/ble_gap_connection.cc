@@ -87,7 +87,10 @@ void ble_gap_connection::connection_parameter_update(
         /// @note This is also making the assumption that the last update is
         /// the conection parameter update.
         this->get_connecteable()->service_builder()->discover_services(
-            connection_handle, this->get_connecteable()->service_container());
+            connection_handle,
+            this->get_connecteable()->service_container(),
+            ble::att::handle_minimum,
+            ble::att::handle_maximum);
     }
 }
 

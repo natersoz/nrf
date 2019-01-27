@@ -224,6 +224,11 @@ bool operator == (gregorian const& greg_1, gregorian const& greg_2)
             gregorian::seconds_since_epoch(greg_2));
 }
 
+bool operator != (gregorian const& greg_1, gregorian const& greg_2)
+{
+    return not (greg_1 == greg_2);
+}
+
 bool operator < (gregorian const& greg_1, gregorian const& greg_2)
 {
     return (gregorian::seconds_since_epoch(greg_1) <

@@ -7,13 +7,14 @@
 
 #include "ble/att.h"
 #include "ble/gap_types.h"
-#include "ble/gatt_uuids.h"
+#include "ble/gatt_enum_types.h"
 #include "ble/ltv_encode.h"
 
 #include "ble/gap_connection.h"
 #include "ble/profile_peripheral.h"
 #include "ble/service/gap_service.h"
 #include "ble/service/gatt_service.h"
+#include "ble/service/device_information_service.h"
 #include "ble/service/battery_service.h"
 #include "ble/service/current_time_service.h"
 #include "ble/service/nordic_saadc_sensor_service.h"
@@ -32,6 +33,8 @@
 #include "ble_gatts_observer.h"
 #include "nordic_saadc_sensor_acquisition.h"
 
+#include "nrf_cmsis.h"
+
 static constexpr uint16_t const advertising_interval =
     ble::gap::advertising::interval_msec(100u);
 static nordic::ble_gap_advertising gap_advertising(advertising_interval);
@@ -43,10 +46,10 @@ static constexpr size_t const short_name_length   = std::size(short_name) - 1u;
 
 static size_t set_advertising_data(ble::gap::advertising_data &data)
 {
-    ble::gatt::services const services_16[] = {
-        ble::gatt::services::device_information,
-        ble::gatt::services::battery_service,
-        ble::gatt::services::current_time_service,
+    ble::gatt::service_type const services_16[] = {
+        ble::gatt::service_type::device_information,
+        ble::gatt::service_type::battery_service,
+        ble::gatt::service_type::current_time_service,
     };
 
     size_t length = 0u;
@@ -107,6 +110,13 @@ static ble::service::appearance             appearance_characteristic(
 static ble::service::ppcp                   ppcp(gap_connection_parameters);
 static ble::service::gap_service            gap_service;
 
+static ble::service::device_information_service
+                                            device_information_service;
+static ble::service::serial_number_string<sizeof(NRF_FICR->DEVICEADDR) * 2u>
+    nordic_serial_number_characteristic(
+        const_cast<uint32_t const*>(NRF_FICR->DEVICEADDR),
+        sizeof(NRF_FICR->DEVICEADDR));
+
 // Note that using the Nordic softdevice the GATT service does not have
 // any effect. It is here for completeness.
 // In another silicon vendor this will have meaning.
@@ -164,6 +174,9 @@ ble::profile::peripheral& ble_peripheral_init()
     gap_service.characteristic_add(appearance_characteristic);
     gap_service.characteristic_add(ppcp);
 
+    // ----- Deivce Information Service
+    device_information_service.characteristic_add(nordic_serial_number_characteristic);
+
     // ----- Battery Service
     battery_service.characteristic_add(battery_level_characteristic);
     battery_service.characteristic_add(battery_power_characteristic);
@@ -178,6 +191,7 @@ ble::profile::peripheral& ble_peripheral_init()
     // ----- Add the services to the peripheral.
     ble_peripheral.service_add(gap_service);
     ble_peripheral.service_add(gatt_service);
+    ble_peripheral.service_add(device_information_service);
     ble_peripheral.service_add(battery_service);
     ble_peripheral.service_add(current_time_service);
     ble_peripheral.service_add(adc_sensor_service);
@@ -186,6 +200,3 @@ ble::profile::peripheral& ble_peripheral_init()
 
     return ble_peripheral;
 }
-
-
-

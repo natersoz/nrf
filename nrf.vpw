@@ -4,9 +4,7 @@
 		<Project File="ble/ble.vpj"/>
 		<Project File="ble_central/ble_central.vpj"/>
 		<Project File="ble_peripheral/ble_peripheral.vpj"/>
-		<Project File="nordic/tests/buttons_leds_test/buttons_leds_test.vpj"/>
 		<Project File="gcc-arm/gcc-arm.vpj"/>
-		<Project File="nordic/tests/gpio_te_test/gpio_te_test.vpj"/>
 		<Project File="logger/logger.vpj"/>
 		<Project File="nordic/nordic.vpj"/>
 		<Project File="nRF5_SDK15.2.vpj"/>

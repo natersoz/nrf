@@ -14,7 +14,7 @@ using signed_size_t = typename std::make_signed<size_t>::type;
 
 static constexpr char const new_line = '\n';
 
-static size_t write_byte(output_stream &os, uint8_t byte_value)
+static size_t write_byte(io::output_stream& os, uint8_t byte_value)
 {
     char buffer[2u];
     buffer[0u] = nybble_to_char(byte_value >> 4u);
@@ -22,18 +22,14 @@ static size_t write_byte(output_stream &os, uint8_t byte_value)
     return os.write(buffer, sizeof(buffer));
 }
 
-namespace write_data
+namespace io
 {
 
-/*
- * 00000000 00000000 00000000 00000000  .@#^Dccc--xoit.
- * 00000000 00000000 00000000 00000000  ........This is
- */
-static size_t write_data_line(output_stream&  os,
-                              uint8_t const   *data,
-                              size_t          length,
-                              size_t          bytes_per_line,
-                              bool            fill_line)
+static size_t write_data_line(io::output_stream&    os,
+                              uint8_t const*        data,
+                              size_t                length,
+                              size_t                bytes_per_line,
+                              bool                  fill_line)
 {
     char const space = ' ';
 
@@ -56,7 +52,7 @@ static size_t write_data_line(output_stream&  os,
                 n_written += os.write(&space, sizeof(space));
             }
 
-            char const spaces[] = {space, space};
+            char const spaces[] = { space, space };
             n_written += os.write(&spaces, sizeof(spaces));
         }
     }
@@ -64,9 +60,9 @@ static size_t write_data_line(output_stream&  os,
     return n_written;
 }
 
-static size_t write_char_data_line(output_stream&   os,
-                                   uint8_t const    *data,
-                                   size_t           length)
+static size_t write_char_data_line(io::output_stream&   os,
+                                   uint8_t const*       data,
+                                   size_t               length)
 {
     size_t n_written = 0u;
     for (size_t iter = 0u; iter < length; ++iter, ++data)
@@ -85,29 +81,29 @@ static size_t write_char_data_line(output_stream&   os,
     return n_written;
 }
 
-size_t write_data(output_stream &os,
-                  void const    *data,
-                  size_t        length,
-                  bool          char_data,
-                  data_prefix   prefix)
+size_t write_data(io::output_stream&    os,
+                  void const*           data,
+                  size_t                length,
+                  bool                  char_data,
+                  io::data_prefix       prefix)
 {
     size_t n_write = 0u;
-    uint8_t const *data_ptr = static_cast<uint8_t const *>(data);
+    uint8_t const* data_ptr = static_cast<uint8_t const*>(data);
 
     // The number of bytes to write on a line.
     size_t const bytes_per_line = 16u;
 
     for (size_t iter = 0u; iter < length; iter     += bytes_per_line,
-                                          data_ptr += bytes_per_line)
+         data_ptr += bytes_per_line)
     {
         size_t const bytes_remaining = length - iter;
         size_t const bytes_to_write = std::min(bytes_remaining, bytes_per_line);
 
         switch (prefix)
         {
-        case data_prefix::none:
+        case io::data_prefix::none:
             break;
-        case data_prefix::address:
+        case io::data_prefix::address:
             {
                 uintptr_t const address = reinterpret_cast<uintptr_t>(&data_ptr[iter]);
                 char buffer[hex_conversion_size<uintptr_t> + 1];
@@ -119,7 +115,7 @@ size_t write_data(output_stream &os,
                 n_write += os.write(&colon, sizeof(colon) - 1u);
             }
             break;
-        case data_prefix::index:
+        case io::data_prefix::index:
             if (true)
             {
                 using size_type_t = decltype(iter);

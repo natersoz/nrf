@@ -31,7 +31,7 @@ enum data_prefix
 int    logger_init();
 
 size_t logger_write(enum logger_level log_level, char const *fmt, ...);
-size_t logger_process(void);    ///< @return the number of bytes pending output.
+//void   logger_process(void);    ///< @return the number of bytes pending output.
 void   logger_flush(void);
 
 size_t logger_write_data(enum logger_level log_level,

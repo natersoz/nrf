@@ -24,16 +24,16 @@
 
 using signed_size_t = typename std::make_signed<size_t>::type;
 
-static size_t convert_char(output_stream& os,
+static size_t convert_char(io::output_stream&       os,
                            format_conversion const& conversion,
-                           va_list &args)
+                           va_list&                 args)
 {
     int const int_value = va_arg(args, int);
     char const value = static_cast<char>(int_value);
     return os.write(&value, sizeof(value));
 }
 
-static size_t write_padding(output_stream& os, size_t length, char pad_value)
+static size_t write_padding(io::output_stream& os, size_t length, char pad_value)
 {
     size_t n_written = 0u;
     for (; length > 0u; --length)
@@ -45,9 +45,9 @@ static size_t write_padding(output_stream& os, size_t length, char pad_value)
     return n_written;
 }
 
-static size_t convert_string(output_stream& os,
-                             format_conversion const& conversion,
-                             va_list &args)
+static size_t convert_string(io::output_stream&         os,
+                             format_conversion const&   conversion,
+                             va_list&                   args)
 {
     size_t n_write = 0u;
 
@@ -85,9 +85,9 @@ static size_t convert_string(output_stream& os,
 }
 
 template <typename int_type>
-static size_t convert_int_to_dec(output_stream& os,
-                                 format_conversion const& conversion,
-                                 va_list &args)
+static size_t convert_int_to_dec(io::output_stream&         os,
+                                 format_conversion const&   conversion,
+                                 va_list&                   args)
 {
     int_type const int_value = va_arg(args, int_type);
     char buffer[dec_conversion_size<decltype(int_value)>];
@@ -101,9 +101,9 @@ static size_t convert_int_to_dec(output_stream& os,
     return os.write(buffer, n_conv);
 }
 
-static size_t convert_int_to_dec(output_stream& os,
-                                 format_conversion const& conversion,
-                                 va_list &args)
+static size_t convert_int_to_dec(io::output_stream&         os,
+                                 format_conversion const&   conversion,
+                                 va_list&                   args)
 {
     switch (conversion.length_modifier)
     {
@@ -117,9 +117,9 @@ static size_t convert_int_to_dec(output_stream& os,
 }
 
 template <typename int_type>
-static size_t convert_uint_to_dec(output_stream& os,
-                                 format_conversion const& conversion,
-                                 va_list &args)
+static size_t convert_uint_to_dec(io::output_stream&        os,
+                                 format_conversion const&   conversion,
+                                 va_list&                   args)
 {
     int_type const int_value = va_arg(args, int_type);
     char buffer[dec_conversion_size<decltype(int_value)>];
@@ -132,9 +132,9 @@ static size_t convert_uint_to_dec(output_stream& os,
     return os.write(buffer, n_conv);
 }
 
-static size_t convert_uint_to_dec(output_stream& os,
-                                 format_conversion const& conversion,
-                                 va_list &args)
+static size_t convert_uint_to_dec(io::output_stream&        os,
+                                 format_conversion const&   conversion,
+                                 va_list&                   args)
 {
     switch (conversion.length_modifier)
     {
@@ -148,9 +148,9 @@ static size_t convert_uint_to_dec(output_stream& os,
 }
 
 template <typename int_type>
-static size_t convert_int_to_hex(output_stream& os,
-                                 format_conversion const& conversion,
-                                 va_list &args)
+static size_t convert_int_to_hex(io::output_stream&         os,
+                                 format_conversion const&   conversion,
+                                 va_list&                   args)
 {
     int_type const int_value = va_arg(args, int_type);
     char buffer[hex_conversion_size<decltype(int_value)>];
@@ -163,9 +163,9 @@ static size_t convert_int_to_hex(output_stream& os,
     return os.write(buffer, n_conv);
 }
 
-static size_t convert_int_to_hex(output_stream& os,
-                                 format_conversion const& conversion,
-                                 va_list &args)
+static size_t convert_int_to_hex(io::output_stream&         os,
+                                 format_conversion const&   conversion,
+                                 va_list&                   args)
 {
     switch (conversion.length_modifier)
     {
@@ -178,14 +178,14 @@ static size_t convert_int_to_hex(output_stream& os,
     }
 }
 
-static size_t convert_pointer(output_stream& os,
-                              format_conversion const& conversion,
-                              va_list &args)
+static size_t convert_pointer(io::output_stream&            os,
+                              format_conversion const&      conversion,
+                              va_list&                      args)
 {
     return convert_int_to_hex<uintptr_t>(os, conversion, args);
 }
 
-size_t writef(output_stream& os, char const *fmt, ...)
+size_t writef(io::output_stream& os, char const *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -196,7 +196,7 @@ size_t writef(output_stream& os, char const *fmt, ...)
     return n_written;
 }
 
-size_t vwritef(output_stream& os, char const *fmt, va_list &args)
+size_t vwritef(io::output_stream& os, char const* fmt, va_list& args)
 {
     size_t n_written = 0u;
     char const *fmt_iter = fmt;
@@ -269,4 +269,3 @@ size_t vwritef(output_stream& os, char const *fmt, va_list &args)
 
     return n_written;
 }
-

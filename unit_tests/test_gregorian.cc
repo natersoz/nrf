@@ -3,73 +3,51 @@
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
+#include "gtest/gtest.h"
 #include "gregorian.h"
-
 #include <vector>
-#include <iostream>
-#include <iomanip>
-#include <iterator>
 
-static constexpr bool const debug_print = false;
-
-bool test_greg(utility::gregorian const& greg)
+/**
+ * This may seem simple minded, but it is effective at finding bugs when
+ * tested across a large set of data.
+ */
+static void test_greg(utility::gregorian const& greg)
 {
     uint64_t const seconds_since_epoch = utility::gregorian::seconds_since_epoch(greg);
     utility::gregorian const greg_eq = utility::gregorian::to_calendar(seconds_since_epoch);
     utility::gregorian const greg_lt = utility::gregorian::to_calendar(seconds_since_epoch - 1u);
     utility::gregorian const greg_gt = utility::gregorian::to_calendar(seconds_since_epoch + 1u);
 
-    bool const check_eq = (greg_eq == greg);
-    bool const check_lt = (greg_lt <  greg) && (greg_lt <= greg);
-    bool const check_gt = (greg_gt >  greg) && (greg_gt >= greg);
+    // Note: We're testing the gregorian operators as well as functionality.
+    // To insure the actual binary operators are being called use
+    // ASSERT_TRUE() and not ASSERT_EQ(), ASSERT_LT(), etc.
+    ASSERT_TRUE(greg_eq == greg);
 
-    bool const check = check_eq && check_lt && check_gt;
-    if (not check)
-    {
-        std::cerr << greg << " ";
-        std::cerr << std::setw(11) << seconds_since_epoch;
+    ASSERT_TRUE(greg_lt <  greg);
+    ASSERT_TRUE(greg_lt <= greg);
+    ASSERT_TRUE(greg_eq <= greg);
 
-        if (not check_eq)
-        {
-            uint64_t const seconds_since_epoch_eq = utility::gregorian::seconds_since_epoch(greg_eq);
-            std::cerr << ", eq: " << greg_eq;
-            std::cerr << std::setw(11) << seconds_since_epoch_eq;
-        }
+    ASSERT_TRUE(greg_gt >  greg);
+    ASSERT_TRUE(greg_gt >= greg);
+    ASSERT_TRUE(greg_eq >= greg);
 
-        if (not check_lt)
-        {
-            uint64_t const seconds_since_epoch_lt = utility::gregorian::seconds_since_epoch(greg_lt);
-            std::cerr << ", lt: " << greg_lt;
-            std::cerr << " " << std::setw(11) << seconds_since_epoch_lt;
-        }
-
-        if (not check_gt)
-        {
-            uint64_t const seconds_since_epoch_gt = utility::gregorian::seconds_since_epoch(greg_gt);
-            std::cerr << ", gt: " << greg_gt;
-            std::cerr << " " << std::setw(11) << seconds_since_epoch_gt;
-        }
-
-        std::cerr << " " << (check? "PASS" : "FAIL");
-        std::cerr << std::endl;
-    }
-
-    return check;
+    ASSERT_FALSE(greg_eq != greg);
 }
 
 /**
- * Test equality over a very fine step.
+ * Test Gregorian comparisons over a very fine step.
  * From 1601 to 2501 in 1 secnod increments takes 30 minutes on a macbook pro.
  *
- * @param seconds_increment step size for testing in seconds.
- *
- * @return bool
+ * @note Use the seconds_increment as a prime so that dispersion of
+ * test data across day boundaries is maximized.
  */
-bool test_in_steps(utility::gregorian const& greg_begin,
-                   utility::gregorian const& greg_end,
-                   uint32_t seconds_increment)
+TEST(GregorianTest, Steps)
 {
-    uint16_t status_year = 0u;
+    // The starting date must be 1 greater than the epoch.
+    // Otherwise the greg_lt calculation in test_greg() will precede the epoch.
+    utility::gregorian greg_begin(1601u, utility::gregorian::January, 1u, 0u, 0u, 1u);
+    utility::gregorian greg_end(  2701u, utility::gregorian::October, 1u);
+    uint32_t const seconds_increment = 1299653;
 
     uint64_t const seconds_begin = utility::gregorian::seconds_since_epoch(greg_begin);
     uint64_t const seconds_end   = utility::gregorian::seconds_since_epoch(greg_end);
@@ -78,20 +56,14 @@ bool test_in_steps(utility::gregorian const& greg_begin,
          seconds += seconds_increment)
     {
         utility::gregorian const greg = utility::gregorian(seconds);
-
-        if (not test_greg(greg)) { return false; }
-
-        if (debug_print && (greg.year % 100u == 0u) && (greg.year != status_year))
-        {
-            std::cout << "update: " << greg << std::endl;
-            status_year = greg.year;
-        }
+        test_greg(greg);
     }
-
-    return true;
 }
 
-int main()
+/**
+ * Test Gregorian comparisons for a fixed set of data
+ */
+TEST(GregorianTest, Fixed)
 {
     std::vector<utility::gregorian> greg_test;
 
@@ -153,18 +125,8 @@ int main()
     greg_test.push_back(utility::gregorian{2486,  3, 28,  7, 30, 28});
     greg_test.push_back(utility::gregorian{2504,  6,  2,  7, 30, 28});
 
-    bool check = true;
     for (utility::gregorian const& greg: greg_test)
     {
-        check = test_greg(greg) && check;
+        test_greg(greg);
     }
-
-    utility::gregorian greg_begin(1601u, utility::gregorian::January, 1, 0, 0, 2);
-    utility::gregorian greg_end(  2701u, utility::gregorian::October, 1);
-    bool const check_2 = test_in_steps(greg_begin, greg_end, 7253u);
-
-    check = check && check_2;
-
-    std::cerr << (check ? "-- PASS --" : "-- FAIL --") << std::endl;
-    return check ? 0 : -1;
 }

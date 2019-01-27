@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <cstdarg>
 
-size_t  writef(output_stream& os, char const *fmt, ...);
-size_t vwritef(output_stream& os, char const *fmt, va_list &args);
+size_t  writef(io::output_stream& os, char const* fmt, ...);
+size_t vwritef(io::output_stream& os, char const* fmt, va_list& args);
 
 

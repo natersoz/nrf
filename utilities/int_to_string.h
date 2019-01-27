@@ -127,9 +127,10 @@ inline size_t int_to_hex(char      *buffer,
     size_t const digits_required = hex_digits_required(uint_value);
     bool   const conv_overflow   = (digits_required > length);
 
-    conv_length = std::max<size_t>(conv_length, digits_required);
-    length      = std::min<size_t>(conv_length + 1u, length);
-    char *ptr   = &buffer[length - 1u];
+    conv_length             = std::max<size_t>(conv_length, digits_required);
+    length                  = std::min<size_t>(conv_length + 1u, length);
+    char *ptr               = &buffer[length - 1u];
+    char const* const eptr  = ptr;
 
     // Insert the null terminator.
     *ptr-- = 0;
@@ -143,6 +144,15 @@ inline size_t int_to_hex(char      *buffer,
     if (conv_overflow)
     {
         memset(buffer, overflow_fill, length);
+    }
+    else
+    {
+        auto padding = (eptr - ptr) - length;
+        while ((padding > 0) && (ptr >= buffer))
+        {
+            *ptr-- = fill_value;
+            --padding;
+        }
     }
 
     // Length is the conversion length including the zero terminator.

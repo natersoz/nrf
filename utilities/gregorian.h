@@ -230,6 +230,7 @@ private:
 };
 
 bool operator == (gregorian const& greg_1, gregorian const& greg_2);
+bool operator != (gregorian const& greg_1, gregorian const& greg_2);
 bool operator <  (gregorian const& greg_1, gregorian const& greg_2);
 std::ostream& operator << (std::ostream& os, gregorian const& greg);
 

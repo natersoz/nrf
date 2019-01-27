@@ -24,8 +24,6 @@ namespace gattc
 class discovery_operations
 {
 public:
-    using handle_pair = std::pair<uint16_t, uint16_t>;
-
     virtual ~discovery_operations()                               = default;
 
     discovery_operations()                                        = default;
@@ -77,7 +75,7 @@ public:
      * If an API error occurred, this value is not updated.
      * If a protocol error occurred, this value is updated.
      */
-    virtual handle_pair gatt_handles_requested() const = 0;
+    virtual ble::att::handle_range gatt_handles_requested() const = 0;
 };
 
 class operations: public ble::profile::connectable_accessor

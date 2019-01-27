@@ -3,7 +3,9 @@
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
+#include "gtest/gtest.h"
 #include "make_array.h"
+
 #include <cstdint>
 #include <cstring>
 #include <iostream>
@@ -46,51 +48,30 @@ static uint8_t const test_data[] = {
     0x10u, 0x11u,
 };
 
-bool test_mk_array()
+TEST(MakeArray, MakeArray)
 {
     std::array<uint8_t, sizeof(test_data)> test_array =
         utility::make_array<uint8_t, sizeof(test_data)>(test_data);
 
-    bool const test_content = (memcmp(test_data, test_array.data(), test_array.size()) == 0);
-    bool const test_size    = (sizeof(test_data) == test_array.size());
-
     if (debug_print)
     {
-        std::cout << "test_mk_array: ";
-        std::cout << test_array << std::endl;
+        std::cout << "test_mk_array: " << test_array << std::endl;
     }
 
-    return test_content && test_size;
+    ASSERT_EQ(memcmp(test_data, test_array.data(), test_array.size()), 0);
+    ASSERT_EQ(std::size(test_data), test_array.size());
 }
 
-bool test_to_array()
+TEST(MakeArray, ToArray)
 {
     std::array<uint8_t, sizeof(test_data)> test_array =
         utility::to_array(test_data);
 
-    bool const test_content = (memcmp(test_data, test_array.data(), test_array.size()) == 0);
-    bool const test_size    = (sizeof(test_data) == test_array.size());
-
     if (debug_print)
     {
-        std::cout << "test_to_array: ";
-        std::cout << test_array << std::endl;
+        std::cout << "test_to_array: " << test_array << std::endl;
     }
 
-    return test_content && test_size;
-}
-
-int main()
-{
-    int result = (test_mk_array() && test_to_array()) ? 0 : -1;
-
-    if (result == 0)
-    {
-        std::cout << "--- Tests Pass" << std::endl;
-    }
-    else
-    {
-        std::cout << "--- Tests FAIL" << std::endl;
-    }
-    return result;
+    ASSERT_EQ(memcmp(test_data, test_array.data(), test_array.size()), 0);
+    ASSERT_EQ(std::size(test_data), test_array.size());
 }

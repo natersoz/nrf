@@ -13,7 +13,8 @@
 #include "nrf_cmsis.h"
 
 #include "logger.h"
-#include "segger_rtt_output_stream.h"
+#include "rtt_output_stream.h"
+#include "segger_rtt.h"
 #include "project_assert.h"
 
 #include <cstring>
@@ -38,8 +39,6 @@ static uint8_t spis_tx_buffer[spis_tx_length];
 
 static dma_size_t const spis_rx_length = 64u;
 static uint8_t spis_rx_buffer[spis_rx_length];
-
-static segger_rtt_output_stream rtt_os;
 
 static uint32_t volatile spim_transfer_count = 0u;
 static uint32_t volatile spis_transfer_count = 0u;
@@ -79,7 +78,7 @@ static void spim_event_handler(void* context)
                       spim_rx_buffer,
                       spim_rx_length,
                       false,
-                      write_data::data_prefix::address);
+                      io::data_prefix::address);
 
     if (spim_transfer_count > 1u)
     {
@@ -130,7 +129,7 @@ static void spis_event_handler(void* context, struct spis_event_t const *event)
                           spis_rx_buffer,
                           event->rx_length,
                           false,
-                          write_data::data_prefix::address);
+                          io::data_prefix::address);
 
         // Check that the received data is what we expect.
         ASSERT(memcmp(spis_rx_buffer, spim_tx_buffer, event->rx_length) == 0);
@@ -166,7 +165,8 @@ void spi_test_timer::expiration_notify()
 }
 
 // RTC: 1024 ticks / second
-static rtc rtc_1(1u, 32u);
+static rtc  rtc_1(1u, 32u);
+static char rtt_os_buffer[4096u];
 
 int main()
 {
@@ -174,10 +174,12 @@ int main()
     rtc_1.start();
     leds_board_init();
 
+    rtt_output_stream rtt_os(rtt_os_buffer, sizeof(rtt_os_buffer));
     logger& logger = logger::instance();
     logger.set_level(logger::level::info);
     logger.set_output_stream(rtt_os);
     logger.set_rtc(rtc_1);
+    segger_rtt_enable();
 
     logger.info("SPIM, SPIS test");
     logger.info("spi timer: %8u ticks", spi_timer.expiration_get_ticks());

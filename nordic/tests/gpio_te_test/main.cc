@@ -12,7 +12,8 @@
 #include "clocks.h"
 
 #include "logger.h"
-#include "segger_rtt_output_stream.h"
+#include "rtt_output_stream.h"
+#include "segger_rtt.h"
 #include "project_assert.h"
 
 #include "nrf_cmsis.h"
@@ -22,7 +23,7 @@
 
 static rtc   rtc_1(1u);
 static timer timer_1(1u);
-static segger_rtt_output_stream rtt_os;
+static char  rtt_os_buffer[4096u];
 
 // Create a continuous timer for starting SAADC conversions.
 class timer_gpio_te: public timer_observer
@@ -66,10 +67,12 @@ int main()
     leds_board_init();
     led_state_set(0u, true);
 
+    rtt_output_stream rtt_os(rtt_os_buffer, sizeof(rtt_os_buffer));
     logger& logger = logger::instance();
     logger.set_level(logger::level::debug);
     logger.set_output_stream(rtt_os);
     logger.set_rtc(rtc_1);
+    logger.set_output_stream(rtt_os);
 
     logger.info("---------- GPIO TE test ----------");
 

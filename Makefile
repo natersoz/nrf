@@ -20,32 +20,35 @@ else
 	MAKE_JOBS :=
 endif
 
-sub_make_files	= $(shell find .              -maxdepth 2 -name Makefile -not -wholename ./Makefile)
-#sub_make_files += $(shell find ./nordic/tests -maxdepth 2 -name Makefile -not -wholename ./Makefile)
+sub_make_files	= $(shell find . -maxdepth 2 -name Makefile -not \( -wholename ./Makefile -or -wholename ./external/Makefile \))
 sub_make_dirs	= $(patsubst %/Makefile,%,$(sub_make_files))
 
-.PHONY:  all relink clean info
+.PHONY:  all relink clean mrproper info
 
 all:
+	make -C external
 	@for make_dir in $(sub_make_dirs); do		\
 		printf "make -C $$make_dir: $@\n";	\
 		make -C $$make_dir $@ $(MAKE_JOBS);	\
 	done
-	make -C nordic/tests $@ 
+	make -C nordic/tests $@
 
 relink:
 	@for make_dir in $(sub_make_dirs); do		\
 		printf "make -C $$make_dir: $@\n";	\
 		make -C $$make_dir $@ $(MAKE_JOBS);	\
 	done
-	make -C nordic/tests $@ 
+	make -C nordic/tests $@
 
 clean:
 	@for make_dir in $(sub_make_dirs); do		\
 		printf "make -C $$make_dir: $@\n";	\
 		make -C $$make_dir $@;			\
 	done
-	make -C nordic/tests $@ 
+	make -C nordic/tests $@
+
+mrproper:
+	make -C external $@
 
 info:
 	@printf "sub_make_files        = $(sub_make_files)\n"

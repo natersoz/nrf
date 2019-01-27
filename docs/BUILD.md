@@ -1,10 +1,10 @@
 Building the projects
 =====================
 
-ARM GCC Compiler
-----------------
-+ Stating the obvious: Download the [ARM GCC toolchain](https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads)
-+ Adjust the nrf/make_fules/arm_gcc_rules.mak file by setting the `GNU_GCC_ROOT` therein.
+[ARM GCC toolchain](https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads)
+-------------------
++ Adjust the nrf/make_fules/arm_gcc_rules.mak file by setting the
+`GNU_GCC_ROOT` symbol.
 
 		I'm using gcc-arm-none-eabi-7-2018-q2-update installed:
 		/opt/gcc-arm-none-eabi-7-2018-q2-update
@@ -16,36 +16,75 @@ ARM GCC Compiler
 
   `alias gdb-arm='/opt/gcc-arm-none-eabi/bin/arm-none-eabi-gdb --quiet'`
 
-Boost Libraries
----------------
-+ If you do not like C++, well, you better look elsewhere.
-+ Boost libraries will used as they make sense.
-    + The boost::intrusive is certainly going to be used.
-      This is an excellent library for embedded work.
-    + Boost 1.66.0 is being used at this time.
+[Boost Libraries](https://www.boost.org/)
+-----------------
+If you do not like C++, well, you better look elsewhere.
+Boost libraries will used as they make sense.
+The boost::intrusive is certainly going to be used.
+This is an excellent library for embedded work.
 
-			I'm using boost 1.66.0 installed in /opt/boost_1_66_0
-			with symlink /opt/boost -> boost_1_66_0
+Boost 1.69.0 is being used at this time.
 
-Nordic SDK
-----------
-+ Install the [Nordic SDK](https://www.nordicsemi.com/DocLib/Content/SDK_Doc/nRF5_SDK/v15-2-0/index)
-  version 15.2 `nRF5_SDK_15.2.0_9412b96`
-+ The symlinks are set in git as:
+		I'm using boost 1.69.0 installed in /opt/boost_1_69_0
+		with symlink /opt/boost -> boost_1_69_0
 
-                sdk@ -> sdk-15
-                sdk-14@ -> sdk-14.2
-                sdk-14.2@ -> ../../nRF/SDK/nRF5_SDK_14.2.0_17b948a
-                sdk-15@ -> sdk-15.2
-                sdk-15.0@ -> ../../nRF/SDK/nRF5_SDK_15.0.0_a53641a
-                sdk-15.2@ -> ../../nRF/SDK/nRF5_SDK_15.2.0_9412b96
+When boost is built and installed its directory structure differs from when it
+is merely copied. At this time the 'headers only' boost installation is required.
+However, when boost is [built and then installed](https://www.boost.org/doc/libs/1_69_0/more/getting_started/unix-variants.html)
+it creates a different directory structure than when merely copied.
+
+Built and Installed Headers location:
+
+	/opt/boost/include/boost/...
+
+Copied Headers location:
+
+	/opt/boost/boost/...
+
+The Makefiles set the symbols `BOOST_ROOT` and `INCLUDE_PATHS` to work within
+the **Built and Installed** Boost headers path.
+
+To use the copied version the simplest method for resolving the seach paths is
+to set a symbolic link within the Boost copied directory:
+
+	cd /opt/boost
+	ln -s . include
+
+### Quick instructions for building boost
+
+Detar or Unzip [boost](https://www.boost.org/users/history/version_1_69_0.html)
+into a build directory.
+
+	cd <build_directory>
+	./bootstrap.sh bootstrap.sh --prefix=/opt/boost_1.69.0
+	./b2
+	sudo ./b2 install
+	cd /opt
+	sudo ln -s boost_1.69.0 boost
+
+
+[Nordic SDK](https://www.nordicsemi.com/Software-and-Tools/Software/nRF5-SDK)
+------------
+The Nordic SDK v15.2 will be installed automatically when 'make' is invoked.
+The installation director is:
+
+    nrf/external/nRF5_SDK_15.2.0_9412b96
+
+The symbolic link `nrf/sdk` points to this location.
 
 + A few SDK files need replaced or moved out of the way.
-  For more details see doc/NORDIC.md section "Nordic SDK modifications".
-  To quickly get going:
+  If `make` execution is successful this also should be done automatically.
+  The file replacement scipt can be found in:
 
-		$ cd nrf/nordic/sdk-modified
-		$ ./replace_sdk_files
+		nrf/nordic/sdk-modified/replace_sdk_files
+
+[Google Test](https://github.com/google/googletest)
+-------------
+GoogleTest version 1.8.1 is downloaded into
+
+	nrf/external/googletest
+
+It is used by the nrf/unit_test modules.
 
 Building
 --------
@@ -54,3 +93,14 @@ From the top directory `nrf`:
 	$ make
 
 It should compile and link all projects without errors or warnings.
+
+What about CMake?
+-----------------
+CMake seems to be a wonderful work in progress.
+I think I'll wait until they release their Beta.
+
+In the mean time, here is some stuff to ponder:
++ [Der Uber CMakenfuhrer](https://www.youtube.com/watch?v=rLopVhns4Zs)
++ [Get your hands off CMAKE_CXX_FLAGS](https://na01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgist.github.com%2Fmbinna%2Fc61dbb39bca0e4fb7d1f73b0d66a4fd1%23get-your-hands-off-cmake_cxx_flags&data=02%7C01%7Cnersoz%40impinj.com%7C7546f96eda4540c0c58208d6879d1766%7C6de70f0f73574529a415d8cbb7e93e5e%7C0%7C0%7C636845506107530417&sdata=lZAPAxWLj%2Fj4Fa9E%2F4sxKfKMa4PjITetDxhM3CScLww%3D&reserved=0)
++ [Use CMake generators instead](https://stackoverflow.com/questions/38578801/target-compile-options-for-only-c-files)
++ [LVM CMake Primer](https://llvm.org/docs/CMakePrimer.html)

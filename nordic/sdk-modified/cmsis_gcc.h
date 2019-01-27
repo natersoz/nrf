@@ -35,6 +35,8 @@
 #ifndef __CMSIS_GCC_H
 #define __CMSIS_GCC_H
 
+#include <stdint.h>
+
 /* ignore some GCC warnings */
 #if defined ( __GNUC__ )
 #pragma GCC diagnostic push

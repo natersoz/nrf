@@ -32,12 +32,6 @@ void __throw_bad_function_call()
     while (true) {}
 }
 
-void __throw_length_error(char const *error_string)
-{
-    ASSERT(0);
-    while (true) {}
-}
-
 } // namespace std
 
 

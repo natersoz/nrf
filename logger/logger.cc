@@ -4,7 +4,6 @@
  */
 
 #include "logger.h"
-#include "logger_c.h"
 #include "vwritef.h"
 #include "write_data.h"
 
@@ -17,7 +16,7 @@ static constexpr char const color_reset_string[]    = { 0x1B, '[', '3', '9', ';'
 static constexpr char const color_red_string[]      = { 0x1B, '[', '9', '1', 'm' };
 static constexpr char const color_yellow_string[]   = { 0x1B, '[', '9', '3', 'm' };
 
-static constexpr size_t const color_reset_string_length = sizeof(color_reset_string);
+//static constexpr size_t const color_reset_string_length = sizeof(color_reset_string);
 static constexpr char   const new_line = '\n';
 
 static logger logger_instance;
@@ -162,7 +161,7 @@ size_t logger::write(char const *fmt, ...)
     return n_written;
 }
 
-size_t logger::vwrite(level log_level, char const *fmt, va_list args)
+size_t logger::vwrite(level log_level, char const *fmt, va_list& args)
 {
     size_t n_written = 0u;
     if (this->os_ != nullptr)
@@ -184,29 +183,29 @@ void logger::flush()
     this->os_->flush();
 }
 
-size_t logger::write_data(level                     log_level,
-                          void const                *data,
-                          size_t                    length,
-                          bool                      char_data,
-                          write_data::data_prefix   prefix)
+size_t logger::write_data(level             log_level,
+                          void const        *data,
+                          size_t            length,
+                          bool              char_data,
+                          io::data_prefix   prefix)
 {
     size_t n_written = 0u;
     if (this->os_ != nullptr)
     {
         if (this->log_level_ >= log_level)
         {
-            n_written = write_data::write_data(*this->os_, data, length, char_data, prefix);
+            n_written = io::write_data(*this->os_, data, length, char_data, prefix);
         }
     }
 
     return n_written;
 }
 
-size_t logger::write_data(level                     log_level,
-                          void const volatile       *data,
-                          size_t                    length,
-                          bool                      char_data,
-                          write_data::data_prefix   prefix)
+size_t logger::write_data(level                 log_level,
+                          void const volatile   *data,
+                          size_t                length,
+                          bool                  char_data,
+                          io::data_prefix       prefix)
 {
     return write_data(log_level, const_cast<void const*>(data),
                       length, char_data, prefix);

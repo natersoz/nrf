@@ -21,6 +21,9 @@ RTT_PORT			?= 2334
 # will be less convenient (although it can be done).
 -include .segger_sn
 
+# git version symbols GIT_HASH and GIT_TAG
+include $(PROJECT_ROOT)/make_rules/version_git.mak
+
 # Where the compiled files are built.
 BUILD_PATH = _build
 
@@ -56,8 +59,10 @@ SOURCE_FILES += $(PROJECT_ROOT)/ble/gap_connection.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/gap_connection_negotiation_state.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/gatt_attribute.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/gatt_characteristic.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/gatt_declaration.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/gatt_service.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/gatt_service_container.cc
+SOURCE_FILES += $(PROJECT_ROOT)/ble/gatt_service_discovery_iterator.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/gatts_event_observer.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_att.cc
 SOURCE_FILES += $(PROJECT_ROOT)/ble/nordic_ble_common_event_observable.cc
@@ -91,10 +96,11 @@ SOURCE_FILES += $(PROJECT_ROOT)/utilities/project_assert.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/std_stubs.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/vwritef.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/write_data.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utilities/version_info.c
 SOURCE_FILES += $(PROJECT_ROOT)/logger/logger.cc
 SOURCE_FILES += $(PROJECT_ROOT)/logger/logger_c.cc
-SOURCE_FILES += $(PROJECT_ROOT)/logger/segger_rtt_output_stream.cc
-SOURCE_FILES += $(PROJECT_ROOT)/segger_rtt/SEGGER_RTT.c
+SOURCE_FILES += $(PROJECT_ROOT)/logger/rtt_output_stream.cc
+SOURCE_FILES += $(PROJECT_ROOT)/segger/segger_rtt.cc
 
 # These have been dumped - reminder to look inside before dumping.
 # SOURCE_FILES += $(SDK_ROOT)/components/ble/common/ble_conn_params.c
@@ -137,7 +143,7 @@ INCLUDE_PATHS += $(PROJECT_ROOT)/gcc-arm
 INCLUDE_PATHS += $(PROJECT_ROOT)/logger
 INCLUDE_PATHS += $(PROJECT_ROOT)/nordic
 INCLUDE_PATHS += $(PROJECT_ROOT)/nordic/peripherals
-INCLUDE_PATHS += $(PROJECT_ROOT)/segger_rtt
+INCLUDE_PATHS += $(PROJECT_ROOT)/segger
 INCLUDE_PATHS += $(PROJECT_ROOT)/utilities
 
 INCLUDE_PATHS += ./config
@@ -208,7 +214,12 @@ NORDIC_DEFS += -D TIMER1_ENABLED
 
 CXXFLAGS    += $(NORDIC_DEFS)
 CFLAGS      += $(NORDIC_DEFS)
-CXXFLAGS    += $(NORDIC_DEFS)
+
+CXXFLAGS    += -D GIT_HASH=$(GIT_HASH)
+CFLAGS      += -D GIT_HASH=$(GIT_HASH)
+
+CXXFLAGS    += -D GIT_TAG=$(GIT_TAG)
+CFLAGS      += -D GIT_TAG=$(GIT_TAG)
 
 .PHONY:  all relink clean info
 

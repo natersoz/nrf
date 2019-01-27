@@ -6,11 +6,15 @@
 #pragma once
 
 #include "ble/gatt_service_container.h"
+#include "ble/gatt_characteristic.h"
+#include "ble/gatt_attribute.h"
+#include "ble/gatt_descriptors.h"
 #include "ble/gattc_discovery_observer.h"
 #include "ble/gattc_operations.h"
 
-#include <system_error>
+#include <iterator>
 #include <utility>
+#include <system_error>
 
 namespace ble
 {
@@ -34,41 +38,38 @@ public:
     service_builder& operator=(service_builder const&)  = delete;
     service_builder& operator=(service_builder&&)       = delete;
 
-    service_builder(ble::gattc::discovery_operations& service_discovery)
+    service_builder(ble::gattc::discovery_operations& operations)
     : ble::gattc::discovery_observer(),
-      service_container_(nullptr),
-      service_discovery_(service_discovery),
-      handle_discovery_range_(ble::att::handle_invalid, ble::att::handle_invalid)
+      service_discovery(operations),
+      service_container(nullptr),
+      handle_discovery_range(ble::att::handle_invalid, ble::att::handle_invalid),
+      discovery_iterator()
     {
     }
 
     /**
-     * Discover all possible services published by the GATT server identified
-     * by the connection handle.
+     * Discover the services published by the GATT server within the GATT
+     * handle range [gatt_handle_first: gatt_handle_last].
      *
      * @param connection_handle The connection handle specifying the GATT server
      *                          to which a BLE has been established.
      * @param service_container The service container to build up with services
      *                          and the services attributes (characteristics,
      *                          descriptors, etc.).
+     * @param gatt_handle_first The first GATT handle within the range.
+     * @param gatt_handle_last  The last GATT handle within the range (inclusive).
      *
      * @return std::errc        Whether the call to the silicon vendor call
      *                          was a success or failure.
      */
     std::errc discover_services(uint16_t                      connection_handle,
-                                ble::gatt::service_container& service_container);
-    /**
-     * Discover the services published by the GATT server identified by the
-     * connection handle within the GATT handle range [handle_bein: handle_last].
-     */
-    std::errc discover_services(uint16_t                      connection_handle,
                                 ble::gatt::service_container& service_container,
-                                uint16_t                      handle_first,
-                                uint16_t                      handle_last);
+                                uint16_t                      gatt_handle_first,
+                                uint16_t                      gatt_handle_last);
 
     virtual void service_discovered(
         uint16_t                    connection_handle,
-        ble::att::error_code        error_code,
+        ble::att::error_code        gatt_error,
         uint16_t                    gatt_handle_error,
         uint16_t                    gatt_handle_first,
         uint16_t                    gatt_handle_last,
@@ -77,7 +78,7 @@ public:
 
     virtual void relationship_discovered(
         uint16_t                    connection_handle,
-        ble::att::error_code        error_code,
+        ble::att::error_code        gatt_error,
         uint16_t                    gatt_handle_error,
         uint16_t                    gatt_handle_first,
         uint16_t                    gatt_handle_last,
@@ -87,7 +88,7 @@ public:
 
     virtual void characteristic_discovered(
         uint16_t                    connection_handle,
-        ble::att::error_code        error_code,
+        ble::att::error_code        gatt_error,
         uint16_t                    gatt_handle_error,
         uint16_t                    gatt_handle_declaration,
         uint16_t                    gatt_handle_value,
@@ -97,7 +98,7 @@ public:
 
     virtual void descriptor_discovered(
         uint16_t                    connection_handle,
-        ble::att::error_code        error_code,
+        ble::att::error_code        gatt_error,
         uint16_t                    gatt_handle_error,
         uint16_t                    gatt_handle_desciptor,
         ble::att::uuid const&       uuid,
@@ -105,16 +106,25 @@ public:
 
     virtual void attribute_discovered(
         uint16_t                    connection_handle,
-        ble::att::error_code        error_code,
+        ble::att::error_code        gatt_error,
         uint16_t                    gatt_handle_error,
         uint16_t                    gatt_handle_attribute,
         ble::att::uuid const&       uuid,
         bool                        response_end) override;
 
+    struct gatt_free_list {
+        ble::gatt::service_list_type    services;
+        ble::gatt::attribute::list_type characteristics;
+        ble::gatt::attribute::list_type descriptors;
+    };
+
+    gatt_free_list free_list;
+
 private:
-    ble::gatt::service_container*       service_container_;
-    ble::gattc::discovery_operations&   service_discovery_;
-    std::pair<uint16_t, uint16_t>       handle_discovery_range_;
+    ble::gattc::discovery_operations&                   service_discovery;
+    ble::gatt::service_container*                       service_container;
+    std::pair<uint16_t, uint16_t>                       handle_discovery_range;
+    ble::gatt::service_container::discovery_iterator    discovery_iterator;
 };
 
 } // namespace gattc

@@ -9,7 +9,7 @@
 #include "ble/att.h"
 #include "ble/gatt_attribute.h"
 #include "ble/gatt_declaration.h"
-#include "ble/gatt_uuids.h"
+#include "ble/gatt_enum_types.h"
 #include "ble/gatt_format.h"
 
 #include <cstdint>
@@ -22,44 +22,66 @@ namespace gatt
 
 struct characteristic;
 
-struct characteristic_base_descriptor: public attribute
+/**
+ * @struct descriptor_base
+ * All decriptors should inherit from this base object.
+ *
+ * @details
+ * In the BLE specification descriptors are merely a kind of characteristic.
+ * Here there is a distinction in that descriptors are associated with a
+ * specific characteristic, and most importantly act upon a characterisitc.
+ * Therefore, in this implementation, descriptors maintain a pointer to the
+ * characteristic to which they are associated.
+ */
+struct descriptor_base: public ble::gatt::attribute
 {
-    virtual ~characteristic_base_descriptor() override                                  = default;
+    virtual ~descriptor_base() override                   = default;
 
-    characteristic_base_descriptor()                                                    = delete;
-    characteristic_base_descriptor(characteristic_base_descriptor const&)               = delete;
-    characteristic_base_descriptor(characteristic_base_descriptor &&)                   = delete;
-    characteristic_base_descriptor& operator=(characteristic_base_descriptor const&)    = delete;
-    characteristic_base_descriptor& operator=(characteristic_base_descriptor&&)         = delete;
+    descriptor_base(descriptor_base const&)               = delete;
+    descriptor_base(descriptor_base &&)                   = delete;
+    descriptor_base& operator=(descriptor_base const&)    = delete;
+    descriptor_base& operator=(descriptor_base&&)         = delete;
 
-    characteristic_base_descriptor(characteristic&  characteristic,
-                                   attribute_type   attr_type,
-                                   uint16_t         property_bits):
+    /**
+     * The default ctor creates a descriptor with undefined context and usage.
+     * These can be defined later and is useful in the GATT client scenarios.
+     */
+    descriptor_base():
+        attribute(attribute_type::undefined, 0u),
+        characteristic_ptr(nullptr)
+    {
+    }
+
+    descriptor_base(ble::gatt::characteristic&  characteristic,
+                    ble::gatt::attribute_type   attr_type,
+                    uint16_t                    property_bits)
+    :
         attribute(attr_type, property_bits),
         characteristic_ptr(&characteristic)
     {
     }
 
-    characteristic* const characteristic_ptr;
+    characteristic* characteristic_ptr;
 };
 
-struct characteristic_user_descriptor: public characteristic_base_descriptor
+struct cud: public descriptor_base
 {
-    virtual ~characteristic_user_descriptor() override                                  = default;
+    virtual ~cud() override     = default;
 
-    characteristic_user_descriptor()                                                    = delete;
-    characteristic_user_descriptor(characteristic_user_descriptor const&)               = delete;
-    characteristic_user_descriptor(characteristic_user_descriptor &&)                   = delete;
-    characteristic_user_descriptor& operator=(characteristic_user_descriptor const&)    = delete;
-    characteristic_user_descriptor& operator=(characteristic_user_descriptor&&)         = delete;
+    cud()                       = delete;
+    cud(cud const&)             = delete;
+    cud(cud &&)                 = delete;
+    cud& operator=(cud const&)  = delete;
+    cud& operator=(cud&&)       = delete;
 
-    characteristic_user_descriptor(characteristic &characteristic,
-                                   char const     *string_ptr,
-                                   att::length_t   string_length) :
-        characteristic_base_descriptor(
+    cud(ble::gatt::characteristic&  characteristic,
+        char const*                 string_ptr,
+        att::length_t               string_length)
+    :
+        descriptor_base(
             characteristic,
-            attribute_type::characteristic_user_description,
-            properties::read),
+            ble::gatt::attribute_type::characteristic_user_description,
+            ble::gatt::properties::read),
         user_string_ptr(string_ptr),
         user_string_length(string_length)
     {
@@ -77,10 +99,12 @@ struct characteristic_user_descriptor: public characteristic_base_descriptor
     att::length_t const user_string_length;
 };
 
+using characteristic_user_descriptor = cud;
+
 /**
  * @class cpfd, characteristic presentation format descriptor
  */
-struct cpfd: public characteristic_base_descriptor
+struct cpfd: public descriptor_base
 {
     virtual ~cpfd() override      = default;
 
@@ -90,16 +114,17 @@ struct cpfd: public characteristic_base_descriptor
     cpfd& operator=(cpfd const&)  = delete;
     cpfd& operator=(cpfd&&)       = delete;
 
-    cpfd(characteristic &characteristic,
-         enum format    presentation_format,
-         int8_t         presentation_exponent,
-         enum units     presentation_units,
-         uint8_t        presentation_name_space = 0u,
-         uint16_t       presentation_description = 0u) :
-         characteristic_base_descriptor(
+    cpfd(ble::gatt::characteristic& characteristic,
+         ble::gatt::format          presentation_format,
+         int8_t                     presentation_exponent,
+         ble::gatt::units_type      presentation_units,
+         uint8_t                    presentation_name_space = 0u,
+         uint16_t                   presentation_description = 0u)
+    :
+         descriptor_base(
             characteristic,
-            attribute_type::characteristic_presentation_format,
-            properties::read),
+            ble::gatt::attribute_type::characteristic_presentation_format,
+            ble::gatt::properties::read),
         format(presentation_format),
         exponent(presentation_exponent),
         units(presentation_units),
@@ -108,13 +133,14 @@ struct cpfd: public characteristic_base_descriptor
     {
     }
 
-    cpfd(characteristic &characteristic,
-         enum format    presentation_format,
-         enum units     presentation_units):
-         characteristic_base_descriptor(
+    cpfd(ble::gatt::characteristic& characteristic,
+         ble::gatt::format          presentation_format,
+         ble::gatt::units_type      presentation_units)
+    :
+         descriptor_base(
             characteristic,
-            attribute_type::characteristic_presentation_format,
-            properties::read),
+            ble::gatt::attribute_type::characteristic_presentation_format,
+            ble::gatt::properties::read),
         format(presentation_format),
         exponent(0),
         units(presentation_units),
@@ -123,11 +149,11 @@ struct cpfd: public characteristic_base_descriptor
     {
     }
 
-    enum format const format;       ///< @see enum class ble::gatt::format.
-    int8_t      const exponent;
-    enum units  const units;        ///< @see enum class ble::gatt::units.
-    uint8_t     const name_space;   ///< 1: Bluetooth SIG Assigned Numbers
-    uint16_t    const description;  ///< No one seems to know what this does.
+    ble::gatt::format       const format;
+    int8_t                  const exponent;
+    ble::gatt::units_type   const units;
+    uint8_t                 const name_space;   ///< 1: Bluetooth SIG Assigned Numbers
+    uint16_t                const description;  ///< No one seems to know what this does.
 };
 
 using characteristic_presentation_format_descriptor = cpfd;
@@ -135,24 +161,25 @@ using characteristic_presentation_format_descriptor = cpfd;
 /**
  * @class cccd, client characteristic configuration descriptor
  */
-struct cccd: public characteristic_base_descriptor
+struct cccd: public descriptor_base
 {
     static constexpr uint16_t const notification_enable = 0x01;
     static constexpr uint16_t const indication_enable   = 0x02;
 
-    virtual ~cccd() override                                                  = default;
+    virtual ~cccd() override        = default;
 
-    cccd()                                                                    = delete;
+    cccd()                          = delete;
     cccd(cccd const&)               = delete;
     cccd(cccd &&)                   = delete;
     cccd& operator=(cccd const&)    = delete;
     cccd& operator=(cccd&&)         = delete;
 
-    cccd(characteristic &characteristic):
-        characteristic_base_descriptor(
+    cccd(ble::gatt::characteristic &characteristic)
+    :
+        descriptor_base(
             characteristic,
-            attribute_type::client_characteristic_configuration,
-            properties::read_write),
+            ble::gatt::attribute_type::client_characteristic_configuration,
+            ble::gatt::properties::read_write),
         configuration_bits(0u)
     {
     }
@@ -187,7 +214,7 @@ using client_characteristic_configuration_descriptor = cccd;
 /**
  * @class sccd, server characteristic configuration descriptor
  */
-struct sccd: public characteristic_base_descriptor
+struct sccd: public descriptor_base
 {
     static constexpr uint16_t const broadcasts_enable = 0x01;
 
@@ -199,8 +226,9 @@ struct sccd: public characteristic_base_descriptor
     sccd& operator=(sccd const&)    = delete;
     sccd& operator=(sccd&&)         = delete;
 
-    sccd(characteristic &characteristic):
-        characteristic_base_descriptor(
+    sccd(characteristic &characteristic)
+    :
+        descriptor_base(
             characteristic,
             attribute_type::server_characteristic_configuration,
             properties::read_write),

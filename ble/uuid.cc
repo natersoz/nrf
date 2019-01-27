@@ -73,6 +73,116 @@ uuid::uuid(uint8_t const* uuid_bytes):
 {
 }
 
+uuid::uuid(ble::gatt::attribute_type attr_type):
+    boost::uuids::uuid {{
+        static_cast<uint8_t>(static_cast<uint32_t>(attr_type) >> 24u),
+        static_cast<uint8_t>(static_cast<uint32_t>(attr_type) >> 16u),
+        static_cast<uint8_t>(static_cast<uint32_t>(attr_type) >>  8u),
+        static_cast<uint8_t>(static_cast<uint32_t>(attr_type) >>  0u),
+        base.data[base_offset +  0u],
+        base.data[base_offset +  1u],
+        base.data[base_offset +  2u],
+        base.data[base_offset +  3u],
+        base.data[base_offset +  4u],
+        base.data[base_offset +  5u],
+        base.data[base_offset +  6u],
+        base.data[base_offset +  7u],
+        base.data[base_offset +  8u],
+        base.data[base_offset +  9u],
+        base.data[base_offset + 10u],
+        base.data[base_offset + 11u],
+    }}
+{
+}
+
+uuid::uuid(ble::gatt::descriptor_type descriptor_type):
+    boost::uuids::uuid {{
+        static_cast<uint8_t>(static_cast<uint32_t>(descriptor_type) >> 24u),
+        static_cast<uint8_t>(static_cast<uint32_t>(descriptor_type) >> 16u),
+        static_cast<uint8_t>(static_cast<uint32_t>(descriptor_type) >>  8u),
+        static_cast<uint8_t>(static_cast<uint32_t>(descriptor_type) >>  0u),
+        base.data[base_offset +  0u],
+        base.data[base_offset +  1u],
+        base.data[base_offset +  2u],
+        base.data[base_offset +  3u],
+        base.data[base_offset +  4u],
+        base.data[base_offset +  5u],
+        base.data[base_offset +  6u],
+        base.data[base_offset +  7u],
+        base.data[base_offset +  8u],
+        base.data[base_offset +  9u],
+        base.data[base_offset + 10u],
+        base.data[base_offset + 11u],
+    }}
+{
+}
+
+uuid::uuid(ble::gatt::characteristic_type characteristic_type):
+    boost::uuids::uuid {{
+        static_cast<uint8_t>(static_cast<uint32_t>(characteristic_type) >> 24u),
+        static_cast<uint8_t>(static_cast<uint32_t>(characteristic_type) >> 16u),
+        static_cast<uint8_t>(static_cast<uint32_t>(characteristic_type) >>  8u),
+        static_cast<uint8_t>(static_cast<uint32_t>(characteristic_type) >>  0u),
+        base.data[base_offset +  0u],
+        base.data[base_offset +  1u],
+        base.data[base_offset +  2u],
+        base.data[base_offset +  3u],
+        base.data[base_offset +  4u],
+        base.data[base_offset +  5u],
+        base.data[base_offset +  6u],
+        base.data[base_offset +  7u],
+        base.data[base_offset +  8u],
+        base.data[base_offset +  9u],
+        base.data[base_offset + 10u],
+        base.data[base_offset + 11u],
+    }}
+{
+}
+
+uuid::uuid(ble::gatt::service_type service_type):
+    boost::uuids::uuid {{
+        static_cast<uint8_t>(static_cast<uint32_t>(service_type) >> 24u),
+        static_cast<uint8_t>(static_cast<uint32_t>(service_type) >> 16u),
+        static_cast<uint8_t>(static_cast<uint32_t>(service_type) >>  8u),
+        static_cast<uint8_t>(static_cast<uint32_t>(service_type) >>  0u),
+        base.data[base_offset +  0u],
+        base.data[base_offset +  1u],
+        base.data[base_offset +  2u],
+        base.data[base_offset +  3u],
+        base.data[base_offset +  4u],
+        base.data[base_offset +  5u],
+        base.data[base_offset +  6u],
+        base.data[base_offset +  7u],
+        base.data[base_offset +  8u],
+        base.data[base_offset +  9u],
+        base.data[base_offset + 10u],
+        base.data[base_offset + 11u],
+    }}
+{
+}
+
+uuid::uuid(ble::gatt::units_type units_type):
+    boost::uuids::uuid {{
+        static_cast<uint8_t>(static_cast<uint32_t>(units_type) >> 24u),
+        static_cast<uint8_t>(static_cast<uint32_t>(units_type) >> 16u),
+        static_cast<uint8_t>(static_cast<uint32_t>(units_type) >>  8u),
+        static_cast<uint8_t>(static_cast<uint32_t>(units_type) >>  0u),
+        base.data[base_offset +  0u],
+        base.data[base_offset +  1u],
+        base.data[base_offset +  2u],
+        base.data[base_offset +  3u],
+        base.data[base_offset +  4u],
+        base.data[base_offset +  5u],
+        base.data[base_offset +  6u],
+        base.data[base_offset +  7u],
+        base.data[base_offset +  8u],
+        base.data[base_offset +  9u],
+        base.data[base_offset + 10u],
+        base.data[base_offset + 11u],
+    }}
+{
+}
+
 bool uuid::is_ble() const
 {
     auto this_iter = this->begin() + uuid::base_offset;

@@ -1,5 +1,5 @@
 /**
- * @file gatt_uuids.h
+ * @file gatt_enum_types.h
  * Enumerated values in this file are copied from:
  * https://www.bluetooth.com/specifications/gatt
  */
@@ -26,12 +26,17 @@ enum class attribute_type : uint16_t
     characteristic                              = 0x2803,   ///< org.bluetooth.attribute.gatt.characteristic_declaration
     characteristic_extended_properties          = 0x2900,   ///< org.bluetooth.descriptor.gatt.characteristic_extended_properties
     characteristic_user_description             = 0x2901,   ///< org.bluetooth.descriptor.gatt.characteristic_user_description
+    cud                                         = 0x2901,
     client_characteristic_configuration         = 0x2902,   ///< org.bluetooth.descriptor.gatt.client_characteristic_configuration
     cccd                                        = 0x2902,
     server_characteristic_configuration         = 0x2903,   ///< org.bluetooth.descriptor.gatt.server_characteristic_configuration
     sccd                                        = 0x2903,
     characteristic_presentation_format          = 0x2904,   ///< org.bluetooth.descriptor.gatt.characteristic_presentation_format
+    cpfd                                        = 0x2904,
     characteristic_aggregate_format             = 0x2905,   ///< org.bluetooth.descriptor.gatt.characteristic_aggregate_format
+
+    undefined                                   = 0x0000,   ///< Not part of the bluetooth specification.
+                                                            ///< Used to signify that the attribute type has not yet been determined.
 };
 
 /**
@@ -42,14 +47,16 @@ enum class attribute_type : uint16_t
  * @todo Decide if [0x2900 : 0x2905] belong here, up there, or both.
  * Or perhaps they get combined?
  */
-enum class descriptor: uint16_t
+enum class descriptor_type: uint16_t
 {
     characteristic_extended_properties          = 0x2900,   ///< org.bluetooth.descriptor.gatt.characteristic_extended_properties
     characteristic_user_description             = 0x2901,   ///< org.bluetooth.descriptor.gatt.characteristic_user_description
     client_characteristic_configuration         = 0x2902,   ///< org.bluetooth.descriptor.gatt.client_characteristic_configuration
     cccd                                        = 0x2902,
     server_characteristic_configuration         = 0x2903,   ///< org.bluetooth.descriptor.gatt.server_characteristic_configuration
+    sccd                                        = 0x2903,   ///< org.bluetooth.descriptor.gatt.server_characteristic_configuration
     characteristic_presentation_format          = 0x2904,   ///< org.bluetooth.descriptor.gatt.characteristic_presentation_format
+    cpfd                                        = 0x2904,   ///< org.bluetooth.descriptor.gatt.characteristic_presentation_format
     characteristic_aggregate_format             = 0x2905,   ///< org.bluetooth.descriptor.gatt.characteristic_aggregate_format
     valid_range                                 = 0x2906,   ///< org.bluetooth.descriptor.valid_range
     external_report_reference                   = 0x2907,   ///< org.bluetooth.descriptor.external_report_reference
@@ -66,7 +73,7 @@ enum class descriptor: uint16_t
  * @enum ble::gatt::services
  * https://www.bluetooth.com/specifications/gatt/services
  */
-enum class services: uint16_t
+enum class service_type: uint16_t
 {
     generic_access                              = 0x1800,   ///< org.bluetooth.service.generic_access
     generic_attribute                           = 0x1801,   ///< org.bluetooth.service.generic_attribute
@@ -113,7 +120,7 @@ enum class services: uint16_t
  * @enum ble::gatt::characteristics
  * https://www.bluetooth.com/specifications/gatt/characteristics
  */
-enum class characteristics: uint16_t
+enum class characteristic_type: uint16_t
 {
     device_name                                 = 0x2a00,   ///< org.bluetooth.characteristic.gap.device_name
     appearance                                  = 0x2a01,   ///< org.bluetooth.characteristic.gap.appearance
@@ -337,7 +344,7 @@ enum class characteristics: uint16_t
 /**
  * @enum ble::gatt::units
  */
-enum class units: uint16_t
+enum class units_type: uint16_t
 {
     unitless                                    = 0x2700,   ///< org.bluetooth.unit.unitless
     metre                                       = 0x2701,   ///< org.bluetooth.unit.length.metre
@@ -458,7 +465,7 @@ enum class units: uint16_t
     lumen_hour                                  = 0x27BF,   ///< org.bluetooth.unit.luminous_energy.lumen_hour
     lux_hour                                    = 0x27C0,   ///< org.bluetooth.unit.luminous_exposure.lux_hour
     gram_per_second                             = 0x27C1,   ///< org.bluetooth.unit.mass_flow.gram_per_second
-    litre_pe,r_second                           = 0x27C2    ///< org.bluetooth.unit.volume_flow.litre_per_second
+    litre_per_second                            = 0x27C2    ///< org.bluetooth.unit.volume_flow.litre_per_second
 }; // enum class ble::gatt::units
 
 } // namespace gatt

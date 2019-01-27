@@ -9,6 +9,7 @@
 
 #include <type_traits>
 #include <cstdint>
+#include <utility>
 
 namespace ble
 {
@@ -40,6 +41,12 @@ static constexpr uint16_t const handle_invalid = 0u;
 static constexpr uint16_t const handle_minimum = 0x0001u;
 static constexpr uint16_t const handle_maximum = UINT16_MAX;
 /** @} */
+
+/**
+ * An BLE ATT handle range is inclusive of the first and second members within
+ * the pair.
+ */
+using handle_range = std::pair<uint16_t, uint16_t>;
 
 /**
  * @typedef ble::att::length_t

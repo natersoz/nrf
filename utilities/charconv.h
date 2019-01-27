@@ -8,6 +8,8 @@
 #pragma once
 #include <system_error>
 
+#include "std_error.h"
+
 namespace std
 {
 
@@ -23,6 +25,10 @@ enum class chars_format
 // numeric output conversion
 struct to_chars_result
 {
+    to_chars_result():                ptr(nullptr), ec(errc_success) {}
+    to_chars_result(char *p, errc e): ptr(p), ec(e) {}
+    to_chars_result(char *p):         ptr(p), ec(errc_success) {}
+
     char *ptr;
     errc ec;
 };

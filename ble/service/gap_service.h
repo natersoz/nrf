@@ -10,7 +10,7 @@
 
 #include "ble/gatt_service.h"
 #include "ble/gap_types.h"
-#include "ble/gatt_uuids.h"
+#include "ble/gatt_enum_types.h"
 #include "ble/gatt_appearance.h"
 
 namespace ble
@@ -29,7 +29,7 @@ public:
     device_name& operator=(device_name&&)       = delete;
 
     device_name() :
-        gatt::characteristic(gatt::characteristics::device_name,
+        gatt::characteristic(gatt::characteristic_type::device_name,
                              gatt::properties::read),
         device_name_(nullptr),
         device_name_length_(0u)
@@ -37,7 +37,7 @@ public:
     }
 
     device_name(char const *device_name, att::length_t device_name_length):
-        gatt::characteristic(gatt::characteristics::device_name,
+        gatt::characteristic(gatt::characteristic_type::device_name,
                              gatt::properties::read),
         device_name_(device_name),
         device_name_length_(device_name_length)
@@ -78,7 +78,7 @@ public:
     appearance& operator=(appearance&&)       = delete;
 
     appearance(ble::gatt::appearance device_appearance) :
-        gatt::characteristic(gatt::characteristics::appearance,
+        gatt::characteristic(gatt::characteristic_type::appearance,
                              gatt::properties::read),
         appearance_(device_appearance)
     {
@@ -110,7 +110,7 @@ struct ppcp: public gatt::characteristic
     ppcp& operator=(ppcp&&)       = delete;
 
     ppcp(gap::connection_parameters conn_params) :
-        gatt::characteristic(gatt::characteristics::ppcp, gatt::properties::read),
+        gatt::characteristic(gatt::characteristic_type::ppcp, gatt::properties::read),
         connection_parameters(conn_params)
     {
     }
@@ -138,7 +138,7 @@ public:
 
     /// Construct a Generic Access (GAP) Service as a primary service.
     gap_service():
-        service(gatt::services::generic_access,
+        service(gatt::service_type::generic_access,
                 gatt::attribute_type::primary_service)
     {
     }

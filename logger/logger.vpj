@@ -261,7 +261,7 @@
             GUID="{92ECF0E6-429A-4F37-9D77-4AA844E3B31B}">
             <F N="logger.cc"/>
             <F N="logger_c.cc"/>
-            <F N="segger_rtt_output_stream.cc"/>
+            <F N="rtt_output_stream.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
@@ -269,7 +269,7 @@
             GUID="{252A0A17-9C6D-46FA-9C3D-F2ECF5A5E2FB}">
             <F N="logger.h"/>
             <F N="logger_c.h"/>
-            <F N="segger_rtt_output_stream.h"/>
+            <F N="rtt_output_stream.h"/>
         </Folder>
         <Folder
             Name="Resource Files"

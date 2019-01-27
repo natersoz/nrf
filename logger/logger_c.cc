@@ -7,15 +7,16 @@
 
 #include "logger_c.h"
 #include "logger.h"
-#include "segger_rtt_output_stream.h"
+#include "rtt_output_stream.h"
 
-static segger_rtt_output_stream rtt_os;
+// static char rtt_os_buffer[4096u];
+// static rtt_output_stream rtt_os(rtt_os_buffer, sizeof(rtt_os_buffer));
 
 int logger_init()
 {
     logger& logger = logger::instance();
     logger.set_level(logger::level::debug);
-    logger.set_output_stream(rtt_os);
+//    logger.set_output_stream(rtt_os);
     return 0;
 }
 
@@ -30,9 +31,9 @@ size_t logger_write(enum logger_level log_level, char const *fmt, ...)
     return n_write;
 }
 
-size_t logger_process(void)
+void logger_process(void)
 {
-    return rtt_os.write_pending();
+    logger::instance().flush();
 }
 
 void logger_flush(void)
@@ -50,7 +51,7 @@ size_t logger_write_data(enum logger_level log_level,
                                          data,
                                          length,
                                          char_data,
-                                         static_cast<write_data::data_prefix>(prefix));
+                                         static_cast<io::data_prefix>(prefix));
 }
 
 

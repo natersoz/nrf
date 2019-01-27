@@ -12,7 +12,7 @@
 
 #include "ble/gatt_service.h"
 #include "ble/gatt_descriptors.h"
-#include "ble/gatt_uuids.h"
+#include "ble/gatt_enum_types.h"
 
 namespace ble
 {
@@ -40,7 +40,7 @@ public:
     battery_level& operator=(battery_level&&)         = delete;
 
     battery_level() :
-        gatt::characteristic(gatt::characteristics::battery_level,
+        gatt::characteristic(gatt::characteristic_type::battery_level,
                              gatt::properties::read  |
                              gatt::properties::notify),
         cccd(*this),
@@ -115,7 +115,7 @@ public:
     battery_power_state& operator=(battery_power_state&&)       = delete;
 
     battery_power_state() :
-        gatt::characteristic(gatt::characteristics::battery_power_state,
+        gatt::characteristic(gatt::characteristic_type::battery_power_state,
                              gatt::properties::read  |
                              gatt::properties::notify),
         cccd(*this),
@@ -160,7 +160,7 @@ public:
 
     /** Construct a Battery Service as a primary service. */
     battery_service():
-        service(gatt::services::battery_service,
+        service(gatt::service_type::battery_service,
                 gatt::attribute_type::primary_service)
     {
     }
@@ -172,7 +172,7 @@ public:
      * is a primary or secondary service.
      */
     battery_service(gatt::attribute_type attr_type):
-        service(gatt::services::battery_service, attr_type)
+        service(gatt::service_type::battery_service, attr_type)
     {
     }
 };

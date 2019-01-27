@@ -8,7 +8,7 @@
 
 #include "ble/service/gap_service.h"
 #include "ble/service/gatt_service.h"
-#include "ble/gatt_uuids.h"
+#include "ble/gatt_enum_types.h"
 
 #include "project_assert.h"
 #include "logger.h"
@@ -328,10 +328,10 @@ static uint32_t nordic_add_gap_service(ble::gatt::service const& service)
 
         ble::gatt::characteristic const& node =
             reinterpret_cast<ble::gatt::characteristic const&>(attr_node);
-        auto const uuid = static_cast<ble::gatt::characteristics>(node.uuid.get_u16());
+        auto const uuid = static_cast<ble::gatt::characteristic_type>(node.uuid.get_u16());
         switch(uuid)
         {
-        case ble::gatt::characteristics::device_name:
+        case ble::gatt::characteristic_type::device_name:
             {
                 /// @todo SM can these be set any other way for this service?
                 ble_gap_conn_sec_mode_t const security_mode = {
@@ -350,7 +350,7 @@ static uint32_t nordic_add_gap_service(ble::gatt::service const& service)
             }
             break;
 
-        case ble::gatt::characteristics::appearance:
+        case ble::gatt::characteristic_type::appearance:
             {
                 uint16_t const *appearance_ptr = reinterpret_cast<uint16_t const*>(node.data_pointer());
                 if (node.data_length() != sizeof(uint16_t))
@@ -368,7 +368,7 @@ static uint32_t nordic_add_gap_service(ble::gatt::service const& service)
             }
             break;
 
-        case ble::gatt::characteristics::ppcp:
+        case ble::gatt::characteristic_type::ppcp:
             {
                 ble::gap::connection_parameters const *connection_parameters_ptr =
                     reinterpret_cast<ble::gap::connection_parameters const*>(node.data_pointer());

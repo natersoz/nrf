@@ -243,7 +243,7 @@ $(BUILD_PATH)/%.s.o: %.s
 # Link
 $(BUILD_PATH)/$(TARGET_NAME).out: $(OBJECT_FILES) $(LIBS) $(LINKER_SCRIPT)
 	@echo Linking: $@
-	$(VERBOSE)$(CC) $(LDFLAGS) $(OBJECT_FILES) $(LIBS) -T $(LINKER_SCRIPT) -o $@
+	$(VERBOSE)$(CXX) $(LDFLAGS) $(OBJECT_FILES) $(LIBS) -T $(LINKER_SCRIPT) -o $@
 	$(VERBOSE)$(SIZE) $@
 
 ## Create binary .bin file from the .out file

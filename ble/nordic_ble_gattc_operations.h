@@ -55,12 +55,12 @@ public:
         uint16_t gatt_handle_start,
         uint16_t gatt_handle_stop) override;
 
-    virtual handle_pair gatt_handles_requested() const override {
+    virtual ble::att::handle_range gatt_handles_requested() const override {
         return this->last_requested_;
     }
 
 private:
-    handle_pair last_requested_;
+    ble::att::handle_range last_requested_;
 };
 
 class ble_gattc_operations: public ble::gattc::operations

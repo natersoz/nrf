@@ -6,6 +6,7 @@
 #pragma once
 
 #include <boost/uuid/uuid.hpp>
+#include "ble/gatt_enum_types.h"
 #include "charconv.h"
 
 #include <array>
@@ -48,7 +49,9 @@ namespace att
  */
 struct uuid: public boost::uuids::uuid
 {
-    ~uuid()                         = default;
+    ~uuid() = default;
+
+    /** The default ctor fills the uuid with zeroes. */
     uuid();
 
     /** Constructor for ble::att::uuid from a boost uuid. */
@@ -68,9 +71,16 @@ struct uuid: public boost::uuids::uuid
      */
     uuid(uint32_t uuid_32);
 
+    uuid(ble::gatt::attribute_type      attribute_type);
+    uuid(ble::gatt::descriptor_type     descriptor_type);
+    uuid(ble::gatt::characteristic_type characteristic_type);
+    uuid(ble::gatt::service_type        service_type);
+    uuid(ble::gatt::units_type          units_type);
+
     /**
      * Create a ble::att::uuid from an array of 16 bytes.
      * The expected length of the uuid_bytes is not (caonnot) be checked.
+     * @note This ctor performs a little->big endian conversion.
      */
     uuid(uint8_t const* uuid_bytes);
 

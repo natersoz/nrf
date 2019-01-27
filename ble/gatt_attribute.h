@@ -37,17 +37,12 @@ struct attribute
     attribute& operator=(attribute const&)  = delete;
     attribute& operator=(attribute&&)       = delete;
 
-    attribute(attribute_type attr_type, uint16_t prop_bits) :
+    attribute(ble::gatt::attribute_type attr_type, uint16_t prop_bits) :
         decl(attr_type, prop_bits)
     {
     }
 
-    attribute(uint32_t uuid_32, attribute_type attr_type, uint16_t prop_bits) :
-        decl(attr_type, prop_bits)
-    {
-    }
-
-    declaration     decl;
+    ble::gatt::declaration decl;
 
     /**
      * Write data to the attribute. The base implementation behavior is

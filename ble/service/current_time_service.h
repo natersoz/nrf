@@ -9,7 +9,7 @@
 
 #include "ble/gatt_service.h"
 #include "ble/gatt_descriptors.h"
-#include "ble/gatt_uuids.h"
+#include "ble/gatt_enum_types.h"
 
 #include "gregorian.h"
 
@@ -35,7 +35,7 @@ struct date_time: public gatt::characteristic
      * @note The write permission is optional. For now turn it on for testing.
      */
     date_time() :
-        gatt::characteristic(gatt::characteristics::date_time,
+        gatt::characteristic(gatt::characteristic_type::date_time,
                              gatt::properties::read  |
                              gatt::properties::write |
                              gatt::properties::notify),
@@ -71,7 +71,7 @@ struct day_date_time: public gatt::characteristic
     day_date_time& operator=(day_date_time&&)       = delete;
 
     day_date_time() :
-        gatt::characteristic(gatt::characteristics::date_time,
+        gatt::characteristic(gatt::characteristic_type::date_time,
                              gatt::properties::read  |
                              gatt::properties::write |
                              gatt::properties::notify),
@@ -105,7 +105,7 @@ struct exact_time_256: public gatt::characteristic
     exact_time_256& operator=(exact_time_256&&)       = delete;
 
     exact_time_256() :
-        gatt::characteristic(gatt::characteristics::date_time,
+        gatt::characteristic(gatt::characteristic_type::date_time,
                              gatt::properties::read  |
                              gatt::properties::write |
                              gatt::properties::notify),
@@ -159,7 +159,7 @@ struct current_time: public gatt::characteristic
      * @note The write permission is optional. For now turn it on for testing.
      */
     current_time() :
-        gatt::characteristic(gatt::characteristics::date_time,
+        gatt::characteristic(gatt::characteristic_type::date_time,
                              gatt::properties::read  |
                              gatt::properties::write |
                              gatt::properties::notify),
@@ -207,7 +207,7 @@ struct time_zone: public gatt::characteristic
      * @note The write permission is optional. For now turn it on for testing.
      */
     time_zone() :
-        gatt::characteristic(gatt::characteristics::time_zone,
+        gatt::characteristic(gatt::characteristic_type::time_zone,
                              gatt::properties::read  |
                              gatt::properties::write |
                              gatt::properties::notify),
@@ -251,7 +251,7 @@ struct dst_offset: public gatt::characteristic
      * @note The write permission is optional. For now turn it on for testing.
      */
     dst_offset(offset _offset = offset::standard_time) :
-        gatt::characteristic(gatt::characteristics::dst_offset,
+        gatt::characteristic(gatt::characteristic_type::dst_offset,
                              gatt::properties::read  |
                              gatt::properties::write |
                              gatt::properties::notify),
@@ -292,7 +292,7 @@ struct time_source: public gatt::characteristic
      * @note The write permission is optional. For now turn it on for testing.
      */
     time_source() :
-        gatt::characteristic(gatt::characteristics::time_source,
+        gatt::characteristic(gatt::characteristic_type::time_source,
                              gatt::properties::read  |
                              gatt::properties::write |
                              gatt::properties::notify),
@@ -329,7 +329,7 @@ struct time_accuracy: public gatt::characteristic
      * @note The write permission is optional. For now turn it on for testing.
      */
     time_accuracy() :
-        gatt::characteristic(gatt::characteristics::time_accuracy,
+        gatt::characteristic(gatt::characteristic_type::time_accuracy,
                              gatt::properties::read  |
                              gatt::properties::write |
                              gatt::properties::notify),
@@ -370,7 +370,7 @@ public:
      * is a primary or secondary service.
      */
     current_time_service():
-        service(gatt::services::current_time_service,
+        service(gatt::service_type::current_time_service,
                 gatt::attribute_type::primary_service)
     {
         this->characteristic_add(this->current_time);
@@ -383,7 +383,7 @@ public:
      * is a primary or secondary service.
      */
     current_time_service(gatt::attribute_type attr_type):
-        service(gatt::services::current_time_service, attr_type)
+        service(gatt::service_type::current_time_service, attr_type)
     {
         this->characteristic_add(this->current_time);
     }

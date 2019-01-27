@@ -16,4 +16,3 @@ inline bool is_failure(std::errc error_code) {
 }
 
 static constexpr std::errc errc_success = static_cast<std::errc>(0u);
-

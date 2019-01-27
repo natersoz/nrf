@@ -8,17 +8,22 @@
 #include "leds.h"
 #include "buttons.h"
 #include "logger.h"
-#include "segger_rtt_output_stream.h"
+#include "segger_rtt.h"
+#include "rtt_output_stream.h"
 #include "rtc_observer.h"
 #include "timer_observer.h"
 #include "stack_usage.h"
+#include "version_info.h"
 #include "project_assert.h"
 
 #include "ble/att.h"
 #include "ble/gap_connection.h"
 #include "ble/gap_types.h"
-#include "ble/gatt_uuids.h"
+#include "ble/gatt_enum_types.h"
 #include "ble/gattc_service_builder.h"
+#include "ble/gatt_service.h"
+#include "ble/gatt_characteristic.h"
+#include "ble/gatt_descriptors.h"
 #include "ble/nordic_ble_gap_operations.h"
 #include "ble/profile_central.h"
 
@@ -32,28 +37,54 @@
 #include "ble_gap_connection.h"
 #include "ble_gattc_observer.h"
 
-static segger_rtt_output_stream rtt_os;
-static rtc_observable<>         rtc_1(1u, 32u);
+static char rtt_os_buffer[4096u];
+
+static std::array<ble::gatt::service,         16u>  services_list;
+static std::array<ble::gatt::characteristic,  32u>  characteristics_list;
+static std::array<ble::gatt::descriptor_base, 32u>  descriptors_list;
+
+static void free_lists_alloc(ble::gattc::service_builder &service_builder)
+{
+    for (auto& node : services_list)
+    {
+        service_builder.free_list.services.push_back(node);
+    }
+
+    for (auto& node : characteristics_list)
+    {
+        service_builder.free_list.characteristics.push_back(node);
+    }
+
+    for (auto& node : descriptors_list)
+    {
+        service_builder.free_list.descriptors.push_back(node);
+    }
+}
 
 int main(void)
 {
     stack_fill(0xabcd1234);
     lfclk_enable(LFCLK_SOURCE_XO);
+
+    rtc_observable<> rtc_1(1u, 32u);
     rtc_1.start();
 
-    leds_board_init();
-    buttons_board_init();
-
+    rtt_output_stream rtt_os(rtt_os_buffer, sizeof(rtt_os_buffer));
     logger& logger = logger::instance();
     logger.set_rtc(rtc_1);
     logger.set_level(logger::level::info);
     logger.set_output_stream(rtt_os);
 
+    segger_rtt_enable();
+
+    leds_board_init();
+    buttons_board_init();
+
     logger.info("--- BLE central ---");
 
     logger.write_data(logger::level::debug,
                       NRF_FICR->DEVICEADDR,
-                      8u, false, write_data::data_prefix::address);
+                      8u, false, io::data_prefix::address);
 
     constexpr uint8_t const             nordic_config_tag = 1u;
     nordic::ble_stack                   ble_stack(nordic_config_tag);
@@ -81,8 +112,9 @@ int main(void)
     ble_gattc_observer                      gattc_observer;
     nordic::ble_gattc_operations            gattc_operations;
     nordic::ble_gattc_discovery_operations  gattc_service_discovery;
-
     ble::gattc::service_builder             gattc_service_builder(gattc_service_discovery);
+    free_lists_alloc(gattc_service_builder);
+
     ble::profile::central                   ble_central(ble_stack,
                                                         gap_connection,
                                                         gattc_observer,
@@ -106,6 +138,13 @@ int main(void)
 
     ble::stack::version const version = ble_central.ble_stack().get_version();
 
+    logger::instance().info("version: %s, git hash: %02x%02x%02x%02x",
+                            version_info.version,
+                            version_info.git_hash[0u],
+                            version_info.git_hash[1u],
+                            version_info.git_hash[2u],
+                            version_info.git_hash[3u]);
+
     logger::instance().info(
         "BLE stack version: link layer: %u, company id: 0x%04x, vendor: 0x%x",
         version.link_layer_version,
@@ -123,6 +162,11 @@ int main(void)
 
     logger.info("stack: free: %5u 0x%04x, size: %5u 0x%04x",
                 stack_free(), stack_free(), stack_size(), stack_size());
+
+    logger.info("alloc: services: %u 0x%04x, characteristics: %u 0x%04x, descriptors: %u 0x%04x",
+                std::size(services_list),        sizeof(services_list),
+                std::size(characteristics_list), sizeof(characteristics_list),
+                std::size(descriptors_list),     sizeof(descriptors_list));
 
     ble_central.scanning().start();
 

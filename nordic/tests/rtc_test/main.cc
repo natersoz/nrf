@@ -12,7 +12,8 @@
 #include "rtc_debug.h"
 
 #include "logger.h"
-#include "segger_rtt_output_stream.h"
+#include "rtt_output_stream.h"
+#include "segger_rtt.h"
 #include "project_assert.h"
 
 class timer_observer_1: public rtc_observer_test
@@ -100,10 +101,9 @@ public:
 };
 
 
-static segger_rtt_output_stream rtt_os;
-
 // RTC: 32,768 ticks / second
-static rtc rtc_1(1u, 1u);
+static rtc  rtc_1(1u, 1u);
+static char rtt_os_buffer[4096u];
 
 /**
  * Use the RTC2 peripheral for the test observable.
@@ -214,10 +214,12 @@ int main()
     rtc_1.start();
     leds_board_init();
 
+    rtt_output_stream rtt_os(rtt_os_buffer, sizeof(rtt_os_buffer));
     logger& logger = logger::instance();
     logger.set_level(logger::level::info);
     logger.set_output_stream(rtt_os);
     logger.set_rtc(rtc_1);
+    segger_rtt_enable();
 
     logger.info("--- RTC Test ---");
     logger.info("rtc ticks/second: %u", rtc_test_observable.ticks_per_second());

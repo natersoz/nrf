@@ -46,8 +46,8 @@ SOURCE_FILES += $(PROJECT_ROOT)/utilities/write_data.cc
 SOURCE_FILES += $(PROJECT_ROOT)/utilities/std_stubs.cc
 SOURCE_FILES += $(PROJECT_ROOT)/logger/logger.cc
 SOURCE_FILES += $(PROJECT_ROOT)/logger/logger_c.cc
-SOURCE_FILES += $(PROJECT_ROOT)/logger/segger_rtt_output_stream.cc
-SOURCE_FILES += $(PROJECT_ROOT)/segger_rtt/SEGGER_RTT.c
+SOURCE_FILES += $(PROJECT_ROOT)/logger/rtt_output_stream.cc
+SOURCE_FILES += $(PROJECT_ROOT)/segger/segger_rtt.cc
 
 SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
 
@@ -57,7 +57,7 @@ INCLUDE_PATHS += $(PROJECT_ROOT)/gcc-arm
 INCLUDE_PATHS += $(PROJECT_ROOT)/logger
 INCLUDE_PATHS += $(PROJECT_ROOT)/nordic
 INCLUDE_PATHS += $(PROJECT_ROOT)/nordic/peripherals
-INCLUDE_PATHS += $(PROJECT_ROOT)/segger_rtt
+INCLUDE_PATHS += $(PROJECT_ROOT)/segger
 INCLUDE_PATHS += $(PROJECT_ROOT)/utilities
 
 INCLUDE_PATHS += ./config

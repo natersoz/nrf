@@ -10,6 +10,7 @@ TARGET_NAME	= test_vwritef
 BUILD_PATH	= _build
 
 INCLUDE_PATH	+= -I .
+INCLUDE_PATH	+= -I ..
 INCLUDE_PATH	+= -I ../../utilities
 
 vpath %.cc .

@@ -89,6 +89,19 @@ SECTIONS
 
     __etext = .;
 
+    /* Note: Must be placed after __etext.
+       struct version_info requires:
+       32 bytes for the tag version string
+        4 bytes reserved for future use
+        4 bytes for the git hash
+       Place the version info at the top of the FLASH.
+     */
+    __VERSION_INFO_SIZE = 32 + 4 + 4;
+    .version_info ORIGIN(FLASH) + LENGTH(FLASH) - __VERSION_INFO_SIZE :
+    {
+        . = ALIGN(4);
+    } > FLASH
+
     .data : AT (__etext)
     {
         __data_start__ = .;

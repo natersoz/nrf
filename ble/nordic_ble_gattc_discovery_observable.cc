@@ -127,6 +127,22 @@ void ble_event_observable<ble_gattc_discovery_observer>::notify(
         case BLE_GATTC_EVT_CHAR_DISC_RSP:
             // Characteristic Discovery Response event.
             // See ble_gattc_evt_char_disc_rsp_t.
+            if (event_data.params.char_disc_rsp.count == 0u)
+            {
+                ble::gatt::properties const properties;
+                ble::att::uuid uuid;
+
+                observer.interface_reference.characteristic_discovered(
+                    event_data.conn_handle,
+                    nordic::to_att_error_code(event_data.gatt_status),
+                    event_data.error_handle,
+                    ble::att::handle_maximum,
+                    ble::att::handle_maximum,
+                    uuid,
+                    properties,
+                    true);
+            }
+
             for (uint16_t iter = 0u;
                  iter < event_data.params.char_disc_rsp.count; ++iter)
             {

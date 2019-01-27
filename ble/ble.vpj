@@ -270,8 +270,12 @@
             <F N="gap_connection_negotiation_state.cc"/>
             <F N="gatt_attribute.cc"/>
             <F N="gatt_characteristic.cc"/>
+            <F N="gatt_declaration.cc"/>
+            <F N="gatt_enum_types_strings.cc"/>
             <F N="gatt_service.cc"/>
             <F N="gatt_service_container.cc"/>
+            <F N="gatt_service_discovery_iterator.cc"/>
+            <F N="gatt_write_ostream.cc"/>
             <F N="gattc_service_builder.cc"/>
             <F N="gatts_event_observer.cc"/>
             <F N="ltv_encode.cc"/>
@@ -336,11 +340,13 @@
             <F N="gatt_characteristic.h"/>
             <F N="gatt_declaration.h"/>
             <F N="gatt_descriptors.h"/>
+            <F N="gatt_enum_types.h"/>
+            <F N="gatt_enum_types_strings.h"/>
             <F N="gatt_format.h"/>
             <F N="gatt_service.h"/>
             <F N="gatt_service_container.h"/>
             <F N="gatt_service_include.h"/>
-            <F N="gatt_uuids.h"/>
+            <F N="gatt_write_ostream.h"/>
             <F N="gattc_discovery_observer.h"/>
             <F N="gattc_event_observer.h"/>
             <F N="gattc_operations.h"/>
