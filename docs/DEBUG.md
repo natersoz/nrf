@@ -133,4 +133,15 @@ which should allow you to easily get the RTTC output in a shell:
 
 	$ make rttc
 
+Monitor Mode Debugging
+----------------------
+When you halt the Noridc softdevice, typically through a break point in the
+debugger, guess what happens: Noridc throws you an assert via an interrupt into
+their softdevice handler and the only way to recover is through a reset of your
+device.
+
+There is a work-around call monitor mode debugging.
+[Monitor Mode Debugging with J-Link and GDB/Eclipse](https://devzone.nordicsemi.com/b/blog/posts/monitor-mode-debugging-with-j-link-and-gdbeclipse)
+
+Disclaimer: I have yet to try this.
 

@@ -393,18 +393,6 @@ If this happens you will receive a non-descript memory access violation
 with no other hints regarding what triggered the fault. But Nordic can
 definitely determine that it was on your side of the code; not theirs.
 
-Softdevice Debugging
---------------------
-Why am I getting Nordic Softdevice Asserts?
-
-When you halt the Noridc softdevice, typically through a break point in the
-debugger, guess what happens: Noridc throws you an assert via an interrupt into
-their softdevice handler and the only way to recover is through a reset of your
-device.
-
-Apparently when the softdevice detects that the BLE timing has been disturbed,
-which halting with a debugger will do, you earn an assert award.
-
 Nordic Softdevice Service Discovery
 -----------------------------------
 The softdevice does not provide a direct means for performing service discovery
