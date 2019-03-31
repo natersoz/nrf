@@ -9,7 +9,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdgpio_te_test"
+        OutputFile="%bdtest_usart"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -134,7 +134,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdgpio_te_test"
+        OutputFile="%bdtest_usart"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -258,24 +258,24 @@
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{7D681D39-5D35-47C0-8131-13A3B530C457}">
+            GUID="{A09EECAE-C3F3-4725-BFA4-140B3BC29B2E}">
             <F N="main.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{6164466E-D3C7-4F91-A32C-ED23CFAC31B8}"></Folder>
+            GUID="{8CB18219-BD78-41E0-A32D-BA8A7653C638}"/>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"
-            GUID="{0A4AA714-8C70-4F7F-928F-04DE5EAF2C17}"/>
+            GUID="{A632DD5C-86EB-4C7C-9FF3-E126D6E6F155}"/>
         <Folder
             Name="Bitmaps"
             Filters="*.bmp"
-            GUID="{9C955A4B-F853-4508-9B50-5A94C8131119}"/>
+            GUID="{A54642C6-2103-49CD-8958-D86306C1D91A}"/>
         <Folder
             Name="Other Files"
             Filters=""
-            GUID="{CC9B953E-98D6-4B13-88C4-9A3F0425ACFC}"></Folder>
+            GUID="{435FB3DD-89C2-4B6A-8B18-A915C8D3CA31}"/>
     </Files>
 </Project>

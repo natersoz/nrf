@@ -294,6 +294,7 @@
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
             GUID="{298FC710-007C-4822-BB01-D66ACD1B4E46}">
+            <F N="null_stream.h"/>
             <F N="std_stream.h"/>
         </Folder>
         <Folder

@@ -5,8 +5,6 @@
 
 #pragma once
 #include <memory>
-#include <utility>
-#include <cstring>
 #include <cstddef>
 #include "project_assert.h"
 
@@ -37,15 +35,15 @@ public:
 
     // Required by rebind.
     fixed_allocator(fixed_allocator const&)             = default;
-    fixed_allocator(fixed_allocator &&)                 = delete;
-    fixed_allocator& operator=(fixed_allocator const&)  = delete;
-    fixed_allocator& operator=(fixed_allocator&&)       = delete;
+    fixed_allocator(fixed_allocator &&)                 = default;
+    fixed_allocator& operator=(fixed_allocator const&)  = default;
+    fixed_allocator& operator=(fixed_allocator&&)       = default;
 
     fixed_allocator() : buffer_(nullptr), buffer_length_(0u), in_use_(false)
     {}
 
     /**
-     * Create a fixed alocator for the specified data_type.
+     * Create a fixed allocator for the specified data_type.
      *
      * @param buffer The fixed backing store to use for allocation.
      * @param length The number of data_type units held in the
@@ -54,6 +52,20 @@ public:
     fixed_allocator(value_type *buffer, std::size_t length)
         : buffer_(buffer), buffer_length_(length), in_use_(false)
     {}
+
+    /**
+     * Memory assignment after construction has occurred.
+     *
+     * @param buffer The fixed backing store to use for allocation.
+     * @param length The number of data_type units held in the
+     *               backing store allocation.
+     */
+    void assign(value_type *buffer, std::size_t length)
+    {
+        ASSERT(not this->in_use_);
+        this->buffer_ = buffer;
+        this->buffer_length_ = length;
+    }
 
     /**
      * Allocates n * sizeof(value_type) bytes of uninitialized storage by

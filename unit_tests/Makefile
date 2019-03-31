@@ -13,7 +13,7 @@ GTEST_DIR	= ../external/googletest/googletest
 
 INCLUDE_PATH     = -I .
 INCLUDE_PATH    += -I ..
-INCLUDE_PATH    += -I ../utilities
+INCLUDE_PATH    += -I ../utility
 INCLUDE_PATH    += -I ../logger
 INCLUDE_PATH    += -I ../nordic/peripherals
 INCLUDE_PATH    += -I $(BOOST_ROOT)/include
@@ -21,7 +21,7 @@ INCLUDE_PATH    += -I $(GTEST_DIR)/include/gtest
 INCLUDE_PATH    += -I $(GTEST_DIR)/include/gtest/internal
 
 vpath %.cc .
-vpath %.cc ../utilities
+vpath %.cc ../utility
 vpath %.cc ../logger
 vpath %.cc ../ble
 vpath %.cc ../ble/service

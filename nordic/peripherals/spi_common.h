@@ -42,7 +42,7 @@ enum spi_result_t
  * MISO, and Slave Select to specify that the given signal is not used and
  * therefore does not need to be connected to a pin.
  */
-#define SPI_PIN_NOT_USED  ((uint8_t) 0xFFu)
+#define spi_pin_not_used  ((gpio_pin_t) -1)
 
 enum spi_polarity_t
 {
@@ -97,13 +97,14 @@ enum spi_shift_order_t
  */
 struct spi_config_t
 {
-    uint8_t sck_pin;
-    uint8_t mosi_pin;
-    uint8_t miso_pin;
+    gpio_pin_t sck_pin;
+    gpio_pin_t mosi_pin;
+    gpio_pin_t miso_pin;
 
-    /// Set to NRF_DRV_SPI_PIN_NOT_USED if the SS pin is controlled
+    /// Set to spi_pin_not_used if the SS pin is controlled
     /// outside of the SPI driver.
-    uint8_t ss_pin;
+    gpio_pin_t ss_pin;
+
     uint8_t irq_priority;
 
     ///< Over-run character.
@@ -122,7 +123,7 @@ struct spi_config_t
 };
 
 /**
- * Translate the pin number to a uint32_t value which indicated the SPI
+ * Translate the pin number to a uint32_t value which indicates the SPI
  * pin to use in the SPIM_PSEL_Type struct.
  * @note This used to deal with unused MOSI and MISO pin values.
  *
@@ -133,7 +134,7 @@ struct spi_config_t
 static inline uint32_t spi_pin_sel(uint8_t pin_no)
 {
     uint32_t const pin_not_connected = UINT32_MAX;
-    return (pin_no == SPI_PIN_NOT_USED) ? pin_not_connected : pin_no;
+    return (pin_no == spi_pin_not_used) ? pin_not_connected : pin_no;
 }
 
 uint32_t spi_configure_mode(enum spi_mode_t        spi_mode,

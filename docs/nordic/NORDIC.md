@@ -422,3 +422,17 @@ least 4 connection intervals per unknown 128-bit UUID entries.
 Reference Link:
 https://devzone.nordicsemi.com/f/nordic-q-a/3656/s130-custom-uuid-service-discovery/13264#13264
 
+Nordic UART Service Characteristics
+-----------------------------------
+
+### TX characteristic
+
+UUID: 0x0002
+Full UUID: 6E400002-B5A3-F393-E0A9-E50E24DCCA9E
+Properties: WRITE, WRITE WITOUT RESPONSE
+
+### RX characteristic
+
+UUID: 0x0003
+Full UUID: 6E400003-B5A3-F393-E0A9-E50E24DCCA9E
+Properties: NOTIFICATION

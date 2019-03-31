@@ -1,5 +1,5 @@
 /**
- * @file std_stream.h
+ * @file null_stream.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
@@ -8,16 +8,15 @@
 #include "stream.h"
 #include <limits>
 #include <cstddef>
-#include <cstdio>
 
 namespace io
 {
 
 /**
  * @class stdout_stream
- * Implement io::stream for stdout
+ * Implement io::stream for a null stream (prints nothing).
  */
-class stdout_stream: public io::output_stream
+class nullout_stream: public io::output_stream
 {
 private:
     using super = io::output_stream;
@@ -26,7 +25,7 @@ public:
 
     virtual std::size_t write(void const *buffer, size_t length) override
     {
-        return fwrite(buffer, sizeof(char), length, stdout);
+        return length;
     }
 
     virtual std::size_t write_pending() const override
@@ -41,7 +40,6 @@ public:
 
     virtual void flush() override
     {
-        fflush(stdout);
     }
 };
 

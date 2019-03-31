@@ -9,7 +9,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdtimer_test"
+        OutputFile="%bdutility"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -32,7 +32,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='g++ %xup -g -o "%o" %f %libs'/>
+                <Exec CmdLine='ar -rs %xup "%o" %f'/>
             </Target>
             <Target
                 Name="Build"
@@ -61,7 +61,7 @@
                 Deletable="0"
                 SaveOption="SaveNone"
                 RunFromDir="%rw">
-                <Exec CmdLine='vsdebugio -prog "%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="Execute"
@@ -72,7 +72,7 @@
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
                 RunFromDir="%rw">
-                <Exec CmdLine='"%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="dash"
@@ -126,7 +126,7 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="Executable"/>
+                Value="StaticLibrary"/>
         </List>
     </Config>
     <Config
@@ -134,7 +134,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdtimer_test"
+        OutputFile="%bdutility"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -157,7 +157,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='g++ %xup -o "%o" %f %libs'/>
+                <Exec CmdLine='ar -rs %xup "%o" %f'/>
             </Target>
             <Target
                 Name="Build"
@@ -186,7 +186,7 @@
                 Deletable="0"
                 SaveOption="SaveNone"
                 RunFromDir="%rw">
-                <Exec CmdLine='vsdebugio -prog "%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="Execute"
@@ -197,7 +197,7 @@
                 Deletable="0"
                 SaveOption="SaveWorkspaceFiles"
                 RunFromDir="%rw">
-                <Exec CmdLine='"%o"'/>
+                <Exec CmdLine=""/>
             </Target>
             <Target
                 Name="dash"
@@ -251,36 +251,56 @@
         <List Name="GNUC Options">
             <Item
                 Name="LinkerOutputType"
-                Value="Executable"/>
+                Value="StaticLibrary"/>
         </List>
     </Config>
     <Files>
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{8BC6BE93-08B1-4394-8CAB-C0A0A45CCB9C}">
-            <F N="main.cc"/>
+            GUID="{6BB44251-229E-4D80-975E-AF6EF065AFE8}">
+            <F N="format_conversion.cc"/>
+            <F N="gregorian.cc"/>
+            <F N="int_to_string.cc"/>
+            <F N="project_assert.cc"/>
+            <F N="std_stubs.cc"/>
+            <F N="version_info.c"/>
+            <F N="vwritef.cc"/>
+            <F N="write_data.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{25EF7EED-5E81-43C6-9B7D-5AE2D7905081}">
-            <F N="rtc_observer_test.h"/>
+            GUID="{8483D48C-17AD-40B2-8C55-E43E03F2B80F}">
+            <F N="bit_manip.h"/>
+            <F N="charconv.h"/>
+            <F N="fixed_allocator.h"/>
+            <F N="float_to_string.h"/>
+            <F N="format_conversion.h"/>
+            <F N="gregorian.h"/>
+            <F N="int_to_string.h"/>
+            <F N="make_array.h"/>
+            <F N="observable.h"/>
+            <F N="observer.h"/>
+            <F N="project_assert.h"/>
+            <F N="section_macros.h"/>
+            <F N="std_error.h"/>
+            <F N="stream.h"/>
+            <F N="version_info.h"/>
+            <F N="vwritef.h"/>
+            <F N="write_data.h"/>
         </Folder>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"
-            GUID="{C523F8BF-C6A7-430D-9D21-A54C5C37F79F}"/>
+            GUID="{5928E62F-FDA7-42F8-A6A7-299E63E91B7E}"/>
         <Folder
             Name="Bitmaps"
             Filters="*.bmp"
-            GUID="{6D42562B-78E6-40D0-941F-2132F50A6BD3}"/>
+            GUID="{F46B08ED-956F-46F8-B14D-DCB44B16CA2B}"/>
         <Folder
             Name="Other Files"
             Filters=""
-            GUID="{770A4407-E046-490D-BD4B-63D5692E7A08}">
-            <F N="rtc_test.ld"/>
-            <F N="rtc_test.vpj"/>
-        </Folder>
+            GUID="{2E768021-52E4-47DA-99C7-C5AD80372455}"/>
     </Files>
 </Project>

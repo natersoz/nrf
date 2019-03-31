@@ -9,7 +9,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdbuttons_leds_test"
+        OutputFile="%bdtest_twi"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -134,7 +134,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdbuttons_leds_test"
+        OutputFile="%bdtest_twi"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -258,37 +258,24 @@
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{C8F5A19C-AD05-43C0-9650-AFBAF4824DD2}">
+            GUID="{C87E4F24-2FE0-42BF-B14C-3AED94047797}">
             <F N="main.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{C4DEBCB4-830F-4637-8494-F21EF737427D}">
-            <Folder
-                Name="config"
-                AutoCustom="1"
-                GUID="{2E9985CB-2001-423A-B189-DEF5F6992992}">
-                <F N="config/sdk_config.h"/>
-            </Folder>
-        </Folder>
+            GUID="{D50DA6AA-9E93-496A-920F-77A6851B4AFF}"/>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"
-            GUID="{CAE755CC-E571-4300-B84B-C3AED8DF7180}"/>
+            GUID="{77510072-65B4-40E7-899A-FC2FF4F94CBA}"/>
         <Folder
             Name="Bitmaps"
             Filters="*.bmp"
-            GUID="{FEF9C0EA-5847-43CA-8315-D5E815DFAD7F}"/>
+            GUID="{50AE466B-49BF-4D68-B283-F2DC8D2023FD}"/>
         <Folder
             Name="Other Files"
             Filters=""
-            GUID="{180E3386-B354-430F-B9DB-745381882300}">
-            <F N="buttons_leds_test.ld"/>
-            <F N="gdb-init"/>
-            <F
-                N="Makefile"
-                Type="Makefile"/>
-        </Folder>
+            GUID="{0359FFD5-FB7C-402D-8B6C-E197E6F4C239}"/>
     </Files>
 </Project>

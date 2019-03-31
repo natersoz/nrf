@@ -81,8 +81,8 @@ struct spis_control_block_t
     /// This is carried by the SPI interface but never modified by the SPI driver.
     void *context;
 
-    /// The slave select pin. Must not be set to SPI_PIN_NOT_USED.
-    uint8_t ss_pin;
+    /// The slave select pin. Must not be set to spi_pin_not_used.
+    gpio_pin_t ss_pin;
 };
 
 static void irq_handler_spis(spis_control_block_t* spis_control);
@@ -104,7 +104,7 @@ static struct spis_control_block_t spis_instance_0 =
     .gpio_te_channel        = gpio_te_channel_invalid,
     .handler                = nullptr,
     .context                = nullptr,
-    .ss_pin                 = SPI_PIN_NOT_USED,
+    .ss_pin                 = spi_pin_not_used,
 };
 static struct spis_control_block_t* const spis_instance_ptr_0 = &spis_instance_0;
 
@@ -130,7 +130,7 @@ static struct spis_control_block_t spis_instance_1 =
     .gpio_te_channel        = gpio_te_channel_invalid,
     .handler                = nullptr,
     .context                = nullptr,
-    .ss_pin                 = SPI_PIN_NOT_USED,
+    .ss_pin                 = spi_pin_not_used,
 };
 static struct spis_control_block_t* const spis_instance_ptr_1 = &spis_instance_1;
 
@@ -156,7 +156,7 @@ static struct spis_control_block_t spis_instance_2 =
     .gpio_te_channel        = gpio_te_channel_invalid,
     .handler                = nullptr,
     .context                = nullptr,
-    .ss_pin                 = SPI_PIN_NOT_USED,
+    .ss_pin                 = spi_pin_not_used,
 };
 static struct spis_control_block_t* const spis_instance_ptr_2 = &spis_instance_2;
 
@@ -227,8 +227,8 @@ enum spi_result_t spis_init(spi_port_t                  spi_port,
     ASSERT(not spis_regs_in_use(spis_control));
 
     ASSERT(spi_config);
-    ASSERT(spi_config->ss_pin  != SPI_PIN_NOT_USED);
-    ASSERT(spi_config->sck_pin != SPI_PIN_NOT_USED);
+    ASSERT(spi_config->ss_pin  != spi_pin_not_used);
+    ASSERT(spi_config->sck_pin != spi_pin_not_used);
     ASSERT(interrupt_priority_is_valid(spi_config->irq_priority));
 
     spis_control->handler = handler;
@@ -257,7 +257,7 @@ enum spi_result_t spis_init(spi_port_t                  spi_port,
                          gpio_pull_none,
                          gpio_sense_disable);
 
-    if (spi_config->miso_pin != SPI_PIN_NOT_USED)
+    if (spi_config->miso_pin != spi_pin_not_used)
     {
         // See comments above: MISO pin set to input;
         // SPIS peripheral takes control on SS assertion/semaphore acquisition.
@@ -270,7 +270,7 @@ enum spi_result_t spis_init(spi_port_t                  spi_port,
                        gpio_sense_disable);
     }
 
-    if (spi_config->mosi_pin != SPI_PIN_NOT_USED)
+    if (spi_config->mosi_pin != spi_pin_not_used)
     {
         gpio_configure_input(spi_config->mosi_pin,
                              gpio_pull_none,

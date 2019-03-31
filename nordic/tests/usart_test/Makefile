@@ -1,5 +1,5 @@
 ###
-# Makefile for testing Nordic nRF52 Timer interface(s).
+# Makefile for testing Nordic nRF52 UARTE interface.
 # @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 ###
 
@@ -7,7 +7,7 @@ PROJECT_ROOT := ../../..
 SDK_ROOT     := $(PROJECT_ROOT)/sdk
 
 # The executable name
-TARGET_NAME = timer_test
+TARGET_NAME = usart_test
 
 # Where the compiled files are built.
 BUILD_PATH = _build
@@ -28,32 +28,34 @@ SOURCE_FILES += ./main.cc
 
 SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/gcc_startup_nrf52.s
 SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/gcc_stubs.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/rtc_debug.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/clocks.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/rtc.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/gpio.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/timer.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/leds_pca10040.cc
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/buttons_pca10040.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/clocks.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/leds_pca10040.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/rtc.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/usart.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/timer.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/gpio.cc
+SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/gpio_te.cc
 
 SOURCE_FILES += $(PROJECT_ROOT)/nordic/nordic_critical_section.cc
 
-SOURCE_FILES += $(PROJECT_ROOT)/utility/project_assert.cc
-SOURCE_FILES += $(PROJECT_ROOT)/utility/format_conversion.cc
-SOURCE_FILES += $(PROJECT_ROOT)/utility/int_to_string.cc
-SOURCE_FILES += $(PROJECT_ROOT)/utility/vwritef.cc
-SOURCE_FILES += $(PROJECT_ROOT)/utility/write_data.cc
-SOURCE_FILES += $(PROJECT_ROOT)/utility/std_stubs.cc
 SOURCE_FILES += $(PROJECT_ROOT)/logger/logger.cc
 SOURCE_FILES += $(PROJECT_ROOT)/logger/logger_c.cc
 SOURCE_FILES += $(PROJECT_ROOT)/logger/rtt_output_stream.cc
 SOURCE_FILES += $(PROJECT_ROOT)/segger/segger_rtt.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utility/boost_exception.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utility/format_conversion.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utility/int_to_string.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utility/project_assert.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utility/std_stubs.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utility/vwritef.cc
+SOURCE_FILES += $(PROJECT_ROOT)/utility/write_data.cc
 
 # SDK source files:
 SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
 
 # Include folders:
-INCLUDE_PATHS =  .
+INCLUDE_PATHS  =
 INCLUDE_PATHS += $(PROJECT_ROOT)/gcc-arm
 INCLUDE_PATHS += $(PROJECT_ROOT)/logger
 INCLUDE_PATHS += $(PROJECT_ROOT)/nordic
@@ -91,8 +93,8 @@ NORDIC_DEFS += -D CONFIG_GPIO_AS_PINRESET
 NORDIC_DEFS += -D SWI_DISABLE0
 
 NORDIC_DEFS += -D TIMER1_ENABLED
-NORDIC_DEFS += -D TIMER2_ENABLED
 NORDIC_DEFS += -D RTC1_ENABLED
+NORDIC_DEFS += -D NRF_STRERROR_ENABLED
 
 CXXFLAGS    += $(NORDIC_DEFS)
 CFLAGS      += $(NORDIC_DEFS)

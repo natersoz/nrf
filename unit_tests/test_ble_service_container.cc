@@ -13,11 +13,13 @@
 
 #include "ble/gatt_write_ostream.h"
 #include "std_stream.h"
+#include "null_stream.h"
 #include "logger.h"
+
+static io::nullout_stream os;   // Change to io::stdout_stream for debug output
 
 TEST(ServiceContainerTest, GAP_Battery_Time)
 {
-    io::stdout_stream os;
     logger& logger = logger::instance();
     logger.set_output_stream(os);
     logger.set_level(logger::level::info);

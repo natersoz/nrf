@@ -14,11 +14,12 @@
 
 #include "ble/gatt_write_ostream.h"
 #include "std_stream.h"
+#include "null_stream.h"
+
+static io::nullout_stream os;   // Change to io::stdout_stream for debug output
 
 TEST(BleService, GapService)
 {
-    io::stdout_stream os;
-
     constexpr char   const device_name[]       = "periph";
     constexpr size_t const device_name_length  = std::size(device_name) - 1u;
 
@@ -60,8 +61,6 @@ TEST(BleService, GapService)
 
 TEST(BleService, BatteryService)
 {
-    io::stdout_stream os;
-
     ble::service::battery_level         battery_level_characteristic;
     ble::service::battery_power_state   battery_power_characteristic;
     ble::service::battery_service       battery_service;
@@ -90,8 +89,6 @@ TEST(BleService, BatteryService)
 
 TEST(BleService, CurrentTimeService)
 {
-    io::stdout_stream os;
-
     ble::service::current_time_service current_time_service;
 
     for (auto const& node : current_time_service.characteristic_list)
@@ -110,8 +107,6 @@ TEST(BleService, CurrentTimeService)
 
 TEST(BleService, CustomService)
 {
-    io::stdout_stream os;
-
     ble::att::uuid const uuid_service({
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,

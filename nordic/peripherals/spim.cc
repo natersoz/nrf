@@ -66,8 +66,8 @@ struct spim_control_block_t
     /// This volatile flag allows for interrupt/task resource arbitration.
     volatile bool transfer_in_progress;
 
-    /// The slave select pin. SPI_PIN_NOT_USED if not used.
-    uint8_t ss_pin;
+    /// The slave select pin. spi_pin_not_used if not used.
+    gpio_pin_t ss_pin;
 
     /// The over-run byte value. When the read buffer length exceeds the
     /// write buffer length the read data will be filled with 'orc'.
@@ -85,7 +85,7 @@ static struct spim_control_block_t spim_instance_0 =
     .handler                = nullptr,
     .context                = nullptr,
     .transfer_in_progress   = false,
-    .ss_pin                 = SPI_PIN_NOT_USED,
+    .ss_pin                 = spi_pin_not_used,
     .orc                    = 0xFFu
 };
 static struct spim_control_block_t* const spim_instance_ptr_0 = &spim_instance_0;
@@ -106,7 +106,7 @@ static struct spim_control_block_t spim_instance_1 =
     .handler                = nullptr,
     .context                = nullptr,
     .transfer_in_progress   = false,
-    .ss_pin                 = SPI_PIN_NOT_USED,
+    .ss_pin                 = spi_pin_not_used,
     .orc                    = 0xFFu
 };
 static struct spim_control_block_t* const spim_instance_ptr_1 = &spim_instance_1;
@@ -127,7 +127,7 @@ static struct spim_control_block_t spim_instance_2 =
     .handler                = nullptr,
     .context                = nullptr,
     .transfer_in_progress   = false,
-    .ss_pin                 = SPI_PIN_NOT_USED,
+    .ss_pin                 = spi_pin_not_used,
     .orc                    = 0xFFu
 };
 static struct spim_control_block_t* const spim_instance_ptr_2 = &spim_instance_2;
@@ -148,7 +148,7 @@ static struct spim_control_block_t spim_instance_3 =
     .handler                = nullptr,
     .context                = nullptr,
     .transfer_in_progress   = false,
-    .ss_pin                 = SPI_PIN_NOT_USED,
+    .ss_pin                 = spi_pin_not_used,
     .orc                    = 0xFFu
 };
 static struct spim_control_block_t* const spim_instance_ptr_3 = &spim_instance_3;
@@ -207,10 +207,10 @@ static struct spim_control_block_t* const spim_control_block(spi_port_t spi_port
  * Clearing an interrupt may take 4 cycles. Read the register to insure the
  * interrupt is cleared before exiting the ISR.
  */
-static void spim_clear_EVENTS_END(struct spim_control_block_t* spim_control)
+static void spim_clear_event_register(uint32_t volatile* spim_register)
 {
-    spim_control->spim_registers->EVENTS_END = 0u;
-    volatile uint32_t dummy = spim_control->spim_registers->EVENTS_END;
+    *spim_register = 0u;
+    volatile uint32_t dummy = *spim_register;
     (void) dummy;
 }
 
@@ -222,7 +222,7 @@ enum spi_result_t spim_init(spi_port_t                 spi_port,
     ASSERT(not spim_regs_in_use(spim_control));
 
     ASSERT(spi_config);
-    ASSERT(spi_config->sck_pin != SPI_PIN_NOT_USED);
+    ASSERT(spi_config->sck_pin != spi_pin_not_used);
     ASSERT(interrupt_priority_is_valid(spi_config->irq_priority));
 
     enum spi_result_t result_code = spi_result_success;
@@ -253,7 +253,7 @@ enum spi_result_t spim_init(spi_port_t                 spi_port,
                           spi_config->output_drive);
 
     // SPI MOSI: output with initial value 0.
-    if (spi_config->mosi_pin != SPI_PIN_NOT_USED)
+    if (spi_config->mosi_pin != spi_pin_not_used)
     {
         gpio_pin_clear(spi_config->mosi_pin);
         gpio_configure_output(spi_config->mosi_pin,
@@ -262,13 +262,13 @@ enum spi_result_t spim_init(spi_port_t                 spi_port,
     }
 
     // SPI MISO: input with internal pull-up.
-    if (spi_config->miso_pin != SPI_PIN_NOT_USED)
+    if (spi_config->miso_pin != spi_pin_not_used)
     {
         gpio_configure_input(spi_config->miso_pin, gpio_pull_up, gpio_sense_disable);
     }
 
     // SPI SS: output with initial value high.
-    if (spi_config->ss_pin != SPI_PIN_NOT_USED)
+    if (spi_config->ss_pin != spi_pin_not_used)
     {
         gpio_pin_set(spi_config->ss_pin);
         gpio_configure_output(spi_config->ss_pin,
@@ -348,7 +348,7 @@ enum spi_result_t spim_transfer(spi_port_t              spi_port,
     spim_control->handler              = handler;
     spim_control->context              = context;
 
-    if (spim_control->ss_pin != SPI_PIN_NOT_USED)
+    if (spim_control->ss_pin != spi_pin_not_used)
     {
         gpio_pin_clear(spim_control->ss_pin);
     }
@@ -359,7 +359,7 @@ enum spi_result_t spim_transfer(spi_port_t              spi_port,
     spim_control->spim_registers->RXD.PTR    = reinterpret_cast<uint32_t>(rx_buffer);
     spim_control->spim_registers->RXD.MAXCNT = rx_length;
 
-    spim_clear_EVENTS_END(spim_control);
+    spim_clear_event_register(&spim_control->spim_registers->EVENTS_END);
 
     /// @todo Understand how the DMA list operations work.
     spim_control->spim_registers->TXD.LIST = (SPIM_FLAG_TX_POSTINC & flags) ? 1u : 0u;
@@ -390,10 +390,10 @@ enum spi_result_t spim_transfer(spi_port_t              spi_port,
         {
             /// @todo need timeout with error handling.
         }
-        spim_clear_EVENTS_END(spim_control);
+        spim_clear_event_register(&spim_control->spim_registers->EVENTS_END);
         spim_control->transfer_in_progress = false;
 
-        if (spim_control->ss_pin != SPI_PIN_NOT_USED)
+        if (spim_control->ss_pin != spi_pin_not_used)
         {
             gpio_pin_set(spim_control->ss_pin);
         }
@@ -427,14 +427,14 @@ void spim_abort_transfer(spi_port_t spi_port)
         spim_control->transfer_in_progress = false;
     }
 
-    spim_clear_EVENTS_END(spim_control);
+    spim_clear_event_register(&spim_control->spim_registers->EVENTS_END);
 }
 
 /** Called from the SPIM interrupt completion ISR. */
 static void finish_transfer(struct spim_control_block_t* const spim_control)
 {
     // If Slave Select signal is used, this is the time to deactivate it.
-    if (spim_control->ss_pin != SPI_PIN_NOT_USED)
+    if (spim_control->ss_pin != spi_pin_not_used)
     {
         gpio_pin_set(spim_control->ss_pin);
     }
@@ -453,7 +453,7 @@ static void irq_handler_spim(struct spim_control_block_t* const spim_control)
 {
     if (spim_control->spim_registers->EVENTS_END)
     {
-        spim_clear_EVENTS_END(spim_control);
+        spim_clear_event_register(&spim_control->spim_registers->EVENTS_END);
         finish_transfer(spim_control);
     }
 }

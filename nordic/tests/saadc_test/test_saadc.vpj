@@ -9,7 +9,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdsaadc_test"
+        OutputFile="%bdtest_saadc"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -134,7 +134,7 @@
         Type="gnuc"
         DebugCallbackName="gdb"
         Version="1"
-        OutputFile="%bdsaadc_test"
+        OutputFile="%bdtest_saadc"
         CompilerConfigName="Latest Version">
         <Menu>
             <Target
@@ -258,29 +258,24 @@
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"
-            GUID="{54BD5E01-E5F9-47A3-AF89-A2C94B9CC2AE}">
+            GUID="{E36BD369-A3D9-4B2F-9E18-4631F304D45D}">
             <F N="main.cc"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{BCDB62AD-66A1-4C98-A1B9-9F70E73BD629}"></Folder>
+            GUID="{C84F8AE1-D40C-412E-B340-0446B718B629}"/>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"
-            GUID="{3A15C35E-EBF4-4A58-A1EA-B0F51CA7DFF2}"/>
+            GUID="{D48D637B-EE3B-40D4-B09F-A30EB6E97147}"/>
         <Folder
             Name="Bitmaps"
             Filters="*.bmp"
-            GUID="{0ED16D79-D843-4890-95B6-E0DE59E2A32C}"/>
+            GUID="{C2F00CE6-4882-4722-9375-484E29B7DC61}"/>
         <Folder
             Name="Other Files"
             Filters=""
-            GUID="{5E44A757-6E22-4D14-8661-ADC3D7ADA56E}">
-            <F
-                N="Makefile"
-                Type="Makefile"/>
-            <F N="saadc_test.ld"/>
-        </Folder>
+            GUID="{0D57B251-8342-4523-B602-1683B63AC96F}"/>
     </Files>
 </Project>

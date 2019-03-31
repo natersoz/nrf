@@ -8,7 +8,14 @@
 		<Project File="logger/logger.vpj"/>
 		<Project File="nordic/nordic.vpj"/>
 		<Project File="nRF5_SDK15.2.vpj"/>
+		<Project File="nordic/tests/buttons_leds_test/test_buttons_leds.vpj"/>
+		<Project File="nordic/tests/rtc_test/test_rtc.vpj"/>
+		<Project File="nordic/tests/saadc_test/test_saadc.vpj"/>
+		<Project File="nordic/tests/spi_test/test_spi.vpj"/>
+		<Project File="nordic/tests/timer_test/test_timer.vpj"/>
+		<Project File="nordic/tests/twi_test/test_twi.vpj"/>
+		<Project File="nordic/tests/usart_test/test_usart.vpj"/>
 		<Project File="unit_tests/unit_tests.vpj"/>
-		<Project File="utilities/utilities.vpj"/>
+		<Project File="utility/utility.vpj"/>
 	</Projects>
 </Workspace>

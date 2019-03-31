@@ -10,10 +10,10 @@ TARGET_NAME	= test_float_to_string
 BUILD_PATH	= _build
 
 INCLUDE_PATH	+= -I .
-INCLUDE_PATH	+= -I ../../utilities
+INCLUDE_PATH	+= -I ../../utility
 
 vpath %.cc .
-vpath %.cc ../../utilities
+vpath %.cc ../../utility
 
 WARNINGS += -Wall
 WARNINGS += -Wmissing-field-initializers

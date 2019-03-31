@@ -1,5 +1,5 @@
 /**
- * @file spi_master/main.cc
+ * @file spi_test/main.cc
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
@@ -73,7 +73,7 @@ static void spim_event_handler(void* context)
     logger &logger = logger::instance();
 
     spim_transfer_count += 1u;
-    logger.info("SPIM [%u] Rx:", spim_transfer_count);
+    logger.debug("SPIM [%u] Rx:", spim_transfer_count);
     logger.write_data(logger::level::debug,
                       spim_rx_buffer,
                       spim_rx_length,
@@ -124,7 +124,7 @@ static void spis_event_handler(void* context, struct spis_event_t const *event)
 
     case spis_event_transfer_complete:
         spis_transfer_count += 1u;
-        logger.info("SPIS [%u] Rx:", spis_transfer_count);
+        logger.debug("SPIS [%u] Rx:", spis_transfer_count);
         logger.write_data(logger::level::debug,
                           spis_rx_buffer,
                           event->rx_length,
@@ -155,7 +155,7 @@ void spi_test_timer::expiration_notify()
     led_state_set(1u, true);
 
     logger &logger = logger::instance();
-    logger.info("SPIS [%u] enable:", spis_transfer_count);
+    logger.debug("SPIS [%u] enable:", spis_transfer_count);
 
     // Fill the SPIM tx buffer with increasing ramps of data.
     mem_fill_ramp(spim_tx_buffer, ramp_start_value, 1u, spim_tx_length);
@@ -181,8 +181,9 @@ int main()
     logger.set_rtc(rtc_1);
     segger_rtt_enable();
 
-    logger.info("SPIM, SPIS test");
-    logger.info("spi timer: %8u ticks", spi_timer.expiration_get_ticks());
+    logger.info("----- SPIM, SPIS test -----");
+    logger.info("Only errors will be reported");
+    logger.debug("spi timer: %8u ticks", spi_timer.expiration_get_ticks());
 
     struct spi_config_t const spim_config = {
         .sck_pin        =  11u,
