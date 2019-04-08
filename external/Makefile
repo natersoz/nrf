@@ -6,10 +6,15 @@
 
 .PHONY: all mrproper
 
-all: downloads nRF5_SDK_15.2.0_9412b96 googletest
+all: downloads nRF5_SDK_15.3.0_59ac345 googletest
 
 downloads:
 	mkdir $@
+
+nRF5_SDK_15.3.0_59ac345: downloads/nRF5SDK153059ac345.zip
+	unzip $^
+	cd ../nordic/sdk-modified && ./replace_sdk_files
+	touch $@
 
 nRF5_SDK_15.2.0_9412b96: downloads/nRF5SDK15209412b96.zip
 	unzip $^
@@ -26,10 +31,16 @@ googletest: googletest-release-1.8.1
 downloads/release-1.8.1.zip:
 	wget --directory-prefix=downloads https://github.com/google/googletest/archive/release-1.8.1.zip
 
+# Nordic nRF5 SDK 15.3
+downloads/nRF5SDK153059ac345.zip:
+	wget --directory-prefix=downloads https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5/Binaries/nRF5SDK153059ac345.zip
+
+# Nordic nRF5 SDK 15.2
 downloads/nRF5SDK15209412b96.zip:
-	wget --directory-prefix=downloads  https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5/Binaries/nRF5SDK15209412b96.zip
+	wget --directory-prefix=downloads https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5/Binaries/nRF5SDK15209412b96.zip
 
 mrproper:
 	rm -rf downloads
+	rm -rf nRF5_SDK_15.3.0_59ac345
 	rm -rf nRF5_SDK_15.2.0_9412b96
 	rm -rf googletest*

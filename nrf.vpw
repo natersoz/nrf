@@ -7,7 +7,7 @@
 		<Project File="gcc-arm/gcc-arm.vpj"/>
 		<Project File="logger/logger.vpj"/>
 		<Project File="nordic/nordic.vpj"/>
-		<Project File="nRF5_SDK15.2.vpj"/>
+		<Project File="external/nRF5_SDK_15.3.0_59ac345/nRF5_SDK_15.3.vpj"/>
 		<Project File="nordic/tests/buttons_leds_test/test_buttons_leds.vpj"/>
 		<Project File="nordic/tests/rtc_test/test_rtc.vpj"/>
 		<Project File="nordic/tests/saadc_test/test_saadc.vpj"/>
