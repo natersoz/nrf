@@ -33,10 +33,11 @@ namespace gattc
 {
 
 std::errc service_builder::discover_services(
-    uint16_t                        conenction_handle,
-    ble::gatt::service_container&   svc_container,
-    uint16_t                        gatt_handle_first,
-    uint16_t                        gatt_handle_last)
+    uint16_t                            conenction_handle,
+    ble::gatt::service_container&       svc_container,
+    uint16_t                            gatt_handle_first,
+    uint16_t                            gatt_handle_last,
+    service_builder::completion_notify* notify)
 {
     std::errc const error = this->service_discovery.discover_primary_services(
         conenction_handle, gatt_handle_first, gatt_handle_last);
@@ -44,8 +45,30 @@ std::errc service_builder::discover_services(
     if (is_success(error))
     {
         this->service_container             = &svc_container;
-        this->handle_discovery_range.first  = gatt_handle_first;
-        this->handle_discovery_range.second = gatt_handle_last;
+        this->discovery_handle_range.first  = gatt_handle_first;
+        this->discovery_handle_range.second = gatt_handle_last;
+        this->completion_notification       = notify;
+    }
+
+    return error;
+}
+
+std::errc service_builder::discover_attributes(
+    uint16_t                            conenction_handle,
+    ble::gatt::service_container&       svc_container,
+    uint16_t                            gatt_handle_first,
+    uint16_t                            gatt_handle_last,
+    service_builder::completion_notify* notify)
+{
+    std::errc const error = this->service_discovery.discover_attributes(
+        conenction_handle, gatt_handle_first, gatt_handle_last);
+
+    if (is_success(error))
+    {
+        this->service_container             = &svc_container;
+        this->discovery_handle_range.first  = gatt_handle_first;
+        this->discovery_handle_range.second = gatt_handle_last;
+        this->completion_notification       = notify;
     }
 
     return error;
@@ -67,12 +90,12 @@ void service_builder::service_discovered(
 
     if (gatt_error == ble::att::error_code::success)
     {
-        logger.info("service discovered: h: [0x%04x, 0x%04x]: %s",
-                    gatt_handle_first, gatt_handle_last, uuid_char_buffer);
+        logger.debug("service discovered: h: [0x%04x, 0x%04x]: %s",
+                     gatt_handle_first, gatt_handle_last, uuid_char_buffer);
 
         if (this->free_list.services.empty())
         {
-            logger.error(
+            logger.debug(
                 "service discovered: h: [0x%04x, 0x%04x]: %s, free list empty",
                 gatt_handle_first, gatt_handle_last, uuid_char_buffer);
         }
@@ -102,8 +125,12 @@ void service_builder::service_discovered(
                     gatt_handle_first, gatt_handle_last, uuid_char_buffer,
                     gatt_error, gatt_handle_error);
 
-        /// @todo If this is a permissions error, like security level,
-        /// then what? For now, exit.
+        if (this->completion_notification)
+        {
+            completion_notify *completion = this->completion_notification;
+            this->completion_notification = nullptr;
+            completion->notify(gatt_error);
+        }
         return;
     }
 
@@ -111,23 +138,23 @@ void service_builder::service_discovered(
     {
         uint16_t const gatt_handle_next = gatt_handle_last + 1u;
         if ((gatt_handle_last == ble::att::handle_maximum) ||
-            (gatt_handle_next > this->handle_discovery_range.second))
+            (gatt_handle_next > this->discovery_handle_range.second))
         {
             // Service discovery complete. Begin characteristics discovery.
             /// @todo this should be relationship discovery.
-            logger.info("service discovery complete");
+            logger.debug("service discovery complete");
             std::errc const error =
                 this->service_discovery.discover_characteristics(
                     connection_handle,
-                    this->handle_discovery_range.first,
-                    this->handle_discovery_range.second);
+                    this->discovery_handle_range.first,
+                    this->discovery_handle_range.second);
 
             if (not is_success(error))
             {
                 logger.error("service_builder::discover_characteristics: "
                              "[0x%04x:0x%04x]: failed: %u",
-                    this->handle_discovery_range.first,
-                    this->handle_discovery_range.second, error);
+                    this->discovery_handle_range.first,
+                    this->discovery_handle_range.second, error);
             }
         }
         else
@@ -137,7 +164,7 @@ void service_builder::service_discovered(
                 this->service_discovery.discover_primary_services(
                     connection_handle,
                     gatt_handle_next,
-                    this->handle_discovery_range.second);
+                    this->discovery_handle_range.second);
 
             if (not is_success(error))
             {
@@ -179,9 +206,9 @@ void service_builder::characteristic_discovered(
 
     if (gatt_error == ble::att::error_code::success)
     {
-        logger.info("characteristic discovered: h:[0x%04x, 0x%04x]: %s",
-                    gatt_handle_declaration, gatt_handle_value,
-                    uuid_char_buffer);
+        logger.debug("characteristic discovered: h:[0x%04x, 0x%04x]: %s",
+                     gatt_handle_declaration, gatt_handle_value,
+                     uuid_char_buffer);
 
         ble::gatt::service* service =
             this->service_container->find_service_handle_assoc(
@@ -207,12 +234,12 @@ void service_builder::characteristic_discovered(
 
                 // Note that the default ctor for ble::gatt::characteristic has
                 // set the attribute_type properly. Doing it here anyway.
-                characteristic.uuid = uuid;
+                characteristic.uuid         = uuid;
+                characteristic.value_handle = gatt_handle_value;
+                characteristic.decl.handle  = gatt_handle_declaration;
                 characteristic.decl.attribute_type =
                     ble::gatt::attribute_type::characteristic;
-                characteristic.decl.handle = gatt_handle_declaration;
                 service->characteristic_add(characteristic);
-                /// @todo Need gatt_handle_value assignment
             }
         }
         else
@@ -236,8 +263,12 @@ void service_builder::characteristic_discovered(
                     gatt_handle_declaration, gatt_handle_value,
                     uuid_char_buffer, gatt_error, gatt_handle_error);
 
-        /// @todo If this is a permissions error, like security level,
-        /// then what? For now, exit.
+        if (this->completion_notification)
+        {
+            completion_notify *completion = this->completion_notification;
+            this->completion_notification = nullptr;
+            completion->notify(gatt_error);
+        }
         return;
     }
 
@@ -245,10 +276,10 @@ void service_builder::characteristic_discovered(
     {
         uint16_t const gatt_handle_next = gatt_handle_value + 1u;
         if ((gatt_handle_value == ble::att::handle_maximum) ||
-            (gatt_handle_next > this->handle_discovery_range.second))
+            (gatt_handle_next > this->discovery_handle_range.second))
         {
             // Characteristic discovery complete. Begin descriptors discovery.
-            logger.info("characteristic discovery complete");
+            logger.debug("characteristic discovery complete");
 
             this->discovery_iterator =
                 this->service_container->next_open_characteristic(
@@ -258,11 +289,22 @@ void service_builder::characteristic_discovered(
             if (this->discovery_iterator ==
                 this->service_container->discovery_end())
             {
-                logger.info("descriptor discovery complete");
+                // Descriptor discovery complete.
+                // Aggregate GATT service discovery is complete.
+                logger.debug("descriptor discovery complete");
+                this->trim_discovery_handle_range();
+                logger.debug(
+                    "service discovery handle range: h: [0x%04x, 0x%04x]",
+                    this->discovery_handle_range.first,
+                    this->discovery_handle_range.second);
 
-                // No descriptors to discover
-
-                /// @todo next phase of discovery goes here...
+                if (this->completion_notification)
+                {
+                    completion_notify *completion = this->completion_notification;
+                    this->completion_notification = nullptr;
+                    completion->notify(gatt_error);
+                }
+                return;
             }
             else
             {
@@ -290,14 +332,14 @@ void service_builder::characteristic_discovered(
                 this->service_discovery.discover_characteristics(
                     connection_handle,
                     gatt_handle_next,
-                    this->handle_discovery_range.second);
+                    this->discovery_handle_range.second);
 
             if (not is_success(error))
             {
                 logger.error("service_builder::discover_characteristics: "
                              "h: [0x%04x, 0x%04x]: failed: %u",
                              gatt_handle_next,
-                             this->handle_discovery_range.second,
+                             this->discovery_handle_range.second,
                              error);
             }
         }
@@ -319,8 +361,8 @@ void service_builder::descriptor_discovered(
 
     if (gatt_error == ble::att::error_code::success)
     {
-        logger.info("descriptor discovered: 0x%04x: %s",
-                    gatt_handle_desciptor, uuid_char_buffer);
+        logger.debug("descriptor discovered: 0x%04x: %s",
+                     gatt_handle_desciptor, uuid_char_buffer);
 
         if (this->free_list.descriptors.empty())
         {
@@ -335,6 +377,7 @@ void service_builder::descriptor_discovered(
 
             ble::gatt::descriptor_base& descriptor =
                 reinterpret_cast<ble::gatt::descriptor_base&>(list_node);
+            descriptor.decl.handle = gatt_handle_desciptor;
 
             ble::gatt::service_container::discovery_iterator::iterator_node
                 const node = *this->discovery_iterator;
@@ -356,8 +399,12 @@ void service_builder::descriptor_discovered(
                     gatt_handle_desciptor, uuid_char_buffer,
                     gatt_error, gatt_handle_error);
 
-        /// @todo If this is a permissions error, like security level,
-        /// then what? For now, exit.
+        if (this->completion_notification)
+        {
+            completion_notify *completion = this->completion_notification;
+            this->completion_notification = nullptr;
+            completion->notify(gatt_error);
+        }
         return;
     }
 
@@ -372,8 +419,18 @@ void service_builder::descriptor_discovered(
             this->service_container->discovery_end())
         {
             // Descriptor discovery complete.
-            logger.info("descriptor discovery complete");
-            /// @todo next phase of discovery goes here...
+            // Aggregate GATT service discovery is complete.
+            logger.debug("descriptor discovery complete");
+            this->trim_discovery_handle_range();
+            logger.debug("service discovery handle range: h: [0x%04x, 0x%04x]",
+                         this->discovery_handle_range.first,
+                         this->discovery_handle_range.second);
+            if (this->completion_notification)
+            {
+                completion_notify *completion = this->completion_notification;
+                this->completion_notification = nullptr;
+                completion->notify(gatt_error);
+            }
         }
         else
         {
@@ -398,10 +455,118 @@ void service_builder::attribute_discovered(
     uint16_t                    connection_handle,
     ble::att::error_code        gatt_error,
     uint16_t                    gatt_handle_error,
-    uint16_t                    handle,
+    uint16_t                    gatt_handle_attribute,
     ble::att::uuid const&       uuid,
     bool                        response_end)
 {
+    logger& logger = logger::instance();
+
+    char uuid_char_buffer[ble::att::uuid::conversion_length];
+    uuid.to_chars(std::begin(uuid_char_buffer), std::end(uuid_char_buffer));
+
+    if (gatt_error == ble::att::error_code::success)
+    {
+        logger.debug("attribute discovered: 0x%04x: %s",
+                     gatt_handle_attribute, uuid_char_buffer);
+
+        /// @todo Need to add an attributes free list.
+        /// For now use the characteristics list. Change later:
+        /// this->free_list.characteristics => this->free_list.attributes
+        if (this->free_list.characteristics.empty())
+        {
+            logger.error("attribute discovered: 0x%04x: %s, free list empty",
+                         gatt_handle_attribute, uuid_char_buffer);
+        }
+        else
+        {
+#if 0
+            ble::gatt::attribute& attribute =
+                this->free_list.characteristics.front();
+            this->free_list.characteristics.pop_front();
+
+            /// @todo Use the discovery_iterator to find the characteristic
+            /// associated with this gatt_handle_attribute.
+//            ble::gatt::service_container::discovery_iterator::iterator_node
+//                const node = *this->discovery_iterator;
+
+            /// @todo Add the attribute to the characteristic here:
+            (void) attribute;
+            /// node.characteristic.attribute_add(attribute);   @todo
+#endif
+        }
+    }
+    else if (gatt_error == ble::att::error_code::attribute_not_found)
+    {
+        // This error indicates that there are no more atributes
+        // to be found in the range requested. Set response_end and
+        // gatt_handle_attribute to complete service discovery below.
+        response_end = true;
+        gatt_handle_attribute = ble::att::handle_maximum;
+    }
+    else
+    {
+        logger.warn("attribute discovered: 0x%04x: %s: "
+                    "error: %u, gatt_handle: 0x%04x",
+                    gatt_handle_attribute, uuid_char_buffer,
+                    gatt_error, gatt_handle_error);
+
+        if (this->completion_notification)
+        {
+            completion_notify *completion = this->completion_notification;
+            this->completion_notification = nullptr;
+            completion->notify(gatt_error);
+        }
+        return;
+    }
+
+    if (response_end)
+    {
+        /// @todo This is a hack for determining the last attribute within
+        /// the service container. It will be the last characteristic handle
+        /// (which is the declaration handle) +1 for the attribute handle.
+        /// There should be a better way. Find it and implement it.
+        ble::gatt::service_container::discovery_iterator disco_iter =
+           this->service_container->discovery_end();
+        --disco_iter;
+        ble::att::handle_range const range = disco_iter.handle_range();
+        uint16_t const last_attribute_handle = range.first + 1u;
+
+        uint16_t const gatt_handle_next = gatt_handle_attribute + 1u;
+        if ((gatt_handle_attribute == ble::att::handle_maximum) ||
+            (gatt_handle_next > last_attribute_handle))
+        {
+            // Attribute discovery complete. This concludes attribute discovery.
+            logger.debug("attribute discovery complete");
+        }
+        else
+        {
+            // Continue the discovery of attributes.
+            std::errc const error =
+                this->service_discovery.discover_attributes(
+                    connection_handle,
+                    gatt_handle_next,
+                    last_attribute_handle);
+
+            if (not is_success(error))
+            {
+                logger.error("service_builder::discover_attributes: "
+                             "h: [0x%04x, 0x%04x]: failed: %u",
+                             gatt_handle_next,
+                             this->discovery_handle_range.second,
+                             error);
+            }
+        }
+    }
+}
+
+void service_builder::trim_discovery_handle_range()
+{
+    ble::gatt::service_container::discovery_iterator disco_iter =
+       this->service_container->discovery_end();
+    --disco_iter;
+
+    this->discovery_handle_range.second =
+        (*disco_iter).characteristic.hande_range().second;
 }
 
 } // namespace gattc

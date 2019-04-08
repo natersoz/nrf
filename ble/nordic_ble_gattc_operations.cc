@@ -23,7 +23,7 @@ std::errc ble_gattc_discovery_operations::discover_primary_services(
 {
     logger& logger = logger::instance();
 
-    logger.info("discover_services(c: 0x%04x, h: [0x%04x, 0x%04x])",
+    logger.debug("discover_services(c: 0x%04x, h: [0x%04x, 0x%04x])",
                  connection_handle, gatt_handle_start, gatt_handle_stop);
 
     uint32_t const error_code = sd_ble_gattc_primary_services_discover(
@@ -88,7 +88,7 @@ std::errc ble_gattc_discovery_operations::discover_characteristics(
 {
     logger& logger = logger::instance();
 
-    logger.info("discover_characteristics(c: 0x%04x, h: [0x%04x, 0x%04x])",
+    logger.debug("discover_characteristics(c: 0x%04x, h: [0x%04x, 0x%04x])",
                  connection_handle, gatt_handle_start, gatt_handle_stop);
 
     ble_gattc_handle_range_t const gatt_handle_range = {
@@ -122,7 +122,7 @@ std::errc ble_gattc_discovery_operations::discover_descriptors(
 {
     logger& logger = logger::instance();
 
-    logger.info("discover_descriptors(c: 0x%04x, h: [0x%04x, 0x%04x])",
+    logger.debug("discover_descriptors(c: 0x%04x, h: [0x%04x, 0x%04x])",
                  connection_handle, gatt_handle_start, gatt_handle_stop);
 
     ble_gattc_handle_range_t const gatt_handle_range = {
@@ -156,7 +156,7 @@ std::errc ble_gattc_discovery_operations::discover_attributes(
 {
     logger& logger = logger::instance();
 
-    logger.info("discover_attributes(c: 0x%04x, h: [0x%04x, 0x%04x])",
+    logger.debug("discover_attributes(c: 0x%04x, h: [0x%04x, 0x%04x])",
                  connection_handle, gatt_handle_start, gatt_handle_stop);
 
     ble_gattc_handle_range_t const gatt_handle_range = {

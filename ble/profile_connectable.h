@@ -51,7 +51,8 @@ public:
       gatts_operations_(&ble_gatts_operations),
       gattc_event_observer_(&ble_gattc_event_observer),
       gattc_operations_(&ble_gattc_operations),
-      gattc_service_builder_(&ble_gattc_service_builder)
+      gattc_service_builder_(&ble_gattc_service_builder),
+      service_builder_completion_(nullptr)
     {
         this->gap_connection_.set_connecteable(this);
         this->gatts_event_observer_->set_connecteable(this);
@@ -70,7 +71,8 @@ public:
       gatts_operations_(&ble_gatts_operations),
       gattc_event_observer_(nullptr),
       gattc_operations_(nullptr),
-      gattc_service_builder_(nullptr)
+      gattc_service_builder_(nullptr),
+      service_builder_completion_(nullptr)
     {
         this->gap_connection_.set_connecteable(this);
         this->gatts_event_observer_->set_connecteable(this);
@@ -89,7 +91,8 @@ public:
       gatts_operations_(nullptr),
       gattc_event_observer_(&ble_gattc_event_observer),
       gattc_operations_(&ble_gattc_operations),
-      gattc_service_builder_(&ble_gattc_service_builder)
+      gattc_service_builder_(&ble_gattc_service_builder),
+      service_builder_completion_(nullptr)
     {
         this->gap_connection_.set_connecteable(this);
         this->gattc_event_observer_->set_connecteable(this);
@@ -125,14 +128,15 @@ public:
     }
 
 private:
-    ble::stack&                     ble_stack_;
-    ble::gap::connection&           gap_connection_;
-    ble::gatts::event_observer*     gatts_event_observer_;
-    ble::gatts::operations*         gatts_operations_;
-    ble::gattc::event_observer*     gattc_event_observer_;
-    ble::gattc::operations*         gattc_operations_;
-    ble::gattc::service_builder*    gattc_service_builder_;
-    ble::gatt::service_container    service_container_;
+    ble::stack&                                         ble_stack_;
+    ble::gap::connection&                               gap_connection_;
+    ble::gatts::event_observer*                         gatts_event_observer_;
+    ble::gatts::operations*                             gatts_operations_;
+    ble::gattc::event_observer*                         gattc_event_observer_;
+    ble::gattc::operations*                             gattc_operations_;
+    ble::gattc::service_builder*                        gattc_service_builder_;
+    ble::gattc::service_builder::completion_notify*     service_builder_completion_;
+    ble::gatt::service_container                        service_container_;
 };
 
 } // namespace profile

@@ -121,9 +121,10 @@ public:
     adc_samples_characteristic& operator=(adc_samples_characteristic&&)       = delete;
 
     adc_samples_characteristic() :
-        gatt::characteristic(uuid_characteristic(custom::services::adc_sensor,
-                                                 custom::characteristics::adc_samples),
-                             gatt::properties::read | gatt::properties::notify),
+        gatt::characteristic(
+            uuid_characteristic(custom::services::adc_sensor,
+                                custom::characteristics::adc_samples),
+            gatt::properties::read | gatt::properties::notify),
         cccd(*this),
         adc_sensor_acq_(nullptr)
     {
@@ -173,13 +174,13 @@ public:
                     logger::instance().debug(
                         "notify: c: 0x%04x, h: 0x%04x, data: 0x%p, len: %u",
                         connectable->connection().get_connection_handle(),
-                        this->decl.handle,
+                        this->value_handle,
                         adc_samples,
                         adc_samples_length * sizeof(sample_type));
 
                     att::length_t const length = connectable->gatts()->notify(
                         connectable->connection().get_connection_handle(),
-                        this->decl.handle,
+                        this->value_handle,
                         0u,
                         adc_samples_length * sizeof(sample_type),
                         adc_samples);

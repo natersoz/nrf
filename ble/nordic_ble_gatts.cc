@@ -293,8 +293,10 @@ static uint32_t gatts_characteristic_add(uint16_t service_handle,
                      uuid_char_buffer, error);
     }
 
-    characteristic.decl.handle = gatt_handles.value_handle;
-    logger.debug("value handle: 0x%04x", gatt_handles.value_handle);
+    characteristic.decl.handle  = gatt_handles.value_handle - 1u;
+    characteristic.value_handle = gatt_handles.value_handle;
+    logger.debug("handles: decl: 0x%04x, value: 0x%04x",
+                 characteristic.decl.handle, characteristic.value_handle);
 
     if (userd)
     {

@@ -8,6 +8,7 @@
 #include "ble/uuid.h"
 #include "ble/att.h"
 #include "ble/gatt_service.h"
+#include "logger.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -165,7 +166,7 @@ public:
                                  *this->characteristic_iterator);
         }
 
-        void print() const;
+        void print(logger::level level) const;
 
         /// Move forward to the next characteristic in the service container.
         void increment();

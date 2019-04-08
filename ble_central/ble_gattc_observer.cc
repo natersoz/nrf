@@ -130,11 +130,6 @@ void ble_gattc_observer::exchange_mtu_response(
 
     ble::gap::connection &gap_connection = this->get_connecteable()->connection();
     gap_connection.get_negotiation_state().set_gatt_mtu_exchange_pending(false);
-
-    if (not gap_connection.get_negotiation_state().is_any_update_pending())
-    {
-        logger::instance().debug("--- pending updates complete ---");
-    }
 }
 
 void ble_gattc_observer::timeout(

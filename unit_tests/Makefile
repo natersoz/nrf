@@ -51,7 +51,6 @@ TARGET_NAME = all_tests
 SRC =
 SRC += battery_service.cc
 SRC += gatt_attribute.cc
-SRC += gatt_characteristic.cc
 SRC += gatt_declaration.cc
 SRC += gatt_service.cc
 SRC += gatt_service_container.cc

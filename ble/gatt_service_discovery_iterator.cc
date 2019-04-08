@@ -12,7 +12,7 @@ namespace ble
 namespace gatt
 {
 
-void service_container::discovery_iterator::print() const
+void service_container::discovery_iterator::print(logger::level level) const
 {
     logger &logger = logger::instance();
     iterator_node const node = **this;
@@ -21,19 +21,19 @@ void service_container::discovery_iterator::print() const
 
     node.service.uuid.to_chars(std::begin(uuid_char_buffer),
                                std::end(uuid_char_buffer));
-    logger.info("service:        (t:0x%04x, h:0x%04x): %s",
-                node.service.decl.attribute_type,
-                node.service.decl.handle, uuid_char_buffer);
+    logger.write(level, "service:        (t:0x%04x, h:0x%04x): %s",
+                 node.service.decl.attribute_type,
+                 node.service.decl.handle, uuid_char_buffer);
 
     node.characteristic.uuid.to_chars(std::begin(uuid_char_buffer),
                                       std::end(uuid_char_buffer));
-    logger.info("characteristic: (t:0x%04x, h:0x%04x): %s",
-                node.characteristic.decl.attribute_type,
-                node.characteristic.decl.handle, uuid_char_buffer);
+    logger.write(level, "characteristic: (t:0x%04x, h:0x%04x): %s",
+                 node.characteristic.decl.attribute_type,
+                 node.characteristic.decl.handle, uuid_char_buffer);
 
     ble::att::handle_range const handle_range = this->handle_range();
-    logger.info("handle range:   [0x%04x, 0x%04x]",
-                handle_range.first, handle_range.second);
+    logger.write(level, "handle range:   [0x%04x, 0x%04x]",
+                 handle_range.first, handle_range.second);
 }
 
 void service_container::discovery_iterator::increment()
@@ -57,7 +57,6 @@ void service_container::discovery_iterator::increment()
         }
         else
         {
-//            logger::instance().info("---- increment service:");
             ble::gatt::service& service = *this->service_iterator;
             this->characteristic_iterator = service.characteristic_list.begin();
 
@@ -67,7 +66,6 @@ void service_container::discovery_iterator::increment()
                 // Note: This is a recursive call.
                 this->increment();
             }
-//            this->print();
         }
     }
 }
@@ -76,40 +74,38 @@ void service_container::discovery_iterator::decrement()
 {
     if (this->service_iterator == this->service_container->end())
     {
-        ASSERT(0);      // Programming error.
-    }
-
-#if 0
-    ble::gatt::service& service = *this->service_iterator;
-    --this->characteristic_iterator;
-    if (this->characteristic_iterator == service.characteristic_list.rend())
-    {
         --this->service_iterator;
-        if (this->service_iterator != this->service_container.rend())
+        ble::gatt::service &service = *this->service_iterator;
+        this->characteristic_iterator = service.characteristic_list.end();
+    }
+    else
+    {
+        ble::gatt::service &service = *this->service_iterator;
+        if (this->characteristic_iterator == service.characteristic_list.begin())
         {
-            logger::instance().info("---- decrement service:");
-            // Only move the characteristic iterator to the next service
-            // if there actually is a next service.
-            ble::gatt::service& service = *this->service_iterator;
-            this->characteristic_iterator = service.characteristic_list.rbegin();
-
-            if (this->characteristic_iterator == service.characteristic_list.rend())
+            if (this->service_iterator == this->service_container->begin())
             {
-                // Found a service with no characteristic. Move on.
-                // Note: recursive call.
-                this->decrement();
+                ASSERT(0);      // Programming error.
             }
-            this->print();
+
+            --this->service_iterator;
+            ble::gatt::service& service = *this->service_iterator;
+            this->characteristic_iterator = service.characteristic_list.end();
         }
     }
-#endif
+    --this->characteristic_iterator;
 }
 
 /**
  * Get the characteristic handle range from the iterator.
+ * The handle range [first, second] is the characteristic declaration handle
+ * (the lowest valued handle within the characteristic) to the next
+ * characteristic in the container -1. This last handle in the characteristic
+ * may be the characteristic value handle up if the characteristic has no
+ * descriptors or the last descriptor handle.
  *
  * @return ble::att::handle_range The handle range associated with
- * the current characteristic.
+ *                                the current characteristic.
  */
 ble::att::handle_range service_container::discovery_iterator::handle_range() const
 {
