@@ -34,7 +34,7 @@ static void declaration_write(io::output_stream&            os,
 }
 
 static void attribute_base_write(io::output_stream&          os,
-                            ble::gatt::attribute const& attribute)
+                                 ble::gatt::attribute const& attribute)
 {
     declaration_write(os, attribute.decl);
     writef(os, " data_length: %3u / %3u", attribute.data_length(),

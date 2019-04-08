@@ -189,13 +189,12 @@ ble::gatt::service_container::discovery_iterator
     service_container::next_open_characteristic(discovery_iterator disco_iter)
 {
     logger &logger = logger::instance();
-    logger.info("next_open_characteristic: ");
+    logger.debug("next_open_characteristic: ");
 
     ble::gatt::service_container::discovery_iterator iter_end =
         this->discovery_end();
     for (; disco_iter != iter_end; ++disco_iter)
     {
-//        disco_iter.print();
         ble::att::handle_range const handle_range = disco_iter.handle_range();
 
         // Each characteristic requires 2 handles: a declaration handle
@@ -203,8 +202,8 @@ ble::gatt::service_container::discovery_iterator
         // to the next characteristic handle then it is considered 'open'.
         if (handle_range.second >= handle_range.first + 2u)
         {
-            logger.info("------ open_characteristic found:");
-            disco_iter.print();
+            logger.debug("------ open_characteristic found:");
+            disco_iter.print(logger::level::debug);
             break;
         }
     }

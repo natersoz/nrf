@@ -6,6 +6,20 @@
 #pragma once
 
 #include "ble/central_connection.h"
+#include "ble/gattc_service_builder.h"
+
+class service_discovery_complete:
+    public ble::gattc::service_builder::completion_notify
+{
+private:
+    using super = ble::gattc::service_builder::completion_notify;
+
+public:
+    using super::super;
+
+    /** Service discovery completion */
+    void notify(ble::att::error_code error) override;
+};
 
 /**
  * An implementation of the interface ble::gap::event_observer specific
@@ -15,6 +29,25 @@ class ble_gap_connection: public ble::gap::central_connection
 {
 private:
     using super = ble::gap::central_connection;
+
+    class negotiation_complete: public negotiation_state::completion_notify
+    {
+    private:
+        using super = negotiation_state::completion_notify;
+        ble_gap_connection* ble_gap_connection_;
+
+    public:
+        virtual ~negotiation_complete() override = default;
+        using super::super;
+
+        negotiation_complete(ble_gap_connection* gap_connection):
+            negotiation_state::completion_notify(),
+            ble_gap_connection_(gap_connection)
+        {
+        }
+
+        virtual void notify(enum reason completion_reason) override;
+    };
 
 public:
     virtual ~ble_gap_connection() override;
@@ -356,5 +389,7 @@ protected:
         ) override;
 
 private:
-    ble::att::length_t mtu_size_;
+    ble::att::length_t          mtu_size_;
+    negotiation_complete        negotiation_complete_;
+    service_discovery_complete  service_discovery_complete_;
 };

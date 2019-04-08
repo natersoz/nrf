@@ -29,6 +29,36 @@ public:
     class negotiation_state
     {
     public:
+        /**
+         * @interface completion_notify
+         * The abstract class for which negotiation_state completion
+         * notifications are performed.
+         */
+        struct completion_notify
+        {
+            enum class reason
+            {
+                complete,
+                timeout         ///< @todo not yet implemented.
+            };
+
+            virtual ~completion_notify()                            = default;
+
+            completion_notify()                                     = default;
+            completion_notify(completion_notify const&)             = delete;
+            completion_notify(completion_notify &&)                 = delete;
+            completion_notify& operator=(completion_notify const&)  = delete;
+            completion_notify& operator=(completion_notify&&)       = delete;
+
+            /**
+             * When all pending GAP negotiation transactions complete this
+             * notification method will be called.
+             *
+             * @param completion_reason Either normal completion or timeout.
+             */
+            virtual void notify(enum reason completion_reason) = 0;
+        };
+
         virtual ~negotiation_state()                           = default;
 
         negotiation_state(negotiation_state const&)            = delete;
@@ -51,16 +81,22 @@ public:
         void set_link_layer_update_pending(bool is_pending);
         void set_phy_layer_update_pending(bool is_pending);
 
+        void set_completion_notification(completion_notify* notify);
+
     protected:
+        /// @todo these timer functions are not yet implemented.
         void set_pending_state_update(bool is_pending);
         virtual void timer_start() {};
         virtual void timer_stop() {};
 
     private:
-        bool gatt_mtu_exchange_pending_;
-        bool gap_connection_parameters_update_pending_;
-        bool link_layer_update_pending_;
-        bool phy_layer_update_pending_;
+        bool                gatt_mtu_exchange_pending_;
+        bool                gap_connection_parameters_update_pending_;
+        bool                link_layer_update_pending_;
+        bool                phy_layer_update_pending_;
+        completion_notify*  completion_notification_;
+
+        friend class connection;
     };
 
     virtual ~connection()                       = default;
