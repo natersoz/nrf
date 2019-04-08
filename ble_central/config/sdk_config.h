@@ -104,6 +104,7 @@
 #define PEER_MANAGER_ENABLED        1
 #define FDS_ENABLED                 1
 #define PM_FLASH_BUFFERS            2
+#define FDS_VIRTUAL_PAGES_RESERVED  0
 #define FDS_VIRTUAL_PAGES           4
 #define FDS_VIRTUAL_PAGE_SIZE    1024
 #define FDS_MAX_USERS               4
