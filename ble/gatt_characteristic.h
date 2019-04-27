@@ -8,7 +8,6 @@
 #include "ble/gatt_attribute.h"
 #include "ble/gatt_descriptors.h"
 #include "ble/gatt_enum_types.h"
-#include "ble/gatt_format.h"
 
 #include <cstdint>
 #include <utility>

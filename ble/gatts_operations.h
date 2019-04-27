@@ -12,7 +12,6 @@
 
 #include "ble/att.h"
 #include "ble/gatt_service.h"
-#include "ble/gatt_format.h"
 
 #include "ble/profile_connectable_accessor.h"
 
