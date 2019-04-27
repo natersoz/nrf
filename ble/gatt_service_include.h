@@ -11,7 +11,6 @@
 #include "ble/gatt_descriptors.h"
 #include "ble/gatt_characteristic.h"
 #include "ble/gatt_uuids.h"
-#include "ble/gatt_format.h"
 
 #include <algorithm>
 #include <cstdint>
