@@ -18,6 +18,8 @@ namespace nordic
 class saadc_sample_timer: public timer_observer
 {
 public:
+    using timer_observer::timer_observer;
+
     saadc_sample_timer(uint32_t expiration_ticks) :
         timer_observer(timer_observer::expiration_type::continuous, expiration_ticks)
     {
@@ -54,7 +56,8 @@ public:
         : adc_samples_characterisitc_(adc_samples_char),
           timer_observable_(timer_observable),
           saadc_sample_timer_(timer_observable.msec_to_ticks(1000u)),
-          saadc_trigger_event_(nullptr)
+          saadc_trigger_event_(nullptr),
+          sample_buffer_bank_index(0u)
     {
         for (sample_buffer& buffer : sample_buffer_banks) { buffer.fill(0); }
     }
