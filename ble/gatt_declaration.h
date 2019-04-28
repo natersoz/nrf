@@ -39,7 +39,7 @@ struct properties
 
     properties(): bits(0u), bits_ext(0u) {}
 
-    properties(uint16_t props): bits(0u), bits_ext(0u)
+    explicit properties(uint16_t props): bits(0u), bits_ext(0u)
     {
         this->set(props);
     }

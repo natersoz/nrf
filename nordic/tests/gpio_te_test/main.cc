@@ -29,7 +29,7 @@ static char  rtt_os_buffer[4096u];
 class timer_gpio_te: public timer_observer
 {
 public:
-    timer_gpio_te(uint32_t expiry_ticks) :
+    explicit timer_gpio_te(uint32_t expiry_ticks) :
         timer_observer(timer_observer::expiration_type::continuous,
                        expiry_ticks) {}
 

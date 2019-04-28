@@ -78,7 +78,7 @@ struct format_conversion
      * @param format_spec The format specifier string.
      * @param format_length The maximum length allowed for parsing the string.
      */
-    format_conversion(char const *format_spec);
+    explicit format_conversion(char const *format_spec);
 
     enum class justification
     {

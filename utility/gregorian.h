@@ -115,7 +115,7 @@ struct gregorian : public boost::less_than_comparable<gregorian>
      * Create a gregorian date/time entry based the number of seconds since
      * the gregorian::epoch.
      */
-    gregorian(uint64_t seconds_since_epoch)
+    explicit gregorian(uint64_t seconds_since_epoch)
     {
         *this = to_calendar(seconds_since_epoch);
     }

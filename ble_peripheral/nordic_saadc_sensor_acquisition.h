@@ -20,7 +20,7 @@ class saadc_sample_timer: public timer_observer
 public:
     using timer_observer::timer_observer;
 
-    saadc_sample_timer(uint32_t expiration_ticks) :
+    explicit saadc_sample_timer(uint32_t expiration_ticks) :
         timer_observer(timer_observer::expiration_type::continuous, expiration_ticks)
     {
     }

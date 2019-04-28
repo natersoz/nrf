@@ -25,7 +25,7 @@
 class rtc1_observer: public rtc_observer
 {
 public:
-    rtc1_observer(uint32_t expiry_ticks) :
+    explicit rtc1_observer(uint32_t expiry_ticks) :
         rtc_observer(rtc_observer::expiration_type::continuous,
                      expiry_ticks),
         led_index_on(0u)
