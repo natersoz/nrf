@@ -30,7 +30,7 @@ public:
     event_observer& operator=(event_observer&&)      = delete;
 
     virtual void read_characteristic_by_uuid_response(
-        uint16_t                    conection_handle,
+        uint16_t                    connection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
         uint16_t                    characteristic_handle,
@@ -39,7 +39,7 @@ public:
         ) {}
 
     virtual void read_response(
-        uint16_t                    conection_handle,
+        uint16_t                    connection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
         uint16_t                    attribute_handle,
@@ -49,7 +49,7 @@ public:
         ) {}
 
     virtual void read_multi_response(
-        uint16_t                    conection_handle,
+        uint16_t                    connection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
         void const*                 data,
@@ -57,7 +57,7 @@ public:
         ) {}
 
     virtual void write_response(
-        uint16_t                    conection_handle,
+        uint16_t                    connection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
         ble::att::op_code           write_op_code,
@@ -68,7 +68,7 @@ public:
         ) {}
 
     virtual void handle_notification(
-        uint16_t                    conection_handle,
+        uint16_t                    connection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
         uint16_t                    attribute_handle,
@@ -77,7 +77,7 @@ public:
         ) {}
 
     virtual void handle_indication(
-        uint16_t                    conection_handle,
+        uint16_t                    connection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
         uint16_t                    attribute_handle,
@@ -86,20 +86,20 @@ public:
         ) {}
 
     virtual void exchange_mtu_response(
-        uint16_t                    conection_handle,
+        uint16_t                    connection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
         uint16_t                    server_rx_mtu_size
         ) {}
 
     virtual void timeout(
-        uint16_t                    conection_handle,
+        uint16_t                    connection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle
         ) {}
 
     virtual void write_command_tx_completed(
-        uint16_t                    conection_handle,
+        uint16_t                    connection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
         uint8_t                     count
