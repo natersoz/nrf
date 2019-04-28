@@ -220,7 +220,7 @@ public:
     virtual void security_information_request(
         uint16_t                            connection_handle,
         security::key_distribution const&   key_dist,
-        security::master_id const&          mater_id,
+        security::master_id const&          master_id,
         gap::address const&                 peer_address
         ) {}
 
