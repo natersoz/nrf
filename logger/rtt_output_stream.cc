@@ -6,6 +6,7 @@
 #include "rtt_output_stream.h"
 #include "segger_rtt.h"
 
+// This stream always writes to the RTT "Terminal" output.
 static constexpr rtt_channel_t const rtt_channel = 0u;
 
 rtt_output_stream::~rtt_output_stream()
@@ -15,14 +16,14 @@ rtt_output_stream::~rtt_output_stream()
 
 rtt_output_stream::rtt_output_stream(void* buffer, size_t buffer_size)
 {
-    rtt_channel_alloc const rtt_channel = {
+    rtt_channel_alloc const rtt_chn = {
         .direction   = rtt_channel_alloc::up,
         .channel     = 0u,
         .buffer      = buffer,
         .buffer_size = buffer_size
     };
 
-    segger_rtt_channel_allocate(&rtt_channel);
+    segger_rtt_channel_allocate(&rtt_chn);
 }
 
 size_t rtt_output_stream::write(void const *buffer, size_t length)

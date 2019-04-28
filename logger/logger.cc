@@ -67,7 +67,7 @@ size_t logger::warn( char const *fmt, ...)
 
             va_list args;
             va_start(args, fmt);
-            n_written = vwritef(*this->os_, fmt, args);
+            n_written += vwritef(*this->os_, fmt, args);
             va_end(args);
 
             n_written += this->os_->write(color_reset_string, sizeof(color_reset_string));
@@ -90,7 +90,7 @@ size_t logger::info( char const *fmt, ...)
 
             va_list args;
             va_start(args, fmt);
-            n_written = vwritef(*this->os_, fmt, args);
+            n_written += vwritef(*this->os_, fmt, args);
             va_end(args);
 
             n_written += this->os_->write(&new_line, sizeof(new_line));
@@ -112,7 +112,7 @@ size_t logger::debug(char const *fmt, ...)
 
             va_list args;
             va_start(args, fmt);
-            n_written = vwritef(*this->os_, fmt, args);
+            n_written += vwritef(*this->os_, fmt, args);
             va_end(args);
 
             n_written += this->os_->write(&new_line, sizeof(new_line));
@@ -133,7 +133,7 @@ size_t logger::write(level log_level, char const *fmt, ...)
 
             va_list args;
             va_start(args, fmt);
-            n_written = vwritef(*this->os_, fmt, args);
+            n_written += vwritef(*this->os_, fmt, args);
             va_end(args);
 
             n_written += this->os_->write(&new_line, sizeof(new_line));
@@ -152,7 +152,7 @@ size_t logger::write(char const *fmt, ...)
 
         va_list args;
         va_start(args, fmt);
-        n_written = vwritef(*this->os_, fmt, args);
+        n_written += vwritef(*this->os_, fmt, args);
         va_end(args);
 
         n_written += this->os_->write(&new_line, sizeof(new_line));
@@ -169,8 +169,7 @@ size_t logger::vwrite(level log_level, char const *fmt, va_list& args)
         if (this->log_level_ >= log_level)
         {
             n_written += this->log_time();
-
-            n_written = vwritef(*this->os_, fmt, args);
+            n_written += vwritef(*this->os_, fmt, args);
             n_written += this->os_->write(&new_line, sizeof(new_line));
         }
     }
