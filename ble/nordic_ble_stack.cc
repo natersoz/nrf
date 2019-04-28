@@ -10,10 +10,10 @@
 #include "nordic_error.h"
 #include "logger.h"
 
-#include "ble.h"
-#include "nrf_sdh.h"
-#include "nrf_sdm.h"
-#include "ble_hci.h"
+#include <ble.h>
+#include <nrf_sdh.h>
+#include <nrf_sdm.h>
+#include <ble_hci.h>
 
 #include <cstdint>
 #include <cstring>

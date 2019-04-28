@@ -50,7 +50,9 @@ private:
     void               *context_;
 };
 
+#if defined __arm__
 static_assert(sizeof(struct app_timer_t) >= sizeof(app_timer_rtc1_observer));
+#endif  // __arm__
 
 void app_timer_init(rtc_observable<> &rtc)
 {

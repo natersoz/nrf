@@ -53,10 +53,15 @@ enum rtt_mode
 using signed_size_t = typename std::make_signed<size_t>::type;
 
 /// Using size_t and uint32_t within this implementation.
-/// SEGGER uses native types. This insures the buffer implememtation works.
+/// SEGGER uses native types.
+/// This insures the buffer implememtation will work with the RTT host.
+/// size_t types don't have to check here to work properly,
+/// but I want to know if they do not.
+#if defined __arm__
 static_assert(sizeof(unsigned int) == sizeof(uint32_t));
 static_assert(sizeof(unsigned int) == sizeof(size_t));
 static_assert(sizeof(unsigned int) == sizeof(signed_size_t));
+#endif // __arm__
 
 /// Circular buffer which is used as the up-buffer; target to host.
 extern "C" struct rtt_buffer_up_t
@@ -82,8 +87,6 @@ extern "C" struct rtt_buffer_up_t
     uint32_t flags;
 };
 
-static_assert(sizeof(struct rtt_buffer_up_t) == sizeof(uint32_t) * 6u);
-
 /// Circular buffer which is used as the down-buffer; host to target.
 ///
 /// @note This is exactly the same layout as the struct rtt_buffer_up_t
@@ -102,7 +105,11 @@ extern "C" struct rtt_buffer_down_t
     uint32_t            flags;
 };
 
+// Only perform these checks when compiling for ARM.
+#if defined __arm__
 static_assert(sizeof(struct rtt_buffer_down_t) == sizeof(uint32_t) * 6u);
+static_assert(sizeof(struct rtt_buffer_up_t)   == sizeof(uint32_t) * 6u);
+#endif
 
 /**
  * RTT control block which describes the number of buffers available

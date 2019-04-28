@@ -7,8 +7,8 @@
 #include "logger.h"
 #include "project_assert.h"
 
-#include "nrf_error.h"
-#include "ble.h"
+#include <nrf_error.h>
+#include <ble.h>
 
 namespace ble
 {

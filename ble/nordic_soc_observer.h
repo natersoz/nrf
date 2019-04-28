@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "nrf_soc.h"
+#include <nrf_soc.h>
 #include <boost/intrusive/list.hpp>
 
 namespace nordic

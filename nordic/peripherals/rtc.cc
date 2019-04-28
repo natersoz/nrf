@@ -95,10 +95,6 @@ static uint32_t const lfclk_frequency_Hz = 32768;
 /// The RTC clock frequency is lfclk / (prescaler + 1u).
 static uint32_t const prescaler_max = (1u << 11u);
 
-/// The default RTC prescaler value.
-/// This matches the RTC prescaler value on reset.
-static uint32_t const prescaler_default = 0u;
-
 /// The RTC counter bit width.
 static size_t const rtc_counter_width = 24u;
 

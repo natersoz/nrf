@@ -11,7 +11,6 @@ static constexpr rtt_channel_t const rtt_channel = 0u;
 
 rtt_output_stream::~rtt_output_stream()
 {
-    this->flush();
 }
 
 rtt_output_stream::rtt_output_stream(void* buffer, size_t buffer_size)

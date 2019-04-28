@@ -5,7 +5,7 @@
  * Debug logging functions for nordic::ble_gap related stuff
  */
 
-#include "ble_gap.h"                    // Nordic softdevice header
+#include <ble_gap.h>
 #include "logger.h"
 
 namespace nordic

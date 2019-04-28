@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "ble.h"
-#include "ble_gap.h"
-#include "ble_gatts.h"
-#include "ble_gattc.h"
-#include "ble_l2cap.h"
-#include "nrf_soc.h"
+#include <ble.h>
+#include <ble_gap.h>
+#include <ble_gatts.h>
+#include <ble_gattc.h>
+#include <ble_l2cap.h>
+#include <nrf_soc.h>
 
 #include <cstdint>
 

@@ -67,7 +67,7 @@ enum usart_event_type
 struct usart_event_t
 {
     enum usart_event_type   type;
-    uint32_t                value;
+    size_t                  value;
 };
 
 /**

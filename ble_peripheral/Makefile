@@ -151,37 +151,37 @@ INCLUDE_PATHS += $(BOOST_ROOT)/include
 
 # Nordic SDK include paths
 
-INCLUDE_PATHS += $(SDK_ROOT)/components/ble/common
-INCLUDE_PATHS += $(SDK_ROOT)/components/ble/peer_manager
-# INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/hal
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/atomic
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/atomic_fifo
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/atomic_flags
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/crc16
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/crc32
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/experimental_section_vars
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/fds
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/fstorage
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/log
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/mutex
-INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/mdk
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/ble/common
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/ble/peer_manager
+# SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/drivers_nrf/hal
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/atomic
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/atomic_fifo
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/atomic_flags
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/crc16
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/crc32
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/experimental_section_vars
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/fds
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/fstorage
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/log
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/mutex
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/mdk
 
 # These would be nice to dump:
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/strerror
-INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/util
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/strerror
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/util
 
-INCLUDE_PATHS += $(SDK_ROOT)/components/softdevice/common
-INCLUDE_PATHS += $(SDK_ROOT)/components/softdevice/s132/headers
-INCLUDE_PATHS += $(SDK_ROOT)/components/softdevice/s132/headers/nrf52
-INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain
-INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/softdevice/common
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/softdevice/s132/headers
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/softdevice/s132/headers/nrf52
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
 
 # These might be interesting, but not required:
-# INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/mutex
-# INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/queue
-# INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/hardfault
-# INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/ecc
-# INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/hci
+# SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/mutex
+# SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/queue
+# SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/hardfault
+# SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/ecc
+# SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/libraries/hci
 
 ###
 # Use the LD_PATHS to allow the linker to bring in common linker scripts
@@ -257,4 +257,5 @@ info:
 	@echo "INCLUDE_PATHS"     ="$(INCLUDE_PATHS)"
 
 include $(PROJECT_ROOT)/make_rules/arm_gcc_rules.mak
+include $(PROJECT_ROOT)/make_rules/checker_rules.mak
 include $(PROJECT_ROOT)/make_rules/jlink_rules.mak

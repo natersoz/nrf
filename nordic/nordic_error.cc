@@ -4,9 +4,10 @@
  */
 
 #include "nordic_error.h"
-#include "nrf_error.h"
-#include "ble_err.h"
 #include "logger.h"
+
+#include <nrf_error.h>
+#include <ble_err.h>
 
 std::errc nordic_to_system_error(uint32_t nordic_error)
 {

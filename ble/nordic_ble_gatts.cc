@@ -13,9 +13,9 @@
 #include "project_assert.h"
 #include "logger.h"
 
-#include "ble.h"                    // Softdevice headers
-#include "ble_gatts.h"
-#include "nrf_error.h"
+#include <ble.h>
+#include <ble_gatts.h>
+#include <nrf_error.h>
 
 #include <cstring>
 

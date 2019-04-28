@@ -63,9 +63,9 @@ INCLUDE_PATHS += $(PROJECT_ROOT)/utility
 INCLUDE_PATHS += ./config
 INCLUDE_PATHS += $(BOOST_ROOT)/include
 
-INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/mdk
-INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain
-INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/mdk
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain
+SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
 
 ###
 # Use the LD_PATHS to allow the linker to bring in common linker scripts
@@ -132,5 +132,5 @@ info:
 	@echo
 
 include $(PROJECT_ROOT)/make_rules/arm_gcc_rules.mak
+include $(PROJECT_ROOT)/make_rules/checker_rules.mak
 include $(PROJECT_ROOT)/make_rules/jlink_rules.mak
-

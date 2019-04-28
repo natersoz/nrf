@@ -387,10 +387,9 @@ void service_builder::descriptor_discovered(
     else if (gatt_error == ble::att::error_code::attribute_not_found)
     {
         // This error indicates that there are no more characeteristics
-        // to be found in the range requested. Set response_end and
-        // gatt_handle_desciptor to complete service discovery below.
+        // to be found in the range requested. Set response_end to true
+        // to complete service discovery below.
         response_end = true;
-        gatt_handle_desciptor = ble::att::handle_maximum;
     }
     else
     {
