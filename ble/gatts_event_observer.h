@@ -32,7 +32,7 @@ public:
     event_observer& operator=(event_observer&&)      = delete;
 
     virtual void write(
-        uint16_t            conection_handle,
+        uint16_t            connection_handle,
         uint16_t            attribute_handle,
         att::op_code        write_operation_type,
         bool                authorization_required,
@@ -41,7 +41,7 @@ public:
         void const*         data);
 
     virtual void write_cancel(
-        uint16_t            conection_handle,
+        uint16_t            connection_handle,
         uint16_t            attribute_handle,
         att::op_code        write_operation_type,
         bool                authorization_required,
@@ -50,12 +50,12 @@ public:
         void const*         data);
 
     virtual void read_authorization_request(
-        uint16_t            conection_handle,
+        uint16_t            connection_handle,
         uint16_t            attribute_handle,
         att::length_t       offset);
 
     virtual void write_authorization_request(
-        uint16_t            conection_handle,
+        uint16_t            connection_handle,
         uint16_t            attribute_handle,
         att::op_code        write_operation_type,
         bool                authorization_required,
@@ -64,10 +64,10 @@ public:
         void const*         data);
 
     virtual void service_change_confirmation(
-        uint16_t            conection_handle);
+        uint16_t            connection_handle);
 
     virtual void handle_value_confirmation(
-        uint16_t            conection_handle,
+        uint16_t            connection_handle,
         uint16_t            attribute_handle);
 
     /**
@@ -76,15 +76,15 @@ public:
      * Table 3.4: Format of Exchange MTU Request
      */
     virtual void exchange_mtu_request(
-        uint16_t            conection_handle,
+        uint16_t            connection_handle,
         att::length_t       client_rx_mtu_size);
 
     virtual void timeout(
-        uint16_t            conection_handle,
+        uint16_t            connection_handle,
         uint8_t             timeout_source);
 
     virtual void handle_value_notifications_tx_completed(
-        uint16_t            conection_handle,
+        uint16_t            connection_handle,
         uint8_t             count);
 };
 
