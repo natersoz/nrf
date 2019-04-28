@@ -50,8 +50,8 @@ public:
     ble::gatt::service const* find_service(ble::gatt::service_type uuid_16) const;
     ble::gatt::service*       find_service(ble::gatt::service_type uuid_16);
 
-    ble::gatt::service const* find_service_handle_assoc(uint16_t gatt_handle) const;
-    ble::gatt::service*       find_service_handle_assoc(uint16_t gatt_handle);
+    ble::gatt::service const* find_service_by_handle(uint16_t gatt_handle) const;
+    ble::gatt::service*       find_service_by_handle(uint16_t gatt_handle);
 
     ble::att::handle_range service_handle_range(ble::gatt::service const& service) const;
 
