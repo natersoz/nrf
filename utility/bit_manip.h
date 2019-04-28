@@ -151,4 +151,4 @@ inline auto value_get(int_type  int_value,
     return static_cast<int_type>(uint_value);
 }
 
-};
+} // namespace bit_manip
