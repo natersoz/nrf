@@ -340,10 +340,10 @@ void spis_deinit(spi_port_t spi_port)
 
 static void spis_arm_transfer(struct spis_control_block_t* spis_control)
 {
-    spis_control->spis_registers->TXD.PTR    = reinterpret_cast<uint32_t>(spis_control->tx_buffer);
+    spis_control->spis_registers->TXD.PTR    = reinterpret_cast<uintptr_t>(spis_control->tx_buffer);
     spis_control->spis_registers->TXD.MAXCNT = spis_control->tx_length;
 
-    spis_control->spis_registers->RXD.PTR    = reinterpret_cast<uint32_t>(spis_control->rx_buffer);
+    spis_control->spis_registers->RXD.PTR    = reinterpret_cast<uintptr_t>(spis_control->rx_buffer);
     spis_control->spis_registers->RXD.MAXCNT = spis_control->rx_length;
 
     // Release the SPI slave semaphore from CPU ownership.

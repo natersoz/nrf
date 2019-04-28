@@ -131,10 +131,6 @@ static uint32_t const hfclk_frequency_Hz = 16000000;
 /// The prescaler divides the 16 MHz HFCLK / 2 ^ prescaler.
 static uint8_t const prescaler_exp_max = 9u;
 
-/// The default timer prescaler value.
-/// This matches the timer prescaler value on reset.
-static uint8_t const prescaler_exp_default = 4u;
-
 static struct timer_control_block_t* const timer_control_block(timer_instance_t timer_instance)
 {
     if (timer_instance < std::size(timer_instances))

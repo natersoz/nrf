@@ -4,12 +4,12 @@
  */
 
 #include "ble/nordic_ble_peer.h"
-#include "peer_manager.h"
 #include "logger.h"
+#include "nrf_cmsis.h"
 
-#include "peer_manager.h"
-#include "ble_conn_state.h"
-#include "fds.h"
+#include <ble_conn_state.h>
+#include <fds.h>
+#include <peer_manager.h>
 
 /**@brief Function for handling Peer Manager events.
  *

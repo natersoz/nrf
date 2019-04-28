@@ -3,7 +3,6 @@
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
-#include "cmsis_gcc.h"
 #include "clocks.h"
 #include "leds.h"
 #include "buttons.h"
@@ -37,6 +36,9 @@
 
 #include "ble_gap_connection.h"
 #include "ble_gattc_observer.h"
+
+#include <cmsis_gcc.h>
+#include "nrf_cmsis.h"
 
 static char rtt_os_buffer[4096u];
 

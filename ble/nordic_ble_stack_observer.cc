@@ -3,9 +3,9 @@
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  */
 
-#include "ble.h"
-#include "nrf_sdh.h"
-#include "nrf_sdh_ble.h"
+#include <ble.h>
+#include <nrf_sdh.h>
+#include <nrf_sdh_ble.h>
 
 #include "ble/nordic_ble_event_strings.h"
 #include "section_macros.h"
@@ -129,6 +129,8 @@ static void nordic_stack_event_handler(void* context)
     }
 }
 
+// For whatever reason clang-tidy is not accepting the reason in parens.
+// NOLINTNEXTLINE clang-diagnostic-unused-const-variable
 static nrf_sdh_stack_observer_t sdh_stack_event_observer
     IN_SECTION(".sdh_stack_observers") =
 {

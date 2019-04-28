@@ -26,14 +26,23 @@ void assertion_check_failed(char const*  file_name,
                             char const*  reason,
                             char const*  param_2);
 
-#if defined (NDEBUG)
-    #define ASSERT(condition)
-#else
-    #define ASSERT(condition)                                               \
-        if (!(condition)) {                                                 \
-            assertion_failed(__FILE__, __func__, __LINE__, #condition);     \
-        }
-#endif
+#if defined __arm__
+
+    #if defined (NDEBUG)
+        #define ASSERT(condition)
+    #else
+        #define ASSERT(condition)                                           \
+            if (!(condition)) {                                             \
+                assertion_failed(__FILE__, __func__, __LINE__, #condition); \
+            }
+    #endif
+
+#else   // __arm__
+
+    #include "assert.h"
+    #define ASSERT(condition)       assert(condition)
+
+#endif  // __arm__
 
 #ifdef __cplusplus
 }

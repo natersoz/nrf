@@ -123,9 +123,9 @@ void ble_event_observable<ble_gap_event_observer>::notify(
                     .io_caps = static_cast<ble::gap::security::io_capabilities>(sec_params.io_caps),
                     .oob     = static_cast<ble::gap::security::oob_data_flags>(sec_params.oob),
                     .auth_required = {
-                        .mitm       = sec_params.mitm,
-                        .lesc       = sec_params.lesc,
-                        .keypress   = sec_params.keypress,
+                        .mitm       = bool(sec_params.mitm),
+                        .lesc       = bool(sec_params.lesc),
+                        .keypress   = bool(sec_params.keypress),
                         .ct2        = false   /// @todo ??
                     },
 
@@ -134,16 +134,16 @@ void ble_event_observable<ble_gap_event_observer>::notify(
                     // The peer is making the request,
                     // therefore the peer is the initiator.
                     .initiator_key_distribution = {
-                        .enc_key    = sec_params.kdist_peer.enc,
-                        .id_key     = sec_params.kdist_peer.id,
-                        .sign_key   = sec_params.kdist_peer.sign,
-                        .link_key   = sec_params.kdist_peer.link
+                        .enc_key    = bool(sec_params.kdist_peer.enc),
+                        .id_key     = bool(sec_params.kdist_peer.id),
+                        .sign_key   = bool(sec_params.kdist_peer.sign),
+                        .link_key   = bool(sec_params.kdist_peer.link)
                     },
                     .responder_key_distribution = {
-                        .enc_key    = sec_params.kdist_own.enc,
-                        .id_key     = sec_params.kdist_own.id,
-                        .sign_key   = sec_params.kdist_own.sign,
-                        .link_key   = sec_params.kdist_own.link
+                        .enc_key    = bool(sec_params.kdist_own.enc),
+                        .id_key     = bool(sec_params.kdist_own.id),
+                        .sign_key   = bool(sec_params.kdist_own.sign),
+                        .link_key   = bool(sec_params.kdist_own.link)
                     },
                 };
 

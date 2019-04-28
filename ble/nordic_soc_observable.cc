@@ -4,9 +4,10 @@
  */
 
 #include "nordic_soc_observable.h"
-#include "nrf_sdh_soc.h"
 #include "section_macros.h"
 #include "project_assert.h"
+
+#include <nrf_sdh_soc.h>
 
 static nordic::soc_observable soc_observable_instance;
 
@@ -57,6 +58,8 @@ static void nordic_soc_event_handler(uint32_t soc_event_id, void *context)
     }
 }
 
+// For whatever reason clang-tidy is not accepting the reason in parens.
+// NOLINTNEXTLINE clang-diagnostic-unused-const-variable
 static nrf_sdh_soc_evt_observer_t sdh_soc_observer
     IN_SECTION(".sdh_soc_observers") =
 {

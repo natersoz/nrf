@@ -7,9 +7,10 @@
 #include "ble/nordic_ble_att.h"
 #include "ble/nordic_ble_gatts.h"
 #include "nordic_error.h"
-#include "ble_gatts.h"
 #include "logger.h"
 #include "project_assert.h"
+
+#include <ble_gatts.h>
 
 namespace nordic
 {

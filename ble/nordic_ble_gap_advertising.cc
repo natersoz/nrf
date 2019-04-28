@@ -10,9 +10,9 @@
 #include "logger.h"
 #include "project_assert.h"
 
-#include "ble.h"                // Nordic softdevice
-#include "ble_gap.h"
-#include "nrf_error.h"
+#include <ble.h>
+#include <ble_gap.h>
+#include <nrf_error.h>
 
 static_assert(
     ble::gap::advertising_data::max_length == BLE_GAP_ADV_SET_DATA_SIZE_MAX);

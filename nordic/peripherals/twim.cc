@@ -324,7 +324,7 @@ enum twi_result_t twim_write(twi_port_t             twi_port,
     twim_events_clear_all(twim_control);
 
     twim_control->twim_registers->ADDRESS    = (address >> 1u);
-    twim_control->twim_registers->TXD.PTR    = reinterpret_cast<uint32_t>(tx_buffer);
+    twim_control->twim_registers->TXD.PTR    = reinterpret_cast<uintptr_t>(tx_buffer);
     twim_control->twim_registers->TXD.MAXCNT = tx_length;
     twim_control->twim_registers->SHORTS     = TWIM_SHORTS_LASTTX_STOP_Msk;
     twim_control->twim_registers->INTENSET   = TWIM_INTENSET_ERROR_Msk     |
@@ -409,7 +409,7 @@ enum twi_result_t twim_read(twi_port_t              twi_port,
 
     twim_events_clear_all(twim_control);
 
-    twim_control->twim_registers->RXD.PTR    = reinterpret_cast<uint32_t>(rx_buffer);
+    twim_control->twim_registers->RXD.PTR    = reinterpret_cast<uintptr_t>(rx_buffer);
     twim_control->twim_registers->RXD.MAXCNT = rx_length;
 
     twim_control->twim_registers->INTENSET = TWIM_INTENSET_ERROR_Msk     |
