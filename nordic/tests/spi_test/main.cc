@@ -17,7 +17,7 @@
 #include "segger_rtt.h"
 #include "project_assert.h"
 
-#include <cstring>
+#include <iterator>
 
 class spi_test_timer: public timer_observer
 {
@@ -85,7 +85,9 @@ static void spim_event_handler(void* context)
         // Check that the received data is what we expect.
         // The first transfer will have uninitialized data since the SPIS
         // has not received anything yet (should be all zeroes).
-        ASSERT(memcmp(spis_tx_buffer, spim_rx_buffer, sizeof(spim_rx_buffer)) == 0);
+        ASSERT(std::equal(spis_tx_buffer,
+                          spis_tx_buffer + spim_transfer_count,
+                          spim_rx_buffer));
     }
 }
 
@@ -123,25 +125,32 @@ static void spis_event_handler(void* context, struct spis_event_t const *event)
         break;
 
     case spis_event_transfer_complete:
-        spis_transfer_count += 1u;
-        logger.debug("SPIS [%u] Rx:", spis_transfer_count);
-        logger.write_data(logger::level::debug,
-                          spis_rx_buffer,
-                          event->rx_length,
-                          false,
-                          io::data_prefix::address);
+        {
+            spis_transfer_count += 1u;
+            logger.debug("SPIS [%u] Rx:", spis_transfer_count);
+            logger.write_data(logger::level::debug,
+                              spis_rx_buffer,
+                              event->rx_length,
+                              false,
+                              io::data_prefix::address);
 
-        // Check that the received data is what we expect.
-        ASSERT(memcmp(spis_rx_buffer, spim_tx_buffer, event->rx_length) == 0);
+            // Check that the received data is what we expect.
+            ASSERT(std::equal(spis_rx_buffer,
+                              spis_rx_buffer + event->rx_length,
+                              spim_tx_buffer));
 
-        // What the SPIS received will be sent back to SPIM the next time
-        // the transfer occurs.
-        memcpy(spis_tx_buffer, spis_rx_buffer, event->rx_length);
+            // What the SPIS received will be sent back to SPIM the next time
+            // the transfer occurs.
+            size_t cpy_len = std::min(std::size(spis_tx_buffer),
+                                      std::size(spis_rx_buffer));
+            cpy_len = std::min(cpy_len, event->rx_length);
+            std::copy(spis_rx_buffer, spis_rx_buffer + cpy_len, spis_tx_buffer);
 
-        // Enable the SPIS to receive a new transfer.
-        spis_enable_transfer(spis_port,
-                             spis_tx_buffer, spis_tx_length,
-                             spis_rx_buffer, spis_rx_length);
+            // Enable the SPIS to receive a new transfer.
+            spis_enable_transfer(spis_port,
+                                 spis_tx_buffer, spis_tx_length,
+                                 spis_rx_buffer, spis_rx_length);
+        }
         break;
 
     default:

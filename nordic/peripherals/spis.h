@@ -8,6 +8,7 @@
 #pragma once
 
 #include "spi_common.h"
+#include <cstddef>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,8 +36,8 @@ enum spis_event_type_t
 struct spis_event_t
 {
     enum spis_event_type_t  type;
-    uint32_t                rx_length;  /// The MOSI number of bytes received.
-    uint32_t                tx_length;  /// The MISO number of bytes transmitted.
+    size_t                  rx_length;  /// The MOSI number of bytes received.
+    size_t                  tx_length;  /// The MISO number of bytes transmitted.
 };
 
 /**
