@@ -4,21 +4,8 @@
 # Copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 ###
 
-OS_NAME=$(shell uname)
-
-ifeq ($(OS_NAME), Darwin)
-	NUMBER_OF_PROCESSORS = $(shell sysctl -n hw.ncpu)
-endif
-
-ifeq ($(OS_NAME), Linux)
-	NUMBER_OF_PROCESSORS := $(shell awk '/^processor/ {++n} END {print n}' /proc/cpuinfo)
-endif
-
-ifdef NUMBER_OF_PROCESSORS
-	MAKE_JOBS := -j $(NUMBER_OF_PROCESSORS)
-else
-	MAKE_JOBS :=
-endif
+# Tell make to use multiple jobs
+MAKE_JOBS := -j
 
 sub_make_files	= $(shell find . -maxdepth 2 -name Makefile -not \( -wholename ./Makefile -or -wholename ./external/Makefile \))
 sub_make_dirs	= $(patsubst %/Makefile,%,$(sub_make_files))
