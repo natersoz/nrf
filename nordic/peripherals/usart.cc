@@ -44,7 +44,7 @@ struct dma_range
     dma_range& operator=(dma_range const&)  = delete;
     dma_range& operator=(dma_range&&)       = delete;
 
-    dma_range(usart_buffer::array_range const& range):
+    explicit dma_range(usart_buffer::array_range const& range):
         ptr(reinterpret_cast<uint32_t>(range.first)),
         length(std::min(range.second, max_dma_length))
     {
@@ -465,7 +465,7 @@ size_t usart_write(usart_port_t usart_port, void const* tx_buffer, size_t tx_len
 
         if (not usart_control->tx_dma_in_progress)
         {
-            dma_range const dma_tx = usart_control->tx_buffer.array_one();
+            dma_range const dma_tx(usart_control->tx_buffer.array_one());
             usart_start_tx_dma(usart_control, dma_tx);
         }
     }
@@ -531,7 +531,7 @@ size_t usart_read(usart_port_t usart_port, void* rx_buffer, size_t rx_length)
 
     nordic::auto_critical_section cs;
 
-    dma_range const dma_rx = usart_control->rx_buffer.array_one();
+    dma_range const dma_rx(usart_control->rx_buffer.array_one());
     rx_length = std::min<size_t>(rx_length, dma_rx.length);
     usart_buffer::iterator const first = usart_control->rx_buffer.begin();
     usart_buffer::iterator const last  = first + rx_length;
@@ -754,7 +754,7 @@ static void irq_handler_usart(struct usart_control_block_t* const usart_control)
         usart_control->tx_buffer.erase(first, last);
 
         // If there is more data in the Tx buffer, send it.
-        dma_range const dma_tx = usart_control->tx_buffer.array_one();
+        dma_range const dma_tx(usart_control->tx_buffer.array_one());
         if (dma_tx.length > 0u)
         {
             usart_start_tx_dma(usart_control, dma_tx);

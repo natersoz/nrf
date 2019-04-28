@@ -104,9 +104,10 @@ public:
     timer& operator=(timer const&)  = delete;
     timer& operator=(timer&&)       = delete;
 
-    timer(timer_instance_t  timer_instance,
-          uint8_t           prescaler_exp = 4u,     // 1 MHz default clock tick
-          uint8_t           irq_priority  = 7u);
+    // 1 MHz default clock tick
+    explicit timer(timer_instance_t  timer_instance,
+                   uint8_t           prescaler_exp = 4u,
+                   uint8_t           irq_priority  = 7u);
 
     void start();
     void stop();

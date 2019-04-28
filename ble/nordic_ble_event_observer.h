@@ -43,7 +43,7 @@ public:
     ble_event_observer& operator=(ble_event_observer const &)   = delete;
     ble_event_observer& operator=(ble_event_observer&&)         = delete;
 
-    ble_event_observer(interface_type &interface):
+    explicit ble_event_observer(interface_type &interface):
         interface_reference(interface),
         observable_(nullptr) {}
 

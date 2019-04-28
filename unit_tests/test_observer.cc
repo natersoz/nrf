@@ -27,7 +27,7 @@ public:
     virtual ~test_observer() {};
     test_observer() = delete;
 
-    test_observer(int id): id_(id) {};
+    explicit test_observer(int id): id_(id) {};
 
     virtual void notify(int const &notification) override;
 

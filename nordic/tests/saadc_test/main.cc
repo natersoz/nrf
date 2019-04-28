@@ -38,7 +38,7 @@ static uint32_t conversion_start_ticks = 0u;
 class measurement_timer: public timer_observer
 {
 public:
-    measurement_timer(uint32_t expiry_ticks) :
+    explicit measurement_timer(uint32_t expiry_ticks) :
         timer_observer(timer_observer::expiration_type::continuous,
                        expiry_ticks) {}
 private:

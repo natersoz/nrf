@@ -97,9 +97,10 @@ public:
     rtc& operator=(rtc const&)  = delete;
     rtc& operator=(rtc&&)       = delete;
 
-    rtc(rtc_instance_t  rtc_instance,
-        uint8_t         prescaler     = 1u,     // 32,768 Hz clock source.
-        uint8_t         irq_priority  = 7u);
+    // 32,768 Hz clock source.
+    explicit rtc(rtc_instance_t  rtc_instance,
+                 uint8_t         prescaler     = 1u,
+                 uint8_t         irq_priority  = 7u);
 
     void start();
     void stop();
