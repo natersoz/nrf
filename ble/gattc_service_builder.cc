@@ -211,7 +211,7 @@ void service_builder::characteristic_discovered(
                      uuid_char_buffer);
 
         ble::gatt::service* service =
-            this->service_container->find_service_handle_assoc(
+            this->service_container->find_service_by_handle(
                 gatt_handle_declaration);
 
         if (service)

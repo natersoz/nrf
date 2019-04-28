@@ -47,7 +47,7 @@ ble::gatt::service* service_container::find_service(ble::gatt::service_type uuid
 }
 
 ble::gatt::service const*
-    service_container::find_service_handle_assoc(uint16_t handle) const
+    service_container::find_service_by_handle(uint16_t handle) const
 {
     ble::gatt::service const* service_assoc = nullptr;
     for (ble::gatt::service const& service : *this)
@@ -71,11 +71,10 @@ ble::gatt::service const*
     return service_assoc;
 }
 
-ble::gatt::service*
-    service_container::find_service_handle_assoc(uint16_t handle)
+ble::gatt::service* service_container::find_service_by_handle(uint16_t handle)
 {
     return const_cast<ble::gatt::service*>(
-        std::as_const(*this).find_service_handle_assoc(handle));
+        std::as_const(*this).find_service_by_handle(handle));
 }
 
 ble::att::handle_range service_container::service_handle_range(
