@@ -18,6 +18,7 @@
 
 #include "ble/att.h"
 #include "ble/gap_connection.h"
+#include "ble/gap_event_logger.h"
 #include "ble/gap_types.h"
 #include "ble/gatt_enum_types.h"
 #include "ble/gattc_service_builder.h"
@@ -123,10 +124,13 @@ int main(void)
 
     nordic::ble_observables& nordic_observables = nordic::ble_observables::instance();
 
+    ble::gap::event_logger                  gap_event_logger(logger::level::info);
+    nordic::ble_gap_event_observer          nordic_gap_event_logger(gap_event_logger);
     nordic::ble_gap_event_observer          nordic_gap_event_observer(gap_connection);
     nordic::ble_gattc_event_observer        nordic_gattc_event_observer(gattc_observer);
     nordic::ble_gattc_discovery_observer    nordic_gattc_discovery_observer(gattc_service_builder);
 
+    nordic_observables.gap_event_observable.attach_first(nordic_gap_event_logger);
     nordic_observables.gap_event_observable.attach(nordic_gap_event_observer);
     nordic_observables.gattc_event_observable.attach(nordic_gattc_event_observer);
     nordic_observables.gattc_discovery_observable.attach(nordic_gattc_discovery_observer);
