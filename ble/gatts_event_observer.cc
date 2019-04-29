@@ -153,9 +153,8 @@ void event_observer::service_change_confirmation(uint16_t conection_handle)
 }
 
 // BLE_GATTS_EVT_HVC
-void event_observer::handle_value_confirmation(
-        uint16_t            conection_handle,
-        uint16_t            attribute_handle)
+void event_observer::handle_value_confirmation(uint16_t conection_handle,
+                                               uint16_t attribute_handle)
 {
 }
 
@@ -192,8 +191,7 @@ void event_observer::exchange_mtu_request(uint16_t      conection_handle,
 }
 
 // BLE_GATTS_EVT_TIMEOUT, // always BLE_GATT_TIMEOUT_SRC_PROTOCOL (0)
-void event_observer::timeout(uint16_t   conection_handle,
-                             uint8_t    timeout_source)
+void event_observer::timeout(uint16_t conection_handle, uint8_t timeout_source)
 {
     ble::profile::connectable* connectable = this->get_connecteable();
     if (not connectable)
@@ -213,8 +211,8 @@ void event_observer::timeout(uint16_t   conection_handle,
 }
 
 // BLE_GATTS_EVT_HVN_TX_COMPLETE
-void event_observer::handle_value_notifications_tx_completed(uint16_t  conection_handle,
-                                                             uint8_t   count)
+void event_observer::handle_value_notifications_tx_completed(uint16_t conection_handle,
+                                                             uint8_t  count)
 {
     ble::profile::connectable* connectable = this->get_connecteable();
     if (not connectable)
