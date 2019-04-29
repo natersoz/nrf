@@ -21,7 +21,8 @@ class logger
 public:
     enum class level
     {
-        error = 0,
+        always = 0,
+        error,
         warning,
         info,
         debug
@@ -32,7 +33,9 @@ public:
     logger& operator=(logger const& other)  = delete;
 
     static logger& instance();
-    logger() : os_(nullptr), rtc_(nullptr), log_level_(level::warning) { }
+    logger() : os_(nullptr), rtc_(nullptr), log_level_(logger::level::warning)
+    {
+    }
 /*
     logger(output_stream& os,
            level log_level = level::warning)
@@ -43,24 +46,24 @@ public:
     size_t info(char const* fmt, ...);
     size_t debug(char const* fmt, ...);
 
-    size_t write(level log_level, char const* fmt, ...);
+    size_t write(logger::level log_level, char const* fmt, ...);
 
     /// Write a log entry without respect to any level. Always writes.
     size_t write(char const* fmt, ...);
 
-    size_t vwrite(level log_level, char const* fmt, va_list& args);
+    size_t vwrite(logger::level log_level, char const* fmt, va_list& args);
 
     void flush();
 
     size_t write_data(
-        level           log_level,
+        logger::level   log_level,
         void const*     data,
         size_t          length,
         bool            char_data   = false,
         io::data_prefix prefix      = io::data_prefix::index);
 
     size_t write_data(
-        level                   log_level,
+        logger::level           log_level,
         void const volatile*    data,
         size_t                  length,
         bool                    char_data   = false,
@@ -70,14 +73,16 @@ public:
 
     io::output_stream* get_output_stream() { return this->os_; }
 
-    void set_level(level log_level) { this->log_level_ = log_level; }
+    void set_level(logger::level log_level) { this->log_level_ = log_level; }
 
     void set_rtc(rtc& rtc) { this->rtc_ = &rtc; }
 
 private:
     io::output_stream*  os_;
     rtc*                rtc_;
-    level               log_level_;
+    logger::level       log_level_;
 
     size_t log_time();
+    size_t write_preamble(logger::level log_level);
+    size_t write_postamble(logger::level log_level);
 };
