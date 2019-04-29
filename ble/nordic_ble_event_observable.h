@@ -42,6 +42,13 @@ public:
         this->observer_list_.push_back(observer);
     }
 
+    void attach_first(observer_type& observer)
+    {
+        ASSERT(not observer.is_attached());
+        observer.observable_ = this;
+        this->observer_list_.push_front(observer);
+    }
+
     void detach(observer_type& observer)
     {
         ASSERT(observer.is_attached());

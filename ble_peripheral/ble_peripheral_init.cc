@@ -11,6 +11,7 @@
 #include "ble/ltv_encode.h"
 
 #include "ble/gap_connection.h"
+#include "ble/gap_event_logger.h"
 #include "ble/profile_peripheral.h"
 #include "ble/service/gap_service.h"
 #include "ble/service/gatt_service.h"
@@ -95,6 +96,8 @@ static ble::profile::peripheral             ble_peripheral(ble_stack,
                                                            gatts_observer,
                                                            gatts_operations);
 
+static ble::gap::event_logger               gap_event_logger(logger::level::info);
+static nordic::ble_gap_event_observer       nordic_gap_event_logger(gap_event_logger);
 static nordic::ble_gap_event_observer       nordic_gap_event_observer(gap_connection);
 static nordic::ble_gatts_event_observer     nordic_gatts_event_observer(gatts_observer);
 
@@ -164,6 +167,7 @@ ble::profile::peripheral& ble_peripheral_init()
 
     nordic::ble_observables& nordic_observables = nordic::ble_observables::instance();
 
+    nordic_observables.gap_event_observable.attach_first(nordic_gap_event_logger);
     nordic_observables.gap_event_observable.attach(nordic_gap_event_observer);
     nordic_observables.gatts_event_observable.attach(nordic_gatts_event_observer);
 
