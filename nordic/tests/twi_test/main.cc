@@ -17,7 +17,7 @@
 #include "segger_rtt.h"
 #include "project_assert.h"
 
-#include <cstring>
+#include <iterator>
 
 enum class twim_direction
 {
@@ -132,16 +132,23 @@ static void twis_event_handler(struct twis_event_t const *event, void* context)
         if (twim_direction == twim_direction::read)
         {
             // Check that the received data is what was sent by the master.
-            ASSERT(memcmp(twis_tx_buffer, twim_rx_buffer, event->xfer.tx_bytes) == 0);
+            ASSERT(std::equal(twis_tx_buffer,
+                              twis_tx_buffer + event->xfer.tx_bytes,
+                              twim_rx_buffer));
         }
         else if (twim_direction == twim_direction::write)
         {
             // Check that the received data is what was sent by the master.
-            ASSERT(memcmp(twis_rx_buffer, twim_tx_buffer, event->xfer.rx_bytes) == 0);
+            std::equal(twis_rx_buffer,
+                       twis_rx_buffer + event->xfer.rx_bytes,
+                       twim_tx_buffer);
 
             // What the twiS received will be sent back to twiM when the read
             // operation is performed.
-            memcpy(twis_tx_buffer, twis_rx_buffer, event->xfer.rx_bytes);
+            size_t cpy_len = std::min(std::size(twis_rx_buffer),
+                                      std::size(twis_tx_buffer));
+            cpy_len = std::min<size_t>(cpy_len, event->xfer.rx_bytes);
+            std::copy(twis_rx_buffer, twis_rx_buffer + cpy_len, twis_tx_buffer);
         }
         else
         {

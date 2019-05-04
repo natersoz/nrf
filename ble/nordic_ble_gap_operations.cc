@@ -10,7 +10,7 @@
 #include "ble_err.h"
 
 #include <algorithm>
-#include <cstring>
+#include <iterator>
 
 namespace nordic
 {
@@ -238,9 +238,8 @@ status ble_gap_operations::pairing_dhkey_response(
     ble::gap::security::dhkey const& dhkey)
 {
     ble_gap_lesc_dhkey_t lesc_dhkey;
-    static_assert(sizeof(lesc_dhkey.key) == dhkey.size());
-
-    memcpy(lesc_dhkey.key, dhkey.data(), dhkey.size());
+    static_assert(std::size(lesc_dhkey.key) == dhkey.size());
+    std::copy(std::begin(dhkey), std::end(dhkey), lesc_dhkey.key);
 
     uint32_t error_code = sd_ble_gap_lesc_dhkey_reply(
         connection_handle,

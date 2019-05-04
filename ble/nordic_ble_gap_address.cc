@@ -4,7 +4,7 @@
  */
 
 #include "ble/nordic_ble_gap_address.h"
-#include <cstring>
+#include <iterator>
 
 namespace nordic
 {
@@ -32,9 +32,11 @@ constexpr uint8_t ble_gap_address::address_type(enum ble::gap::address::type add
 
 ble_gap_address::ble_gap_address(ble::gap::address const& address)
 {
+    static_assert(ble::gap::address::octet_length == sizeof(this->addr));
+
     this->addr_id_peer  = 0u;
     this->addr_type     = address_type(address.type);
-    memcpy(&this->addr, address.octets.data(), ble::gap::address::octet_length);
+    std::copy(std::begin(address.octets), std::end(address.octets), this->addr);
 }
 
 } // namespace nordic

@@ -33,7 +33,9 @@ static void print_double(double value)
     std::cout << "-----------------------------" << std::endl;
     std::cout << "doub: " << value << std::endl;
     std::cout << "conv: " << hex_conv_buffer << std::endl;
-    std::cout << "strl: " << std::dec << strlen(hex_conv_buffer) << std::endl;
+    std::cout << "strl: " << std::dec << strnlen(hex_conv_buffer,
+                                                 sizeof(hex_conv_buffer))
+              << std::endl;
 
     std::cout << "sign: " << parts.sign;
     std::cout << ", exp: " <<  std::hex << std::setfill('0') << std::setw(4u)

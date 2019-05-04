@@ -9,10 +9,10 @@
 
 #include "segger_rtt.h"
 
-#include <cstring>
 #include <cstddef>
 #include <cstdint>
 #include <algorithm>
+#include <iterator>
 #include <type_traits>
 
 #include "nordic_critical_section.h"
@@ -210,7 +210,8 @@ void segger_rtt_channel_allocate(struct rtt_channel_alloc const* channel_alloc)
  */
 void segger_rtt_enable(void)
 {
-    if (rtt_control_block.signature[0] != 0) {
+    if (rtt_control_block.signature[0] != 0)
+    {
         return;             // Already initialized.
     }
 
@@ -221,13 +222,24 @@ void segger_rtt_enable(void)
         ASSERT(0);
     }
 
+    std::fill(std::begin(rtt_control_block.signature),
+              std::end(rtt_control_block.signature),
+              0);
+
     // Finish initialization of the control block.
     // Copy Id string in three steps to make sure "SEGGER RTT" is not found
     // in initializer memory (usually flash) by J-Link.
     // Once this signaure is set the host will start looking for data to consume.
-    strcpy(&rtt_control_block.signature[7], "RTT");
-    strcpy(&rtt_control_block.signature[0], "SEGGER");
-    rtt_control_block.signature[6] = ' ';
+    constexpr char  const id_str_1[] = "SEGGER";
+    constexpr char  const id_str_2[] = "RTT";
+    constexpr char  const id_sep     = ' ';
+    constexpr char* const str_1_loc  = std::begin(rtt_control_block.signature);
+    constexpr char* const str_2_loc  = str_1_loc + std::size(id_str_1);
+    constexpr char* const sep_loc    = str_2_loc - 1u;
+
+    std::copy(std::begin(id_str_2), std::end(id_str_2), str_2_loc);
+    std::copy(std::begin(id_str_1), std::end(id_str_1), str_1_loc);
+    *sep_loc = id_sep;
 }
 
 static size_t rtt_write_avail(size_t read_offset, size_t write_offset, size_t length)
@@ -275,8 +287,9 @@ static size_t rtt_write(struct rtt_buffer_up_t* rtt_ring_buffer,
     size_t const  avail_linear  = std::min(write_avail,  write_linear);
     size_t const  buffer_linear = std::min(avail_linear, buffer_length);
 
-    memcpy(&rtt_ring_buffer->base_pointer[write_offset],
-           buffer_iter, buffer_linear);
+    std::copy(buffer_iter,
+              buffer_iter + buffer_linear,
+              &rtt_ring_buffer->base_pointer[write_offset]);
 
     write_offset    += buffer_linear;
     buffer_iter     += buffer_linear;
@@ -287,10 +300,13 @@ static size_t rtt_write(struct rtt_buffer_up_t* rtt_ring_buffer,
 
     if (write_remain > 0u)
     {
-        // The first memcpy() wrote what could be fit in after write_offset
+        // The first copy() wrote what could be fit in after write_offset
         // to the end of the allocated ring write buffer.
         // Fill what remains of the write request.
-        memcpy(rtt_ring_buffer->base_pointer, buffer_iter, write_remain);
+        std::copy(buffer_iter,
+                  buffer_iter + write_remain,
+                  rtt_ring_buffer->base_pointer);
+
         write_offset = write_remain;
         buffer_iter += write_remain;
     }
@@ -355,9 +371,9 @@ static size_t rtt_read(struct rtt_buffer_down_t*    rtt_ring_buffer,
     size_t const  avail_linear  = std::min(read_avail,   read_linear);
     size_t const  buffer_linear = std::min(avail_linear, buffer_length);
 
-    memcpy(buffer_iter,
-           &rtt_ring_buffer->base_pointer[read_offset],
-           buffer_linear);
+    std::copy(&rtt_ring_buffer->base_pointer[read_offset],
+              &rtt_ring_buffer->base_pointer[read_offset] + buffer_linear,
+              buffer_iter);
 
     read_offset     += buffer_linear;
     buffer_iter     += buffer_linear;
@@ -368,10 +384,13 @@ static size_t rtt_read(struct rtt_buffer_down_t*    rtt_ring_buffer,
 
     if (read_remain > 0u)
     {
-        // The first memcpy() read what was available after read_offset
+        // The first copy() read what was available after read_offset
         // to the end of the allocated ring read buffer.
         // Fill what remains of the read request.
-        memcpy(buffer_iter, rtt_ring_buffer->base_pointer, read_remain);
+        std::copy(rtt_ring_buffer->base_pointer,
+                  rtt_ring_buffer->base_pointer + read_remain,
+                  buffer_iter);
+
         read_offset  = read_remain;
         buffer_iter += read_remain;
     }

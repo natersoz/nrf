@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <cstring>
 #include <cassert>
 
 static constexpr bool debug_print = false;
@@ -131,31 +132,31 @@ static void test_format_conversion(char const *format_spec,
 
 TEST(FormatConversion, Integer_d)
 {
-    char const* format_spec = "%d";
+    char const format_spec[] = "%d";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
     format_expected.precision               = 1;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Integer_10d)
 {
-    char const* format_spec = "%10d";
+    char const format_spec[] = "%10d";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = 'd';
     format_expected.width                   = 10;
     format_expected.width_state             = format_conversion::modifier_state::is_specified;
     format_expected.precision               = 1;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Integer_10_20d)
 {
-    char const* format_spec = "%10.20d";
+    char const format_spec[] = "%10.20d";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = 'd';
@@ -163,13 +164,13 @@ TEST(FormatConversion, Integer_10_20d)
     format_expected.width_state             = format_conversion::modifier_state::is_specified;
     format_expected.precision               = 20;
     format_expected.precision_state         = format_conversion::modifier_state::is_specified;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Integer_10i)
 {
-    char const* format_spec = "%10li";
+    char const format_spec[] = "%10li";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = 'i';
@@ -177,13 +178,13 @@ TEST(FormatConversion, Integer_10i)
     format_expected.width_state             = format_conversion::modifier_state::is_specified;
     format_expected.precision               = 1;
     format_expected.length_modifier         = format_conversion::length_modifier::l;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Unsigned_plus_10_0L)
 {
-    char const* format_spec = "%+10.0lu";
+    char const format_spec[] = "%+10.0lu";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = 'u';
@@ -193,13 +194,13 @@ TEST(FormatConversion, Unsigned_plus_10_0L)
     format_expected.precision_state         = format_conversion::modifier_state::is_specified;
     format_expected.length_modifier         = format_conversion::length_modifier::l;
     format_expected.prepend_value           = '+';
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Unsigned_space_10_0Lu)
 {
-    char const* format_spec = "% 10.0lu";
+    char const format_spec[] = "% 10.0lu";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = 'u';
@@ -209,13 +210,13 @@ TEST(FormatConversion, Unsigned_space_10_0Lu)
     format_expected.precision_state         = format_conversion::modifier_state::is_specified;
     format_expected.length_modifier         = format_conversion::length_modifier::l;
     format_expected.prepend_value           = ' ';
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Unsigned_010_0Lu)
 {
-    char const* format_spec = "%010.0lu";
+    char const format_spec[] = "%010.0lu";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = 'u';
@@ -225,13 +226,13 @@ TEST(FormatConversion, Unsigned_010_0Lu)
     format_expected.precision_state         = format_conversion::modifier_state::is_specified;
     format_expected.length_modifier         = format_conversion::length_modifier::l;
     format_expected.pad_value               = '0';
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Unsigned_space_010_0Lu)
 {
-    char const* format_spec = "% 010.0lu";
+    char const format_spec[] = "% 010.0lu";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = 'u';
@@ -242,13 +243,13 @@ TEST(FormatConversion, Unsigned_space_010_0Lu)
     format_expected.length_modifier         = format_conversion::length_modifier::l;
     format_expected.pad_value               = '0';
     format_expected.prepend_value           = ' ';
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Unsigned_space_010_0hhu)
 {
-    char const* format_spec = "% 010.0hhu";
+    char const format_spec[] = "% 010.0hhu";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = 'u';
@@ -259,13 +260,13 @@ TEST(FormatConversion, Unsigned_space_010_0hhu)
     format_expected.length_modifier         = format_conversion::length_modifier::hh;
     format_expected.pad_value               = '0';
     format_expected.prepend_value           = ' ';
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Unsigned_10LLx)
 {
-    char const* format_spec = "%10llx";
+    char const format_spec[] = "%10llx";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = 'x';
@@ -273,24 +274,24 @@ TEST(FormatConversion, Unsigned_10LLx)
     format_expected.width_state             = format_conversion::modifier_state::is_specified;
     format_expected.precision               = 1;
     format_expected.length_modifier         = format_conversion::length_modifier::ll;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Unsigned_o)
 {
-    char const* format_spec = "%o";
+    char const format_spec[] = "%o";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
     format_expected.precision               = 1;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Unsigned_08lx)
 {
-    char const* format_spec = "%08lx";
+    char const format_spec[] = "%08lx";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = 'x';
@@ -299,169 +300,169 @@ TEST(FormatConversion, Unsigned_08lx)
     format_expected.precision               = 1;
     format_expected.length_modifier         = format_conversion::length_modifier::l;
     format_expected.pad_value               = '0';
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Unsigned_X)
 {
-    char const* format_spec = "%X";
+    char const format_spec[] = "%X";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
     format_expected.precision               = 1;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Unsigned_u)
 {
-    char const* format_spec = "%u";
+    char const format_spec[] = "%u";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
     format_expected.precision               = 1;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, PercentSign)
 {
-    char const* format_spec = "%%";
+    char const format_spec[] = "%%";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = '%';
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Char)
 {
-    char const* format_spec = "%c";
+    char const format_spec[] = "%c";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, String)
 {
-    char const* format_spec = "%s";
+    char const format_spec[] = "%s";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Float_f)
 {
-    char const* format_spec = "%f";
+    char const format_spec[] = "%f";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
     format_expected.precision               = 6;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Float_F)
 {
-    char const* format_spec = "%F";
+    char const format_spec[] = "%F";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
     format_expected.precision               = 6;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Float_e)
 {
-    char const* format_spec = "%e";
+    char const format_spec[] = "%e";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
     format_expected.precision               = 6;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Float_E)
 {
-    char const* format_spec = "%E";
+    char const format_spec[] = "%E";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
     format_expected.precision               = 6;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Float_a)
 {
-    char const* format_spec = "%a";
+    char const format_spec[] = "%a";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
     format_expected.precision               = 6;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Float_A)
 {
-    char const* format_spec = "%A";
+    char const format_spec[] = "%A";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
     format_expected.precision               = 6;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Float_g)
 {
-    char const* format_spec = "%g";
+    char const format_spec[] = "%g";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
     format_expected.precision               = 6;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Float_G)
 {
-    char const* format_spec = "%G";
+    char const format_spec[] = "%G";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
     format_expected.precision               = 6;
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, StringLength)
 {
-    char const* format_spec = "%n";
+    char const format_spec[] = "%n";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }
 
 TEST(FormatConversion, Pointer)
 {
-    char const* format_spec = "%p";
+    char const format_spec[] = "%p";
     format_conversion const format_converted(format_spec);
     format_conversion format_expected;
     format_expected.conversion_specifier    = format_spec[1];
     format_expected.width                   = sizeof(uintptr_t) * 2u;
     format_expected.width_state             = format_conversion::modifier_state::is_specified;
     format_expected.pad_value               = '0';
-    format_expected.format_length           = strlen(format_spec);
+    format_expected.format_length           = strnlen(format_spec, std::size(format_spec));
     test_format_conversion(format_spec, format_converted, format_expected);
 }

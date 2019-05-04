@@ -47,15 +47,11 @@ TEST(FixedAllocator, Allocate)
 
     test_vector.reserve(std::size(data));
 
-    for (int test_data_value : test_data)
-    {
-        test_vector.push_back(test_data_value);
-    }
+    test_vector.insert(test_vector.begin(),
+                       std::begin(test_data),
+                       std::end(test_data));
 
     // Did the allocator actually use the data assigned to it?
-    ASSERT_EQ(test_vector.data(), data);
+    ASSERT_TRUE(std::equal(test_vector.begin(), test_vector.end(), test_data));
     ASSERT_EQ(test_vector.size(), std::size(test_data));
-
-    // Are the contents of the data correct?
-    ASSERT_TRUE(memcmp(test_vector.data(), data, test_vector.size()) == 0);
 }
