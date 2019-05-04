@@ -114,13 +114,12 @@ ARM_FLAGS += -mfpu=fpv4-sp-d16
 #  Place each function or data item into its own section.
 #  The linker can remove them if they are unused.
 ###
-ARM_GCC_FLAGS += $(ARM_FLAGS)
-ARM_GCC_FLAGS += $(OPT_FLAGS)
-ARM_GCC_FLAGS += -ffunction-sections
-ARM_GCC_FLAGS += -fdata-sections
-# ARM_GCC_FLAGS += -fno-strict-aliasing
-ARM_GCC_FLAGS += -fno-builtin
-ARM_GCC_FLAGS += -fshort-enums
+GCC_FLAGS += $(OPT_FLAGS)
+GCC_FLAGS += -ffunction-sections
+GCC_FLAGS += -fdata-sections
+# GCC_FLAGS += -fno-strict-aliasing
+GCC_FLAGS += -fno-builtin
+GCC_FLAGS += -fshort-enums
 
 ###
 # Common Warnings
@@ -134,16 +133,17 @@ WARNING_FLAGS += -Werror
 CFLAGS += --std=gnu99
 CFLAGS += -nostdlib
 CFLAGS += $(WARNING_FLAGS)
-CFLAGS += $(ARM_GCC_FLAGS)
+CFLAGS += $(GCC_FLAGS)
 CFLAGS += -g3
 
 ###
 # GNU C++ Language compiler options
+# Using gnu++17 instead of c++17 so that strnlen() works.
 ###
-CXXFLAGS += -std=c++17
+CXXFLAGS += -std=gnu++17
 CXXFLAGS += -nostdlib
 CXXFLAGS += $(WARNING_FLAGS)
-CXXFLAGS += $(ARM_GCC_FLAGS)
+CXXFLAGS += $(GCC_FLAGS)
 CXXFLAGS += -g3
 CXXFLAGS += -fno-rtti
 CXXFLAGS += -fno-exceptions
@@ -153,7 +153,6 @@ CXXFLAGS += -fno-exceptions
 # -x assembler-with-cpp option enforces C language pre-processing directives
 #    within the .s file.
 ###
-ASFLAGS += $(ARM_FLAGS)
 ASFLAGS += -g3
 ASFLAGS += -x assembler-with-cpp
 
@@ -178,7 +177,6 @@ ASFLAGS += -x assembler-with-cpp
 LDFLAGS += -Xlinker -Map=$(BUILD_PATH)/$(TARGET_NAME).map
 LDFLAGS += $(LINKER_PATHS)
 LDFLAGS += --specs=nano.specs -lc -lnosys
-LDFLAGS += $(ARM_FLAGS)
 LDFLAGS += $(OPT_FLAGS)
 LDFLAGS += -Wl,--gc-sections
 
@@ -226,24 +224,24 @@ $(BUILD_PATH):
 # Compile C++ SRC files
 $(BUILD_PATH)/%.cc.o: %.cc
 	@echo Compiling: $<
-	$(VERBOSE)$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c -o $@ $<
-	$(VERBOSE)$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c -MM -MT $@ -MF $(@:.o=.dep) $<
+	$(VERBOSE)$(CXX) $(ARM_FLAGS) $(CXXFLAGS) $(INCLUDE_PATHS) -c -o $@ $<
+	$(VERBOSE)$(CXX) $(ARM_FLAGS) $(CXXFLAGS) $(INCLUDE_PATHS) -c -MM -MT $@ -MF $(@:.o=.dep) $<
 
 # Compile C SRC files
 $(BUILD_PATH)/%.c.o: %.c
 	@echo Compiling: $<
-	$(VERBOSE)$(CC) $(CFLAGS) $(INCLUDE_PATHS) -c -o $@ $<
-	$(VERBOSE)$(CC) $(CFLAGS) $(INCLUDE_PATHS) -c -MM -MT $@ -MF $(@:.o=.dep) $<
+	$(VERBOSE)$(CC) $(ARM_FLAGS) $(CFLAGS) $(INCLUDE_PATHS) -c -o $@ $<
+	$(VERBOSE)$(CC) $(ARM_FLAGS) $(CFLAGS) $(INCLUDE_PATHS) -c -MM -MT $@ -MF $(@:.o=.dep) $<
 
 # Compile Assembly files
 $(BUILD_PATH)/%.s.o: %.s
 	@echo Assembling: $<
-	$(VERBOSE)$(CC) $(ASFLAGS) $(INCLUDE_PATHS) -c -o $@ $<
+	$(VERBOSE)$(CC) $(ARM_FLAGS) $(ASFLAGS) $(INCLUDE_PATHS) -c -o $@ $<
 
 # Link
 $(BUILD_PATH)/$(TARGET_NAME).out: $(OBJECT_FILES) $(LIBS) $(LINKER_SCRIPT)
 	@echo Linking: $@
-	$(VERBOSE)$(CXX) $(LDFLAGS) $(OBJECT_FILES) $(LIBS) -T $(LINKER_SCRIPT) -o $@
+	$(VERBOSE)$(CXX) $(ARM_FLAGS) $(LDFLAGS) $(OBJECT_FILES) $(LIBS) -T $(LINKER_SCRIPT) -o $@
 	$(VERBOSE)$(SIZE) $@
 
 ## Create binary .bin file from the .out file

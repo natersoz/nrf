@@ -58,7 +58,7 @@ static size_t convert_string(io::output_stream&         os,
     if ((conversion.width_state == format_conversion::modifier_state::is_specified) &&
         (conversion.justification == format_conversion::justification::right))
     {
-        size_t const string_length = strlen(string_ptr);
+        size_t const string_length = strnlen(string_ptr, os.write_avail());
         if (conversion.width > static_cast<signed_size_t>(string_length))
         {
             size_t const pad_length = conversion.width - string_length;

@@ -7,6 +7,8 @@
 #include "int_to_string.h"
 #include "std_error.h"
 
+#include <iterator>
+
 namespace ble
 {
 namespace gatt
@@ -66,7 +68,7 @@ std::to_chars_result declaration::to_chars(char *begin, char *end) const
     }
 
     char const type_prefix[] = "type: 0x";
-    memcpy(begin, type_prefix, sizeof(type_prefix));
+    std::copy(std::begin(type_prefix), std::end(type_prefix), begin);
     begin += std::size(type_prefix) - 1u;       // Overwrite null terminator.
 
     uint16_t const attr_type = static_cast<uint16_t>(this->attribute_type);
@@ -74,8 +76,8 @@ std::to_chars_result declaration::to_chars(char *begin, char *end) const
     begin += count;
 
     char const properties_prefix[] = " props: ";
-    memcpy(begin, properties_prefix, sizeof(properties_prefix));
-    begin += std::size(properties_prefix) - 1u; // Overwrite null terminator.
+    std::copy(std::begin(properties_prefix), std::end(properties_prefix), begin);
+    begin += std::size(properties_prefix) - 1u; // null not included in length.
     return this->properties.to_chars(begin, end);
 }
 

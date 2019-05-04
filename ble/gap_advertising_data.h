@@ -12,8 +12,8 @@
 
 #include <cstdint>
 #include <cstddef>
-#include <cstring>
 #include <array>
+#include <iterator>
 
 #include <boost/operators.hpp>
 
@@ -174,13 +174,20 @@ public:
      * Supplying a data pointer, length to the ctor is typically used within the
      * BLE central role. The advertsing data can be iterated and parsed.
      *
-     * @param data   The advertising data received from a scan.
-     * @param length The length of the advertising data received from a scan.
+     * @param adv_data The advertising data received from a scan.
+     * @param length   The length of the advertising data received from a scan.
      */
-    advertising_data(void const *data, att::length_t length)
+    advertising_data(void const *adv_data, att::length_t length)
     {
-        length = std::min(length, max_length);
-        memcpy(this->data(), data, length);
+        container::value_type const* adv_data_ptr =
+            reinterpret_cast<container::value_type const*>(adv_data);
+
+        size_t const adv_data_length =
+            std::min<size_t>(length, this->data_.max_size());
+
+        std::copy(adv_data_ptr, adv_data_ptr + adv_data_length,
+                  std::begin(this->data_));
+
         this->index_ = this->data() + length;
     }
 

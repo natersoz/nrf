@@ -6,10 +6,11 @@
 #include "gtest/gtest.h"
 #include "make_array.h"
 
+#include <algorithm>
 #include <cstdint>
-#include <cstring>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <iterator>
 
 static constexpr bool debug_print = false;
 
@@ -58,7 +59,9 @@ TEST(MakeArray, MakeArray)
         std::cout << "test_mk_array: " << test_array << std::endl;
     }
 
-    ASSERT_EQ(memcmp(test_data, test_array.data(), test_array.size()), 0);
+
+    ASSERT_TRUE(std::equal(std::begin(test_data), std::end(test_data),
+                           test_array.begin()));
     ASSERT_EQ(std::size(test_data), test_array.size());
 }
 
@@ -72,6 +75,7 @@ TEST(MakeArray, ToArray)
         std::cout << "test_to_array: " << test_array << std::endl;
     }
 
-    ASSERT_EQ(memcmp(test_data, test_array.data(), test_array.size()), 0);
+    ASSERT_TRUE(std::equal(std::begin(test_data), std::end(test_data),
+                           test_array.begin()));
     ASSERT_EQ(std::size(test_data), test_array.size());
 }

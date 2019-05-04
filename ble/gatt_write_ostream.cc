@@ -11,6 +11,8 @@
 #include "stream.h"
 #include "vwritef.h"
 
+#include <cstring>
+
 namespace ble
 {
 namespace gatt
@@ -87,7 +89,7 @@ static void characteristic_write(io::output_stream&               os,
             static_cast<ble::gatt::characteristic_type>(uuid_32);
 
         char const *char_type = ble::gatt::to_string(characteristic_type);
-        std::size_t const char_length = strlen(char_type);
+        std::size_t const char_length = strnlen(char_type, os.write_avail());
         std::size_t const char_width  = 28u;
         std::size_t const n_padding   = char_width - std::min(char_length,
                                                               char_width);
@@ -155,7 +157,7 @@ void service_write(io::output_stream& os, ble::gatt::service const& service)
             static_cast<ble::gatt::service_type>(uuid_32);
 
         char const *svc_type = ble::gatt::to_string(service_type);
-        std::size_t const svc_length = strlen(svc_type);
+        std::size_t const svc_length = strnlen(svc_type, os.write_avail());
         std::size_t const svc_width  = 28u;
         std::size_t const n_padding  = svc_width - std::min(svc_length,
                                                             svc_width);
