@@ -9,7 +9,6 @@
 
 #include <algorithm>
 #include <utility>
-#include <cstring>
 
 namespace ble
 {
@@ -34,33 +33,36 @@ ble::att::length_t attribute::write(ble::att::op_code   write_type,
                                     void const*         data)
 {
     (void) write_type;
+    uint8_t *dst_beg = reinterpret_cast<uint8_t*>(this->data_pointer());
 
-    uint8_t *data_dst = reinterpret_cast<uint8_t*>(this->data_pointer());
-    ASSERT(data_dst);
-
-    if (data_dst)
+    if (dst_beg)
     {
-        data_dst += offset;
+        // The attribute data buffer end pointer.
+        // Writing to this location or beyond is an overflow.
+        uint8_t* const dst_end = dst_beg + this->data_length_max();
 
-        uint8_t* data_end  = data_dst + length;
-        uint8_t* data_max  = data_dst + this->data_length_max();
+        // The attribute data iter locations which data will be written based
+        // on the caller request.
+        dst_beg += offset;
+        uint8_t* const dst_last = std::min(dst_beg + length, dst_end);
 
-        data_end = std::min(data_end, data_max);
-
-        std::ptrdiff_t const dest_length = data_end - data_dst;
-        if (dest_length > 0)
+        // Limit copy length to what is available.
+        std::ptrdiff_t const copy_length = dst_last - dst_beg;
+        if (copy_length > 0)
         {
-            memcpy(data_dst, data, dest_length);
-            return static_cast<att::length_t>(dest_length);
+            uint8_t const* data_in = reinterpret_cast<uint8_t const*>(data);
+            std::copy(data_in, data_in + copy_length, dst_beg);
+            return static_cast<att::length_t>(copy_length);
         }
         else
         {
-            logger::instance().warn("attribute::write: %d", dest_length);
+            logger::instance().warn("attribute::write: %d <= 0", copy_length);
             return 0u;
         }
     }
 
-    logger::instance().warn("attribute::write to null");
+    logger::instance().warn("attribute::write(0x%04x) to null",
+                            this->decl.attribute_type);
     return 0u;
 }
 
