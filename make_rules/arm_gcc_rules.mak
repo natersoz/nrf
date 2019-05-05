@@ -11,6 +11,7 @@
 #	LINKER_SCRIPT		The .ld file to use at link time.
 #				If not specified then $(TARGET_NAME).ld is used.
 #	INCLUDE_PATHS		C   Language Include paths (without -I prefix)
+#	SYSTEM_INCLUDE_PATHS	C   Language System Include paths
 #	SOURCE_FILES		All Language Source files (with path)
 #				C (.c), C++ (.cc) and Assember (.s)
 #	LD_PATHS		Linker path file include specification;
@@ -130,7 +131,7 @@ WARNING_FLAGS += -Werror
 ###
 # GNU C Language compiler options
 ###
-CFLAGS += --std=gnu99
+CFLAGS += --std=c99
 CFLAGS += -nostdlib
 CFLAGS += $(WARNING_FLAGS)
 CFLAGS += $(GCC_FLAGS)
@@ -185,10 +186,11 @@ LDFLAGS += -Wl,--gc-sections
 # The complete list of C Language directories: source files + header files.
 # Using remduplicates insures that the directory only gets used once.
 # Not that it is necessary but it does clean things up.
-I_PATHS = $(call remduplicates, $(INCLUDE_PATHS) )
+I_PATHS = $(call remduplicates, $(INCLUDE_PATHS))
 
 # The include path statement used by the compiler.
-INCLUDE_PATHS := $(addprefix -I, $(I_PATHS))
+INCLUDE_PATHS := $(addprefix -I , $(I_PATHS))
+INCLUDE_PATHS += $(addprefix -isystem , $(SYSTEM_INCLUDE_PATHS))
 
 # The linker search paths allows the linker to seach for libraries.
 # This is not commonly used. Prefere to specify link libraries with their path.

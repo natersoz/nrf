@@ -11,10 +11,11 @@
 #include "ble/nordic_ble_event_observable.h"
 #include "ble/nordic_ble_event_observer.h"
 
-#include "ble_gatt.h"
+#include <ble_gatt.h>
+#include <cmsis_gcc.h>
+
 #include "nordic_error.h"
 #include "logger.h"
-#include "cmsis_gcc.h"
 
 namespace nordic
 {

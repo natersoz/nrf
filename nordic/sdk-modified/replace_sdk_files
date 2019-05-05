@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # Replace Nordic SDK source and header files
+# This script should run from the nrf/notdic/sdk-modified directory
 
 function move_sdk_file() {
     sdk_file=$1
@@ -38,9 +39,9 @@ fi
 sdk_file=$SDK_ROOT/components/libraries/util/nrf_assert.h
 move_sdk_file $sdk_file
 
-# sdk_file=$SDK_ROOT/components/ble/ble_db_discovery/ble_db_discovery.h
-# move_sdk_file    $sdk_file
-# replace_sdk_file $sdk_file
+sdk_file=$SDK_ROOT/components/libraries/util/app_util.h
+move_sdk_file    $sdk_file
+replace_sdk_file $sdk_file
 
 # sdk_file=$SDK_ROOT/components/libraries/util/app_error_weak.c
 # move_sdk_file    $sdk_file

@@ -6,7 +6,7 @@
 #pragma once
 
 #include "ble/gap_scan_parameters.h"
-#include "ble_gap.h"
+#include <ble_gap.h>
 
 namespace nordic
 {

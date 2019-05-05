@@ -13,12 +13,12 @@
 #include "ble/profile_connectable.h"
 #include "ble/gattc_event_observer.h"
 #include "ble/gattc_operations.h"
-
-#include "ble_gatt.h"
-#include "nordic_error.h"
 #include "logger.h"
 #include "project_assert.h"
-#include "cmsis_gcc.h"
+#include "nordic_error.h"
+
+#include <ble_gatt.h>
+#include <cmsis_gcc.h>
 
 #include <cstring>
 

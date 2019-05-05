@@ -353,10 +353,10 @@ enum spi_result_t spim_transfer(spi_port_t              spi_port,
         gpio_pin_clear(spim_control->ss_pin);
     }
 
-    spim_control->spim_registers->TXD.PTR    = reinterpret_cast<uint32_t>(tx_buffer);
+    spim_control->spim_registers->TXD.PTR    = reinterpret_cast<uintptr_t>(tx_buffer);
     spim_control->spim_registers->TXD.MAXCNT = tx_length;
 
-    spim_control->spim_registers->RXD.PTR    = reinterpret_cast<uint32_t>(rx_buffer);
+    spim_control->spim_registers->RXD.PTR    = reinterpret_cast<uintptr_t>(rx_buffer);
     spim_control->spim_registers->RXD.MAXCNT = rx_length;
 
     spim_clear_event_register(&spim_control->spim_registers->EVENTS_END);

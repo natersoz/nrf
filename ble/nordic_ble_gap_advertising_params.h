@@ -6,7 +6,7 @@
 #pragma once
 
 #include <cstdint>
-#include "ble_gap.h"
+#include <ble_gap.h>
 
 namespace nordic
 {

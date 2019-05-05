@@ -4,9 +4,10 @@
  */
 
 #include "nordic_req_observable.h"
-#include "nrf_sdh.h"
 #include "section_macros.h"
 #include "project_assert.h"
+
+#include <nrf_sdh.h>
 
 static nordic::req_observable req_observable_instance;
 
@@ -62,6 +63,8 @@ static bool nordic_req_event_handler(nrf_sdh_req_evt_t req_event_id, void *conte
     return observable->notify(req_event_id);
 }
 
+// For whatever reason clang-tidy is not accepting the reason in parens.
+// NOLINTNEXTLINE clang-diagnostic-unused-const-variable
 static nrf_sdh_req_observer_t sdh_req_observer
     IN_SECTION(".sdh_req_observers") =
 {

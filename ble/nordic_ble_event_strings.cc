@@ -5,9 +5,9 @@
 
 #include "ble/nordic_ble_event_strings.h"
 
-#include "ble_gap.h"
-#include "ble_gatts.h"
-#include "ble_gattc.h"
+#include <ble_gap.h>
+#include <ble_gatts.h>
+#include <ble_gattc.h>
 
 // A really cheezy macro that converts a case statement enum-ish type
 // into a string literal return value

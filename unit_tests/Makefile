@@ -38,6 +38,9 @@ WARNINGS += -Wstrict-overflow
 # WARNINGS += -Wundef
 # WARNINGS += -Wshadow
 
+DEFINES  =
+DEFINES += -D SVCALL_AS_NORMAL_FUNCTION
+
 CXXFLAGS  = $(WARNINGS) $(DEFINES) -std=c++17 -g -O0 -pthread
 CFLAGS    = $(WARNINGS) $(DEFINES) -std=c99   -g -O0 -pthread
 
@@ -80,7 +83,7 @@ SRC += gatt_write_ostream.cc
 SRC += gatt_enum_types_strings.cc
 
 # Helpers, stubs, fakes.
-SRC += test_assert.cc
+SRC += assert_stubs.cc
 SRC += rtc_stubs.cc
 
 OBJ_CXX	= $(SRC:.cc=.o)

@@ -9,7 +9,8 @@
 
 #include "ble/gap_scanning.h"
 #include "ble/nordic_ble_gap_scan_parameters.h"
-#include "ble_gap.h"
+
+#include <ble_gap.h>
 
 namespace nordic
 {

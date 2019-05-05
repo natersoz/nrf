@@ -8,5 +8,8 @@
 
 #pragma once
 
+#if defined __arm__
 #define IN_SECTION(section_name) __attribute__((section(section_name))) __attribute((used))
-
+#else
+#define IN_SECTION(section_name)
+#endif
