@@ -292,15 +292,15 @@ static void irq_handler_rtc(rtc_control_block_t *rtc_control)
         if (rtc_control->registers->EVENTS_COMPARE[cc_index])
         {
             uint32_t const cc_count = rtc_control->registers->CC[cc_index];
-            rtc_control->handler(rtc_control->context, cc_index, cc_count);
+            rtc_control->handler(cc_index, cc_count, rtc_control->context);
             rtc_clear_compare_event(rtc_control, cc_index);
         }
     }
 }
 
-extern "C" void rtc_event_handler(void              *context,
-                                  rtc_cc_index_t    cc_index,
-                                  uint32_t          cc_count)
+extern "C" void rtc_event_handler(rtc_cc_index_t    cc_index,
+                                  uint32_t          cc_count,
+                                  void*             context)
 {
     rtc *rtc_with_event = reinterpret_cast<rtc*>(context);
     rtc_with_event->event_notify(cc_index, cc_count);

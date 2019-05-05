@@ -14,12 +14,20 @@
 
 #include <iterator>
 
+// Shortening the IRQ naming for readability. Ignore unused varaiable warnings.
+static constexpr IRQn_Type const TWIS0_IRQn = SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn;   // NOLINT (clang-diagnostic-unused-const-variable)
+static constexpr IRQn_Type const TWIS1_IRQn = SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn;   // NOLINT (clang-diagnostic-unused-const-variable)
+
 enum class transfer_state
 {
     ready,
     rx_busy,
     tx_busy
 };
+
+/// The default initialization value; which is invalid.
+/// To use the TWI, all pins must be set to a valid device pin.
+static constexpr gpio_pin_t const twi_pin_uninitialized = -1;
 
 /**
  * @struct twis_control_block_t
@@ -33,6 +41,25 @@ enum class transfer_state
  */
 struct twis_control_block_t
 {
+    ~twis_control_block_t()                                         = default;
+
+    twis_control_block_t()                                          = delete;
+    twis_control_block_t(twis_control_block_t const&)               = delete;
+    twis_control_block_t(twis_control_block_t &&)                   = delete;
+    twis_control_block_t& operator=(twis_control_block_t const&)    = delete;
+    twis_control_block_t& operator=(twis_control_block_t&&)         = delete;
+
+    twis_control_block_t(uintptr_t twi_base_addr, IRQn_Type irq):
+        twis_registers(reinterpret_cast<NRF_TWIS_Type *>(twi_base_addr)),
+        irq_type(irq),
+        handler(nullptr),
+        context(nullptr),
+        transfer_state(transfer_state::ready),
+        pin_scl(twi_pin_uninitialized),
+        pin_sda(twi_pin_uninitialized)
+    {
+    }
+
     /**
      * Pointer to the structure with TWIS peripheral instance registers.
      * This must be one of:
@@ -87,24 +114,12 @@ struct twis_control_block_t
     /// @}
 };
 
-/// The default initialization value; which is invalid.
-/// To use the TWI, all pins must be set to a valid device pin.
-static constexpr gpio_pin_t const twi_pin_uninitialized = -1;
-
 static void irq_handler_twis(struct twis_control_block_t* twis_control);
 
 #if defined TWIS0_ENABLED
-static struct twis_control_block_t twis_instance_0 =
-{
-    .twis_registers         = reinterpret_cast<NRF_TWIS_Type *>(NRF_TWIS0_BASE),
-    .irq_type               = SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn,
-    .handler                = nullptr,
-    .context                = nullptr,
-    .transfer_state         = transfer_state::ready,
-    .pin_scl                = twi_pin_not_used,
-    .pin_sda                = twi_pin_not_used,
-};
-static struct twis_control_block_t* const twis_instance_ptr_0 = &twis_instance_0;
+static struct twis_control_block_t twis_instance_0(NRF_TWIS0_BASE, TWIS0_IRQn);
+static constexpr struct twis_control_block_t* const twis_instance_ptr_0 =
+    &twis_instance_0;
 
 extern "C" void SPIM0_SPIS0_TWIS0_TWIS0_SPI0_TWI0_IRQHandler(void)
 {
@@ -115,17 +130,9 @@ static struct twis_control_block_t* const twis_instance_ptr_0 = nullptr;
 #endif  // TWIS0_ENABLED
 
 #if defined TWIS1_ENABLED
-static struct twis_control_block_t twis_instance_1 =
-{
-    .twis_registers         = reinterpret_cast<NRF_TWIS_Type *>(NRF_TWIS1_BASE),
-    .irq_type               = SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn,
-    .handler                = nullptr,
-    .context                = nullptr,
-    .transfer_state         = transfer_state::ready,
-    .pin_scl                = twi_pin_uninitialized,
-    .pin_sda                = twi_pin_uninitialized,
-};
-static struct twis_control_block_t* const twis_instance_ptr_1 = &twis_instance_1;
+static struct twis_control_block_t twis_instance_1(NRF_TWIS1_BASE, TWIS1_IRQn);
+static constexpr struct twis_control_block_t* const twis_instance_ptr_1 =
+    &twis_instance_1;
 
 extern "C" void SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler(void)
 {

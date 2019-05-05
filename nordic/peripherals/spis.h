@@ -15,43 +15,6 @@ extern "C" {
 #endif
 
 /**
- * @enum spis_event_type_t
- * Event callback function event types.
- */
-enum spis_event_type_t
-{
-    /// The SPIS driver is ready and waiting for a call to enable_transfer().
-    /// Note that the client does not need to wait for this event.
-    /// It is an indication that the client needs to 'keep up'.
-    spis_event_data_ready,
-
-    /// SPI transaction has been completed.
-    spis_event_transfer_complete,
-};
-
-/**
- * @struct spis_event_t
- * The SPIS state events.
- */
-struct spis_event_t
-{
-    enum spis_event_type_t  type;
-    size_t                  rx_length;  /// The MOSI number of bytes received.
-    size_t                  tx_length;  /// The MISO number of bytes transmitted.
-};
-
-/**
- * SPIS (slave) event handler type.
- *
- * @param context is a user supplied value that is supplied to the transfer
- * setup call spis_enable_transfer(), held by the SPIS driver, and passed back
- * with SPIS completion event callbacks. It is not miodified by the SPIS driver.
- * @param event The SPIS completion event @see struct spis_event_t.
- */
-typedef void (* spis_event_handler_t) (void *context,
-                                       struct spis_event_t const* event);
-
-/**
  * Initialize the SPIS driver for operation.
  *
  * @param spi_port   An integer indicating which SPI peripheral device to
@@ -70,7 +33,7 @@ typedef void (* spis_event_handler_t) (void *context,
  */
 enum spi_result_t spis_init(spi_port_t                  spi_port,
                             struct spi_config_t const*  spi_config,
-                            spis_event_handler_t        handler,
+                            spi_event_handler_t         handler,
                             void*                       context);
 
 /**
@@ -83,21 +46,25 @@ void spis_deinit(spi_port_t spi_port);
 /**
  * Prepare the SPIS peripheral for a data transfer.
  *
- * @param spi_port   The SPIS device to use for transfer.
- * @param tx_buffer  The data buffer to send over the MISO wire in response
- *                   to the master sending data to the slave.
- * @param tx_length  The maximum number of bytes which will be sent over the
- *                   MISO wire. This value must not exceed sizeof(tx_buffer).
- *                   When the master sends more data than tx_length then the
- *                   response is filled with the 'ocr' (over-run) value.
- * @param rx_buffer  The data buffer which will receive the data over the MOSI
- *                   wire from the master.
- * @param rx_length  The maximum number of data bytes that the slave will accept.
- *                   This value is typically sizeof(rx_buffer).
+ * @param spi_port    The SPIS device to use for transfer.
+ * @param miso_buffer The data buffer to send over the MISO wire in response
+ *                    to the master sending data to the slave.
+ * @param miso_length The maximum number of bytes which will be sent over the
+ *                    MISO wire. This value must not exceed sizeof(miso_buffer).
+ *                    When the master sends more data than miso_length then the
+ *                    response is filled with the 'orc' (over-run) value 0xFF.
+ * @param mosi_buffer The data buffer which will receive the data over the MOSI
+ *                    wire from the master.
+ * @param mosi_length The maximum number of data bytes that the slave will
+ *                    accept. This value is typically sizeof(rx_buffer).
+ * @return bool       true  If the buffer was successfully queued for SPI slave
+ *                          transfers.
+ *                    false If the buffer could not be queued. This happens if
+ *                    more than 2 buffers are queued at a time.
  */
-void spis_enable_transfer(spi_port_t  spi_port,
-                          void const* tx_buffer, dma_size_t tx_length,
-                          void*       rx_buffer, dma_size_t rx_length);
+bool spis_enable_transfer(spi_port_t  spi_port,
+                          void const* miso_buffer, size_t miso_length,
+                          void*       mosi_buffer, size_t mosi_length);
 
 #ifdef __cplusplus
 }
