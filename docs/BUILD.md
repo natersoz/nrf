@@ -94,6 +94,25 @@ From the top directory `nrf`:
 
 It should compile and link all projects without errors or warnings.
 
+clang-tidy checks
+-----------------
+
+From the top directory `nrf` (or any of the project files):
+
+	$ make checks
+
+This will run the checker `clang-tidy` using the project Makefiles.
+The clang-tidy rules, definitions and targets are located in
+`make_rules/checker_rules.mak`. Errors and any unsupressed warnings are
+output into the `_checks` directory inside each project.
+
+To find any errors or unsupressed warnings found during a check:
+
+	$ find . -type f -iname '*.check' -not -size 0c -exec cat {} \;
+
+This will find any clang-tidy unsupressed warnings and errors from the
+checker runs by look for non-zero length output files.
+
 What about CMake?
 -----------------
 CMake seems to be a wonderful work in progress.
