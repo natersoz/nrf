@@ -110,8 +110,7 @@ struct usart_control_block_t
     usart_control_block_t& operator=(usart_control_block_t const&)  = delete;
     usart_control_block_t& operator=(usart_control_block_t&&)       = delete;
 
-    usart_control_block_t(uint32_t  base_address,
-                          IRQn_Type irq_no)
+    usart_control_block_t(uintptr_t base_address, IRQn_Type irq_no)
     :   usart_registers(reinterpret_cast<NRF_UARTE_Type *>(base_address)),
         irq_type(irq_no),
         handler(nullptr),

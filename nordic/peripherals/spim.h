@@ -59,11 +59,6 @@ enum spi_result_t spim_init(spi_port_t                  spi_port,
 void spim_deinit(spi_port_t spi_port);
 
 /**
- * @brief SPIM (master) event handler type.
- */
-typedef void (* spim_event_handler_t) (void *context);
-
-/**
  * Start the SPIM data transfer using DMA.
  * Nordic DMA requires that the buffers being transferred be in RAM.
  *
@@ -83,7 +78,7 @@ enum spi_result_t spim_transfer(spi_port_t              spi_port,
                                 dma_size_t              tx_length,
                                 void*                   rx_buffer,
                                 dma_size_t              rx_length,
-                                spim_event_handler_t    handler,
+                                spi_event_handler_t     handler,
                                 void*                   context,
                                 uint32_t                flags);
 
@@ -97,4 +92,3 @@ void spim_abort_transfer(spi_port_t spi_port);
 #ifdef __cplusplus
 }
 #endif
-

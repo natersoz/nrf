@@ -13,6 +13,14 @@
 
 #include <iterator>
 
+// Shortening the IRQ naming for readability. Ignore unused varaiable warnings.
+static constexpr IRQn_Type const TWIM0_IRQn = SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn;   // NOLINT (clang-diagnostic-unused-const-variable)
+static constexpr IRQn_Type const TWIM1_IRQn = SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn;   // NOLINT (clang-diagnostic-unused-const-variable)
+
+/// The default initialization value; which is invalid.
+/// To use the TWI, all pins must be set to a valid device pin.
+static constexpr gpio_pin_t const twi_pin_uninitialized = -1;
+
 /**
  * @struct twim_control_block_t
  * Maintain the state of the TWI master device using DMA.
@@ -25,6 +33,26 @@
  */
 struct twim_control_block_t
 {
+    ~twim_control_block_t()                                         = default;
+
+    twim_control_block_t()                                          = delete;
+    twim_control_block_t(twim_control_block_t const&)               = delete;
+    twim_control_block_t(twim_control_block_t &&)                   = delete;
+    twim_control_block_t& operator=(twim_control_block_t const&)    = delete;
+    twim_control_block_t& operator=(twim_control_block_t&&)         = delete;
+
+    twim_control_block_t(uintptr_t twi_base_addr, IRQn_Type irq):
+        twim_registers(reinterpret_cast<NRF_TWIM_Type *>(twi_base_addr)),
+        irq_type(irq),
+        handler(nullptr),
+        context(nullptr),
+        rx_busy(false),
+        tx_busy(false),
+        pin_scl(twi_pin_uninitialized),
+        pin_sda(twi_pin_uninitialized)
+    {
+    }
+
     /**
      * Pointer to the structure with TWIM peripheral instance registers.
      * This must be one of:
@@ -83,25 +111,12 @@ struct twim_control_block_t
     /// @}
 };
 
-/// The default initialization value; which is invalid.
-/// To use the TWI, all pins must be set to a valid device pin.
-static constexpr gpio_pin_t const twi_pin_uninitialized = -1;
-
 static void irq_handler_twim(struct twim_control_block_t* twim_control);
 
 #if defined TWIM0_ENABLED
-static struct twim_control_block_t twim_instance_0 =
-{
-    .twim_registers         = reinterpret_cast<NRF_TWIM_Type *>(NRF_TWIM0_BASE),
-    .irq_type               = SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn,
-    .handler                = nullptr,
-    .context                = nullptr,
-    .rx_busy                = false,
-    .tx_busy                = false,
-    .pin_scl                = twi_pin_uninitialized,
-    .pin_sda                = twi_pin_uninitialized,
-};
-static struct twim_control_block_t* const twim_instance_ptr_0 = &twim_instance_0;
+static struct twim_control_block_t twim_instance_0(NRF_TWIM0_BASE, TWIM0_IRQn);
+static constexpr struct twim_control_block_t* const twim_instance_ptr_0 =
+    &twim_instance_0;
 
 extern "C" void SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler(void)
 {
@@ -112,18 +127,9 @@ static struct twim_control_block_t* const twim_instance_ptr_0 = nullptr;
 #endif  // TWIM0_ENABLED
 
 #if defined TWIM1_ENABLED
-static struct twim_control_block_t twim_instance_1 =
-{
-    .twim_registers         = reinterpret_cast<NRF_TWIM_Type *>(NRF_TWIM1_BASE),
-    .irq_type               = SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn,
-    .handler                = nullptr,
-    .context                = nullptr,
-    .rx_busy                = false,
-    .tx_busy                = false,
-    .pin_scl                = twi_pin_uninitialized,
-    .pin_sda                = twi_pin_uninitialized,
-};
-static struct twim_control_block_t* const twim_instance_ptr_1 = &twim_instance_1;
+static struct twim_control_block_t twim_instance_1(NRF_TWIM1_BASE, TWIM1_IRQn);
+static constexpr struct twim_control_block_t* const twim_instance_ptr_1 =
+    &twim_instance_1;
 
 extern "C" void SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler(void)
 {

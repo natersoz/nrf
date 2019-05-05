@@ -132,23 +132,29 @@ static void twis_event_handler(struct twis_event_t const *event, void* context)
         if (twim_direction == twim_direction::read)
         {
             // Check that the received data is what was sent by the master.
+            size_t transfer_size = std::min(sizeof(twis_rx_buffer),
+                                            sizeof(twis_tx_buffer));
+            transfer_size = std::min(transfer_size, event->xfer.tx_bytes);
             ASSERT(std::equal(twis_tx_buffer,
-                              twis_tx_buffer + event->xfer.tx_bytes,
+                              twis_tx_buffer + transfer_size,
                               twim_rx_buffer));
         }
         else if (twim_direction == twim_direction::write)
         {
+            size_t transfer_size = std::min(sizeof(twis_rx_buffer),
+                                            sizeof(twis_tx_buffer));
+            transfer_size = std::min(transfer_size, event->xfer.rx_bytes);
+
             // Check that the received data is what was sent by the master.
-            std::equal(twis_rx_buffer,
-                       twis_rx_buffer + event->xfer.rx_bytes,
-                       twim_tx_buffer);
+            ASSERT(std::equal(twis_rx_buffer,
+                              twis_rx_buffer + transfer_size,
+                              twim_tx_buffer));
 
             // What the twiS received will be sent back to twiM when the read
             // operation is performed.
-            size_t cpy_len = std::min(std::size(twis_rx_buffer),
-                                      std::size(twis_tx_buffer));
-            cpy_len = std::min<size_t>(cpy_len, event->xfer.rx_bytes);
-            std::copy(twis_rx_buffer, twis_rx_buffer + cpy_len, twis_tx_buffer);
+            std::copy(twis_rx_buffer,
+                      twis_rx_buffer + transfer_size,
+                      twis_tx_buffer);
         }
         else
         {

@@ -8,6 +8,7 @@
 #pragma once
 
 #include "twi_common.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,13 +16,19 @@ extern "C" {
 
 struct twis_event_t
 {
-    uint32_t                type;
+    /// A bit-wise or set of twi_event_type_t values indicating which events
+    /// have occurred.
+    uint32_t        type;
     struct
     {
-        dma_size_t          tx_bytes;
-        dma_size_t          rx_bytes;
+        /// The number of bytes tranferred from TWI master to slave.
+        size_t      tx_bytes;
+        /// The number of bytes tranferred from TWI slave to master.
+        size_t      rx_bytes;
     } xfer;
-    uint8_t                 addr_index;
+
+    /// The address index on which the TWI slave transfer completed.
+    uint8_t         addr_index;
 };
 
 /**
