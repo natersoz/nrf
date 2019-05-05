@@ -149,4 +149,4 @@ size_t write_data(io::output_stream&    os,
     return n_write;
 }
 
-}   // namespace write_data
+}   // namespace io
