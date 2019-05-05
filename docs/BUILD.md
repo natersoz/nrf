@@ -23,10 +23,10 @@ Boost libraries will used as they make sense.
 The boost::intrusive is certainly going to be used.
 This is an excellent library for embedded work.
 
-Boost 1.69.0 is being used at this time.
+Boost 1.70.0 is being used at this time.
 
-		I'm using boost 1.69.0 installed in /opt/boost_1_69_0
-		with symlink /opt/boost -> boost_1_69_0
+		I'm using boost 1.70.0 installed in /opt/boost_1_70_0
+		with symlink /opt/boost -> boost_1_70_0
 
 When boost is built and installed its directory structure differs from when it
 is merely copied. At this time the 'headers only' boost installation is required.
@@ -52,15 +52,15 @@ to set a symbolic link within the Boost copied directory:
 
 ### Quick instructions for building boost
 
-Detar or Unzip [boost](https://www.boost.org/users/history/version_1_69_0.html)
+Detar or Unzip [boost](https://www.boost.org/users/history/version_1_70_0.html)
 into a build directory.
 
 	cd <build_directory>
-	./bootstrap.sh bootstrap.sh --prefix=/opt/boost_1.69.0
+	./bootstrap.sh bootstrap.sh --prefix=/opt/boost_1.70.0
 	./b2
 	sudo ./b2 install
 	cd /opt
-	sudo ln -s boost_1.69.0 boost
+	sudo ln -s boost_1.70.0 boost
 
 
 [Nordic SDK](https://www.nordicsemi.com/Software-and-Tools/Software/nRF5-SDK)
@@ -93,6 +93,15 @@ From the top directory `nrf`:
 	$ make
 
 It should compile and link all projects without errors or warnings.
+
+Notes:
++ The boost libraries are required to be pre-installed as described above.
++ The ARM cross-compiler must also be installed as described above.
++ GoogleTest and the Nordic SDK will be installed as part of `make` if
+  they are not found under the external top level directory.
+  A symlink to your own existing installation can be used to avoid
+  duplication of files. If you're using your own installation see the
+  notes above regarding files which need to be replaced.
 
 clang-tidy checks
 -----------------
