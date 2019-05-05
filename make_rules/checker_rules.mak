@@ -92,25 +92,26 @@ CHECK_DEFINES += -D __STATIC_INLINE=inline
 #CHECK_DEFINES += --enable-targets=arm
 #CHECK_DEFINES += --target=thumbv7-eabi
 
-
 # Check C++ SRC files
 $(CHECK_PATH)/%.cc.check: %.cc
 	@echo Checking: $< to $@
 	$(VERBOSE)$(CHECKER) -quiet $(CHECK_FILTERS) $< -- \
 	$(CXXFLAGS) $(CHECK_DEFINES) $(INCLUDE_PATHS) $(CHECKER_INCLUDE_PATH) \
-	> $@
+	|tee $@
 
 # Check C SRC files
 $(CHECK_PATH)/%.c.check: %.c
 	@echo Checking: $< to $@
 	$(VERBOSE)$(CHECKER) $< $(CHECK_FILTERS) -- \
 	$(CFLAGS) $(CHECK_DEFINES) $(INCLUDE_PATHS) $(CHECKER_INCLUDE_PATH) \
-	> $@
+	|tee $@
 
 # Check Assembly files
-# $(CHECK_PATH)/%.s.check: %.s
-#	@echo Assembling: $<
-#	$(VERBOSE)$(CHECKER) $< $(CHECK_FILTERS) -- $(CFLAGS) $(INCLUDE_PATHS) $(CHECKER_INCLUDE_PATH)
+$(CHECK_PATH)/%.s.check: %.s
+	@echo Checking: $< to $@
+	$(VERBOSE)$(CHECKER) $< $(CHECK_FILTERS) -- \
+	$(CFLAGS) $(CHECK_DEFINES) $(INCLUDE_PATHS) $(CHECKER_INCLUDE_PATH) \
+	|tee $@
 
 # Link
 # $(CHECK_PATH)/$(TARGET_NAME).check: $(CHECK_FILES) $(LIBS) $(LINKER_SCRIPT)
