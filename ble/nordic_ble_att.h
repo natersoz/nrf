@@ -9,7 +9,7 @@
 #include "ble/uuid.h"
 #include "ble/gatt_declaration.h"
 
-#include "ble_gatt.h"       // Nordic softdevice
+#include <ble_gatt.h>
 
 #include <cstdint>
 

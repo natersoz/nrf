@@ -7,6 +7,7 @@
 
 #include "ble/att.h"
 #include "ble/stack.h"
+
 #include <cstdint>
 
 namespace nordic

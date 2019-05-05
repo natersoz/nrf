@@ -17,8 +17,6 @@
 #include <exception>
 #include <boost/circular_buffer.hpp>
 
-static constexpr bool const DEBUG_RX = true;
-
 #if defined (NRF52840_XXAA)
 static constexpr size_t const max_dma_length = std::numeric_limits<uint16_t>::max();
 #else
@@ -45,7 +43,7 @@ struct dma_range
     dma_range& operator=(dma_range&&)       = delete;
 
     explicit dma_range(usart_buffer::array_range const& range):
-        ptr(reinterpret_cast<uint32_t>(range.first)),
+        ptr(reinterpret_cast<uintptr_t>(range.first)),
         length(std::min(range.second, max_dma_length))
     {
     }

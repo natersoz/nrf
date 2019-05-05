@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "ble_gap.h"                    // Nordic softdevice header
+#include <ble_gap.h>
 #include "logger.h"
 
 namespace nordic
@@ -22,8 +22,6 @@ void log_connection_parameters(logger::level log_level,
 
 void log_scan_parameters(logger::level log_level,
                          ble_gap_scan_params_t const &scan_params);
-
-
 
 } // namespace nordic
 

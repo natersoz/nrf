@@ -4,7 +4,6 @@
  */
 
 #include "nordic_state_observable.h"
-#include "nrf_sdh.h"
 #include "section_macros.h"
 #include "project_assert.h"
 
@@ -54,6 +53,8 @@ static void nordic_state_event_handler(nrf_sdh_state_evt_t state_event_id, void 
     observable->notify(state_event_id);
 }
 
+// For whatever reason clang-tidy is not accepting the reason in parens.
+// NOLINTNEXTLINE clang-diagnostic-unused-const-variable
 static nrf_sdh_state_observer_t sdh_state_observer
     IN_SECTION(".sdh_state_observers") =
 {

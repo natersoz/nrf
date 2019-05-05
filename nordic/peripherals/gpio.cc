@@ -25,11 +25,11 @@ void gpio_configure(gpio_pin_t                  pin_no,
                     enum gpio_drive_t           drive,
                     enum gpio_sense_level_t     sense)
 {
-    ASSERT(pin_no       < gpio_pin_limit);
-    ASSERT(direction    < gpio_direction_limit);
-    ASSERT(pull         < gpio_pull_limit);
-    ASSERT(drive        < gpio_drive_limit);
-    ASSERT(sense        < gpio_sense_limit);
+    ASSERT(static_cast<unsigned int>(pin_no)    < gpio_pin_limit);
+    ASSERT(static_cast<unsigned int>(direction) < gpio_direction_limit);
+    ASSERT(static_cast<unsigned int>(pull)      < gpio_pull_limit);
+    ASSERT(static_cast<unsigned int>(drive)     < gpio_drive_limit);
+    ASSERT(static_cast<unsigned int>(sense)     < gpio_sense_limit);
 
     NRF_GPIO_Type* const gpio_registers = reinterpret_cast<NRF_GPIO_Type *>(NRF_P0_BASE);
 
@@ -89,7 +89,7 @@ void gpio_set_sense_level(gpio_pin_t                pin_no,
                           enum gpio_sense_level_t   sense)
 {
     ASSERT(pin_no < gpio_pin_limit);
-    ASSERT(sense  < gpio_sense_limit);
+    ASSERT(static_cast<unsigned int>(sense) < gpio_sense_limit);
 
     uint32_t sense_bits = static_cast<uint32_t>(sense) << GPIO_PIN_CNF_SENSE_Pos;
     NRF_GPIO_Type* const gpio_registers = reinterpret_cast<NRF_GPIO_Type *>(NRF_P0_BASE);

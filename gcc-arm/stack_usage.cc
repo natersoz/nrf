@@ -4,6 +4,7 @@
  */
 
 #include "stack_usage.h"
+#include "cmsis_gcc.h"
 
 static uint32_t fill_pattern_ = 0u;
 
@@ -19,10 +20,10 @@ void stack_fill(uint32_t pattern)
 {
     fill_pattern_ = pattern;
 
-    register uintptr_t spr __asm("sp");
-    spr &= mask_32;
+    uintptr_t stack_ptr = __get_MSP();
+    stack_ptr &= mask_32;
 
-    uint32_t* stack_iter = reinterpret_cast<uint32_t *>(spr);
+    uint32_t* stack_iter = reinterpret_cast<uint32_t *>(stack_ptr);
     stack_iter -= 4u;
 
     for ( ; stack_iter >= &__StackLimit; --stack_iter)

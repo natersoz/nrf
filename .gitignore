@@ -1,4 +1,5 @@
 _build
+_checks
 .segger_sn
 external/downloads
 external/nRF5_SDK_*

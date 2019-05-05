@@ -324,7 +324,7 @@ enum twi_result_t twis_enable_read(twi_port_t   twi_port,
 
     twis_events_clear_all(twis_control);
 
-    twis_control->twis_registers->TXD.PTR    = reinterpret_cast<uint32_t>(tx_buffer);
+    twis_control->twis_registers->TXD.PTR    = reinterpret_cast<uintptr_t>(tx_buffer);
     twis_control->twis_registers->TXD.MAXCNT = tx_buffer_length;
 
     if (twis_control->handler)
@@ -375,7 +375,7 @@ enum twi_result_t twis_enable_write(twi_port_t  twi_port,
 
     twis_events_clear_all(twis_control);
 
-    twis_control->twis_registers->RXD.PTR    = reinterpret_cast<uint32_t>(rx_buffer);
+    twis_control->twis_registers->RXD.PTR    = reinterpret_cast<uintptr_t>(rx_buffer);
     twis_control->twis_registers->RXD.MAXCNT = rx_buffer_length;
 
     if (twis_control->handler)

@@ -61,7 +61,7 @@ void ppi_channel_bind_task(ppi_channel_t ppi_channel, uint32_t volatile *task_re
     NRF_PPI_Type* const ppi_registers = reinterpret_cast<NRF_PPI_Type *>(NRF_PPI_BASE);
     ASSERT(ppi_channel < std::size(ppi_registers->CH));
 
-    ppi_registers->CH[ppi_channel].TEP = reinterpret_cast<uint32_t>(task_register_pointer);
+    ppi_registers->CH[ppi_channel].TEP = reinterpret_cast<uintptr_t>(task_register_pointer);
 }
 
 void ppi_channel_bind_event(ppi_channel_t ppi_channel, uint32_t volatile *event_register_pointer)
@@ -69,7 +69,7 @@ void ppi_channel_bind_event(ppi_channel_t ppi_channel, uint32_t volatile *event_
     NRF_PPI_Type* const ppi_registers = reinterpret_cast<NRF_PPI_Type *>(NRF_PPI_BASE);
     ASSERT(ppi_channel < std::size(ppi_registers->CH));
 
-    ppi_registers->CH[ppi_channel].EEP = reinterpret_cast<uint32_t>(event_register_pointer);
+    ppi_registers->CH[ppi_channel].EEP = reinterpret_cast<uintptr_t>(event_register_pointer);
 }
 
 void ppi_channel_bind_fork(ppi_channel_t ppi_channel, uint32_t volatile *event_register_pointer)
@@ -81,7 +81,7 @@ void ppi_channel_bind_fork(ppi_channel_t ppi_channel, uint32_t volatile *event_r
     // The upper 12 channels are Nordic reserved.
     ASSERT(ppi_channel < std::size(ppi_registers->CH));
 
-    ppi_registers->FORK[ppi_channel].TEP = reinterpret_cast<uint32_t>(event_register_pointer);
+    ppi_registers->FORK[ppi_channel].TEP = reinterpret_cast<uintptr_t>(event_register_pointer);
 }
 
 void ppi_channel_enable(ppi_channel_t ppi_channel)

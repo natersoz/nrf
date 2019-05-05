@@ -4,9 +4,10 @@
  */
 
 #include "nordic_ble_event_observable.h"
-#include "nrf_sdh_ble.h"
 #include "section_macros.h"
 #include "project_assert.h"
+
+#include <nrf_sdh_ble.h>
 
 // Instantiate the nordic::ble_obseverables class instance as a singleton.
 static nordic::ble_observables ble_observables_instance;
@@ -68,10 +69,11 @@ static void nordic_ble_event_handler(ble_evt_t const *ble_event, void *context)
     }
 }
 
+// For whatever reason clang-tidy is not accepting the reason in parens.
+// NOLINTNEXTLINE clang-diagnostic-unused-const-variable
 static nrf_sdh_ble_evt_observer_t sdh_ble_event_observer
     IN_SECTION(".sdh_ble_observers") =
 {
     .handler    = nordic_ble_event_handler,
     .p_context  = &ble_observables_instance
 };
-

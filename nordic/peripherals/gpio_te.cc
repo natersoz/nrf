@@ -380,7 +380,7 @@ void gpio_te_channel_bind_event(gpio_te_channel_t channel,
 {
     ASSERT(channel < gpio_te_instance_0.channel_count);
     gpio_te_instance_0.gpio_te_registers->EVENTS_IN[channel] =
-        reinterpret_cast<uint32_t>(event_in_register_pointer);
+        reinterpret_cast<uintptr_t>(event_in_register_pointer);
 }
 
 static void irq_handler_gpio_te(struct gpio_te_control_block_t* gpio_te_control)

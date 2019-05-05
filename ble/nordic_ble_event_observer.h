@@ -13,10 +13,10 @@
 #include "ble/gattc_discovery_observer.h"
 #include "ble/gatts_event_observer.h"
 
-#include "ble.h"                            // Nordic softdevice headers,
-#include "ble_gap.h"                        // required for enum BLE_XXX types.
-#include "ble_gattc.h"
-#include "ble_gatts.h"
+#include <ble.h>
+#include <ble_gap.h>
+#include <ble_gattc.h>
+#include <ble_gatts.h>
 
 #include <boost/intrusive/list.hpp>
 

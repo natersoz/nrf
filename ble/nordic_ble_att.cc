@@ -8,8 +8,8 @@
 #include "logger.h"
 #include "project_assert.h"
 
-#include "ble.h"
-#include "ble_gatt.h"
+#include <ble.h>
+#include <ble_gatt.h>
 
 namespace nordic
 {
