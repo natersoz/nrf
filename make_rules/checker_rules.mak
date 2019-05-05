@@ -36,21 +36,15 @@ CHECK_PATH	= _checks
 CHECKER		= clang-tidy
 
 ###
-# CXX_SYS_PATH=$(shell echo "" | c++ -xc - -v -E)
-#
-# todo:
-# At some point use this to extract CHECKER_INCLUDE_PATH
-# For now, hard-coded.
+# Clang-tidy needs to know where to find system header files.
 ###
-DARWIN_DEV_PATH="/Applications/Xcode.app/Contents/Developer"
-DARWIN_TOOLCHAIN_PATH="${DARWIN_DEV_PATH}/Toolchains/XcodeDefault.xctoolchain"
-DARWIN_SDK_PATH="${DARWIN_DEV_PATH}/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk"
+COMPILER_SYSTEM_INCLUDE_PATH = \
+	$(shell echo "" |c++ -xc - -v -E 2>&1| \
+	awk '/include <...> search starts here/{flag=1; next}/End of search list/{flag=0} flag'| \
+	sed "s/(framework directory)//p")
 
 CHECKER_INCLUDE_PATH =
-CHECKER_INCLUDE_PATH += -isystem ${DARWIN_TOOLCHAIN_PATH}/usr/lib/clang/10.0.1/include
-CHECKER_INCLUDE_PATH += -isystem ${DARWIN_TOOLCHAIN_PATH}/usr/include
-CHECKER_INCLUDE_PATH += -isystem ${DARWIN_TOOLCHAIN_PATH}/usr/include/c++/v1
-CHECKER_INCLUDE_PATH += -isystem ${DARWIN_SDK_PATH}/usr/include
+CHECKER_INCLUDE_PATH += $(addprefix -isystem , $(COMPILER_SYSTEM_INCLUDE_PATH))
 
 # Do not check Nordic SDK files
 CHECKER_FILES = $(filter-out $(SDK_ROOT)%, $(SOURCE_FILES))
@@ -60,7 +54,6 @@ CHECK_C_SOURCE  = $(notdir $(filter %.c,  $(CHECKER_FILES)))
 
 CHECK_FILES += $(addprefix $(CHECK_PATH)/, $(CHECK_CC_SOURCE:.cc=.cc.check))
 CHECK_FILES += $(addprefix $(CHECK_PATH)/, $(CHECK_C_SOURCE:.c=.c.check))
-# CHECK_FILES += $(addprefix $(CHECK_PATH)/, $(S_SOURCE:.s=.s.check))
 
 $(CHECK_FILES): | $(CHECK_PATH)
 
@@ -92,25 +85,19 @@ CHECK_DEFINES += -D __STATIC_INLINE=inline
 #CHECK_DEFINES += --enable-targets=arm
 #CHECK_DEFINES += --target=thumbv7-eabi
 
-
 # Check C++ SRC files
 $(CHECK_PATH)/%.cc.check: %.cc
 	@echo Checking: $< to $@
 	$(VERBOSE)$(CHECKER) -quiet $(CHECK_FILTERS) $< -- \
 	$(CXXFLAGS) $(CHECK_DEFINES) $(INCLUDE_PATHS) $(CHECKER_INCLUDE_PATH) \
-	> $@
+	|tee $@
 
 # Check C SRC files
 $(CHECK_PATH)/%.c.check: %.c
 	@echo Checking: $< to $@
 	$(VERBOSE)$(CHECKER) $< $(CHECK_FILTERS) -- \
 	$(CFLAGS) $(CHECK_DEFINES) $(INCLUDE_PATHS) $(CHECKER_INCLUDE_PATH) \
-	> $@
-
-# Check Assembly files
-# $(CHECK_PATH)/%.s.check: %.s
-#	@echo Assembling: $<
-#	$(VERBOSE)$(CHECKER) $< $(CHECK_FILTERS) -- $(CFLAGS) $(INCLUDE_PATHS) $(CHECKER_INCLUDE_PATH)
+	|tee $@
 
 # Link
 # $(CHECK_PATH)/$(TARGET_NAME).check: $(CHECK_FILES) $(LIBS) $(LINKER_SCRIPT)
@@ -118,6 +105,9 @@ $(CHECK_PATH)/%.c.check: %.c
 #	$(VERBOSE)$(CXX) $(ARM_FLAGS) $(LDFLAGS) $(CHECK_FILES) $(LIBS) -T $(LINKER_SCRIPT) -o $@
 
 check-info:
+	@echo "COMPILER_SYSTEM_INCLUDE_PATH = $(COMPILER_SYSTEM_INCLUDE_PATH)"
+	@echo
+	@echo "CHECKER_INCLUDE_PATH = $(CHECKER_INCLUDE_PATH)"
 	@echo
 	@echo "CHECKER_FILES = "
 	@echo $(CHECKER_FILES)	| tr ' ' '\n'
