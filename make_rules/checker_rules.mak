@@ -42,6 +42,12 @@ CHECKER		= clang-tidy
 # At some point use this to extract CHECKER_INCLUDE_PATH
 # For now, hard-coded.
 ###
+
+COMPILER_SYSTEM_INCLUDE_PATH = \
+	$(shell echo "" |c++ -xc - -v -E 2>&1| awk '/include <...> search starts here/{flag=1; next} /End of search list/{flag=0} flag')
+#	$(shell echo "" |c++ -xc - -v -E 2>&1| awk '/include <...> search starts here/{flag=1; next} /End of search list/{flag=0} flag')
+#	$(shell echo "" |c++ -xc - -v -E)
+
 DARWIN_DEV_PATH="/Applications/Xcode.app/Contents/Developer"
 DARWIN_TOOLCHAIN_PATH="${DARWIN_DEV_PATH}/Toolchains/XcodeDefault.xctoolchain"
 DARWIN_SDK_PATH="${DARWIN_DEV_PATH}/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk"
@@ -119,6 +125,10 @@ $(CHECK_PATH)/%.s.check: %.s
 #	$(VERBOSE)$(CXX) $(ARM_FLAGS) $(LDFLAGS) $(CHECK_FILES) $(LIBS) -T $(LINKER_SCRIPT) -o $@
 
 check-info:
+	@echo "COMPILER_SYSTEM_INCLUDE_PATH = $(COMPILER_SYSTEM_INCLUDE_PATH)"
+#	@echo $(COMPILER_SYSTEM_INCLUDE_PATH)
+
+extra:
 	@echo
 	@echo "CHECKER_FILES = "
 	@echo $(CHECKER_FILES)	| tr ' ' '\n'
