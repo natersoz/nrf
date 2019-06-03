@@ -74,6 +74,7 @@ public:
     io::output_stream* get_output_stream() { return this->os_; }
 
     void set_level(logger::level log_level) { this->log_level_ = log_level; }
+    logger::level get_level() const { return this->log_level_; }
 
     void set_rtc(rtc& rtc) { this->rtc_ = &rtc; }
 
@@ -86,3 +87,33 @@ private:
     size_t write_preamble(logger::level log_level);
     size_t write_postamble(logger::level log_level);
 };
+
+inline bool operator == (logger::level log_level_1, logger::level log_level_2)
+{
+    return static_cast<int>(log_level_1) == static_cast<int>(log_level_2);
+}
+
+inline bool operator != (logger::level log_level_1, logger::level log_level_2)
+{
+    return static_cast<int>(log_level_1) != static_cast<int>(log_level_2);
+}
+
+inline bool operator < (logger::level log_level_1, logger::level log_level_2)
+{
+    return static_cast<int>(log_level_1) < static_cast<int>(log_level_2);
+}
+
+inline bool operator <= (logger::level log_level_1, logger::level log_level_2)
+{
+    return static_cast<int>(log_level_1) <= static_cast<int>(log_level_2);
+}
+
+inline bool operator > (logger::level log_level_1, logger::level log_level_2)
+{
+    return static_cast<int>(log_level_1) > static_cast<int>(log_level_2);
+}
+
+inline bool operator >= (logger::level log_level_1, logger::level log_level_2)
+{
+    return static_cast<int>(log_level_1) >= static_cast<int>(log_level_2);
+}
