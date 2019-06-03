@@ -19,14 +19,183 @@
 #include "logger.h"
 #include "project_assert.h"
 
+#include <array>
 #include <iterator>
+#include <limits>
 
-constexpr static uint32_t const spis_interrupt_mask = SPIS_INTENSET_ACQUIRED_Msk |
-                                                      SPIS_INTENSET_END_Msk      |
-                                                      0u;
+#if defined (NRF52840_XXAA)
+static constexpr size_t const max_dma_length = std::numeric_limits<uint16_t>::max();
+#else
+static constexpr size_t const max_dma_length = std::numeric_limits<uint8_t>::max();
+#endif
+
+// Shortening the IRQ naming for readability. Ignore unused varaiable warnings.
+static constexpr IRQn_Type SPIS0_IRQn = SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn;   // NOLINT (clang-diagnostic-unused-const-variable)
+static constexpr IRQn_Type SPIS1_IRQn = SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn;   // NOLINT (clang-diagnostic-unused-const-variable)
+static constexpr IRQn_Type SPIS2_IRQn = SPIM2_SPIS2_SPI2_IRQn;                    // NOLINT (clang-diagnostic-unused-const-variable)
+
+static constexpr uint32_t spis_interrupt_mask = SPIS_INTENSET_ACQUIRED_Msk |
+                                                SPIS_INTENSET_END_Msk      |
+                                                0u;
+/**
+ * @struct spis_buffer_t
+ * Provides easy conversions from uintptr_t to void* and back.
+ * Keeps track of the TXD, RXD DMA buffer address and pointer.
+ */
+struct spis_buffer_t
+{
+    struct buffer_t
+    {
+        ~buffer_t()                          = default;
+        buffer_t(buffer_t const&)            = delete;
+        buffer_t(buffer_t &&)                = delete;
+        buffer_t& operator=(buffer_t const&) = delete;
+        buffer_t& operator=(buffer_t&&)      = delete;
+
+        buffer_t(): address(0u), length(0u) {};
+
+        void set(void* ptr, uint32_t len) {
+            this->address = reinterpret_cast<uintptr_t>(ptr);
+            this->length  = len;
+        }
+
+        void set(void const* ptr, uint32_t len) {
+            this->address = reinterpret_cast<uintptr_t>(ptr);
+            this->length  = len;
+        }
+
+        void set(uintptr_t addr, uint32_t len) {
+            this->address = addr;
+            this->length  = len;
+        }
+
+        void* get_pointer() const {
+            return reinterpret_cast<void*>(this->address);
+        }
+
+        uintptr_t address;
+        uint32_t  length;
+    };
+
+    ~spis_buffer_t()                               = default;
+    spis_buffer_t()                                = default;
+    spis_buffer_t(spis_buffer_t const&)            = delete;
+    spis_buffer_t(spis_buffer_t &&)                = delete;
+    spis_buffer_t& operator=(spis_buffer_t const&) = delete;
+    spis_buffer_t& operator=(spis_buffer_t&&)      = delete;
+
+    buffer_t mosi_buffer;
+    buffer_t miso_buffer;
+};
+
+/**
+ * @struct spis_double_buffer_t
+ * Keep track of which spis_buffer_t has been queued into the DMA for transfer
+ * and if there is a buffer pending for transfer.
+ */
+struct spis_double_buffer_t
+{
+    /// When a buffer index, queued or completed,
+    /// does not point to a valid DMA buffer.
+    static constexpr uint8_t buffer_index_none = std::numeric_limits<uint8_t>::max();
+
+    ~spis_double_buffer_t()                                      = default;
+
+    spis_double_buffer_t(spis_double_buffer_t const&)            = delete;
+    spis_double_buffer_t(spis_double_buffer_t &&)                = delete;
+    spis_double_buffer_t& operator=(spis_double_buffer_t const&) = delete;
+    spis_double_buffer_t& operator=(spis_double_buffer_t&&)      = delete;
+
+    spis_double_buffer_t()
+    :   buffer_index_to_queue(0u),
+        buffer_index_enqueued(buffer_index_none)
+    {}
+
+    std::array<spis_buffer_t, 2u> buffer;
+
+    /**
+     * Increment the queued buffer index.
+     * @return uint8_t The index pointing to the next DMA buffer which can be
+     *                 queued.
+     * @note If buffer_index_to_queue == buffer_index_enqueued then all DMA
+     *       buffers have been used and the increment fails.
+     */
+    uint8_t next_queued_index() const {
+        uint8_t const index = this->buffer_index_to_queue + 1u;
+        return (index >= this->buffer.size()) ? 0u : index;
+    }
+
+    /**
+     * Inrement the enqueued buffer index.
+     * @note If buffer_index_enqueued is the same as the buffer_index_to_queue
+     *       then all queued buffers have been transferred.
+     *
+     * @return uint8_t The index pointing to the next enqueued buffer.
+     * @retval buffer_index_none If there are no pending queued buffers to transfer.
+     * @retval incremented buffer_index_enqueued which will be the next queued
+     *         buffer to transfer.
+     */
+    uint8_t next_enqueued_index() const {
+        if (this->buffer_index_enqueued == this->buffer_index_to_queue)
+        {
+            return buffer_index_none;
+        }
+        uint8_t const index = this->buffer_index_enqueued + 1u;
+        return (index >= this->buffer.size()) ? 0u : index;
+    }
+
+    /// @{ Get the spis_buffer_t to queue as pending for DMA transfer.
+    spis_buffer_t const& buffer_to_queue() const {
+        ASSERT(this->buffer_index_to_queue < this->buffer.size());
+        return this->buffer[this->buffer_index_to_queue];
+    }
+
+    spis_buffer_t& buffer_to_queue() {
+        return const_cast<spis_buffer_t&>(std::as_const(*this).buffer_to_queue());
+    }
+    /// @}
+
+    /// @{ Get the spis_buffer_t which has been committed to the DMA transfer.
+    spis_buffer_t const& buffer_enqueued() const {
+        ASSERT(this->buffer_index_enqueued < this->buffer.size());
+        return this->buffer[this->buffer_index_enqueued];
+    }
+
+    spis_buffer_t& buffer_enqueued() {
+        return const_cast<spis_buffer_t&>(std::as_const(*this).buffer_enqueued());
+    }
+    /// @}
+
+    /// Index to the spis_buffer_t which is free and ready to queue.
+    uint8_t buffer_index_to_queue;
+
+    /// Index to the spis_buffer_t which has already been queued and is
+    /// committed to the transfer of data.
+    uint8_t buffer_index_enqueued;
+};
 
 struct spis_control_block_t
 {
+    ~spis_control_block_t()                                      = default;
+    spis_control_block_t()                                       = delete;
+    spis_control_block_t(spis_control_block_t const&)            = delete;
+    spis_control_block_t(spis_control_block_t &&)                = delete;
+    spis_control_block_t& operator=(spis_control_block_t const&) = delete;
+    spis_control_block_t& operator=(spis_control_block_t&&)      = delete;
+
+    spis_control_block_t(uintptr_t base_address, IRQn_Type irq_no)
+    :   spis_registers(reinterpret_cast<NRF_SPIS_Type *>(base_address)),
+        irq_type(irq_no),
+        spis_semaphore_owned(false),
+        data_is_ready(false),
+        dma_buffer(),
+        gpio_te_channel(gpio_te_channel_invalid),
+        handler(nullptr),
+        context(nullptr),
+        ss_pin(spi_pin_not_used)
+    {
+    }
+
     /**
      * Pointer to the structure with SPI/SPIM peripheral instance registers.
      * This must be one of:
@@ -62,12 +231,8 @@ struct spis_control_block_t
     /// Once transferred into TXD, RXD, this flag is set false.
     bool data_is_ready;
 
-    /// @{ User supplied buffers for writing / reading
-    void const *tx_buffer;
-    uint32_t    tx_length;
-    void       *rx_buffer;
-    uint32_t    rx_length;
-    /// @}
+    /// User buffer interaction with DMA transfer bookkeeping structure.
+    spis_double_buffer_t dma_buffer;
 
     /// Used to work around DMA anomaly 109.
     /// @see spis_init_dma_anomaly_109().
@@ -75,11 +240,11 @@ struct spis_control_block_t
 
     /// The user supplied callback function.
     /// When the spi transfer is complete this function is called.
-    spis_event_handler_t handler;
+    spi_event_handler_t handler;
 
     /// The user supplied context.
-    /// This is carried by the SPI interface but never modified by the SPI driver.
-    void *context;
+    /// This is carried by the SPI interface but not modified by the SPI driver.
+    void* context;
 
     /// The slave select pin. Must not be set to spi_pin_not_used.
     gpio_pin_t ss_pin;
@@ -89,23 +254,8 @@ static void irq_handler_spis(spis_control_block_t* spis_control);
 static gpio_te_channel_t spis_init_dma_anomaly_109(gpio_pin_t spis_ss_pin);
 static void spis_deinit_dma_anomaly_109(gpio_te_channel_t gpio_te_channel);
 
-/// @todo Get rid of this macro hell. Can templates be used?
 #if defined SPIS0_ENABLED
-static struct spis_control_block_t spis_instance_0 =
-{
-    .spis_registers         = reinterpret_cast<NRF_SPIS_Type *>(NRF_SPIS0_BASE),
-    .irq_type               = SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn,
-    .spis_semaphore_owned   = false,
-    .data_is_ready          = false,
-    .tx_buffer              = nullptr,
-    .tx_length              = 0u,
-    .rx_buffer              = nullptr,
-    .rx_length              = 0u,
-    .gpio_te_channel        = gpio_te_channel_invalid,
-    .handler                = nullptr,
-    .context                = nullptr,
-    .ss_pin                 = spi_pin_not_used,
-};
+static struct spis_control_block_t spis_instance_0(NRF_SPIS0_BASE, SPIS0_IRQn);
 static struct spis_control_block_t* const spis_instance_ptr_0 = &spis_instance_0;
 
 extern "C" void SPIS0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler(void)
@@ -117,21 +267,7 @@ static struct spis_control_block_t* const spis_instance_ptr_0 = nullptr;
 #endif  // SPIS0_ENABLED
 
 #if defined SPIS1_ENABLED
-static struct spis_control_block_t spis_instance_1 =
-{
-    .spis_registers         = reinterpret_cast<NRF_SPIS_Type *>(NRF_SPIS1_BASE),
-    .irq_type               = SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn,
-    .spis_semaphore_owned   = false,
-    .data_is_ready          = false,
-    .tx_buffer              = nullptr,
-    .tx_length              = 0u,
-    .rx_buffer              = nullptr,
-    .rx_length              = 0u,
-    .gpio_te_channel        = gpio_te_channel_invalid,
-    .handler                = nullptr,
-    .context                = nullptr,
-    .ss_pin                 = spi_pin_not_used,
-};
+static struct spis_control_block_t spis_instance_1(NRF_SPIS1_BASE, SPIS1_IRQn);
 static struct spis_control_block_t* const spis_instance_ptr_1 = &spis_instance_1;
 
 extern "C" void SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler(void)
@@ -143,21 +279,7 @@ static struct spis_control_block_t* const spis_instance_ptr_1 = nullptr;
 #endif  // SPIS1_ENABLED
 
 #if defined SPIS2_ENABLED
-static struct spis_control_block_t spis_instance_2 =
-{
-    .spis_registers         = reinterpret_cast<NRF_SPIS_Type *>(NRF_SPIS2_BASE),
-    .irq_type               = SPIM2_SPIS2_SPI2_IRQn,
-    .spis_semaphore_owned   = false,
-    .data_is_ready          = false,
-    .tx_buffer              = nullptr,
-    .tx_length              = 0u,
-    .rx_buffer              = nullptr,
-    .rx_length              = 0u,
-    .gpio_te_channel        = gpio_te_channel_invalid,
-    .handler                = nullptr,
-    .context                = nullptr,
-    .ss_pin                 = spi_pin_not_used,
-};
+static struct spis_control_block_t spis_instance_2(NRF_SPIS2_BASE, SPIS2_IRQn);
 static struct spis_control_block_t* const spis_instance_ptr_2 = &spis_instance_2;
 
 extern "C" void SPIS2_SPIS2_SPI2_IRQHandler(void)
@@ -176,7 +298,7 @@ static struct spis_control_block_t* const spis_instances[] =
 };
 
 /**
- * @return bool true  if the SPIS.ENABLE register set properly for the SPIS operation.
+ * @return bool true  if the SPIS.ENABLE register is set for SPIS operation.
  *              false if the SPIS.ENABLE register is set for any other mode of
  *              operation or if it is disabled.
  */
@@ -188,7 +310,7 @@ static bool spis_is_initialized(struct spis_control_block_t const *spis_control)
 
 /**
  * @return bool true if the SPIS.ENABLE register is in use by any module
- *              {SPIM, SPIS, TWIM}.
+ *              {SPIM, SPIS, TWIM, TWIS}.
  *              false if the SPIS.ENABLE register is not in use.
  */
 static bool spis_regs_in_use(struct spis_control_block_t const *spis_control)
@@ -217,7 +339,7 @@ static void spis_clear_event_register(uint32_t volatile* spis_register)
 
 enum spi_result_t spis_init(spi_port_t                  spi_port,
                             struct spi_config_t const*  spi_config,
-                            spis_event_handler_t        handler,
+                            spi_event_handler_t         handler,
                             void*                       context)
 {
     struct spis_control_block_t* const spis_control = spis_control_block(spi_port);
@@ -281,8 +403,8 @@ enum spi_result_t spis_init(spi_port_t                  spi_port,
     spis_control->spis_registers->PSEL.SCK  = spi_config->sck_pin;
     spis_control->spis_registers->PSEL.MISO = spi_pin_sel(spi_config->miso_pin);
     spis_control->spis_registers->PSEL.MOSI = spi_pin_sel(spi_config->mosi_pin);
-    spis_control->spis_registers->CONFIG    = spi_configure_mode(spi_config->mode,
-                                                                 spi_config->shift_order);
+    spis_control->spis_registers->CONFIG    =
+        spi_configure_mode(spi_config->mode, spi_config->shift_order);
 
     spis_control->spis_registers->RXD.PTR    = 0u;
     spis_control->spis_registers->RXD.MAXCNT = 0u;
@@ -291,8 +413,8 @@ enum spi_result_t spis_init(spi_port_t                  spi_port,
     spis_control->spis_registers->TXD.MAXCNT = 0u;
 
     /// @note DEF is set the same as ORC.
-    spis_control->spis_registers->ORC        = spi_config->orc;
-    spis_control->spis_registers->DEF        = spi_config->orc;
+    spis_control->spis_registers->ORC = spi_config->orc;
+    spis_control->spis_registers->DEF = spi_config->orc;
 
     // Clear the transfer completion event.
     spis_clear_event_register(&spis_control->spis_registers->EVENTS_END);
@@ -301,13 +423,17 @@ enum spi_result_t spis_init(spi_port_t                  spi_port,
     spis_clear_event_register(&spis_control->spis_registers->EVENTS_ACQUIRED);
 
     // Enable END_ACQUIRE shortcut.
+    // When the END_ACQUIRE shortcut is enabled the semaphore is handed over to
+    // the CPU automatically after the granted transaction has completed.
+    // The CPU can update the TXPTR and RXPTR between every granted transaction.
     spis_control->spis_registers->SHORTS |= SPIS_SHORTS_END_ACQUIRE_Msk;
 
     gpio_configure_input(spi_config->ss_pin,
                          spi_config->input_pull,
                          gpio_sense_disable);
     // Enable the SPIS peripheral.
-    spis_control->spis_registers->ENABLE = (SPIS_ENABLE_ENABLE_Enabled << SPIS_ENABLE_ENABLE_Pos);
+    spis_control->spis_registers->ENABLE =
+        (SPIS_ENABLE_ENABLE_Enabled << SPIS_ENABLE_ENABLE_Pos);
 
     // When the SPIS is first enabled the semaphore is owned by firmware.
     spis_control->spis_semaphore_owned = true;
@@ -327,7 +453,8 @@ void spis_deinit(spi_port_t spi_port)
     ASSERT(spis_control);
     ASSERT(spis_is_initialized(spis_control));
 
-    spis_control->spis_registers->ENABLE = (SPIS_ENABLE_ENABLE_Disabled << SPIS_ENABLE_ENABLE_Pos);
+    spis_control->spis_registers->ENABLE =
+        (SPIS_ENABLE_ENABLE_Disabled << SPIS_ENABLE_ENABLE_Pos);
 
     NVIC_DisableIRQ(spis_control->irq_type);
     spis_control->spis_registers->INTENCLR = spis_interrupt_mask;
@@ -338,44 +465,73 @@ void spis_deinit(spi_port_t spi_port)
     }
 }
 
+/* Enqueue a DMA buffer for SPIS transfer.
+ * This function should only be called when:
+ * - There is a valid buffer to queue.
+ * - The SPIS semaphore is owned by firmware (not the CPU).
+ * This function will release the SPIS semaphore.
+ */
 static void spis_arm_transfer(struct spis_control_block_t* spis_control)
 {
-    spis_control->spis_registers->TXD.PTR    = reinterpret_cast<uintptr_t>(spis_control->tx_buffer);
-    spis_control->spis_registers->TXD.MAXCNT = spis_control->tx_length;
+    spis_buffer_t &buffer = spis_control->dma_buffer.buffer_to_queue();
 
-    spis_control->spis_registers->RXD.PTR    = reinterpret_cast<uintptr_t>(spis_control->rx_buffer);
-    spis_control->spis_registers->RXD.MAXCNT = spis_control->rx_length;
+    spis_control->spis_registers->TXD.PTR    = buffer.miso_buffer.address;
+    spis_control->spis_registers->TXD.MAXCNT = buffer.miso_buffer.length;
+
+    spis_control->spis_registers->RXD.PTR    = buffer.mosi_buffer.address;
+    spis_control->spis_registers->RXD.MAXCNT = buffer.mosi_buffer.length;
 
     // Release the SPI slave semaphore from CPU ownership.
-    spis_control->spis_semaphore_owned          = false;
-    spis_control->data_is_ready                 = false;
+    spis_control->spis_semaphore_owned       = false;
+    spis_control->data_is_ready              = false;
+
+    // If buffer_index_enqueued is not in use then assign it to being used.
+    if (spis_control->dma_buffer.buffer_index_enqueued ==
+        spis_double_buffer_t::buffer_index_none)
+    {
+        spis_control->dma_buffer.buffer_index_enqueued =
+            spis_control->dma_buffer.buffer_index_to_queue;
+    }
+
     spis_control->spis_registers->TASKS_RELEASE = 1u;
 }
 
-void spis_enable_transfer(spi_port_t  spi_port,
-                          void const* tx_buffer, dma_size_t tx_length,
-                          void*       rx_buffer, dma_size_t rx_length)
+bool spis_enable_transfer(spi_port_t  spi_port,
+                          void const* miso_buffer, size_t miso_length,
+                          void*       mosi_buffer, size_t mosi_length)
 {
     struct spis_control_block_t* const spis_control = spis_control_block(spi_port);
     ASSERT(spis_control);
     ASSERT(spis_is_initialized(spis_control));
-    ASSERT(tx_buffer);
-    ASSERT(tx_length > 0u);
-    ASSERT(is_valid_ram(tx_buffer, tx_length));     /// @todo these RAM verifications
-    ASSERT(rx_buffer);                              /// should also test that it is
-    ASSERT(rx_length > 0u);                         /// not in stack range.
-    ASSERT(is_valid_ram(rx_buffer, rx_length));
+
+    ASSERT(is_valid_ram(miso_buffer, miso_length));
+    ASSERT(miso_length > 0u);
+    ASSERT(miso_length <= max_dma_length);
+
+    ASSERT(is_valid_ram(mosi_buffer, mosi_length));
+    ASSERT(mosi_length > 0u);
+    ASSERT(mosi_length <= max_dma_length);
 
     logger &logger = logger::instance();
-    logger.debug("spis_enable, sem_owned: %u", spis_control->spis_semaphore_owned);
 
-    uint8_t critical_nested = 0u;
-    app_util_critical_region_enter(&critical_nested);
+    // Modify spis_control inside a critical section.
+    nordic::auto_critical_section cs;
 
-    spis_control->tx_buffer     = tx_buffer;
-    spis_control->rx_buffer     = rx_buffer;
-    spis_control->tx_length     = tx_length;
-    spis_control->rx_length     = rx_length;
+    uint8_t const next_queued_index = spis_control->dma_buffer.next_queued_index();
+    logger.debug("spis_enable_transfer, "
+                 "sem_owned: %u, next_q_idx: %u en_q_idx: %u",
+                 spis_control->spis_semaphore_owned, next_queued_index,
+                 spis_control->dma_buffer.buffer_index_enqueued);
+    if (next_queued_index == spis_control->dma_buffer.buffer_index_enqueued)
+    {
+        return false;       // All DMA buffers are in use.
+    }
+
+    spis_control->dma_buffer.buffer_index_to_queue = next_queued_index;
+    spis_buffer_t &buffer = spis_control->dma_buffer.buffer_to_queue();
+
+    buffer.miso_buffer.set(miso_buffer, miso_length);
+    buffer.mosi_buffer.set(mosi_buffer, mosi_length);
     spis_control->data_is_ready = true;
 
     if (spis_control->spis_semaphore_owned)
@@ -396,13 +552,12 @@ void spis_enable_transfer(spi_port_t  spi_port,
     // Note: Either TASKS_RELEASE (releasing  semaphore) or
     //              TASKS_ACQUIRE (requesting semaphore)
     // was set based on whether the semaphore was owned.
-
-    app_util_critical_region_exit(critical_nested);
+    return true;
 }
 
 /**
- * @note as multiple events can be pending for processing,
- * the correct event processing order is:
+ * @note Since multiple events can be pending for processing,
+ *       the correct event processing order is:
  * - SPI semaphore   acquired event.
  * - SPI transaction complete event.
  */
@@ -410,51 +565,81 @@ static void irq_handler_spis(spis_control_block_t* spis_control)
 {
     logger &logger = logger::instance();
 
+    // Handle the ISR in a critical section; unlocking the CS on event callbacks.
+    nordic::critical_section cs;
+    cs.enter();
+
     if (spis_control->spis_registers->EVENTS_ACQUIRED)
     {
         // The CPU acquires the semaphore when the ACQUIRED event is received.
         spis_clear_event_register(&spis_control->spis_registers->EVENTS_ACQUIRED);
         spis_control->spis_semaphore_owned = true;
 
-        logger.debug("spis_irq: EVENTS_ACQUIRED, data ready: %u", spis_control->data_is_ready);
+        logger.debug("spis_irq: EVENTS_ACQUIRED, "
+                     "data ready: %u, to_q_idx: %u en_q_idx: %u",
+                     spis_control->data_is_ready,
+                     spis_control->dma_buffer.buffer_index_to_queue,
+                     spis_control->dma_buffer.buffer_index_enqueued);
 
         if (spis_control->data_is_ready)
         {
-            /**
-             * @note If the call to spis_enable_transfer() is made from an
-             * interrupt of higher priorty that the SPIS interrupt then a
-             * critical section needs to guard this call.
-             */
             spis_arm_transfer(spis_control);
         }
-        else
+
+        // If there is room for another DMA buffer to be queued as pending then
+        // notify the client that we can accept new data.
+        uint8_t const next_queued_index = spis_control->dma_buffer.next_queued_index();
+        if (next_queued_index != spis_control->dma_buffer.buffer_index_enqueued)
         {
-            // Notify the user we are ready when they are.
-            struct spis_event_t const event = {
-                .type = spis_event_data_ready,
-                .rx_length = 0u,
-                .tx_length = 0u
+            // Notify the client that the current buffer that was queued.
+            spis_buffer_t const &buffer = spis_control->dma_buffer.buffer_to_queue();
+            struct spi_event_t const event = {
+                .type         = spi_event_data_ready,
+                .mosi_pointer = buffer.mosi_buffer.get_pointer(),
+                .mosi_length  = buffer.mosi_buffer.length,
+                .miso_pointer = buffer.miso_buffer.get_pointer(),
+                .miso_length  = buffer.miso_buffer.length
             };
-            spis_control->handler(spis_control->context, &event);
+
+            cs.exit();
+            spis_control->handler(&event, spis_control->context);
+            cs.enter();
         }
     }
 
     // Check for SPI transaction complete event.
     if (spis_control->spis_registers->EVENTS_END)
     {
-        logger.debug("spis_irq: EVENTS_END");
+        logger.debug("spis_irq: EVENTS_END, "
+                     "data ready: %u, to_q_idx: %u en_q_idx: %u",
+                     spis_control->data_is_ready,
+                     spis_control->dma_buffer.buffer_index_to_queue,
+                     spis_control->dma_buffer.buffer_index_enqueued);
 
         // The SPI data transfer has completed.
         spis_clear_event_register(&spis_control->spis_registers->EVENTS_END);
 
-        struct spis_event_t const event = {
-            .type = spis_event_transfer_complete,
-            .rx_length = spis_control->spis_registers->RXD.AMOUNT,
-            .tx_length = spis_control->spis_registers->TXD.AMOUNT
+        // Notify the client that the MOSI, MISO buffer buffers have been
+        // used to complete a SPIS transfer.
+        spis_buffer_t &buffer = spis_control->dma_buffer.buffer_enqueued();
+
+        struct spi_event_t const event = {
+            .type         = spi_event_transfer_complete,
+            .mosi_pointer = buffer.mosi_buffer.get_pointer(),
+            .mosi_length  = spis_control->spis_registers->RXD.AMOUNT,
+            .miso_pointer = buffer.miso_buffer.get_pointer(),
+            .miso_length  = spis_control->spis_registers->TXD.AMOUNT
         };
 
-        spis_control->handler(spis_control->context, &event);
+        spis_control->dma_buffer.buffer_index_enqueued =
+            spis_control->dma_buffer.next_enqueued_index();
+
+        cs.exit();
+        spis_control->handler(&event, spis_control->context);
+        cs.enter();
     }
+
+    cs.exit();
 }
 
 static void gpio_te_pin_event_handler(gpio_te_channel_t gpio_te_channel,

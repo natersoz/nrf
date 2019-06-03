@@ -18,6 +18,7 @@ all:
 		printf "make -C $$make_dir: $@\n";	\
 		make -C $$make_dir $@ $(MAKE_JOBS);	\
 	done
+	make -C nordic/tests $@
 
 checks:
 	@for make_dir in $(sub_make_dirs); do		\
@@ -25,14 +26,12 @@ checks:
 		make -C $$make_dir $@ $(MAKE_JOBS);	\
 	done
 	make -C nordic/tests $@
-	make -C nordic/tests $@
 
 clean-checks:
 	@for make_dir in $(sub_make_dirs); do		\
 		printf "make -C $$make_dir: $@\n";	\
 		make -C $$make_dir $@ $(MAKE_JOBS);	\
 	done
-	make -C nordic/tests $@
 	make -C nordic/tests $@
 
 relink:
