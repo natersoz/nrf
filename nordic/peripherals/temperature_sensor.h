@@ -14,7 +14,7 @@
  *         temperature_sensor_take_measurement() function.
  */
 typedef void (* temperature_sensor_event_handler_t)(int32_t temperature_Cx4,
-                                                    void* context);
+                                                    void*   context);
 /**
  * Take a temperature measurement.
  * When the measurement is complete the user supplied event handler

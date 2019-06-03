@@ -15,9 +15,9 @@ extern "C" {
 typedef uint8_t rtc_instance_t;
 typedef uint8_t rtc_cc_index_t;
 
-typedef void (* rtc_event_handler_t) (void              *context,
-                                      rtc_cc_index_t    cc_index,
-                                      uint32_t          cc_count);
+typedef void (* rtc_event_handler_t) (rtc_cc_index_t    cc_index,
+                                      uint32_t          cc_count,
+                                      void*             context);
 
 /**
  * Initialize the RTC module.

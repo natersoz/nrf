@@ -8,6 +8,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
 #include "gpio.h"
 
 #ifdef __cplusplus
@@ -140,6 +141,41 @@ static inline uint32_t spi_pin_sel(uint8_t pin_no)
 uint32_t spi_configure_mode(enum spi_mode_t        spi_mode,
                             enum spi_shift_order_t spi_shift_order);
 
+/**
+ * @enum spi_event_type_t
+ * SPI event callback function event types; for both SPIS and SPIM.
+ */
+enum spi_event_type_t
+{
+    /// The SPI driver is armed waiting for ready and waiting
+    /// for a call to enable_transfer().
+    spi_event_data_ready,
+
+    /// SPI transaction has been completed.
+    spi_event_transfer_complete,
+};
+
+/**
+ * @struct spis_event_t
+ * The SPIS state events.
+ */
+struct spi_event_t
+{
+    enum spi_event_type_t const type;
+    void const* const           mosi_pointer;
+    size_t const                mosi_length;
+    void const* const           miso_pointer;
+    size_t const                miso_length;
+};
+
+/**
+ * SPI event handler type; for both the SPI slave and master.
+ *
+ * @param context is a user supplied value that is supplied to the SPI driver.
+ * @param event The SPIS completion event @see struct spis_event_t.
+ */
+typedef void (* spi_event_handler_t) (struct spi_event_t const* event,
+                                      void*                     context);
 
 #ifdef __cplusplus
 }

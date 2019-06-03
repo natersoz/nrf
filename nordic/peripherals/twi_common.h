@@ -14,10 +14,12 @@
 extern "C" {
 #endif
 
-// The NRF52840 allows for 16-bit DMA length transfers.
-// The NRF52810 allows for 10-bite DMA length transfers,
-//     downgraded to 8-bit here.
-// The NRF52832 allows for 8-bit DMA length transfers.
+/**
+ * The NRF52840 allows for 16-bit DMA length transfers.
+ * The NRF52810 allows for 10-bite DMA length transfers,
+ *     downgraded to 8-bit here.
+ * The NRF52832 allows for 8-bit DMA length transfers.
+ */
 #if defined (NRF52840_XXAA)
     typedef uint16_t dma_size_t;
 #else
@@ -35,9 +37,15 @@ struct twi_gpio_config_t
 
 /**
  * Contains the addressing type. Allow for 10 bit I2C addressing.
+ * The TWI address is an 8-bit number (not 7-bit). When setting the address
+ * the LSBit must be set to zero.
  */
 typedef uint16_t twi_addr_t;
 
+/**
+ * If only one address is required for the TWI slave then
+ * set the alternate address to twi_addr_invalid during configuration.
+ */
 #define twi_addr_invalid    ((twi_addr_t)(-1))
 
 enum twi_result_t
@@ -56,7 +64,16 @@ enum twi_result_t
 
 void twi_pin_config(twi_gpio_config_t const* twi_gpio);
 
-enum
+/**
+ * @enum twi_event_type_t
+ * TWI Master and Slave event type bit-field. When event is triggered from
+ * the TWI device one of these bits will be set so that the client can interpret
+ * the reason for the event.
+ *
+ * @note Some events are specific to either the slave or the master.
+ * The overloap is significant; therefore one enum is used.
+ */
+enum twi_event_type_t
 {
     twi_event_none          = 0u,
     twi_event_stopped       = (1u <<  0u),

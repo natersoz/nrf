@@ -15,6 +15,11 @@
 
 #include <iterator>
 
+// Shortening the IRQ naming for readability. Ignore unused varaiable warnings.
+static constexpr IRQn_Type const SPIM0_IRQn = SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn;   // NOLINT (clang-diagnostic-unused-const-variable)
+static constexpr IRQn_Type const SPIM1_IRQn = SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn;   // NOLINT (clang-diagnostic-unused-const-variable)
+static constexpr IRQn_Type const SPIM2_IRQn = SPIM2_SPIS2_SPI2_IRQn;                    // NOLINT (clang-diagnostic-unused-const-variable)
+
 /**
  * @struct spim_control_block_t
  * Maintain the state of the SPI master device using DMA.
@@ -30,6 +35,24 @@
  */
 struct spim_control_block_t
 {
+    ~spim_control_block_t()                                      = default;
+    spim_control_block_t()                                       = delete;
+    spim_control_block_t(spim_control_block_t const&)            = delete;
+    spim_control_block_t(spim_control_block_t &&)                = delete;
+    spim_control_block_t& operator=(spim_control_block_t const&) = delete;
+    spim_control_block_t& operator=(spim_control_block_t&&)      = delete;
+
+    spim_control_block_t(uintptr_t base_address, IRQn_Type irq_no)
+    :   spim_registers(reinterpret_cast<NRF_SPIM_Type *>(base_address)),
+        irq_type(irq_no),
+        handler(nullptr),
+        context(nullptr),
+        transfer_in_progress(false),
+        ss_pin(spi_pin_not_used),
+        orc(0xFFu)
+    {
+    }
+
     /**
      * Pointer to the structure with SPI/SPIM peripheral instance registers.
      * This must be one of:
@@ -56,7 +79,7 @@ struct spim_control_block_t
 
     /// The user supplied callback function.
     /// When the spi transfer is complete this function is called.
-    spim_event_handler_t handler;
+    spi_event_handler_t handler;
 
     /// The user supplied context.
     /// This is carried by the SPI interface but never modified by the SPI driver.
@@ -78,16 +101,7 @@ static void irq_handler_spim(struct spim_control_block_t* spim_control);
 
 /// @todo Get rid of this macro hell. Can templates be used?
 #if defined SPIM0_ENABLED
-static struct spim_control_block_t spim_instance_0 =
-{
-    .spim_registers         = reinterpret_cast<NRF_SPIM_Type *>(NRF_SPIM0_BASE),
-    .irq_type               = SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn,
-    .handler                = nullptr,
-    .context                = nullptr,
-    .transfer_in_progress   = false,
-    .ss_pin                 = spi_pin_not_used,
-    .orc                    = 0xFFu
-};
+static struct spim_control_block_t spim_instance_0(NRF_SPIM0_BASE, SPIM0_IRQn);
 static struct spim_control_block_t* const spim_instance_ptr_0 = &spim_instance_0;
 
 extern "C" void SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler(void)
@@ -99,16 +113,7 @@ static struct spim_control_block_t* const spim_instance_ptr_0 = nullptr;
 #endif  // SPIM0_ENABLED
 
 #if defined SPIM1_ENABLED
-static struct spim_control_block_t spim_instance_1 =
-{
-    .spim_registers         = reinterpret_cast<NRF_SPIM_Type *>(NRF_SPIM1_BASE),
-    .irq_type               = SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn,
-    .handler                = nullptr,
-    .context                = nullptr,
-    .transfer_in_progress   = false,
-    .ss_pin                 = spi_pin_not_used,
-    .orc                    = 0xFFu
-};
+static struct spim_control_block_t spim_instance_1(NRF_SPIM1_BASE, SPIM1_IRQn);
 static struct spim_control_block_t* const spim_instance_ptr_1 = &spim_instance_1;
 
 extern "C" void SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler(void)
@@ -120,16 +125,7 @@ static struct spim_control_block_t* const spim_instance_ptr_1 = nullptr;
 #endif  // SPIM1_ENABLED
 
 #if defined SPIM2_ENABLED
-static struct spim_control_block_t spim_instance_2 =
-{
-    .spim_registers         = reinterpret_cast<NRF_SPIM_Type *>(NRF_SPIM2_BASE),
-    .irq_type               = SPIM2_SPIS2_SPI2_IRQn,
-    .handler                = nullptr,
-    .context                = nullptr,
-    .transfer_in_progress   = false,
-    .ss_pin                 = spi_pin_not_used,
-    .orc                    = 0xFFu
-};
+static struct spim_control_block_t spim_instance_2(NRF_SPIM2_BASE, SPIM2_IRQn);
 static struct spim_control_block_t* const spim_instance_ptr_2 = &spim_instance_2;
 
 extern "C" void SPIM2_SPIS2_SPI2_IRQHandler(void)
@@ -141,16 +137,7 @@ static struct spim_control_block_t* const spim_instance_ptr_2 = nullptr;
 #endif  // SPIM2_ENABLED
 
 #if defined SPIM3_ENABLED
-static struct spim_control_block_t spim_instance_3 =
-{
-    .spim_registers         = reinterpret_cast<NRF_SPIM_Type *>(NRF_SPIM3_BASE),
-    .irq_type               = SPIM3_IRQn,
-    .handler                = nullptr,
-    .context                = nullptr,
-    .transfer_in_progress   = false,
-    .ss_pin                 = spi_pin_not_used,
-    .orc                    = 0xFFu
-};
+static struct spim_control_block_t spim_instance_3(NRF_SPIM3_BASE, SPIM3_IRQn)
 static struct spim_control_block_t* const spim_instance_ptr_3 = &spim_instance_3;
 
 extern "C" void SPIM3_IRQHandler(void)
@@ -311,7 +298,7 @@ enum spi_result_t spim_transfer(spi_port_t              spi_port,
                                 dma_size_t              tx_length,
                                 void*                   rx_buffer,
                                 dma_size_t              rx_length,
-                                spim_event_handler_t    handler,
+                                spi_event_handler_t     handler,
                                 void*                   context,
                                 uint32_t                flags)
 
@@ -445,7 +432,14 @@ static void finish_transfer(struct spim_control_block_t* const spim_control)
 
     if (spim_control->handler)
     {
-        spim_control->handler(spim_control->context);
+        spi_event_t const spi_event = {
+            .type         = spi_event_transfer_complete,
+            .mosi_pointer = reinterpret_cast<void*>(spim_control->spim_registers->TXD.PTR),
+            .mosi_length  = spim_control->spim_registers->TXD.AMOUNT,
+            .miso_pointer = reinterpret_cast<void*>(spim_control->spim_registers->RXD.PTR),
+            .miso_length  = spim_control->spim_registers->RXD.AMOUNT,
+        };
+        spim_control->handler(&spi_event, spim_control->context);
     }
 }
 
