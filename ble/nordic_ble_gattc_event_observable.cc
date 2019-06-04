@@ -38,6 +38,7 @@ static uuid128_read_pending_t uuid128_read_pending = {
 
 /**
  * @todo This will work fine for single connection GATT clients.
+ * @bug See Issue #28 https://github.com/natersoz/nrf/issues/28
  * The struct uuid128_read_pending_t instance needs to be included somewhere in
  * the ble::gattc::connectable heirarchy so that there is one instance per
  * connection. Otherwise 2 connections attempting to acquire 128-bit UUIDs are
