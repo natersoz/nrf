@@ -141,7 +141,7 @@ void ble_event_observable<ble_gattc_event_observer>::notify(
                     /// @todo Hardcoded to primary services discovery.
                     /// This needs to be made generic by adding a functor to the
                     /// state storage struct uuid128_read_pending_t.
-                    uint32_t const error_code = sd_ble_gattc_primary_services_discover(
+                    error_code = sd_ble_gattc_primary_services_discover(
                         connection_handle, gattc_handle, nullptr);
 
                     if (error_code != NRF_SUCCESS)
