@@ -72,12 +72,12 @@ void saadc_sensor_acquisition::conversion_start()
         logger.warn("conversion_start: saadc_sample_timer_ already attached");
     }
 
-    sample_buffer& sample_buffer = this->next_sample_buffer();
+    sample_buffer& buffer = this->next_sample_buffer();
     logger.debug("conversion_start: buffer: 0x%p, index: %u",
-                 sample_buffer.data(), this->sample_buffer_bank_index);
+                 buffer.data(), this->sample_buffer_bank_index);
 
-    ::saadc_conversion_start(sample_buffer.data(),
-                             sample_buffer.size(),
+    ::saadc_conversion_start(buffer.data(),
+                             buffer.size(),
                              this->saadc_trigger_event_);
 }
 
@@ -100,13 +100,13 @@ void saadc_sensor_acquisition::saadc_conversion_started()
     logger& logger = logger::instance();
 
     // Queue the next buffer for SAADC conversions.
-    sample_buffer& sample_buffer = this->next_sample_buffer();
+    sample_buffer& buffer = this->next_sample_buffer();
 
     logger.debug("saadc_conversion_started: buffer: 0x%p, len: %u, index: %u",
-                 sample_buffer.data(), sample_buffer.size(),
+                 buffer.data(), buffer.size(),
                  this->sample_buffer_bank_index);
 
-    ::saadc_queue_conversion_buffer(sample_buffer.data(), sample_buffer.size());
+    ::saadc_queue_conversion_buffer(buffer.data(), buffer.size());
 }
 
 void saadc_sensor_acquisition::saadc_conversion_complete(int16_t const* sample_data,
