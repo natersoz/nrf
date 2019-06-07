@@ -11,8 +11,8 @@ static uint32_t fill_pattern_ = 0u;
 // Alignment mask for 32-bit pointers.
 constexpr uint32_t const mask_32 = ~0x03u;
 
-extern uint32_t __StackTop;
-extern uint32_t __StackLimit;
+extern uint32_t const __StackTop;
+extern uint32_t const __StackLimit;
 
 // Reminder: stack grows from top down.
 // Stack is in use from __StackTop down to stack pointer.
@@ -23,10 +23,11 @@ void stack_fill(uint32_t pattern)
     uintptr_t stack_ptr = __get_MSP();
     stack_ptr &= mask_32;
 
-    uint32_t* stack_iter = reinterpret_cast<uint32_t *>(stack_ptr);
+    uint32_t* stack_iter  = reinterpret_cast<uint32_t *>(stack_ptr);
+    uint32_t* stack_limit = const_cast<uint32_t *>(&__StackLimit);
     stack_iter -= 4u;
 
-    for ( ; stack_iter >= &__StackLimit; --stack_iter)
+    for ( ; stack_iter >= stack_limit; --stack_iter)
     {
         *stack_iter = fill_pattern_;
     }

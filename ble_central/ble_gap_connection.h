@@ -40,7 +40,7 @@ private:
         virtual ~negotiation_complete() override = default;
         using super::super;
 
-        negotiation_complete(ble_gap_connection* gap_connection):
+        explicit negotiation_complete(ble_gap_connection* gap_connection):
             negotiation_state::completion_notify(),
             ble_gap_connection_(gap_connection)
         {
