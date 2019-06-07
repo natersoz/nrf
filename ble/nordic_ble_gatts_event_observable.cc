@@ -134,7 +134,7 @@ void ble_event_observable<ble_gatts_event_observer>::notify(
                     event_data.params.authorize_request.request.read.handle,
                     event_data.params.authorize_request.request.read.offset);
             }
-            else if (event_data.params.authorize_request.type == BLE_GATTS_AUTHORIZE_TYPE_READ)
+            else if (event_data.params.authorize_request.type == BLE_GATTS_AUTHORIZE_TYPE_WRITE)
             {
                 logger::instance().debug(
                     "GATTS wr_ar: c: 0x%04x, h: 0x%04x, u: 0x%04x, o: %u, ar: %u, off: %u, len: %u",
