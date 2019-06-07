@@ -247,7 +247,7 @@ static void usart_clear_event_register(uint32_t volatile* usart_event_register)
 
 static void usart_wait_for_event_register(uint32_t volatile* usart_event_register)
 {
-    while (not usart_event_register)
+    while (not *usart_event_register)
     {
     }
     usart_clear_event_register(usart_event_register);
