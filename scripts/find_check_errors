@@ -1,0 +1,5 @@
+#!/bin/sh
+# Find any errors or warnings in the 'make checks' logs
+
+find . -type f -iname '*.check' -not -size 0c -exec cat {} \;
+
