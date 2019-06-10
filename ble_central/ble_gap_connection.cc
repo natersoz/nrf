@@ -41,7 +41,7 @@ void ble_gap_connection::connect(uint16_t                    connection_handle,
 
     this->operations().connection_parameter_update_request(
         this->get_connection_handle(), this->get_connection_parameters());
-    this->get_connecteable()->gattc()->exchange_mtu_request(
+    this->get_connecteable()->gattc.operations->exchange_mtu_request(
         connection_handle, this->mtu_size_);
 }
 
@@ -283,9 +283,9 @@ void ble_gap_connection::negotiation_complete::notify(enum reason completion_rea
     logger& logger = logger::instance();
     logger.info("BLE GAP negotiation complete, starting service discovery");
 
-    this->ble_gap_connection_->get_connecteable()->service_builder()->discover_services(
+    this->ble_gap_connection_->get_connecteable()->gattc.service_builder->discover_services(
         this->ble_gap_connection_->get_connection_handle(),
-        this->ble_gap_connection_->get_connecteable()->service_container(),
+        this->ble_gap_connection_->get_connecteable()->service_container,
         ble::att::handle_minimum,
         ble::att::handle_maximum,
         &this->ble_gap_connection_->service_discovery_complete_);

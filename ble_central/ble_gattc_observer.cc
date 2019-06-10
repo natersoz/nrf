@@ -128,7 +128,7 @@ void ble_gattc_observer::exchange_mtu_response(
                                  error_handle,
                                  server_rx_mtu_size);
 
-    ble::gap::connection &gap_connection = this->get_connecteable()->connection();
+    ble::gap::connection &gap_connection = this->get_connecteable()->gap;
     gap_connection.get_negotiation_state().set_gatt_mtu_exchange_pending(false);
 }
 

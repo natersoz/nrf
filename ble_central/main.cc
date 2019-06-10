@@ -25,9 +25,9 @@
 #include "ble/gatt_characteristic.h"
 #include "ble/gatt_descriptors.h"
 #include "ble/nordic_ble_gap_operations.h"
+#include "ble/nordic_ble_event_observer.h"
 #include "ble/profile_central.h"
 
-#include "ble/nordic_ble_event_observable.h"
 #include "ble/nordic_ble_gap_operations.h"
 #include "ble/nordic_ble_gap_scanning.h"
 #include "ble/nordic_ble_gattc_operations.h"
@@ -123,25 +123,16 @@ int main(void)
                                                         gattc_operations,
                                                         gattc_service_builder);
 
-    nordic::ble_observables& nordic_observables = nordic::ble_observables::instance();
-
-    ble::gap::event_logger                  gap_event_logger(logger::level::info);
-    nordic::ble_gap_event_observer          nordic_gap_event_logger(gap_event_logger);
-    nordic::ble_gap_event_observer          nordic_gap_event_observer(gap_connection);
-    nordic::ble_gattc_event_observer        nordic_gattc_event_observer(gattc_observer);
-    nordic::ble_gattc_discovery_observer    nordic_gattc_discovery_observer(gattc_service_builder);
-
-    nordic_observables.gap_event_observable.attach_first(nordic_gap_event_logger);
-    nordic_observables.gap_event_observable.attach(nordic_gap_event_observer);
-    nordic_observables.gattc_event_observable.attach(nordic_gattc_event_observer);
-    nordic_observables.gattc_discovery_observable.attach(nordic_gattc_discovery_observer);
+    // Register our ble::profile::central object to receive BLE notifications
+    // from the Nordic BLE stack.
+    nordic::register_ble_connectable(ble_central);
 
     unsigned int const peripheral_count = 0u;
     unsigned int const central_count    = 1u;
-    ble_central.ble_stack().init(peripheral_count, central_count);
-    ble_central.ble_stack().enable();
+    ble_central.stack.init(peripheral_count, central_count);
+    ble_central.stack.enable();
 
-    ble::stack::version const version = ble_central.ble_stack().get_version();
+    ble::stack::version const version = ble_central.stack.get_version();
 
     logger::instance().info("version: %s, git hash: %02x%02x%02x%02x",
                             version_info.version,

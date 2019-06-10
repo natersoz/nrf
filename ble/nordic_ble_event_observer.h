@@ -1,78 +1,75 @@
 /**
  * @file nordic_ble_event_observer.h
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
- *
- * Observer interface for receiving Noridc BLE softdevice events.
  */
 
 #pragma once
 
-#include "ble/common_event_observer.h"      // Abstract BLE event observers
+#include "ble/common_event_observer.h"      // BLE event observer interfaces
 #include "ble/gap_event_observer.h"
 #include "ble/gattc_event_observer.h"
 #include "ble/gattc_discovery_observer.h"
 #include "ble/gatts_event_observer.h"
+#include "ble/profile_connectable.h"
 
-#include <ble.h>
+#include <ble.h>                            // Nordic BLE softdevice headers
 #include <ble_gap.h>
 #include <ble_gattc.h>
 #include <ble_gatts.h>
 
-#include <boost/intrusive/list.hpp>
+#include <cstdint>
 
 namespace nordic
 {
+void ble_common_event_notify(ble::common::event_observer&   observer,
+                             enum BLE_COMMON_EVTS           event_type,
+                             ble_common_evt_t const&        event_data);
 
-template <typename observer_type>
-class ble_event_observable;
+void ble_gap_event_notify(ble::gap::event_observer&         observer,
+                          enum BLE_GAP_EVTS                 gap_event_type,
+                          ble_gap_evt_t const&              gap_event_data);
 
-template <typename interface_type,
-          typename event_enum_type,
-          typename event_data_type>
-class ble_event_observer
-{
-public:
-    using event_enum_t = event_enum_type;
-    using event_data_t = event_data_type;
+void ble_gatts_event_notify(ble::gatts::event_observer&     observer,
+                            enum BLE_GATTS_EVTS             gatts_event_type,
+                            ble_gatts_evt_t const&          gatts_event_data);
 
-    virtual ~ble_event_observer()                               = default;
+void ble_gattc_event_notify(ble::gattc::event_observer&     observer,
+                            enum BLE_GATTC_EVTS             event_type,
+                            ble_gattc_evt_t const&          event_data);
 
-    ble_event_observer()                                        = delete;
-    ble_event_observer(ble_event_observer const&)               = delete;
-    ble_event_observer(ble_event_observer&&)                    = delete;
-    ble_event_observer& operator=(ble_event_observer const &)   = delete;
-    ble_event_observer& operator=(ble_event_observer&&)         = delete;
+void ble_discovery_response(ble::gattc::discovery_observer& observer,
+                            enum BLE_GATTC_EVTS             event_type,
+                            ble_gattc_evt_t const&          event_data);
 
-    explicit ble_event_observer(interface_type &interface):
-        interface_reference(interface),
-        observable_(nullptr) {}
+/**
+ * Enable the Nordic softdevice events to be observed by the
+ * ble::profile::connectable class.
+ *
+ * @param ble_connectable The ble::profile::connectable reference to receive
+ *                        BLE events.
+ */
+void register_ble_connectable(ble::profile::connectable& ble_connectable);
 
-    bool is_attached() const { return bool(this->observable_); }
+/**
+ * Disable the Nordic softdevice events from being observed by the
+ * ble::profile::connectable class.
+ *
+ * @param ble_connectable The ble::profile::connectable reference to disable
+ *                        receiving BLE events.
+ */
+void deregister_ble_connectable(ble::profile::connectable& ble_connectable);
 
-    interface_type& interface_reference;
-
-private:
-    using list_hook_type = boost::intrusive::list_member_hook<
-        boost::intrusive::link_mode<boost::intrusive::auto_unlink>
-        >;
-
-    list_hook_type hook_;
-
-    using observable_type =
-        ble_event_observable<ble_event_observer<interface_type,
-                                                event_enum_type,
-                                                event_data_type> >;
-
-    observable_type volatile *observable_;
-
-    friend observable_type;
-};
-
-using ble_common_event_observer    = ble_event_observer<ble::common::event_observer,    enum BLE_COMMON_EVTS, ble_common_evt_t>;
-using ble_gap_event_observer       = ble_event_observer<ble::gap::event_observer,       enum BLE_GAP_EVTS,    ble_gap_evt_t>;
-using ble_gattc_event_observer     = ble_event_observer<ble::gattc::event_observer,     enum BLE_GATTC_EVTS,  ble_gattc_evt_t>;
-using ble_gattc_discovery_observer = ble_event_observer<ble::gattc::discovery_observer, enum BLE_GATTC_EVTS,  ble_gattc_evt_t>;
-using ble_gatts_event_observer     = ble_event_observer<ble::gatts::event_observer,     enum BLE_GATTS_EVTS,  ble_gatts_evt_t>;
-// TBD using ble_l2cap_event_observer    = ble_event_observer<enum BLE_L2CAP_EVTS, >;
+/**
+ * Specialized hack to aquire 128-bit UUIDs which have not been
+ * pre-registered with the Nordic softdevice.
+ *
+ * @param connection_handle The connection handle to re-request the GATT handle
+ *                          from in order to resolve it.
+ * @param gatt_handle       The attribute handle for which a 128-bit UUID was
+ *                          reported by the Nordic softdevice as 'unknown'.
+ *
+ * @return uint32_t         NRF_SUCCESS if successful.
+ */
+uint32_t gattc_uuid128_acquire(uint16_t connection_handle, uint16_t gatt_handle);
 
 } // namespace nordic
