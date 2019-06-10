@@ -24,7 +24,7 @@ class event_logger: public ble::gap::event_observer
 public:
     logger::level log_level;
 
-    virtual ~event_logger() override               = default;
+    virtual ~event_logger() override              = default;
 
     event_logger(event_logger const&)             = delete;
     event_logger(event_logger &&)                 = delete;

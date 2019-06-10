@@ -16,127 +16,186 @@
 #include "ble/gatt_service_container.h"
 #include "ble/hci_error_codes.h"
 
+#include <boost/intrusive/list.hpp>
+
 namespace ble
 {
 namespace profile
 {
 
 /**
- * @class connectable
+ * @struct connectable
  * A base class for profile::peripheral and profile::central, aggregate the
  * specific classes which compose a BLE profile which connects with a peer.
  */
-class connectable
+struct connectable
 {
 public:
+    /**
+     * @struct ble::profile::connectable::gatts
+     * Aggregates ble::gatts::event_observer
+     *            ble::gatts::operations.
+     */
+    struct gatts
+    {
+        ~gatts()                        = default;
+
+        gatts(gatts const&)             = delete;
+        gatts(gatts&&)                  = delete;
+        gatts& operator=(gatts const&)  = delete;
+        gatts& operator=(gatts&&)       = delete;
+
+        gatts(ble::gatts::event_observer&   evt_observer,
+              ble::gatts::operations&       ops)
+            : event_observer(&evt_observer), operations(&ops) {}
+
+        gatts() : event_observer(nullptr), operations(nullptr) {}
+
+        ble::gatts::event_observer* const   event_observer;
+        ble::gatts::operations* const       operations;
+    };
+
+    /**
+     * @struct ble::profile::connectable::gattc
+     * Aggregates ble::gatts::event_observer,
+     *            ble::gatts::operations,
+     *            ble::gattc::service_builder.
+     */
+    struct gattc
+    {
+        ~gattc()                        = default;
+
+        gattc(gattc const&)             = delete;
+        gattc(gattc&&)                  = delete;
+        gattc& operator=(gattc const&)  = delete;
+        gattc& operator=(gattc&&)       = delete;
+
+        gattc()
+            : event_observer(nullptr),
+              operations(nullptr),
+              service_builder(nullptr) {}
+
+        gattc(ble::gattc::event_observer&  evt_observer,
+              ble::gattc::operations&      ops,
+              ble::gattc::service_builder& svc_builder)
+            : event_observer(&evt_observer),
+              operations(&ops),
+              service_builder(&svc_builder) {}
+
+        ble::gattc::event_observer* const   event_observer;
+        ble::gattc::operations* const       operations;
+        ble::gattc::service_builder* const  service_builder;
+    };
+
     virtual ~connectable()                      = default;
 
     connectable()                               = delete;
     connectable(connectable const&)             = delete;
-    connectable(connectable &&)                 = delete;
+    connectable(connectable&&)                  = delete;
     connectable& operator=(connectable const&)  = delete;
     connectable& operator=(connectable&&)       = delete;
 
     /// ctor: A connectable with both GATT server and client.
     connectable(ble::stack&                     ble_stack,
-                ble::gap::connection&           ble_gap_connection,
-                ble::gatts::event_observer&     ble_gatts_event_observer,
-                ble::gatts::operations&         ble_gatts_operations,
-                ble::gattc::event_observer&     ble_gattc_event_observer,
-                ble::gattc::operations&         ble_gattc_operations,
-                ble::gattc::service_builder&    ble_gattc_service_builder)
-    : ble_stack_(ble_stack),
-      gap_connection_(ble_gap_connection),
-      gatts_event_observer_(&ble_gatts_event_observer),
-      gatts_operations_(&ble_gatts_operations),
-      gattc_event_observer_(&ble_gattc_event_observer),
-      gattc_operations_(&ble_gattc_operations),
-      gattc_service_builder_(&ble_gattc_service_builder),
-      service_builder_completion_(nullptr)
+                ble::gap::connection&           gap_connection,
+                ble::gatts::event_observer&     gatts_event_observer,
+                ble::gatts::operations&         gatts_operations,
+                ble::gattc::event_observer&     gattc_event_observer,
+                ble::gattc::operations&         gattc_operations,
+                ble::gattc::service_builder&    gattc_service_builder)
+    : stack(ble_stack),
+      gap(gap_connection),
+      gatts(gatts_event_observer, gatts_operations),
+      gattc(gattc_event_observer, gattc_operations, gattc_service_builder),
+      service_builder_completion(nullptr)
     {
-        this->gap_connection_.set_connecteable(this);
-        this->gatts_event_observer_->set_connecteable(this);
-        this->gatts_operations_->set_connecteable(this);
-        this->gattc_event_observer_->set_connecteable(this);
+        this->gap.set_connecteable(this);
+        this->gatts.event_observer->set_connecteable(this);
+        this->gatts.operations->set_connecteable(this);
+        this->gattc.event_observer->set_connecteable(this);
     }
 
     /// ctor: A connectable with a GATT server only; no client.
     connectable(ble::stack&                     ble_stack,
-                ble::gap::connection&           ble_gap_connection,
-                ble::gatts::event_observer&     ble_gatts_event_observer,
-                ble::gatts::operations&         ble_gatts_operations)
-    : ble_stack_(ble_stack),
-      gap_connection_(ble_gap_connection),
-      gatts_event_observer_(&ble_gatts_event_observer),
-      gatts_operations_(&ble_gatts_operations),
-      gattc_event_observer_(nullptr),
-      gattc_operations_(nullptr),
-      gattc_service_builder_(nullptr),
-      service_builder_completion_(nullptr)
+                ble::gap::connection&           gap_connection,
+                ble::gatts::event_observer&     gatts_event_observer,
+                ble::gatts::operations&         gatts_operations)
+    : stack(ble_stack),
+      gap(gap_connection),
+      gatts(gatts_event_observer, gatts_operations),
+      service_builder_completion(nullptr)
     {
-        this->gap_connection_.set_connecteable(this);
-        this->gatts_event_observer_->set_connecteable(this);
-        this->gatts_operations_->set_connecteable(this);
+        this->gap.set_connecteable(this);
+        this->gatts.event_observer->set_connecteable(this);
+        this->gatts.operations->set_connecteable(this);
     }
 
     /// ctor: A connectable with a GATT client only; no server.
     connectable(ble::stack&                     ble_stack,
-                ble::gap::connection&           ble_gap_connection,
-                ble::gattc::event_observer&     ble_gattc_event_observer,
-                ble::gattc::operations&         ble_gattc_operations,
-                ble::gattc::service_builder&    ble_gattc_service_builder)
-    : ble_stack_(ble_stack),
-      gap_connection_(ble_gap_connection),
-      gatts_event_observer_(nullptr),
-      gatts_operations_(nullptr),
-      gattc_event_observer_(&ble_gattc_event_observer),
-      gattc_operations_(&ble_gattc_operations),
-      gattc_service_builder_(&ble_gattc_service_builder),
-      service_builder_completion_(nullptr)
+                ble::gap::connection&           gap_connection,
+                ble::gattc::event_observer&     gattc_event_observer,
+                ble::gattc::operations&         gattc_operations,
+                ble::gattc::service_builder&    gattc_service_builder)
+    : stack(ble_stack),
+      gap(gap_connection),
+      gattc(gattc_event_observer, gattc_operations, gattc_service_builder),
+      service_builder_completion(nullptr)
     {
-        this->gap_connection_.set_connecteable(this);
-        this->gattc_event_observer_->set_connecteable(this);
+        this->gap.set_connecteable(this);
+        this->gattc.event_observer->set_connecteable(this);
     }
 
-    ble::stack&       ble_stack()       { return this->ble_stack_; }
-    ble::stack const& ble_stack() const { return this->ble_stack_; }
-
-    ble::gap::connection const& connection() const { return this->gap_connection_; }
-    ble::gap::connection&       connection()       { return this->gap_connection_; }
-
-    ble::gatts::operations const* gatts() const { return this->gatts_operations_; }
-    ble::gatts::operations*       gatts()       { return this->gatts_operations_; }
-
-    ble::gattc::operations const* gattc() const { return this->gattc_operations_; }
-    ble::gattc::operations*       gattc()       { return this->gattc_operations_; }
-
-    ble::gattc::service_builder const* service_builder() const { return this->gattc_service_builder_; }
-    ble::gattc::service_builder*       service_builder()       { return this->gattc_service_builder_; }
-
-    ble::gatt::service_container const& service_container() const { return this->service_container_; }
-    ble::gatt::service_container&       service_container()       { return this->service_container_; }
+    ble::stack&                                     stack;
+    ble::gap::connection&                           gap;
+    struct gatts                                    gatts;
+    struct gattc                                    gattc;
+    ble::gattc::service_builder::completion_notify* service_builder_completion;
+    ble::gatt::service_container                    service_container;
 
     void service_add(ble::gatt::service &service_to_add)
     {
         service_to_add.connectable_ = this;
-        this->service_container_.push_back(service_to_add);
+        this->service_container.push_back(service_to_add);
 
-        if (this->gatts_operations_)
+        if (this->gatts.operations)
         {
-            this->gatts_operations_->service_add(service_to_add);
+            this->gatts.operations->service_add(service_to_add);
         }
     }
 
+    bool is_linked() const { return this->hook_.is_linked(); }
+    void unlink() { return this->hook_.unlink(); }
+
 private:
-    ble::stack&                                         ble_stack_;
-    ble::gap::connection&                               gap_connection_;
-    ble::gatts::event_observer*                         gatts_event_observer_;
-    ble::gatts::operations*                             gatts_operations_;
-    ble::gattc::event_observer*                         gattc_event_observer_;
-    ble::gattc::operations*                             gattc_operations_;
-    ble::gattc::service_builder*                        gattc_service_builder_;
-    ble::gattc::service_builder::completion_notify*     service_builder_completion_;
-    ble::gatt::service_container                        service_container_;
+    using list_hook_type = boost::intrusive::list_member_hook<
+        boost::intrusive::link_mode<boost::intrusive::auto_unlink>
+        >;
+
+    list_hook_type hook_;
+
+    using list_type = boost::intrusive::list<
+        connectable,
+        boost::intrusive::constant_time_size<false>,
+        boost::intrusive::member_hook<connectable,
+                                      connectable::list_hook_type,
+                                      &connectable::hook_>
+        >;
+
+    friend class container;
+
+public:
+    class container: public connectable::list_type
+    {
+    public:
+        ~container()                            = default;
+
+        container()                             = default;
+        container(container const&)             = delete;
+        container(container &&)                 = delete;
+        container& operator=(container const&)  = delete;
+        container& operator=(container&&)       = delete;
+
+    };
 };
 
 } // namespace profile
