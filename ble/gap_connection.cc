@@ -15,14 +15,14 @@ namespace gap
                              uint8_t                    peer_address_id)
     {
         this->set_handle(connection_handle);
-        this->get_connecteable()->connection().get_negotiation_state().clear_all_pending();
+        this->get_connecteable()->gap.get_negotiation_state().clear_all_pending();
     }
 
     void connection::disconnect(uint16_t                connection_handle,
                                 ble::hci::error_code    error_code)
     {
         this->set_handle(ble::gap::handle_invalid);
-        this->get_connecteable()->connection().get_negotiation_state().clear_all_pending();
+        this->get_connecteable()->gap.get_negotiation_state().clear_all_pending();
     }
 
 } // namespace gap

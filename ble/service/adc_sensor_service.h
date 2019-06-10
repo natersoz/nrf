@@ -173,17 +173,18 @@ public:
                 {
                     logger::instance().debug(
                         "notify: c: 0x%04x, h: 0x%04x, data: 0x%p, len: %u",
-                        connectable->connection().get_connection_handle(),
+                        connectable->gap.get_connection_handle(),
                         this->value_handle,
                         adc_samples,
                         adc_samples_length * sizeof(sample_type));
 
-                    att::length_t const length = connectable->gatts()->notify(
-                        connectable->connection().get_connection_handle(),
-                        this->value_handle,
-                        0u,
-                        adc_samples_length * sizeof(sample_type),
-                        adc_samples);
+                    att::length_t const length =
+                        connectable->gatts.operations->notify(
+                            connectable->gap.get_connection_handle(),
+                            this->value_handle,
+                            0u,
+                            adc_samples_length * sizeof(sample_type),
+                            adc_samples);
 
                     logger::instance().debug("notified length: %u", length);
                 }

@@ -20,7 +20,6 @@
 #include "ble/service/current_time_service.h"
 #include "ble/service/nordic_saadc_sensor_service.h"
 
-#include "ble/nordic_ble_event_observable.h"
 #include "ble/nordic_ble_event_observer.h"
 #include "ble/nordic_ble_gap_advertising.h"
 #include "ble/nordic_ble_gap_operations.h"
@@ -97,12 +96,6 @@ static ble::profile::peripheral             ble_peripheral(ble_stack,
                                                            gap_connection,
                                                            gatts_observer,
                                                            gatts_operations);
-
-static ble::gap::event_logger               gap_event_logger(logger::level::info);
-static nordic::ble_gap_event_observer       nordic_gap_event_logger(gap_event_logger);
-static nordic::ble_gap_event_observer       nordic_gap_event_observer(gap_connection);
-static nordic::ble_gatts_event_observer     nordic_gatts_event_observer(gatts_observer);
-
 // GAP service: 0x1800
 //   device name: uuid = 0x2a00
 //   appearance : uuid = 0x2a01
@@ -150,9 +143,9 @@ ble::profile::peripheral& ble_peripheral_init()
 {
     unsigned int const peripheral_count = 1u;
     unsigned int const central_count    = 0u;
-    ble_peripheral.ble_stack().init(peripheral_count, central_count);
-    ble_peripheral.ble_stack().enable();
-    ble::stack::version const version = ble_peripheral.ble_stack().get_version();
+    ble_peripheral.stack.init(peripheral_count, central_count);
+    ble_peripheral.stack.enable();
+    ble::stack::version const version = ble_peripheral.stack.get_version();
 
     logger::instance().info(
         "BLE stack version: link layer: %u, company id: 0x%04x, vendor: 0x%x",
@@ -167,11 +160,10 @@ ble::profile::peripheral& ble_peripheral_init()
         static_cast<uint8_t>(version.vendor_specific[1] >>  8u),
         static_cast<uint8_t>(version.vendor_specific[1] >>  0u));
 
-    nordic::ble_observables& nordic_observables = nordic::ble_observables::instance();
-
-    nordic_observables.gap_event_observable.attach_first(nordic_gap_event_logger);
-    nordic_observables.gap_event_observable.attach(nordic_gap_event_observer);
-    nordic_observables.gatts_event_observable.attach(nordic_gatts_event_observer);
+    // Register our BLE peripheral profile object to receive BLE events
+    // from the Nordic ble stack.
+    /// @todo perhaps the registration of events should be part of the ble::stack object?
+    nordic::register_ble_connectable(ble_peripheral);
 
     ble_peer_init();
 
