@@ -42,12 +42,12 @@ int main(void)
 
     logger.info("--- BLE peripheral ---");
 
-    logger::instance().info("version: %s, git hash: %02x%02x%02x%02x",
-                            version_info.version,
-                            version_info.git_hash[0u],
-                            version_info.git_hash[1u],
-                            version_info.git_hash[2u],
-                            version_info.git_hash[3u]);
+    logger.info("version: %s, git hash: %02x%02x%02x%02x",
+                version_info.version,
+                version_info.git_hash[0u],
+                version_info.git_hash[1u],
+                version_info.git_hash[2u],
+                version_info.git_hash[3u]);
 
     ble::profile::peripheral& ble_peripheral = ble_peripheral_init();
     ble_peripheral.advertising().start();
