@@ -105,13 +105,12 @@ struct attribute
      * However, forward declare the list type here so that it can be easily
      * used by inherited classes.
      */
-    using list_type =
-        boost::intrusive::list<
-            attribute,
-            boost::intrusive::constant_time_size<false>,
-            boost::intrusive::member_hook<
-                attribute, list_hook_type, &attribute::hook>
-        >;
+    using list_type = boost::intrusive::list<
+        attribute,
+        boost::intrusive::constant_time_size<false>,
+        boost::intrusive::member_hook<
+            attribute, list_hook_type, &attribute::hook>
+    >;
 };
 
 } // namespace gatt
