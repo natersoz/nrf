@@ -46,8 +46,10 @@ static void event_notify(ble_evt_t const* ble_event_ptr)
     extern uint32_t __start_sdh_ble_observers;
     extern uint32_t __stop_sdh_ble_observers;
 
-    nrf_sdh_ble_evt_observer_t *observers_begin = reinterpret_cast<nrf_sdh_ble_evt_observer_t *>(&__start_sdh_ble_observers);
-    nrf_sdh_ble_evt_observer_t *observers_end   = reinterpret_cast<nrf_sdh_ble_evt_observer_t *>(&__stop_sdh_ble_observers);
+    nrf_sdh_ble_evt_observer_t *observers_begin =
+        reinterpret_cast<nrf_sdh_ble_evt_observer_t *>(&__start_sdh_ble_observers);
+    nrf_sdh_ble_evt_observer_t *observers_end =
+        reinterpret_cast<nrf_sdh_ble_evt_observer_t *>(&__stop_sdh_ble_observers);
 
     for (nrf_sdh_ble_evt_observer_t *observer = observers_begin;
          observer <= observers_end; ++observer)

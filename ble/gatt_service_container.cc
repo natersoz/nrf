@@ -97,7 +97,7 @@ ble::gatt::characteristic const*
         ble::gatt::attribute const* attribute = service.find_attribute(handle);
         if (attribute)
         {
-            return reinterpret_cast<characteristic const*>(attribute);
+            return static_cast<characteristic const*>(attribute);
         }
     }
 

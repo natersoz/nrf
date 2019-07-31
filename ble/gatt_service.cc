@@ -33,7 +33,7 @@ attribute const* service::find_attribute(uint16_t handle) const
 {
     for (attribute const& attr : this->characteristic_list)
     {
-        characteristic const& chr = reinterpret_cast<characteristic const&>(attr);
+        characteristic const& chr = static_cast<characteristic const&>(attr);
         attribute const* attr_found = chr.find_attribute(handle);
         if (attr_found) { return attr_found; }
     }
@@ -52,7 +52,7 @@ characteristic const* service::find_characteristic(ble::att::uuid const& chr_uui
 {
     for (attribute const& attr : this->characteristic_list)
     {
-        characteristic const& chr = reinterpret_cast<characteristic const&>(attr);
+        characteristic const& chr = static_cast<characteristic const&>(attr);
         if (chr.uuid == chr_uuid) { return &chr; }
     }
 
