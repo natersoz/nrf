@@ -119,25 +119,25 @@ void attribute_write(io::output_stream& os, ble::gatt::attribute const& attribut
     if (attribute.decl.attribute_type == ble::gatt::attribute_type::characteristic)
     {
         ble::gatt::characteristic const& characteristic =
-            reinterpret_cast<ble::gatt::characteristic const&>(attribute);
+            static_cast<ble::gatt::characteristic const&>(attribute);
         characteristic_write(os, characteristic);
     }
     else if (attribute.decl.attribute_type == ble::gatt::attribute_type::cccd)
     {
         ble::gatt::cccd const& descriptor =
-            reinterpret_cast<ble::gatt::cccd const&>(attribute);
+            static_cast<ble::gatt::cccd const&>(attribute);
         descriptor_cccd_write(os, descriptor);
     }
     else if (attribute.decl.attribute_type == ble::gatt::attribute_type::cpfd)
     {
         ble::gatt::cpfd const& descriptor =
-            reinterpret_cast<ble::gatt::cpfd const&>(attribute);
+            static_cast<ble::gatt::cpfd const&>(attribute);
         descriptor_cpfd_write(os, descriptor);
     }
     else if (attribute.decl.attribute_type == ble::gatt::attribute_type::cud)
     {
         ble::gatt::cud const& descriptor =
-            reinterpret_cast<ble::gatt::cud const&>(attribute);
+            static_cast<ble::gatt::cud const&>(attribute);
         descriptor_cud_write(os, descriptor);
     }
     else

@@ -209,20 +209,20 @@ static uint32_t gatts_characteristic_add(uint16_t service_handle,
     for (ble::gatt::attribute &node : characteristic.descriptor_list)
     {
         // Note: with --rtti turned off in the compiler we have to use
-        // reinterpret_cast<> instead of dynamic_cast<>.
+        // static_cast<> instead of dynamic_cast<>.
         switch (node.decl.attribute_type)
         {
         case ble::gatt::attribute_type::characteristic_user_description:
-            userd = reinterpret_cast<ble::gatt::characteristic_user_descriptor*>(&node);
+            userd = static_cast<ble::gatt::characteristic_user_descriptor*>(&node);
             break;
         case ble::gatt::attribute_type::client_characteristic_configuration:
-            cccd = reinterpret_cast<ble::gatt::client_characteristic_configuration_descriptor*>(&node);
+            cccd = static_cast<ble::gatt::client_characteristic_configuration_descriptor*>(&node);
             break;
         case ble::gatt::attribute_type::server_characteristic_configuration:
-            sccd = reinterpret_cast<ble::gatt::server_characteristic_configuration_descriptor*>(&node);
+            sccd = static_cast<ble::gatt::server_characteristic_configuration_descriptor*>(&node);
             break;
         case ble::gatt::attribute_type::characteristic_presentation_format:
-            presd = reinterpret_cast<ble::gatt::characteristic_presentation_format_descriptor*>(&node);
+            presd = static_cast<ble::gatt::characteristic_presentation_format_descriptor*>(&node);
             break;
         default:
             break;
@@ -272,7 +272,7 @@ static uint32_t gatts_characteristic_add(uint16_t service_handle,
         .init_len                   = characteristic.data_length(),
         .init_offs                  = u16_zero,
         .max_len                    = characteristic.data_length_max(),
-        .p_value                    = reinterpret_cast<uint8_t*>(characteristic.data_pointer()),
+        .p_value                    = static_cast<uint8_t*>(characteristic.data_pointer()),
     };
 
     ble_gatts_char_handles_t gatt_handles;
@@ -329,7 +329,7 @@ static uint32_t nordic_add_gap_service(ble::gatt::service const& service)
         uint32_t error = NRF_SUCCESS;
 
         ble::gatt::characteristic const& node =
-            reinterpret_cast<ble::gatt::characteristic const&>(attr_node);
+            static_cast<ble::gatt::characteristic const&>(attr_node);
         auto const uuid = static_cast<ble::gatt::characteristic_type>(node.uuid.get_u16());
         switch(uuid)
         {
@@ -341,7 +341,7 @@ static uint32_t nordic_add_gap_service(ble::gatt::service const& service)
                     .lv = 0u,
                 };
 
-                uint8_t const* utf8_ptr = reinterpret_cast<uint8_t const *>(node.data_pointer());
+                uint8_t const* utf8_ptr = static_cast<uint8_t const *>(node.data_pointer());
                 uint16_t utf8_len = node.data_length();
                 error = sd_ble_gap_device_name_set(&security_mode, utf8_ptr, utf8_len);
 
@@ -354,7 +354,7 @@ static uint32_t nordic_add_gap_service(ble::gatt::service const& service)
 
         case ble::gatt::characteristic_type::appearance:
             {
-                uint16_t const *appearance_ptr = reinterpret_cast<uint16_t const*>(node.data_pointer());
+                uint16_t const *appearance_ptr = static_cast<uint16_t const*>(node.data_pointer());
                 if (node.data_length() != sizeof(uint16_t))
                 {
                     logger.error("invalid appearance length: %u", node.data_length());
@@ -373,7 +373,7 @@ static uint32_t nordic_add_gap_service(ble::gatt::service const& service)
         case ble::gatt::characteristic_type::ppcp:
             {
                 ble::gap::connection_parameters const *connection_parameters_ptr =
-                    reinterpret_cast<ble::gap::connection_parameters const*>(node.data_pointer());
+                    static_cast<ble::gap::connection_parameters const*>(node.data_pointer());
                 if (node.data_length() != sizeof(ble::gap::connection_parameters))
                 {
                     logger.error("invalid connection_parameters length: %u", node.data_length());
@@ -461,7 +461,7 @@ uint32_t gatts_service_add(ble::gatt::service& service)
             for (ble::gatt::attribute &attr_node : service.characteristic_list)
             {
                 ble::gatt::characteristic& node =
-                    reinterpret_cast<ble::gatt::characteristic&>(attr_node);
+                    static_cast<ble::gatt::characteristic&>(attr_node);
 
                 error = gatts_characteristic_add(service.decl.handle, node);
                 if (error != NRF_SUCCESS)

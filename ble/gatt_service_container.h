@@ -79,7 +79,7 @@ public:
 
             iterator_node(ble::gatt::service& svc, ble::gatt::attribute& chr)
             : service(svc),
-              characteristic(reinterpret_cast<ble::gatt::characteristic&>(chr))
+              characteristic(static_cast<ble::gatt::characteristic&>(chr))
             {
             }
 

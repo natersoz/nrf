@@ -230,7 +230,7 @@ void service_builder::characteristic_discovered(
                 this->free_list.characteristics.pop_front();
 
                 ble::gatt::characteristic& characteristic =
-                    reinterpret_cast<ble::gatt::characteristic&>(list_node);
+                    static_cast<ble::gatt::characteristic&>(list_node);
 
                 // Note that the default ctor for ble::gatt::characteristic has
                 // set the attribute_type properly. Doing it here anyway.
@@ -376,7 +376,7 @@ void service_builder::descriptor_discovered(
             this->free_list.characteristics.pop_front();
 
             ble::gatt::descriptor_base& descriptor =
-                reinterpret_cast<ble::gatt::descriptor_base&>(list_node);
+                static_cast<ble::gatt::descriptor_base&>(list_node);
             descriptor.decl.handle = gatt_handle_desciptor;
 
             ble::gatt::service_container::discovery_iterator::iterator_node
