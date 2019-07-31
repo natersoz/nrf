@@ -107,7 +107,9 @@ public:
       gap(gap_connection),
       gatts(gatts_event_observer, gatts_operations),
       gattc(gattc_event_observer, gattc_operations, gattc_service_builder),
-      service_builder_completion(nullptr)
+      service_builder_completion(nullptr),
+      service_container(),
+      priv_hook_()
     {
         this->gap.set_connecteable(this);
         this->gatts.event_observer->set_connecteable(this);
@@ -123,7 +125,9 @@ public:
     : stack(ble_stack),
       gap(gap_connection),
       gatts(gatts_event_observer, gatts_operations),
-      service_builder_completion(nullptr)
+      service_builder_completion(nullptr),
+      service_container(),
+      priv_hook_()
     {
         this->gap.set_connecteable(this);
         this->gatts.event_observer->set_connecteable(this);
@@ -139,7 +143,9 @@ public:
     : stack(ble_stack),
       gap(gap_connection),
       gattc(gattc_event_observer, gattc_operations, gattc_service_builder),
-      service_builder_completion(nullptr)
+      service_builder_completion(nullptr),
+      service_container(),
+      priv_hook_()
     {
         this->gap.set_connecteable(this);
         this->gattc.event_observer->set_connecteable(this);
@@ -163,28 +169,28 @@ public:
         }
     }
 
-    bool is_linked() const { return this->hook_.is_linked(); }
-    void unlink() { return this->hook_.unlink(); }
+    bool is_linked() const { return this->priv_hook_.is_linked(); }
+    void unlink() { return this->priv_hook_.unlink(); }
 
 private:
     using list_hook_type = boost::intrusive::list_member_hook<
         boost::intrusive::link_mode<boost::intrusive::auto_unlink>
         >;
 
-    list_hook_type hook_;
+    list_hook_type priv_hook_;
 
     using list_type = boost::intrusive::list<
-        connectable,
+        ble::profile::connectable,
         boost::intrusive::constant_time_size<false>,
-        boost::intrusive::member_hook<connectable,
-                                      connectable::list_hook_type,
-                                      &connectable::hook_>
+        boost::intrusive::member_hook<ble::profile::connectable,
+                                      ble::profile::connectable::list_hook_type,
+                                      &ble::profile::connectable::priv_hook_>
         >;
 
-    friend class container;
+//    friend class container;
 
 public:
-    class container: public connectable::list_type
+    class container: public ble::profile::connectable::list_type
     {
     public:
         ~container()                            = default;
