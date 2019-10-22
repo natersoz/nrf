@@ -74,8 +74,8 @@ public:
             iterator_node()                                 = delete;
             iterator_node(iterator_node const&)             = default;
             iterator_node(iterator_node &&)                 = default;
-            iterator_node& operator=(iterator_node const&)  = default;
-            iterator_node& operator=(iterator_node&&)       = default;
+            iterator_node& operator=(iterator_node const&)  = delete;
+            iterator_node& operator=(iterator_node&&)       = delete;
 
             iterator_node(ble::gatt::service& svc, ble::gatt::attribute& chr)
             : service(svc),
