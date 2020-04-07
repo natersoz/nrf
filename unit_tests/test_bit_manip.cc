@@ -118,15 +118,15 @@ TEST(BitManipSet_64, Width_17)
 
 TEST(BitManipSignExtend_32, Value_0x0000)
 {
-    int32_t test_value = 0x80000000;
-    int32_t test_sign_ext = bit_manip::sign_extend(test_value, 31u);
+    uint32_t test_value = 0x80000000;
+    uint32_t test_sign_ext = bit_manip::sign_extend(test_value, 31u);
 
     ASSERT_EQ(test_value, test_sign_ext);
 }
 
 TEST(BitManipSignExtend_32, Value_0xFFFF0000)
 {
-    int32_t test_value = 0x00008000;
+    uint32_t test_value = 0x00008000;
     int32_t expected_value = 0xFFFF8000;
     int32_t test_sign_ext = bit_manip::sign_extend(test_value, 15u);
 
@@ -135,7 +135,7 @@ TEST(BitManipSignExtend_32, Value_0xFFFF0000)
 
 TEST(BitManipSignExtend_32, Value_0x000040000)
 {
-    int32_t test_value = 0x00004000;
+    uint32_t test_value = 0x00004000;
     int32_t expected_value = 0xFFFFC000;
     int32_t test_sign_ext = bit_manip::sign_extend(test_value, 14u);
 
@@ -144,7 +144,7 @@ TEST(BitManipSignExtend_32, Value_0x000040000)
 
 TEST(BitManipSignExtend_32, Value_0x00007FFF)
 {
-    int32_t test_value = 0x00007FFF;
+    uint32_t test_value = 0x00007FFF;
     int32_t expected_value = -1;
     int32_t test_sign_ext = bit_manip::sign_extend(test_value, 14u);
 
@@ -153,7 +153,7 @@ TEST(BitManipSignExtend_32, Value_0x00007FFF)
 
 TEST(BitManipSignExtend_64, Value_0x000000000)
 {
-    int64_t test_value = 0x80000000ULL;
+    uint64_t test_value = 0x80000000ULL;
     int64_t test_sign_ext = bit_manip::sign_extend(test_value, 63u);
 
     ASSERT_EQ(test_value, test_sign_ext);
