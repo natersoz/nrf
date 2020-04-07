@@ -4,6 +4,8 @@
 # Copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 ###
 
+GTEST_VERSION = 1.10.0
+
 .PHONY: all mrproper
 
 all: downloads nRF5_SDK_16.0.0_98a08e2 googletest
@@ -17,15 +19,15 @@ nRF5_SDK_16.0.0_98a08e2: downloads/nRF5SDK160098a08e2.zip
 	cd ../nordic/sdk-modified && ./replace_sdk_files
 	touch $@
 
-googletest-release-1.8.1: downloads/release-1.8.1.zip
+googletest-release-$(GTEST_VERSION): downloads/release-$(GTEST_VERSION).zip
 	unzip $^
 	touch $@
 
-googletest: googletest-release-1.8.1
-	ln -s googletest-release-1.8.1 $@
+googletest: googletest-release-$(GTEST_VERSION)
+	ln -s googletest-release-$(GTEST_VERSION) $@
 
-downloads/release-1.8.1.zip:
-	wget --directory-prefix=downloads https://github.com/google/googletest/archive/release-1.8.1.zip
+downloads/release-$(GTEST_VERSION).zip:
+	wget --directory-prefix=downloads https://github.com/google/googletest/archive/release-$(GTEST_VERSION).zip
 
 # Nordic nRF5 SDK 16.0
 downloads/nRF5SDK160098a08e2.zip:
