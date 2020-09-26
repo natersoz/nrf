@@ -4,36 +4,52 @@
 # Copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 ###
 
-GTEST_VERSION = 1.10.0
+GTEST_VERSION   = 1.10.0
+BOOST_VERSION   = 1_74_0
+NRF_SDK_VERSION = 17.0.2_d674dde
 
 .PHONY: all mrproper
 
-all: downloads nRF5_SDK_16.0.0_98a08e2 googletest
+all: downloads nrf_sdk boost googletest
+
+SDK_MODIFIED_FILES_DIR = ../nordic/sdk-modified/
 
 downloads:
 	mkdir $@
 
-nRF5_SDK_16.0.0_98a08e2: downloads/nRF5SDK160098a08e2.zip
-	mkdir -p $@
-	unzip $^ -d $@
-	cd ../nordic/sdk-modified && ./replace_sdk_files
+nRF5_SDK_$(NRF_SDK_VERSION): downloads/nRF5SDK1702d674dde.zip
+	unzip $^
 	touch $@
+	mv $@/components/libraries/util/nrf_assert.h $@/components/libraries/util/nrf_assert.orig.h
+
+nrf_sdk : nRF5_SDK_$(NRF_SDK_VERSION)
+	ln -s $^ $@
+
+boost_$(BOOST_VERSION): downloads/boost_$(BOOST_VERSION).zip
+	unzip $^
+	touch $@
+
+boost: boost_$(BOOST_VERSION)
+	ln -s $^ $@
 
 googletest-release-$(GTEST_VERSION): downloads/release-$(GTEST_VERSION).zip
 	unzip $^
 	touch $@
 
 googletest: googletest-release-$(GTEST_VERSION)
-	ln -s googletest-release-$(GTEST_VERSION) $@
+	ln -s $^ $@
 
 downloads/release-$(GTEST_VERSION).zip:
 	wget --directory-prefix=downloads https://github.com/google/googletest/archive/release-$(GTEST_VERSION).zip
 
-# Nordic nRF5 SDK 16.0
-downloads/nRF5SDK160098a08e2.zip:
-	wget --directory-prefix=downloads https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5/Binaries/nRF5SDK160098a08e2.zip
+downloads/nRF5SDK1702d674dde.zip:
+	wget --directory-prefix=downloads https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5/Binaries/nRF5SDK1702d674dde.zip
+
+downloads/boost_1_74_0.zip:
+	wget --directory-prefix=downloads https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.zip
 
 mrproper:
 	rm -rf downloads
-	rm -rf nRF5_SDK_16.0.0_98a08e2
+	rm -rf nRF5_$(NRF_SDK_VERSION)
+	rm -rf boost_$(BOOST_VERSION)
 	rm -rf googletest*

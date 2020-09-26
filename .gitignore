@@ -4,3 +4,5 @@ _checks
 external/downloads
 external/nRF5_SDK_*
 external/googletest*
+external/boost*
+external/nrf_sdk

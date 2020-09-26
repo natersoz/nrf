@@ -55,9 +55,11 @@ static size_t set_advertising_data(ble::gap::advertising_data &data)
 
     size_t length = 0u;
 
+    constexpr uint8_t const le_discovery =
+        static_cast<uint8_t>(ble::gap::le_general_discovery);
     length += ble::gap::ltv_encode(data,
                                    ble::gap::type::flags,
-                                   ble::gap::le_general_discovery);
+                                   le_discovery);
 
     length += ble::gap::ltv_encode(data,
                                    ble::gap::type::local_name_short,

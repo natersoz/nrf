@@ -8,7 +8,7 @@ VERBOSE	?= @
 OBJ_PATH	= _build
 
 # Points to the root of Google Test.
-BOOST_ROOT	= /opt/boost
+BOOST_ROOT	= ../external/boost
 GTEST_DIR	= ../external/googletest/googletest
 
 INCLUDE_PATH     = -I .
@@ -16,7 +16,7 @@ INCLUDE_PATH    += -I ..
 INCLUDE_PATH    += -I ../utility
 INCLUDE_PATH    += -I ../logger
 INCLUDE_PATH    += -I ../nordic/peripherals
-INCLUDE_PATH    += -I $(BOOST_ROOT)/include
+INCLUDE_PATH    += -I $(BOOST_ROOT)
 INCLUDE_PATH    += -I $(GTEST_DIR)/include/gtest
 INCLUDE_PATH    += -I $(GTEST_DIR)/include/gtest/internal
 

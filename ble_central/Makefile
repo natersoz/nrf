@@ -31,7 +31,7 @@ BUILD_PATH = _build
 BUILD_TYPE	?= Debug
 
 # Path to boost installation.
-BOOST_ROOT=/opt/boost
+BOOST_ROOT	= ../external/boost
 
 SOURCE_FILES =
 SOURCE_FILES += ./main.cc
@@ -149,7 +149,7 @@ INCLUDE_PATHS += $(PROJECT_ROOT)/segger
 INCLUDE_PATHS += $(PROJECT_ROOT)/utility
 
 INCLUDE_PATHS += ./config
-INCLUDE_PATHS += $(BOOST_ROOT)/include
+INCLUDE_PATHS += $(BOOST_ROOT)
 
 # Nordic SDK include paths
 
