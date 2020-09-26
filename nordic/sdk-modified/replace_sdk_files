@@ -1,53 +1,78 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Replace Nordic SDK source and header files
 # This script should run from the nrf/notdic/sdk-modified directory
 
 function move_sdk_file() {
-    sdk_file=$1
-	filename=$(basename -- "$sdk_file")
-	extension="${filename##*.}"
-	filename="${filename%.*}"
-	dirname=$(dirname -- "$sdk_file")
+    sdk_target_file=${1}
+    filename=$(basename -- "${sdk_target_file}")
+    extension="${filename##*.}"
+    filename="${filename%.*}"
+    dirname=$(dirname -- "${sdk_target_file}")
 
-	sdk_orig_file=$dirname/$filename.orig.$extension
-	if [ -e $sdk_orig_file ] ; then
-		echo "$sdk_orig_file already exists, $sdk_file unchanged"
-	else
-		mv $sdk_file $dirname/$filename.orig.$extension
-	fi
+    sdk_orig_file=${dirname}/${filename}.orig.${extension}
+    if [ -e ${sdk_orig_file} ] ; then
+        echo "${sdk_orig_file} already exists, ${sdk_target_file} unchanged"
+    else
+        mv -v ${sdk_target_file} ${dirname}/${filename}.orig.${extension}
+    fi
 }
 
 function replace_sdk_file() {
-    sdk_file=$1
-	filename=$(basename -- "$sdk_file")
+    sdk_target_file=${1}
+    sdk_modified_dir=${2}
+    filename=$(basename -- "${sdk_target_file}")
 
-	if [ ! -e $sdk_file ] ; then
-		cp -v ./$filename $sdk_file
-	else
-		echo "$sdk_file already exists, not replaced"
-	fi
+    if [ ! -e ${sdk_target_file} ] ; then
+        echo "cp -v ${sdk_modified_dir}/${filename} ${sdk_target_file}"
+        cp -v ${sdk_modified_dir}/${filename} ${sdk_target_file}
+    else
+        echo "${sdk_target_file} already exists, not replaced"
+    fi
 }
 
-SDK_ROOT=../../sdk
+# The SDK beind manipulated is passed in as param 1
+sdk_target=${1}
+sdk_source=${2}
 
-if [ ! -e $SDK_ROOT ] ; then
-	echo "The nrf/sdk link does not exist"
-	exit 1
+if [ "${1}" == "" ] || [ "${2}" = "" ] ; then
+    echo "usage ${0} <target_sdk_dir> <source_sdk_modified_dir>"
+    exit 1
 fi
 
-sdk_file=$SDK_ROOT/components/libraries/util/nrf_assert.h
-move_sdk_file $sdk_file
+if [ ! -e ${sdk_target} ] ; then
+    echo "The ${sdk_target} does not exist"
+    exit 1
+fi
 
-sdk_file=$SDK_ROOT/components/libraries/util/app_util.h
-move_sdk_file    $sdk_file
-replace_sdk_file $sdk_file
+if [ ! -e ${sdk_source} ] ; then
+    echo "The ${sdk_source} does not exist"
+    exit 1
+fi
 
-# sdk_file=$SDK_ROOT/components/libraries/util/app_error_weak.c
-# move_sdk_file    $sdk_file
-# replace_sdk_file $sdk_file
+echo ""
+echo "----"
+echo "Modifying SDK contents:"
+echo "sdk_source = ${sdk_source}"
+echo "sdk_target = ${sdk_target}"
+echo ""
 
-sdk_file=$SDK_ROOT/components/toolchain/cmsis/include/cmsis_gcc.h
-move_sdk_file    $sdk_file
-replace_sdk_file $sdk_file
+sdk_target_file=${sdk_target}/components/libraries/util/nrf_assert.h
+move_sdk_file ${sdk_target_file}
+
+sdk_target_file=${sdk_target}/components/libraries/util/app_util.h
+move_sdk_file    ${sdk_target_file}
+replace_sdk_file ${sdk_target_file} ${sdk_source}
+
+# sdk_target_file=${sdk_target}/components/libraries/util/app_error_weak.c
+# move_sdk_file    ${sdk_target_file}
+# replace_sdk_file ${sdk_target_file} ${sdk_source}
+
+sdk_target_file=${sdk_target}/components/toolchain/cmsis/include/cmsis_gcc.h
+move_sdk_file    ${sdk_target_file}
+replace_sdk_file ${sdk_target_file} ${sdk_source}
+
+echo ""
+echo "----"
+echo ""
 

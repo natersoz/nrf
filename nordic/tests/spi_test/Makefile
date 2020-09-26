@@ -16,7 +16,7 @@ BUILD_PATH = _build
 BUILD_TYPE	?= Debug
 
 # Path to boot installation.
-BOOST_ROOT=/opt/boost
+BOOST_ROOT	= ../../../external/boost
 
 # It is important to list the more specialized source files first.
 # The ordering of searching for files - especially include files -
@@ -67,7 +67,7 @@ INCLUDE_PATHS += $(PROJECT_ROOT)/segger
 INCLUDE_PATHS += $(PROJECT_ROOT)/utility
 
 INCLUDE_PATHS += ./config
-INCLUDE_PATHS += $(BOOST_ROOT)/include
+INCLUDE_PATHS += $(BOOST_ROOT)
 
 SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/mdk
 SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain
