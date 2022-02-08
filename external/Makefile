@@ -4,9 +4,12 @@
 # Copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 ###
 
+# Uncomment for old SDK versions. Leave commented out for 17.1.0 and later.
+# USE_NRF_OLD_ZIP_NAME := 1
+# NRF_SDK_VERSION      := 17.0.2_d674dde
+
 GTEST_VERSION   := 1.10.0
 BOOST_VERSION   := 1.76.0
-# NRF_SDK_VERSION := 17.0.2_d674dde
 NRF_SDK_VERSION := 17.1.0_ddde560
 
 # Change boost version X.Y.Z => X_Y_Z
@@ -14,8 +17,15 @@ BOOST_VERSION_UNDER := $(shell echo $(BOOST_VERSION) | tr '.' '_')
 
 .PHONY: all mrproper
 
-NRF_SDK              := nRF5_SDK_$(NRF_SDK_VERSION)
-NRF_SDK_ZIP_FILE     := $(NRF_SDK).zip
+NRF_SDK          := nRF5_SDK_$(NRF_SDK_VERSION)
+NRF_SDK_ZIP_NAME := nRF5_SDK_$(NRF_SDK_VERSION)
+
+ifeq ($(USE_NRF_OLD_ZIP_NAME), 1)
+NRF_SDK_ZIP_NAME := $(subst _,,$(NRF_SDK_ZIP_NAME))
+NRF_SDK_ZIP_NAME := $(subst .,,$(NRF_SDK_ZIP_NAME))
+endif
+
+NRF_SDK_ZIP_FILE     := $(NRF_SDK_ZIP_NAME).zip
 NRF_SDK_DOWNLOAD_URL := https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5/Binaries/$(NRF_SDK_ZIP_FILE)
 
 all: downloads nrf_sdk boost googletest
@@ -69,4 +79,5 @@ help:
 	@echo "BOOST_VERSION_UNDER = $(BOOST_VERSION_UNDER)"
 	@echo "GTEST_VERSION       = $(GTEST_VERSION)"
 	@echo "NORDIC_SDK_VERSION  = $(NRF_SDK_VERSION)"
+	@echo "NRF_SDK_ZIP_FILE    = $(NRF_SDK_ZIP_FILE)"
 
