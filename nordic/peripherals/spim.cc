@@ -2,7 +2,7 @@
  * @file spim.c
  * @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
  *
- * Perform transfers from the Noric device acting as a SPI master using DMA.
+ * Perform transfers from the Nordic device acting as a SPI master using DMA.
  */
 
 #include "spim.h"
@@ -15,7 +15,7 @@
 
 #include <iterator>
 
-// Shortening the IRQ naming for readability. Ignore unused varaiable warnings.
+// Shortening the IRQ naming for readability. Ignore unused variable warnings.
 static constexpr IRQn_Type const SPIM0_IRQn = SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn;   // NOLINT (clang-diagnostic-unused-const-variable)
 static constexpr IRQn_Type const SPIM1_IRQn = SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn;   // NOLINT (clang-diagnostic-unused-const-variable)
 static constexpr IRQn_Type const SPIM2_IRQn = SPIM2_SPIS2_SPI2_IRQn;                    // NOLINT (clang-diagnostic-unused-const-variable)
@@ -27,11 +27,11 @@ static constexpr IRQn_Type const SPIM2_IRQn = SPIM2_SPIS2_SPI2_IRQn;            
  * @note The register set for the SPI Masters:
  * + NRF_SPIM_Type: Uses DMA
  * + NRF_SPI_Type : Uses byte-by-byte interrupts
- * are significatly different.
+ * are significantly different.
  * This block is specific to NRF_SPIM_Type, using DMA.
  *
  * @todo understand and describe the tx_length, rx_length usage
- * which guards against the erratta 109 SPIM problem.
+ * which guards against the errata 109 SPIM problem.
  */
 struct spim_control_block_t
 {
@@ -451,4 +451,3 @@ static void irq_handler_spim(struct spim_control_block_t* const spim_control)
         finish_transfer(spim_control);
     }
 }
-

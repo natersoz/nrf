@@ -37,4 +37,3 @@ void log_spim_registers(NRF_SPIM_Type const *spim_registers)
     logger.debug("ORC           : 0x%08x", spim_registers->ORC);
     logger.debug("-----------------");
 }
-

@@ -112,7 +112,7 @@ static char rtt_os_buffer[4096u];
 rtc_observable<> rtc_test_observable(2u, 1u);
 
 /**
- * Use the TIMER2 peripheral as the refernce clock to benchmark tick error
+ * Use the TIMER2 peripheral as the reference clock to benchmark tick error
  * and notification latency for the RTC being used as the DUT.
  */
 static rtc &timer_reference = rtc_1;
@@ -261,4 +261,3 @@ int main()
         logger.flush();
     }
 }
-
