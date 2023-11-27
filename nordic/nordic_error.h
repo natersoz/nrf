@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <system_error>
 
 /**
@@ -26,4 +27,3 @@ std::errc nordic_to_system_error(uint32_t nordic_error);
  *                     the parameter nordic_error.
  */
 char const* nordic_error_string(uint32_t nordic_error);
-

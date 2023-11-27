@@ -5,6 +5,7 @@
 
 #include "format_conversion.h"
 #include <algorithm>
+#include <cstdint>
 
 constexpr char const format_conversion::format_char;
 constexpr std::array<char, 19> const format_conversion::known_conversion_specifiers;
@@ -283,5 +284,3 @@ char const* format_conversion::parse_short_int(short int& value,
 
     return format_iter;
 }
-
-
