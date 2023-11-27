@@ -87,10 +87,15 @@ public:
      * Define a class which can const iterate forward through advertising data.
      * Inherits from less_than_comparable<> to get operators <=, >, >=.
      */
-    class iterator : public std::iterator<std::input_iterator_tag, ltv_data>,
-                     public boost::less_than_comparable<iterator>
+    class iterator : public boost::less_than_comparable<iterator>
     {
     public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type        = ltv_data;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = ltv_data*;
+        using reference         = ltv_data&;
+
         ~iterator()                             = default;
         iterator()                              = default;
         iterator(iterator const&)               = default;
@@ -240,4 +245,3 @@ private:
 
 } // namespace gap
 } // namespace ble
-
