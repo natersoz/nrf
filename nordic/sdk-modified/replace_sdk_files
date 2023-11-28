@@ -1,10 +1,15 @@
 #!/bin/bash
 #
 # Replace Nordic SDK source and header files
-# This script should run from the nrf/notdic/sdk-modified directory
+# This script must be run from the nrf/ directory;
+# not from the nrf/nordic/sdk-modified directory.
 
-function move_sdk_file() {
-    sdk_target_file=${1}
+nrf_sdk=external/nrf_sdk
+
+function copy_sdk_file() {
+    sdk_modified_file=${1}
+    sdk_target_file=${2}
+
     filename=$(basename -- "${sdk_target_file}")
     extension="${filename##*.}"
     filename="${filename%.*}"
@@ -12,67 +17,13 @@ function move_sdk_file() {
 
     sdk_orig_file=${dirname}/${filename}.orig.${extension}
     if [ -e ${sdk_orig_file} ] ; then
-        echo "${sdk_orig_file} already exists, ${sdk_target_file} unchanged"
+        echo "error: ${sdk_orig_file} already exists, copy refused"
     else
         mv -v ${sdk_target_file} ${dirname}/${filename}.orig.${extension}
+        cp -v ${sdk_modified_file} ${sdk_target_file}
     fi
 }
 
-function replace_sdk_file() {
-    sdk_target_file=${1}
-    sdk_modified_dir=${2}
-    filename=$(basename -- "${sdk_target_file}")
-
-    if [ ! -e ${sdk_target_file} ] ; then
-        echo "cp -v ${sdk_modified_dir}/${filename} ${sdk_target_file}"
-        cp -v ${sdk_modified_dir}/${filename} ${sdk_target_file}
-    else
-        echo "${sdk_target_file} already exists, not replaced"
-    fi
-}
-
-# The SDK beind manipulated is passed in as param 1
-sdk_target=${1}
-sdk_source=${2}
-
-if [ "${1}" == "" ] || [ "${2}" = "" ] ; then
-    echo "usage ${0} <target_sdk_dir> <source_sdk_modified_dir>"
-    exit 1
-fi
-
-if [ ! -e ${sdk_target} ] ; then
-    echo "The ${sdk_target} does not exist"
-    exit 1
-fi
-
-if [ ! -e ${sdk_source} ] ; then
-    echo "The ${sdk_source} does not exist"
-    exit 1
-fi
-
-echo ""
-echo "----"
-echo "Modifying SDK contents:"
-echo "sdk_source = ${sdk_source}"
-echo "sdk_target = ${sdk_target}"
-echo ""
-
-sdk_target_file=${sdk_target}/components/libraries/util/nrf_assert.h
-move_sdk_file ${sdk_target_file}
-
-sdk_target_file=${sdk_target}/components/libraries/util/app_util.h
-move_sdk_file    ${sdk_target_file}
-replace_sdk_file ${sdk_target_file} ${sdk_source}
-
-# sdk_target_file=${sdk_target}/components/libraries/util/app_error_weak.c
-# move_sdk_file    ${sdk_target_file}
-# replace_sdk_file ${sdk_target_file} ${sdk_source}
-
-sdk_target_file=${sdk_target}/components/toolchain/cmsis/include/cmsis_gcc.h
-move_sdk_file    ${sdk_target_file}
-replace_sdk_file ${sdk_target_file} ${sdk_source}
-
-echo ""
-echo "----"
-echo ""
-
+sdk_modified_file=nordic/sdk-modified/cmsis_gcc.h
+sdk_target_file=${nrf_sdk}/components/toolchain/cmsis/include/cmsis_gcc.h
+copy_sdk_file ${sdk_modified_file} ${sdk_target_file}

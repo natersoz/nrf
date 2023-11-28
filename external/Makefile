@@ -39,7 +39,9 @@ downloads:
 $(NRF_SDK): downloads/$(NRF_SDK_ZIP_FILE)
 	unzip $^
 	touch $@
-	mv $@/components/libraries/util/nrf_assert.h $@/components/libraries/util/nrf_assert.orig.h
+	mv -v $@/components/libraries/util/nrf_assert.h         $@/components/libraries/util/nrf_assert.orig.h
+	mv -v $@/components/toolchain/cmsis/include/cmsis_gcc.h $@/components/toolchain/cmsis/include/cmsis_gcc.orig.h
+	cp ../nordic/sdk-modified/cmsis_gcc.h                   $@/components/toolchain/cmsis/include/cmsis_gcc.h
 
 nrf_sdk : $(NRF_SDK)
 	ln -sfv $^ $@
@@ -80,4 +82,3 @@ help:
 	@echo "GTEST_VERSION       = $(GTEST_VERSION)"
 	@echo "NORDIC_SDK_VERSION  = $(NRF_SDK_VERSION)"
 	@echo "NRF_SDK_ZIP_FILE    = $(NRF_SDK_ZIP_FILE)"
-
