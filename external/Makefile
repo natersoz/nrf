@@ -15,7 +15,7 @@ NRF_SDK_VERSION := 17.1.0_ddde560
 # Change boost version X.Y.Z => X_Y_Z
 BOOST_VERSION_UNDER := $(shell echo $(BOOST_VERSION) | tr '.' '_')
 
-.PHONY: all mrproper
+.PHONY: all scrub
 
 NRF_SDK          := nRF5_SDK_$(NRF_SDK_VERSION)
 NRF_SDK_ZIP_NAME := nRF5_SDK_$(NRF_SDK_VERSION)
@@ -70,7 +70,7 @@ downloads/$(NRF_SDK_ZIP_FILE):
 downloads/boost_$(BOOST_VERSION_UNDER).zip:
 	wget --directory-prefix=downloads https://boostorg.jfrog.io/artifactory/main/release/$(BOOST_VERSION)/source/boost_$(BOOST_VERSION_UNDER).zip
 
-mrproper:
+scrub:
 	rm -rf downloads
 	rm -rf nRF5_$(NRF_SDK_VERSION)
 	rm -rf boost_$(BOOST_VERSION_UNDER)

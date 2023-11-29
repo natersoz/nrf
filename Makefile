@@ -10,7 +10,7 @@ MAKE_JOBS := -j
 sub_make_files	= $(shell find . -maxdepth 2 -name Makefile -not \( -wholename ./Makefile -or -wholename ./external/Makefile \))
 sub_make_dirs	= $(patsubst %/Makefile,%,$(sub_make_files))
 
-.PHONY:  all relink clean mrproper info
+.PHONY:  all relink clean scrub info
 
 all:
 	make -C external
@@ -48,7 +48,7 @@ clean:
 	done
 	make -C nordic/tests $@
 
-mrproper:
+scrub: clean
 	make -C external $@
 
 info:
@@ -56,4 +56,3 @@ info:
 	@printf "sub_make_dirs         = $(sub_make_dirs)\n"
 	@printf "NUMBER_OF_PROCESSORS  = $(NUMBER_OF_PROCESSORS)\n"
 	@printf "MAKE_JOBS             = $(MAKE_JOBS)\n"
-
