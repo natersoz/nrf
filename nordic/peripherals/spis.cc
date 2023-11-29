@@ -22,6 +22,7 @@
 #include <array>
 #include <iterator>
 #include <limits>
+#include <utility>
 
 #if defined (NRF52840_XXAA)
 static constexpr size_t const max_dma_length = std::numeric_limits<uint16_t>::max();
