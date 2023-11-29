@@ -43,7 +43,7 @@ LINKER_SCRIPT	?= $(TARGET_NAME).ld
 # This will change with the version of compiler being used.
 ###
 GNU_PREFIX	:= arm-none-eabi
-GNU_GCC_ROOT	:= /opt/gcc-$(GNU_PREFIX)
+GNU_GCC_ROOT	:= /opt/gcc-$(GNU_PREFIX)/$(GNU_PREFIX)
 
 ###
 # GCC Toolchain commands
@@ -313,4 +313,3 @@ arm-gcc-info:
 
 
 -include $(DEPEND_FILES)
-

@@ -1,20 +1,20 @@
 Building the projects
 =====================
 
-[ARM GCC toolchain](https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads)
+[Arm GNU Toolchain](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain)
 -------------------
 + Adjust the nrf/make_fules/arm_gcc_rules.mak file by setting the
 `GNU_GCC_ROOT` symbol.
 
-		I'm using gcc-arm-none-eabi-7-2018-q2-update installed:
-		/opt/gcc-arm-none-eabi-7-2018-q2-update
-		A symlink /opt/gcc-arm-none-eabi -> gcc-arm-none-eabi-7-2018-q2-update
+		I'm using [Version 13.2.Rel1](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) referenced via a symlink:
+		/opt/gcc-arm-none-eabi-13.2.Rel1
+		A symlink /opt/gcc-arm-none-eabi -> gcc-arm-none-eabi-13.2.Rel1
 
 		Using this installation requires no modification to the make rules.
 
 + An alias for `gdb` is helpful. Something like:
 
-  `alias gdb-arm='/opt/gcc-arm-none-eabi/bin/arm-none-eabi-gdb --quiet'`
+  `alias gdb-arm='/opt/gcc-arm-none-eabi/arm-none-eabi/bin/arm-none-eabi-gdb --quiet'`
 
 [Boost Libraries](https://www.boost.org/)
 -----------------
