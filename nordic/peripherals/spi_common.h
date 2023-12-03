@@ -64,20 +64,20 @@ enum spi_mode_t
 {
     /// SCK active high, sample on leading edge of clock.
     /// CPOL = 0, CPHA = 0
-    spi_mode_0 = (spi_cpol_0 | spi_cpha_0),
+    spi_mode_0 = ((uint8_t)spi_cpol_0 | (uint8_t)spi_cpha_0),
 
     ///< SCK active high, sample on trailing edge of clock.
     /// CPOL = 0, CPHA = 1
-    spi_mode_1 = (spi_cpol_0 | spi_cpha_1),
+    spi_mode_1 = ((uint8_t)spi_cpol_0 | (uint8_t)spi_cpha_1),
 
     ///< SCK active low, sample on leading edge of clock.
     /// CPOL = 1, CPHA = 0
-    spi_mode_2 = (spi_cpol_1 | spi_cpha_0),
+    spi_mode_2 = ((uint8_t)spi_cpol_1 | (uint8_t)spi_cpha_0),
 
     ///< SCK active low, sample on trailing edge of clock.
     /// CPOL = 1, CPHA = 1
-    spi_mode_3 = (spi_cpol_1 | spi_cpha_1)
-} ;
+    spi_mode_3 = ((uint8_t)spi_cpol_1 | (uint8_t)spi_cpha_1)
+};
 
 /**
  * @brief SPI bit shift ordering.
@@ -180,4 +180,3 @@ typedef void (* spi_event_handler_t) (struct spi_event_t const* event,
 #ifdef __cplusplus
 }
 #endif
-

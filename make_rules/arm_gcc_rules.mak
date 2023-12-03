@@ -139,9 +139,9 @@ CFLAGS += -g3
 
 ###
 # GNU C++ Language compiler options
-# Using gnu++17 instead of c++17 so that strnlen() works.
+# Using gnu++XX instead of c++XX so that strnlen() works.
 ###
-CXXFLAGS += -std=gnu++17
+CXXFLAGS += -std=gnu++20
 CXXFLAGS += -nostdlib
 CXXFLAGS += $(WARNING_FLAGS)
 CXXFLAGS += $(GCC_FLAGS)
