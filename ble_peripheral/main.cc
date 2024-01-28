@@ -23,7 +23,6 @@ static char rtt_os_buffer[4096u];
 
 int main(void)
 {
-    stack_fill(0xabcd1234);
     lfclk_enable(LFCLK_SOURCE_XO);
 
     rtc_observable<> rtc_1(1u, 32u);
@@ -64,4 +63,3 @@ int main(void)
         }
     }
 }
-

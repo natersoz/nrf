@@ -66,7 +66,6 @@ static void free_lists_alloc(ble::gattc::service_builder &service_builder)
 
 int main(void)
 {
-    stack_fill(0xabcd1234);
     lfclk_enable(LFCLK_SOURCE_XO);
 
     rtc_observable<> rtc_1(1u, 32u);
@@ -185,4 +184,3 @@ int main(void)
         }
     }
 }
-
