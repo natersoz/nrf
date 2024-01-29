@@ -9,7 +9,7 @@
 # NRF_SDK_VERSION      := 17.0.2_d674dde
 
 GTEST_VERSION   := 1.10.0
-BOOST_VERSION   := 1.76.0
+BOOST_VERSION   := 1.84.0
 NRF_SDK_VERSION := 17.1.0_ddde560
 
 # Change boost version X.Y.Z => X_Y_Z
