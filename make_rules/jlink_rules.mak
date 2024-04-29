@@ -5,11 +5,11 @@
 #
 # Parameters:
 #	BUILD_PATH	_build	The build output directory
-#	TARGET_NAME		The binary file (elf) name,
-#				determines the name of the .hex and .out files.
+#	TARGET_NAME The binary file (elf) name,
+#	            determines the name of the .hex and .out files.
 #	SDK_ROOT
-#	SOFT_DEVICE	s132	The nRF52 Softdevice
-#	NORDIC_DEVICE	NRF52	The NRF5x device name - for now only NRF52.
+#	SOFT_DEVICE	    s132    The nRF52 Softdevice
+#	NORDIC_DEVICE   NRF52   The NRF5x device name - for now only NRF52.
 #
 # Use target jlink-help for usage.
 ###
@@ -18,36 +18,36 @@
 OS_NAME				= $(shell 'uname')
 
 # By default do not print out the toolchain details.
-VERBOSE				?= @
+VERBOSE             ?= @
 
-NORDIC_DEVICE			?= NRF52
-GDB_PORT			?= 2331
-SWO_PORT			?= 2332
-TELNET_PORT			?= 2333
-RTT_PORT			?= 2334
+NORDIC_DEVICE       ?= NRF52
+GDB_PORT            ?= 2331
+SWO_PORT            ?= 2332
+TELNET_PORT         ?= 2333
+RTT_PORT            ?= 2334
 
-SOFT_DEVICE			?= s132
-SOFT_DEVICE_PATH		:= $(SDK_ROOT)/components/softdevice/$(SOFT_DEVICE)/hex
-SOFT_DEVICE_HEX_FILE		:= $(shell find -L $(SOFT_DEVICE_PATH) -iname '*.hex')
-SWD_SPEED			:= 96000
+SOFT_DEVICE             ?= s132
+SOFT_DEVICE_PATH        := $(SDK_ROOT)/components/softdevice/$(SOFT_DEVICE)/hex
+SOFT_DEVICE_HEX_FILE    := $(shell find -L $(SOFT_DEVICE_PATH) -iname '*.hex')
+SWD_SPEED               := 96000
 
 ###
 # Writing to FLASH is controlled via the Nordic Non-volatile Memory Controller (NVMC).
 # See Product specification,  Chapter 11 NVMC http://infocenter.nordicsemi.com/index.jsp
 # Nordic CONFIG, ERASEALLm ERASEUICR registers.
 ###
-NVMC_REG_CONFIG			:= 0x4001e504
-NVMC_REG_CONFIG_REN		:= 0
-NVMC_REG_CONFIG_WEN		:= 1
-NVMC_REG_CONFIG_EEN		:= 2
+NVMC_REG_CONFIG         := 0x4001e504
+NVMC_REG_CONFIG_REN     := 0
+NVMC_REG_CONFIG_WEN     := 1
+NVMC_REG_CONFIG_EEN     := 2
 
-NVMC_REG_ERASEALL		:= 0x4001e50c
-NVMC_REG_ERASEALL_NOOP 		:= 1
-NVMC_REG_ERASEALL_ERASE		:= 1
+NVMC_REG_ERASEALL       := 0x4001e50c
+NVMC_REG_ERASEALL_NOOP  := 1
+NVMC_REG_ERASEALL_ERASE := 1
 
-NVMC_REG_ERASEUICR		:= 0x4001e514
-NVMC_REG_ERASEUICR_NOOP 	:= 1
-NVMC_REG_ERASEUICR_ERASE	:= 1
+NVMC_REG_ERASEUICR          := 0x4001e514
+NVMC_REG_ERASEUICR_NOOP     := 1
+NVMC_REG_ERASEUICR_ERASE    := 1
 
 ###
 # OS specific JLink installation.
@@ -77,34 +77,38 @@ ifneq (,$(findstring CYGWIN,$(OS_NAME)))
 endif
 
 ###
-# Segger Toolchain commands
+# Options common with JLink and JLinkGDBServerCLExe
 ###
-JLINK_OPTS	+= -device $(NORDIC_DEVICE)
-JLINK_OPTS	+= -if swd
-JLINK_OPTS	+= -speed $(SWD_SPEED)
+JLINK_COMMON_OPTS	+= -device $(NORDIC_DEVICE)
+JLINK_COMMON_OPTS	+= -if swd
+JLINK_COMMON_OPTS	+= -speed $(SWD_SPEED)
 
 ###
 # Segger GDB Server
 # -vd			Verify download data.
 # -ir			Initialize CPU registers on start.
-# -localhostonly	1: Allow locahost connections only.
-#			0: Allow remote   connections.
+# -localhostonly 1: Allow locahost connections only.
+#                0: Allow remote   connections.
 # -strict		Exit on invalid parameters in start
 ###
-JLINK_GDB_OPTS	+= -endian little
-JLINK_GDB_OPTS	+= -port $(GDB_PORT)
-JLINK_GDB_OPTS	+= -swoport $(SWO_PORT)
-JLINK_GDB_OPTS	+= -telnetport $(TELNET_PORT)
-JLINK_GDB_OPTS  += -rtttelnetport $(RTT_PORT)
-JLINK_GDB_OPTS	+= -vd
-JLINK_GDB_OPTS	+= -noir
-JLINK_GDB_OPTS	+= -localhostonly 1
-JLINK_GDB_OPTS	+= -strict
-JLINK_GDB_OPTS	+= -timeout 0
+JLINK_GDB_OPTS += $(JLINK_COMMON_OPTS)
+JLINK_GDB_OPTS += -endian little
+JLINK_GDB_OPTS += -port $(GDB_PORT)
+JLINK_GDB_OPTS += -swoport $(SWO_PORT)
+JLINK_GDB_OPTS += -telnetport $(TELNET_PORT)
+JLINK_GDB_OPTS += -rtttelnetport $(RTT_PORT)
+JLINK_GDB_OPTS += -vd
+JLINK_GDB_OPTS += -noir
+JLINK_GDB_OPTS += -localhostonly 1
+JLINK_GDB_OPTS += -strict
+JLINK_GDB_OPTS += -timeout 0
+
+JLINK_OPTS     += $(JLINK_COMMON_OPTS)
 
 # If SEGGER_SN is defined then use it to specify the dev kit board to connect to.
 ifneq (,$(SEGGER_SN))
-JLINK_GDB_OPTS	+= -select USB=$(SEGGER_SN)
+JLINK_GDB_OPTS += -select USB=$(SEGGER_SN)
+JLINK_OPTS     += -USB $(SEGGER_SN)
 endif
 
 ###
@@ -119,7 +123,7 @@ JLINK_RTT_OPTS  += -rtttelnetport $(RTT_PORT)
 # want to attach to the debugger without resetting the target.
 ###
 gdb-server:
-	$(SUDO) $(JLINK_GDB_SERVER) $(JLINK_OPTS) $(JLINK_GDB_OPTS)
+	$(SUDO) $(JLINK_GDB_SERVER) $(JLINK_GDB_OPTS)
 
 ###
 # rttc does not have any dependencies. Just run it using the correct port.
