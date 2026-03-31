@@ -17,8 +17,7 @@ INCLUDE_PATH    += -I ../utility
 INCLUDE_PATH    += -I ../logger
 INCLUDE_PATH    += -I ../nordic/peripherals
 INCLUDE_PATH    += -I $(BOOST_ROOT)
-INCLUDE_PATH    += -I $(GTEST_DIR)/include/gtest
-INCLUDE_PATH    += -I $(GTEST_DIR)/include/gtest/internal
+INCLUDE_PATH    += -I $(GTEST_DIR)/include
 
 vpath %.cc .
 vpath %.cc ../utility
@@ -147,4 +146,3 @@ $(OBJ_PATH)/%.o : %.c
 
 
 -include $(DEPS)
-
