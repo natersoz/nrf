@@ -49,6 +49,9 @@ namespace att
  */
 struct uuid: public boost::uuids::uuid
 {
+    using super = boost::uuids::uuid;
+    using super::super;
+
     ~uuid() = default;
 
     /** The default ctor fills the uuid with zeroes. */
@@ -76,13 +79,6 @@ struct uuid: public boost::uuids::uuid
     uuid(ble::gatt::characteristic_type characteristic_type);
     uuid(ble::gatt::service_type        service_type);
     uuid(ble::gatt::units_type          units_type);
-
-    /**
-     * Create a ble::att::uuid from an array of 16 bytes.
-     * The expected length of the uuid_bytes is not (caonnot) be checked.
-     * @note This ctor performs a little->big endian conversion.
-     */
-    uuid(uint8_t const* uuid_bytes);
 
     uuid(uuid const&)               = default;
     uuid(uuid &&)                   = default;
