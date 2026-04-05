@@ -319,7 +319,7 @@ static bool spis_regs_in_use(struct spis_control_block_t const *spis_control)
     return bool(spis_control->spis_registers->ENABLE & SPIS_ENABLE_ENABLE_Msk);
 }
 
-static struct spis_control_block_t* const spis_control_block(spi_port_t spi_port)
+static struct spis_control_block_t* spis_control_block(spi_port_t spi_port)
 {
     if (spi_port < std::size(spis_instances))
     {
@@ -646,6 +646,8 @@ static void irq_handler_spis(spis_control_block_t* spis_control)
 static void gpio_te_pin_event_handler(gpio_te_channel_t gpio_te_channel,
                                       void*             context)
 {
+    (void)gpio_te_channel;
+    (void)context;
     // This function does nothing other than provide the work around for
     // DMA anomaly 109. Provide debug output to check if the workaround is
     // enabled and working.

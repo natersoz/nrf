@@ -43,6 +43,7 @@ void log_address(logger::level log_level, ble_gap_addr_t const &addr)
 void log_connection_parameters(logger::level                log_level,
                                ble_gap_conn_params_t const& conn_params)
 {
+    (void)log_level;
     logger::instance().debug(
         "connection parameters: interval (min: %u, max: %u), latency: %u, timeout: %u",
         conn_params.min_conn_interval,
@@ -54,6 +55,7 @@ void log_connection_parameters(logger::level                log_level,
 void log_scan_parameters(logger::level                log_level,
                          ble_gap_scan_params_t const& scan_params)
 {
+    (void)log_level;
     logger::instance().debug(
         "scan parameters: interval: %u, window: %u, timeout: %u",
         scan_params.interval,

@@ -24,7 +24,7 @@ namespace gatts
  *
  * @todo authorization_required parameter needs to be properly handled.
  */
-void event_observer::write(uint16_t            conection_handle,
+void event_observer::write(uint16_t            connection_handle,
                            uint16_t            attribute_handle,
                            att::op_code        write_operation_type,
                            bool                authorization_required,
@@ -32,22 +32,23 @@ void event_observer::write(uint16_t            conection_handle,
                            att::length_t       length,
                            void const*         data)
 {
+    (void)authorization_required;
     logger& logger = logger::instance();
 
-    ble::profile::connectable* connectable = this->get_connecteable();
+    ble::profile::connectable* connectable = this->get_connectable();
     if (not connectable)
     {
         ASSERT(0);
         return;
     }
 
-    if (connectable->connection().get_connection_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != connection_handle)
     {
         /// This GATTS request is from a different connection.
         /// @todo Is it normal for this connection to get notified of other
         /// connection events? Not sure at this point; warn for now:
         logger.warn("GATTS write(0x%04x, 0x%04x): wrong connection handle",
-                    conection_handle, attribute_handle);
+                    connection_handle, attribute_handle);
         return;
     }
 
@@ -56,14 +57,14 @@ void event_observer::write(uint16_t            conection_handle,
     if (not characteristic)
     {
         logger.warn("GATTS write(0x%04x, 0x%04x): invalid handle",
-                    conection_handle, attribute_handle);
+                    connection_handle, attribute_handle);
         return;
     }
 
     if (not characteristic->decl.properties.is_writable())
     {
         logger.warn("GATTS write(0x%04x, 0x%04x): not writeable",
-                    conection_handle, attribute_handle);
+                    connection_handle, attribute_handle);
     }
 
     ble::att::length_t const written = characteristic->write(
@@ -72,12 +73,12 @@ void event_observer::write(uint16_t            conection_handle,
     if (written != length)
     {
         logger.warn("GATTS write(0x%04x, 0x%04x): write length: %u / %u",
-                    conection_handle, attribute_handle, written, length);
+                    connection_handle, attribute_handle, written, length);
     }
 }
 
 // BLE_GATTS_EVT_WRITE
-void event_observer::write_cancel(uint16_t          conection_handle,
+void event_observer::write_cancel(uint16_t          connection_handle,
                                   uint16_t          attribute_handle,
                                   att::op_code      write_operation_type,
                                   bool              authorization_required,
@@ -85,14 +86,20 @@ void event_observer::write_cancel(uint16_t          conection_handle,
                                   att::length_t     length,
                                   void const*       data)
 {
-    ble::profile::connectable* connectable = this->get_connecteable();
+    (void)attribute_handle;
+    (void)write_operation_type;
+    (void)authorization_required;
+    (void)offset;
+    (void)length;
+    (void)data;
+    ble::profile::connectable* connectable = this->get_connectable();
     if (not connectable)
     {
         ASSERT(0);
         return;
     }
 
-    if (connectable->connection().get_connection_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != connection_handle)
     {
         // This GATTS request is from a different connection.
         return;
@@ -102,18 +109,20 @@ void event_observer::write_cancel(uint16_t          conection_handle,
 }
 
 // BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST
-void event_observer::read_authorization_request(uint16_t      conection_handle,
+void event_observer::read_authorization_request(uint16_t      connection_handle,
                                                 uint16_t      attribute_handle,
                                                 att::length_t offset)
 {
-    ble::profile::connectable* connectable = this->get_connecteable();
+    (void)attribute_handle;
+    (void)offset;
+    ble::profile::connectable* connectable = this->get_connectable();
     if (not connectable)
     {
         ASSERT(0);
         return;
     }
 
-    if (connectable->connection().get_connection_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != connection_handle)
     {
         // This GATTS request is from a different connection.
         return;
@@ -123,7 +132,7 @@ void event_observer::read_authorization_request(uint16_t      conection_handle,
 }
 
 // BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST
-void event_observer::write_authorization_request(uint16_t      conection_handle,
+void event_observer::write_authorization_request(uint16_t      connection_handle,
                                                  uint16_t      attribute_handle,
                                                  att::op_code  write_operation_type,
                                                  bool          authorization_required,
@@ -131,14 +140,21 @@ void event_observer::write_authorization_request(uint16_t      conection_handle,
                                                  att::length_t length,
                                                  void const*   data)
 {
-    ble::profile::connectable* connectable = this->get_connecteable();
+    (void)attribute_handle;
+    (void)write_operation_type;
+    (void)authorization_required;
+    (void)offset;
+    (void)length;
+    (void)data;
+
+    ble::profile::connectable* connectable = this->get_connectable();
     if (not connectable)
     {
         ASSERT(0);
         return;
     }
 
-    if (connectable->connection().get_connection_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != connection_handle)
     {
         // This GATTS request is from a different connection.
         return;
@@ -148,14 +164,17 @@ void event_observer::write_authorization_request(uint16_t      conection_handle,
 }
 
 // BLE_GATTS_EVT_SC_CONFIRM
-void event_observer::service_change_confirmation(uint16_t conection_handle)
+void event_observer::service_change_confirmation(uint16_t connection_handle)
 {
+    (void)connection_handle;
 }
 
 // BLE_GATTS_EVT_HVC
-void event_observer::handle_value_confirmation(uint16_t conection_handle,
+void event_observer::handle_value_confirmation(uint16_t connection_handle,
                                                uint16_t attribute_handle)
 {
+    (void)connection_handle;
+    (void)attribute_handle;
 }
 
 /**
@@ -165,17 +184,17 @@ void event_observer::handle_value_confirmation(uint16_t conection_handle,
  *
  * By default, accept the central's MTU request.
  */
-void event_observer::exchange_mtu_request(uint16_t      conection_handle,
+void event_observer::exchange_mtu_request(uint16_t      connection_handle,
                                           att::length_t client_rx_mtu_size)
 {
-    ble::profile::connectable* connectable = this->get_connecteable();
+    ble::profile::connectable* connectable = this->get_connectable();
     if (not connectable)
     {
         ASSERT(0);
         return;
     }
 
-    if (connectable->connection().get_connection_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != connection_handle)
     {
         // This GATTS request is from a different connection.
         return;
@@ -187,50 +206,49 @@ void event_observer::exchange_mtu_request(uint16_t      conection_handle,
     client_rx_mtu_size = std::min(client_rx_mtu_size, att_mtu_length_maximum);
     client_rx_mtu_size = std::max(client_rx_mtu_size, att::mtu_length_minimum);
 
-    connectable->gatts()->exchange_mtu_reply(conection_handle, client_rx_mtu_size);
+    connectable->gatts()->exchange_mtu_reply(connection_handle, client_rx_mtu_size);
 }
 
 // BLE_GATTS_EVT_TIMEOUT, // always BLE_GATT_TIMEOUT_SRC_PROTOCOL (0)
-void event_observer::timeout(uint16_t conection_handle, uint8_t timeout_source)
+void event_observer::timeout(uint16_t connection_handle, uint8_t timeout_source)
 {
-    ble::profile::connectable* connectable = this->get_connecteable();
+    ble::profile::connectable* connectable = this->get_connectable();
     if (not connectable)
     {
         ASSERT(0);
         return;
     }
 
-    if (connectable->connection().get_connection_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != connection_handle)
     {
         // This GATTS request is from a different connection.
         return;
     }
 
     /// @todo implementation
-
+    (void)timeout_source;
 }
 
 // BLE_GATTS_EVT_HVN_TX_COMPLETE
-void event_observer::handle_value_notifications_tx_completed(uint16_t conection_handle,
+void event_observer::handle_value_notifications_tx_completed(uint16_t connection_handle,
                                                              uint8_t  count)
 {
-    ble::profile::connectable* connectable = this->get_connecteable();
+    ble::profile::connectable* connectable = this->get_connectable();
     if (not connectable)
     {
         ASSERT(0);
         return;
     }
 
-    if (connectable->connection().get_connection_handle() != conection_handle)
+    if (connectable->connection().get_connection_handle() != connection_handle)
     {
         // This GATTS request is from a different connection.
         return;
     }
 
     /// @todo implementation
-
+    (void)count;
 }
 
 } // namespace gatts
 } // namespace ble
-

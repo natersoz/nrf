@@ -41,6 +41,8 @@ static timer_gpio_te timer_gpio_te(timer_test_observable.msec_to_ticks(500u));
 
 static void gpio_te_port_event_handler(uint32_t latched, void* context)
 {
+    (void)latched;
+    (void)context;
     logger &logger = logger::instance();
     logger.debug("GPIO PORT event");
 }
@@ -146,4 +148,3 @@ int main()
         logger.flush();
     }
 }
-

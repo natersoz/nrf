@@ -83,6 +83,7 @@ static void mem_fill_ramp(void *buffer,
 
 static void twis_event_handler(struct twis_event_t const *event, void* context)
 {
+    (void)context;
     logger &logger = logger::instance();
     uint32_t type_bits = event->type;
 
@@ -201,6 +202,7 @@ static void twim_start_read()
 
 static void twim_event_handler(struct twim_event_t const* event, void* context)
 {
+    (void)context;
     logger &logger = logger::instance();
     uint32_t type_bits = event->type;
 
@@ -403,4 +405,3 @@ int main()
         logger.flush();
     }
 }
-

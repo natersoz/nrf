@@ -177,7 +177,7 @@ static bool spim_regs_in_use(struct spim_control_block_t const *spim_control)
     return bool(spim_control->spim_registers->ENABLE & SPIM_ENABLE_ENABLE_Msk);
 }
 
-static struct spim_control_block_t* const spim_control_block(spi_port_t spi_port)
+static struct spim_control_block_t* spim_control_block(spi_port_t spi_port)
 {
     if (spi_port < std::size(spim_instances))
     {

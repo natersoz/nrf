@@ -18,14 +18,14 @@ ble_gattc_observer::ble_gattc_observer() :
 }
 
 void ble_gattc_observer::read_characteristic_by_uuid_response(
-    uint16_t                    conection_handle,
+    uint16_t                    connection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
     uint16_t                    characteristic_handle,
     void const*                 data,
     ble::att::length_t          length)
 {
-    super::read_characteristic_by_uuid_response(conection_handle,
+    super::read_characteristic_by_uuid_response(connection_handle,
                                                 error_code,
                                                 error_handle,
                                                 characteristic_handle,
@@ -34,7 +34,7 @@ void ble_gattc_observer::read_characteristic_by_uuid_response(
 }
 
 void ble_gattc_observer::read_response(
-    uint16_t                    conection_handle,
+    uint16_t                    connection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
     uint16_t                    attribute_handle,
@@ -42,7 +42,7 @@ void ble_gattc_observer::read_response(
     ble::att::length_t          offset,
     ble::att::length_t          length)
 {
-    super::read_response(conection_handle,
+    super::read_response(connection_handle,
                          error_code,
                          error_handle,
                          attribute_handle,
@@ -52,13 +52,13 @@ void ble_gattc_observer::read_response(
 }
 
 void ble_gattc_observer::read_multi_response(
-    uint16_t                    conection_handle,
+    uint16_t                    connection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
     void const*                 data,
     ble::att::length_t          length)
 {
-    super::read_multi_response(conection_handle,
+    super::read_multi_response(connection_handle,
                                error_code,
                                error_handle,
                                data,
@@ -66,7 +66,7 @@ void ble_gattc_observer::read_multi_response(
 }
 
 void ble_gattc_observer::write_response(
-    uint16_t                    conection_handle,
+    uint16_t                    connection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
     ble::att::op_code           write_op_code,
@@ -75,7 +75,7 @@ void ble_gattc_observer::write_response(
     ble::att::length_t          offset,
     ble::att::length_t          length)
 {
-    super::write_response(conection_handle,
+    super::write_response(connection_handle,
                           error_code,
                           error_handle,
                           write_op_code,
@@ -86,14 +86,14 @@ void ble_gattc_observer::write_response(
 }
 
 void ble_gattc_observer::handle_notification(
-    uint16_t                    conection_handle,
+    uint16_t                    connection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
     uint16_t                    attribute_handle,
     void const*                 data,
     ble::att::length_t          length)
 {
-    super::handle_notification(conection_handle,
+    super::handle_notification(connection_handle,
                                error_code,
                                error_handle,
                                attribute_handle,
@@ -102,14 +102,14 @@ void ble_gattc_observer::handle_notification(
 }
 
 void ble_gattc_observer::handle_indication(
-    uint16_t                    conection_handle,
+    uint16_t                    connection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
     uint16_t                    attribute_handle,
     void const*                 data,
     ble::att::length_t          length)
 {
-    super::handle_indication(conection_handle,
+    super::handle_indication(connection_handle,
                              error_code,
                              error_handle,
                              attribute_handle,
@@ -118,37 +118,37 @@ void ble_gattc_observer::handle_indication(
 }
 
 void ble_gattc_observer::exchange_mtu_response(
-    uint16_t                    conection_handle,
+    uint16_t                    connection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
     uint16_t                    server_rx_mtu_size)
 {
-    super::exchange_mtu_response(conection_handle,
+    super::exchange_mtu_response(connection_handle,
                                  error_code,
                                  error_handle,
                                  server_rx_mtu_size);
 
-    ble::gap::connection &gap_connection = this->get_connecteable()->connection();
+    ble::gap::connection &gap_connection = this->get_connectable()->connection();
     gap_connection.get_negotiation_state().set_gatt_mtu_exchange_pending(false);
 }
 
 void ble_gattc_observer::timeout(
-    uint16_t                    conection_handle,
+    uint16_t                    connection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle)
 {
-    super::timeout(conection_handle,
+    super::timeout(connection_handle,
                    error_code,
                    error_handle);
 }
 
 void ble_gattc_observer::write_command_tx_completed(
-    uint16_t                    conection_handle,
+    uint16_t                    connection_handle,
     ble::att::error_code        error_code,
     uint16_t                    error_handle,
     uint8_t                     count)
 {
-    super::write_command_tx_completed(conection_handle,
+    super::write_command_tx_completed(connection_handle,
                                       error_code,
                                       error_handle,
                                       count);

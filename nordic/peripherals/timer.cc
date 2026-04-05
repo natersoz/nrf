@@ -131,7 +131,7 @@ static uint32_t const hfclk_frequency_Hz = 16000000;
 /// The prescaler divides the 16 MHz HFCLK / 2 ^ prescaler.
 static uint8_t const prescaler_exp_max = 9u;
 
-static struct timer_control_block_t* const timer_control_block(timer_instance_t timer_instance)
+static struct timer_control_block_t* timer_control_block(timer_instance_t timer_instance)
 {
     if (timer_instance < std::size(timer_instances))
     {
@@ -404,4 +404,3 @@ uint32_t timer::msec_to_ticks(uint32_t msec) const
     msec64 /= 1000u;
     return static_cast<uint32_t>(msec64);
 }
-

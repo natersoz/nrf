@@ -36,7 +36,15 @@ public:
         uint16_t                    characteristic_handle,
         void const*                 data,
         ble::att::length_t          length
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)error_code;
+            (void)error_handle;
+            (void)characteristic_handle;
+            (void)data;
+            (void)length;
+        }
 
     virtual void read_response(
         uint16_t                    connection_handle,
@@ -46,7 +54,16 @@ public:
         void const*                 data,
         ble::att::length_t          offset,
         ble::att::length_t          length
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)error_code;
+            (void)error_handle;
+            (void)attribute_handle;
+            (void)data;
+            (void)offset;
+            (void)length;
+        }
 
     virtual void read_multi_response(
         uint16_t                    connection_handle,
@@ -54,7 +71,14 @@ public:
         uint16_t                    error_handle,
         void const*                 data,
         ble::att::length_t          length
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)error_code;
+            (void)error_handle;
+            (void)data;
+            (void)length;
+        }
 
     virtual void write_response(
         uint16_t                    connection_handle,
@@ -65,7 +89,17 @@ public:
         void const*                 data,
         ble::att::length_t          offset,
         ble::att::length_t          length
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)error_code;
+            (void)error_handle;
+            (void)write_op_code;
+            (void)attribute_handle;
+            (void)data;
+            (void)offset;
+            (void)length;
+        }
 
     virtual void handle_notification(
         uint16_t                    connection_handle,
@@ -74,7 +108,15 @@ public:
         uint16_t                    attribute_handle,
         void const*                 data,
         ble::att::length_t          length
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)error_code;
+            (void)error_handle;
+            (void)attribute_handle;
+            (void)data;
+            (void)length;
+        }
 
     virtual void handle_indication(
         uint16_t                    connection_handle,
@@ -83,29 +125,53 @@ public:
         uint16_t                    attribute_handle,
         void const*                 data,
         ble::att::length_t          length
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)error_code;
+            (void)error_handle;
+            (void)attribute_handle;
+            (void)data;
+            (void)length;
+        }
 
     virtual void exchange_mtu_response(
         uint16_t                    connection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
         uint16_t                    server_rx_mtu_size
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)error_code;
+            (void)error_handle;
+            (void)server_rx_mtu_size;
+        }
 
     virtual void timeout(
         uint16_t                    connection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)error_code;
+            (void)error_handle;
+        }
 
     virtual void write_command_tx_completed(
         uint16_t                    connection_handle,
         ble::att::error_code        error_code,
         uint16_t                    error_handle,
         uint8_t                     count
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)error_code;
+            (void)error_handle;
+            (void)count;
+        }
 };
 
 } // namespace gattc
 } // namespace ble
-

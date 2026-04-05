@@ -17,6 +17,15 @@
 #include <exception>
 #include <boost/circular_buffer.hpp>
 
+/// If boost throws an exception, it will be caught here.
+namespace boost {
+    void throw_exception(std::exception const& e) {
+        (void)e;
+        ASSERT(0);
+        while(1) {}
+    }
+}
+
 #if defined (NRF52840_XXAA)
 static constexpr size_t const max_dma_length = std::numeric_limits<uint16_t>::max();
 #else
@@ -226,7 +235,7 @@ static bool usart_regs_in_use(struct usart_control_block_t const *usart_control)
     return bool(usart_control->usart_registers->ENABLE & UARTE_ENABLE_ENABLE_Msk);
 }
 
-static struct usart_control_block_t* const usart_control_block(usart_port_t usart_port)
+static struct usart_control_block_t* usart_control_block(usart_port_t usart_port)
 {
     if (usart_port < std::size(usart_instances))
     {

@@ -169,7 +169,7 @@ static bool twis_regs_in_use(struct twis_control_block_t const *twis_control)
     return bool(twis_control->twis_registers->ENABLE & TWIS_ENABLE_ENABLE_Msk);
 }
 
-static struct twis_control_block_t* const twis_control_block(twi_port_t twi_port)
+static struct twis_control_block_t* twis_control_block(twi_port_t twi_port)
 {
     if (twi_port < std::size(twis_instances))
     {
@@ -461,11 +461,11 @@ static void irq_handler_twis(struct twis_control_block_t* twis_control)
         uint32_t const error_source = twis_control->twis_registers->ERRORSRC;
 
         event.type |= (error_source & TWI_ERRORSRC_OVERRUN_Msk) ?
-            twi_event_rx_overrun : 0u;
+            twi_event_rx_overrun : twi_event_none;
         event.type |= (error_source & TWI_ERRORSRC_DNACK_Msk) ?
-            twi_event_data_nack : 0u;
+            twi_event_data_nack : twi_event_none;
         event.type |= (error_source & TWIS_ERRORSRC_OVERREAD_Msk) ?
-            twi_event_tx_overrun : 0u;
+            twi_event_tx_overrun : twi_event_none;
 
         event.xfer.tx_bytes = twis_control->twis_registers->TXD.AMOUNT;
         event.xfer.rx_bytes = twis_control->twis_registers->RXD.AMOUNT;
@@ -502,4 +502,3 @@ static void irq_handler_twis(struct twis_control_block_t* twis_control)
     twis_control->handler(&event, twis_control->context);
     logger.debug("--- %s", __func__);
 }
-

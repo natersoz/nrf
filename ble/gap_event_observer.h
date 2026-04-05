@@ -34,7 +34,7 @@ public:
     /**
      * A new connection has been established.
      *
-     * @param conection_handle  The new connection handle.
+     * @param connection_handle The new connection handle.
      * @param peer_address      The peer address of the associated device.
      * @param peer_address_id   @todo Nordic Specific: index into the device
      *                          identities list when the peer is using privacy.
@@ -44,19 +44,28 @@ public:
         uint16_t            connection_handle,
         gap::address const& peer_address,
         uint8_t             peer_address_id
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)peer_address;
+            (void)peer_address_id;
+        }
 
     /**
-     * A conection has been dropped.
+     * A connection has been dropped.
      *
      * @param connection_handle The connection handle that was disconnected.
-     * @param error_code       The HCI error code indicating why the connection
-     *                         dropped.
+     * @param error_code        The HCI error code indicating why the connection
+     *                          dropped.
      */
     virtual void disconnect(
         uint16_t            connection_handle,
         hci::error_code     error_code
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)error_code;
+        }
 
     /**
      * The connection has timed out.
@@ -67,7 +76,11 @@ public:
     virtual void timeout_expiration(
         uint16_t        connection_handle,
         timeout_reason  reason
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)reason;
+        }
 
     /**
      * A request from the peer for updating the conection parameters.
@@ -77,7 +90,11 @@ public:
     virtual void connection_parameter_update(
         uint16_t                        connection_handle,
         connection_parameters const&    connection_parameters
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)connection_parameters;
+        }
 
     /**
      * A request from the peer for updating the conection parameters.
@@ -88,7 +105,11 @@ public:
     virtual void connection_parameter_update_request(
         uint16_t                                    connection_handle,
         connection_parameters const&                connection_parameters
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)connection_parameters;
+        }
 
     /**
      * The peer is requesting a PHY layer change.
@@ -101,7 +122,12 @@ public:
         uint16_t                        connection_handle,
         phy_layer_parameters            phy_rx_preferred,
         phy_layer_parameters            phy_tx_preferred
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)phy_rx_preferred;
+            (void)phy_tx_preferred;
+        }
 
     /**
      * The PHY layer has changed.
@@ -119,7 +145,13 @@ public:
         ble::hci::error_code            status,
         phy_layer_parameters            phy_rx,
         phy_layer_parameters            phy_tx
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)status;
+            (void)phy_rx;
+            (void)phy_tx;
+        }
 
     /**
      * The peer has requested a link layer update.
@@ -141,7 +173,14 @@ public:
         uint16_t                        rx_interval_usec_max,
         uint16_t                        tx_length_max,
         uint16_t                        tx_interval_usec_max
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)rx_length_max;
+            (void)rx_interval_usec_max;
+            (void)tx_length_max;
+            (void)tx_interval_usec_max;
+        }
 
     /**
      * The link layer has been updated.
@@ -160,7 +199,14 @@ public:
         uint16_t                        rx_interval_usec_max,
         uint16_t                        tx_length_max,
         uint16_t                        tx_interval_usec_max
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)rx_length_max;
+            (void)rx_interval_usec_max;
+            (void)tx_length_max;
+            (void)tx_interval_usec_max;
+        }
 
     /**
      * The peer wishes to initiate a bond.
@@ -173,7 +219,12 @@ public:
         uint16_t                                    connection_handle,
         bool                                        bonding,
         security::authentication_required const&    auth_req
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)bonding;
+            (void)auth_req;
+        }
 
     /**
      * See BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H, pages 2340-2342
@@ -183,7 +234,12 @@ public:
         uint16_t                            connection_handle,
         bool                                bonding,
         security::pairing_request const&    pair_req
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)bonding;
+            (void)pair_req;
+        }
 
     /**
      * @param key_type BLE_GAP_AUTH_KEY_TYPES @todo TBD, nordic specific
@@ -194,7 +250,11 @@ public:
     virtual void security_authentication_key_request(
         uint16_t                connection_handle,
         uint8_t                 key_type
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)key_type;
+        }
 
     /**
      * The peer has requested a secure connection.
@@ -222,7 +282,13 @@ public:
         security::key_distribution const&   key_dist,
         security::master_id const&          master_id,
         gap::address const&                 peer_address
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)key_dist;
+            (void)master_id;
+            (void)peer_address;
+        }
 
     /**
      * Request to display a passkey to the user.
@@ -235,7 +301,12 @@ public:
         uint16_t                          connection_handle,
         security::pass_key const&         passkey,
         bool                              match_request
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)passkey;
+            (void)match_request;
+        }
 
     /**
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H page 2349
@@ -245,7 +316,11 @@ public:
     virtual void security_key_pressed(
         uint16_t                connection_handle,
         security::passkey_event key_press_event
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)key_press_event;
+        }
 
     /**
      * Perform the Diffie-Hellman key calculation given the peer's public key.
@@ -258,7 +333,12 @@ public:
         uint16_t                connection_handle,
         security::pubk const&   public_key,
         bool                    oob_required
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)public_key;
+            (void)oob_required;
+        }
 
     /**
      * During the pairing key exchange this function will get called multiple
@@ -296,7 +376,17 @@ public:
         uint8_t                             sec_mode_2_levels,
         security::key_distribution const&   kdist_own,
         security::key_distribution const&   kdist_peer
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)pairing_status;
+            (void)error_source;
+            (void)is_bonded;
+            (void)sec_mode_1_levels;
+            (void)sec_mode_2_levels;
+            (void)kdist_own;
+            (void)kdist_peer;
+        }
 
     /**
      * @param security_mode  The security mode updated.
@@ -311,7 +401,13 @@ public:
         uint8_t         security_mode,
         uint8_t         security_level,
         uint8_t         key_size
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)security_mode;
+            (void)security_level;
+            (void)key_size;
+        }
 
     /**
      * The RSSI value from the peer has been updated.
@@ -322,7 +418,11 @@ public:
     virtual void rssi_update(
         uint16_t                        connection_handle,
         int8_t                          rssi_dBm
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)rssi_dBm;
+        }
 
     /**
      * When in the central role, report that advertising data has been received.
@@ -345,7 +445,16 @@ public:
         bool                            scan_response,
         void const*                     data,
         uint8_t                         data_length
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)peer_address;
+            (void)direct_address;
+            (void)rssi_dBm;
+            (void)scan_response;
+            (void)data;
+            (void)data_length;
+        }
 
     /**
      * The peer is requesting a signal strength report.
@@ -358,7 +467,12 @@ public:
         uint16_t                                    connection_handle,
         gap::address const&                         peer_address,
         int8_t                                      rssi_dBm
-        ) {}
+        )
+        {
+            (void)connection_handle;
+            (void)peer_address;
+            (void)rssi_dBm;
+        }
 };
 
 } // namespace gap

@@ -54,10 +54,10 @@ public:
       gattc_service_builder_(&ble_gattc_service_builder),
       service_builder_completion_(nullptr)
     {
-        this->gap_connection_.set_connecteable(this);
-        this->gatts_event_observer_->set_connecteable(this);
-        this->gatts_operations_->set_connecteable(this);
-        this->gattc_event_observer_->set_connecteable(this);
+        this->gap_connection_.set_connectable(this);
+        this->gatts_event_observer_->set_connectable(this);
+        this->gatts_operations_->set_connectable(this);
+        this->gattc_event_observer_->set_connectable(this);
     }
 
     /// ctor: A connectable with a GATT server only; no client.
@@ -74,9 +74,9 @@ public:
       gattc_service_builder_(nullptr),
       service_builder_completion_(nullptr)
     {
-        this->gap_connection_.set_connecteable(this);
-        this->gatts_event_observer_->set_connecteable(this);
-        this->gatts_operations_->set_connecteable(this);
+        this->gap_connection_.set_connectable(this);
+        this->gatts_event_observer_->set_connectable(this);
+        this->gatts_operations_->set_connectable(this);
     }
 
     /// ctor: A connectable with a GATT client only; no server.
@@ -94,8 +94,8 @@ public:
       gattc_service_builder_(&ble_gattc_service_builder),
       service_builder_completion_(nullptr)
     {
-        this->gap_connection_.set_connecteable(this);
-        this->gattc_event_observer_->set_connecteable(this);
+        this->gap_connection_.set_connectable(this);
+        this->gattc_event_observer_->set_connectable(this);
     }
 
     ble::stack&       ble_stack()       { return this->ble_stack_; }

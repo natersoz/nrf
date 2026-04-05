@@ -52,6 +52,9 @@ status ble_gap_operations::connect(
     ble::gap::address               const&  peer_address,
     ble::gap::connection_parameters const&  connection_parameters)
 {
+    (void)peer_address;
+    (void)connection_parameters;
+
     return status::unimplemented;
 }
 
@@ -263,4 +266,3 @@ status ble_gap_operations::sd_ble_gap_sec_info_reply(
 */
 
 } // namespace nordic
-

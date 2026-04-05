@@ -57,10 +57,10 @@ void service_container::discovery_iterator::increment()
         }
         else
         {
-            ble::gatt::service& service = *this->service_iterator;
-            this->characteristic_iterator = service.characteristic_list.begin();
+            ble::gatt::service& service_2 = *this->service_iterator;
+            this->characteristic_iterator = service_2.characteristic_list.begin();
 
-            if (this->characteristic_iterator == service.characteristic_list.end())
+            if (this->characteristic_iterator == service_2.characteristic_list.end())
             {
                 // This service contains no characteristics; skip to the next.
                 // Note: This is a recursive call.
@@ -89,8 +89,8 @@ void service_container::discovery_iterator::decrement()
             }
 
             --this->service_iterator;
-            ble::gatt::service& service = *this->service_iterator;
-            this->characteristic_iterator = service.characteristic_list.end();
+            ble::gatt::service& service_2 = *this->service_iterator;
+            this->characteristic_iterator = service_2.characteristic_list.end();
         }
     }
     --this->characteristic_iterator;
@@ -131,4 +131,3 @@ ble::att::handle_range service_container::discovery_iterator::handle_range() con
 
 } // namespace gatt
 } // namespace ble
-

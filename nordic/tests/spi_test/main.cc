@@ -109,6 +109,7 @@ static void mem_fill_ramp(uint8_t*  ptr,
 
 static void spim_event_handler(struct spi_event_t const* event, void* context)
 {
+    (void)context;
     led_state_set(2u, false);
 
     logger &logger = logger::instance();
@@ -171,6 +172,7 @@ static void spim_start_transfer()
 
 static void spis_event_handler(struct spi_event_t const *event, void* context)
 {
+    (void)context;
     logger &logger = logger::instance();
     led_state_set(1u, false);
 
@@ -354,4 +356,3 @@ int main()
         logger.flush();
     }
 }
-

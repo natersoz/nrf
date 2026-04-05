@@ -13,14 +13,14 @@ LICENSING
 + File which contain a Nordic Semiconductor License in the comments header
   are covered under the terms found in `NORDIC_LICENSE.txt`.
 + Files in the segger/ directory are covered under the terms of SEGGER's
-  licencing found in the source files and in the license file
+  licensing found in the source files and in the license file
   segger_rtt/license/license.txt.
 + All other files are covered under the Apache 2.0 LICENSE file.
 
 Documentation
 -------------
 This README.md will be limited.
-More detailed descriptions are in the directory [docs](https://github.com/natersoz/nrf/tree/master/docs).
+More detailed descriptions are in the directory [docs](https://github.com/natersoz/nrf/tree/main/docs).
 
 Goals:
 ------
@@ -30,7 +30,7 @@ Goals:
   + The implementation will not use an OS, but should be easily adapted to an OS.
   + It is intended that nearly all processing occur within an ISR.
     Given the ARM Nested Vector Interrupt Controller (NVIC) this should be
-	easy to do and yeild the best performance.
+	easy to do and yield the best performance.
 + Peripheral device drivers should access the CMSIS mapped registers and
   rely minimally on the SDK. Progress will be indicated by the lack
   of file and module coupling between device drivers.
@@ -47,3 +47,7 @@ Progress:
   It is a GATT server only peripheral (at this time).
   It is working as expected on Nordic hardware.
 
+
+CMAKE TODO:
+-----------
+In periperals : CMAKE -D periph in usage

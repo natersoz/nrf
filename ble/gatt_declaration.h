@@ -20,7 +20,7 @@ namespace gatt
 
 /**
  * @struct properties
- * The properties determine how a service, a characteristic or a desctiptor
+ * The properties determine how a service, a characteristic or a descriptor
  * (also a characteristic) are handled. Typically this is one byte of fields
  * but may be 2 bytes if the extended flag is set.
  *
@@ -46,6 +46,7 @@ struct properties
 
     enum : uint16_t
     {
+        none                    = 0x0000,  // indicates not property set
         broadcast               = 0x0001,
         read                    = 0x0002,
         write_without_response  = 0x0004,
@@ -59,18 +60,18 @@ struct properties
         write_aux               = 0x0200
     };
 
-    void set(uint16_t properties)
+    void set(uint16_t props)
     {
-        this->bits      = static_cast<uint8_t>(properties >> 0u);
-        this->bits_ext  = static_cast<uint8_t>(properties >> 8u);
-        this->bits     |= (this->bits_ext == 0u) ? 0u : extended;
+        this->bits      = static_cast<uint8_t>(props >> 0u);
+        this->bits_ext  = static_cast<uint8_t>(props >> 8u);
+        this->bits     |= (this->bits_ext == 0u) ? none : extended;
     }
 
     uint16_t get() const
     {
         uint16_t prop_bits = this->bits_ext;
         prop_bits <<= 8u;
-        prop_bits |= (prop_bits == 0u)? 0u : extended;
+        prop_bits |= (prop_bits == 0u)? none : extended;
         prop_bits |= this->bits;
         return prop_bits;
     }

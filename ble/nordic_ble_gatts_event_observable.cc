@@ -50,10 +50,11 @@ ble::att::op_code nordic_write_type_opcode(uint8_t write_type)
  *
  * @see github issue #7.
  */
-static void handle_system_attribute_missing(uint16_t conection_handle,
+static void handle_system_attribute_missing(uint16_t connection_handle,
                                             uint8_t  hint)
 {
-    uint8_t const error_code = sd_ble_gatts_sys_attr_set(conection_handle, nullptr, 0, 0);
+    (void)hint;
+    uint8_t const error_code = sd_ble_gatts_sys_attr_set(connection_handle, nullptr, 0, 0);
 
     if (error_code != NRF_SUCCESS)
     {

@@ -1,148 +1,45 @@
 ###
-# nrf/unit_tests/Makefile
-# Makefile for compiling google test based unit tests.
-# Modified from googletest 1.8.1 googletest/make/Makefile
+# nrf/ble_peripheral/Makefile
+#
+# Copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
 ###
 
-VERBOSE	?= @
-OBJ_PATH	= _build
+# Find all the Makefiles in subdirectories to build:
+sub_make_files	= $(shell find . -maxdepth 3 -name Makefile -not \( -wholename \*/_build/\* -or -wholename ./Makefile -or -wholename ./external/Makefile \))
+sub_make_dirs	= $(patsubst %/Makefile,%,$(sub_make_files))
 
-# Points to the root of Google Test.
-BOOST_ROOT	= ../external/boost
-GTEST_DIR	= ../external/googletest/googletest
+PROJECT_ROOT		?= $(shell git rev-parse --show-toplevel)
+BUILD_PATH			?= _build
 
-INCLUDE_PATH     = -I .
-INCLUDE_PATH    += -I ..
-INCLUDE_PATH    += -I ../utility
-INCLUDE_PATH    += -I ../logger
-INCLUDE_PATH    += -I ../nordic/peripherals
-INCLUDE_PATH    += -I $(BOOST_ROOT)
-INCLUDE_PATH    += -I $(GTEST_DIR)/include
+.PHONY: all clean
 
-vpath %.cc .
-vpath %.cc ../utility
-vpath %.cc ../logger
-vpath %.cc ../ble
-vpath %.cc ../ble/service
-vpath %.cc $(GTEST_DIR)/src/
-vpath %.c  $(GTEST_DIR)/src/
+all:
+	cmake -S . -B $(BUILD_PATH)
+	cmake --build $(BUILD_PATH)
+	@for make_dir in $(sub_make_dirs); do	\
+		printf "make -C $$make_dir: $@\n";	\
+		make -C $$make_dir $@ $(MAKE_JOBS);	\
+	done
 
-WARNINGS += -Wall
-WARNINGS += -Wmissing-field-initializers
-WARNINGS += -Wpointer-arith
-WARNINGS += -Wuninitialized
-WARNINGS += -Winit-self
-WARNINGS += -Wstrict-overflow
-# WARNINGS += -Wextra
-# WARNINGS += -Wundef
-# WARNINGS += -Wshadow
+run: all
+	ctest --test-dir $(BUILD_PATH)
+	@for make_dir in $(sub_make_dirs); do	\
+		printf "make -C $$make_dir: $@\n";	\
+		make -C $$make_dir $@ $(MAKE_JOBS);	\
+	done
 
-DEFINES  =
-DEFINES += -D SVCALL_AS_NORMAL_FUNCTION
+clean:
+	rm -rf $(BUILD_PATH)
+	@for make_dir in $(sub_make_dirs); do	\
+		printf "make -C $$make_dir: $@\n";	\
+		make -C $$make_dir $@ $(MAKE_JOBS);	\
+	done
 
-CXXFLAGS  = $(WARNINGS) $(DEFINES) -std=c++17 -g -O0 -pthread
-CFLAGS    = $(WARNINGS) $(DEFINES) -std=c99   -g -O0 -pthread
-
-# Flags passed to the preprocessor.
-CPPFLAGS += -isystem $(GTEST_DIR)/include
-
-# All tests produced by this Makefile.  Remember to add new tests you
-# created to the list.
-TARGET_NAME = all_tests
-
-SRC =
-SRC += battery_service.cc
-SRC += gatt_attribute.cc
-SRC += gatt_declaration.cc
-SRC += gatt_service.cc
-SRC += gatt_service_container.cc
-SRC += gatt_service_discovery_iterator.cc
-SRC += gatt_write_ostream.cc
-
-SRC += uuid.cc
-SRC += gregorian.cc
-SRC += format_conversion.cc
-SRC += int_to_string.cc
-SRC += logger.cc
-SRC += vwritef.cc
-SRC += write_data.cc
-
-SRC += test_bit_manip.cc
-SRC += test_fixed_allocator.cc
-SRC += test_format_conversion.cc
-SRC += test_gregorian.cc
-SRC += test_int_to_string.cc
-SRC += test_make_array.cc
-SRC += test_observer.cc
-SRC += test_uuid.cc
-
-SRC += test_ble_service.cc
-SRC += test_ble_service_container.cc
-SRC += gatt_write_ostream.cc
-SRC += gatt_enum_types_strings.cc
-
-# Helpers, stubs, fakes.
-SRC += assert_stubs.cc
-SRC += rtc_stubs.cc
-
-OBJ_CXX	= $(SRC:.cc=.o)
-OBJ_C	= $(OBJ_CXX:.c=.o)
-OBJ_O	= $(OBJ_C:%.o=$(OBJ_PATH)/%.o)
-DEPS	= $(OBJ_C:%.o=$(OBJ_PATH)/%.dep)
-
-all: $(OBJ_PATH) $(OBJ_PATH)/$(TARGET_NAME)
-	$(OBJ_PATH)/$(TARGET_NAME)
-
-clean :
-	rm -rf $(OBJ_PATH)
-
-###
-# Googletest rules
-###
-$(OBJ_PATH)/gtest-all.o : gtest-all.cc
-	@echo "Compiling $@"
-	$(VERBOSE) $(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c $< -o $@
-
-$(OBJ_PATH)/gtest_main.o : gtest_main.cc
-	@echo "Compiling $@"
-	$(VERBOSE) $(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c $< -o $@
-
-$(OBJ_PATH)/gtest.a : $(OBJ_PATH)/gtest-all.o
-	@echo "Archiving $@"
-	$(VERBOSE) $(AR) $(ARFLAGS) $@ $^
-
-$(OBJ_PATH)/gtest_main.a : $(OBJ_PATH)/gtest-all.o $(OBJ_PATH)/gtest_main.o
-	@echo "Archiving $@"
-	$(VERBOSE) $(AR) $(ARFLAGS) $@ $^
-
-$(OBJ_PATH)/$(TARGET_NAME): $(OBJ_O) $(OBJ_PATH)/gtest_main.a
-	@echo "Linking $@"
-	$(VERBOSE) $(CXX) $(CXXFLAGS)  $^ -o $@
+relink:
+	@echo "relink ignored"
 
 info:
-	@echo "DEFINES          = '$(DEFINES)'"
-	@echo "SRC              = '$(SRC)'"
-	@echo "DEPS             = '$(DEPS)'"
-	@echo "INCLUDE_PATH     = '$(INCLUDE_PATH)'"
-	@echo "CPPFLAGS         = '$(CPPFLAGS)'"
-	@echo "GTEST_DIR        = '$(GTEST_DIR)'"
-
-
-###
-# Implicit Rules
-###
-$(OBJ_PATH):
-	mkdir $@
-
-$(OBJ_PATH)/%.o : %.cc
-	@echo "Compiling $@"
-	$(VERBOSE) $(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_PATH) $< -o $@
-	$(VERBOSE) $(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_PATH) -MM -MT $@ -MF $(@:.o=.dep) $<
-
-$(OBJ_PATH)/%.o : %.c
-	@echo "Compiling $@"
-	$(VERBOSE) $(CC) -c $(CFLAGS) $(INCLUDE_PATH) $< -o $@
-	$(VERBOSE) $(CC) -c $(CFLAGS) $(INCLUDE_PATH) -MM -MT $@ -MF $(@:.o=.dep) $<
-
-
--include $(DEPS)
+	@echo "PROJECT_ROOT          : $(PROJECT_ROOT)"
+	@echo "BUILD_PATH            : $(BUILD_PATH)"
+	@echo "sub_make_files        : $(sub_make_files)"
+	@echo "sub_make_dirs         : $(sub_make_dirs)"

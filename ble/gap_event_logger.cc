@@ -225,6 +225,8 @@ void event_logger::security_key_pressed(
     uint16_t                connection_handle,
     security::passkey_event key_press_event)
 {
+    (void)connection_handle;
+    (void)key_press_event;
 }
 
 void event_logger::security_DH_key_calculation_request(
@@ -291,6 +293,8 @@ void event_logger::advertising_report(uint16_t              connection_handle,
                                       void const*           data,
                                       uint8_t               data_length)
 {
+    (void)data;
+    (void)data_length;
     char peer_buffer[address_conv_length];
     char direct_buffer[address_conv_length];
 
@@ -310,8 +314,10 @@ void event_logger::scan_report_request(uint16_t             connection_handle,
                                        gap::address const&  peer_address,
                                        int8_t               rssi_dBm)
 {
+    (void)connection_handle;
+    (void)peer_address;
+    (void)rssi_dBm;
 }
 
 } // namespace gap
 } // namespace ble
-

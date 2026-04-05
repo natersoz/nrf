@@ -60,6 +60,7 @@ void rtc1_observer::expiration_notify()
 
 static void gpio_port_event_handler(uint32_t latched, void* context)
 {
+    (void)context;
     logger &logger = logger::instance();
     logger.info("GPIO PORT, latched 0x%08x", latched);
     logger.info("Button: %u, %u, %u, %u",
@@ -110,4 +111,3 @@ int main()
         logger.flush();
     }
 }
-

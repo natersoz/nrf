@@ -48,6 +48,7 @@ void ppi_channel_release(ppi_channel_t ppi_channel)
     {
         NRF_PPI_Type* const ppi_registers = reinterpret_cast<NRF_PPI_Type *>(NRF_PPI_BASE);
         ASSERT(ppi_channel < std::size(ppi_registers->CH));
+        (void)ppi_registers;
         ppi_channel_disable(ppi_channel);
 
         ppi_channel_bind_task( ppi_channel, nullptr);
@@ -99,4 +100,3 @@ void ppi_channel_disable(ppi_channel_t ppi_channel)
 
     ppi_registers->CHENCLR = (1u << ppi_channel);
 }
-

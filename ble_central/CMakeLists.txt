@@ -1,0 +1,195 @@
+###
+# File: nrf/ble_central/CMakeLists.txt
+# @copyright (c) 2026, natersoz. Distributed under the Apache 2.0 license.
+#
+# nRF project top level CMake file.
+#
+# Typical usage:
+# cmake -S . -B ./_build --toolchain ../Toolchain-gcc-arm-none-eabi.cmake
+# cmake --build ./_build
+#
+# Optional build parameters:
+# --parallel <N> --target <target_name> --verbose
+###
+
+cmake_minimum_required(VERSION 4.0.0)
+
+set(CMAKE_C_COMPILER_WORKS 1)
+set(CMAKE_CXX_COMPILER_WORKS 1)
+
+# Top level CMake file for the Impinj Reader Chip SDK
+project(ble_central
+    VERSION 0.0
+    DESCRIPTION "nRF hobby project, BLE central"
+    LANGUAGES CXX C ASM
+)
+
+if(NOT DEFINED PROJECT_ROOT)
+    set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/..)
+endif()
+
+if(NOT DEFINED SDK_ROOT)
+    set(SDK_ROOT ${PROJECT_ROOT}/sdk)
+endif()
+
+if(NOT DEFINED BOOST_ROOT)
+    set(BOOST_ROOT ${PROJECT_ROOT}/external/boost)
+endif()
+
+if(NOT TARGET nordic_sdk)
+    add_subdirectory(${PROJECT_ROOT}/nordic/sdk-lib/ nordic_sdk)
+endif()
+
+message(STATUS "----------------------------")
+message(STATUS "CMAKE_CURRENT_SOURCE_DIR    : ${CMAKE_CURRENT_SOURCE_DIR}")
+message(DEBUG  "TOOLCHAIN                   : ${CMAKE_TOOLCHAIN_FILE}")
+message(DEBUG  "PROJECT_ROOT                : ${PROJECT_ROOT}")
+message(DEBUG  "BOOST_ROOT                  : ${BOOST_ROOT}")
+
+add_executable(ble_central)
+
+target_link_libraries(ble_central PRIVATE nordic_sdk)
+
+target_sources(ble_central PRIVATE
+    ./main.cc
+    ./ble_gattc_observer.cc
+    ./ble_gap_connection.cc
+
+    ${PROJECT_ROOT}/gcc-arm/gcc_startup_nrf52.s
+    ${PROJECT_ROOT}/gcc-arm/gcc_stubs.cc
+    ${PROJECT_ROOT}/gcc-arm/stack_usage.cc
+
+    ${PROJECT_ROOT}/nordic/app_error_fault_handler.cc
+    ${PROJECT_ROOT}/nordic/nordic_critical_section.cc
+    ${PROJECT_ROOT}/nordic/peripherals/buttons_pca10040.cc
+    ${PROJECT_ROOT}/nordic/peripherals/clocks.cc
+    ${PROJECT_ROOT}/nordic/peripherals/gpio.cc
+    ${PROJECT_ROOT}/nordic/peripherals/leds_pca10040.cc
+    ${PROJECT_ROOT}/nordic/peripherals/mwu.cc
+    ${PROJECT_ROOT}/nordic/peripherals/mwu_debug.cc
+    ${PROJECT_ROOT}/nordic/peripherals/ppi.cc
+    ${PROJECT_ROOT}/nordic/peripherals/rtc.cc
+    ${PROJECT_ROOT}/nordic/peripherals/saadc.cc
+    ${PROJECT_ROOT}/nordic/peripherals/timer.cc
+
+    ${PROJECT_ROOT}/ble/gap_connection.cc
+    ${PROJECT_ROOT}/ble/gap_event_logger.cc
+    ${PROJECT_ROOT}/ble/gap_connection_negotiation_state.cc
+    ${PROJECT_ROOT}/ble/gatt_attribute.cc
+    ${PROJECT_ROOT}/ble/gatt_declaration.cc
+    ${PROJECT_ROOT}/ble/gatt_service.cc
+    ${PROJECT_ROOT}/ble/gatt_service_container.cc
+    ${PROJECT_ROOT}/ble/gatt_service_discovery_iterator.cc
+    ${PROJECT_ROOT}/ble/gatt_write_ostream.cc
+    ${PROJECT_ROOT}/ble/gatt_enum_types_strings.cc
+    ${PROJECT_ROOT}/ble/gattc_service_builder.cc
+    ${PROJECT_ROOT}/ble/gatts_event_observer.cc
+
+    ${PROJECT_ROOT}/ble/nordic_ble_att.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_common_event_observable.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_common_event_observer.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_event_observables.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_event_strings.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_gap_address.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_gap_event_observable.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_gap_logger.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_gap_operations.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_gap_scan_parameters.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_gap_scanning.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_gattc_event_observable.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_gattc_discovery_observable.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_gattc_operations.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_gatts.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_gatts_event_observable.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_gatts_operations.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_peer.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_stack.cc
+    ${PROJECT_ROOT}/ble/nordic_ble_stack_observer.cc
+
+    ${PROJECT_ROOT}/nordic/nordic_error.cc
+    ${PROJECT_ROOT}/ble/nordic_req_observable.cc
+    ${PROJECT_ROOT}/ble/nordic_soc_observable.cc
+    ${PROJECT_ROOT}/ble/nordic_state_observable.cc
+    ${PROJECT_ROOT}/ble/service/battery_service.cc
+    ${PROJECT_ROOT}/ble/service/custom_uuid.cc
+    ${PROJECT_ROOT}/ble/uuid.cc
+
+    ${PROJECT_ROOT}/utility/format_conversion.cc
+    ${PROJECT_ROOT}/utility/int_to_string.cc
+    ${PROJECT_ROOT}/utility/project_assert.cc
+    ${PROJECT_ROOT}/utility/std_stubs.cc
+    ${PROJECT_ROOT}/utility/vwritef.cc
+    ${PROJECT_ROOT}/utility/write_data.cc
+    ${PROJECT_ROOT}/utility/version_info.c
+
+    ${PROJECT_ROOT}/logger/logger.cc
+    ${PROJECT_ROOT}/logger/logger_c.cc
+    ${PROJECT_ROOT}/logger/rtt_output_stream.cc
+
+    ${PROJECT_ROOT}/segger/segger_rtt.cc
+ )
+
+ target_include_directories(ble_central PRIVATE
+    ${PROJECT_ROOT}
+    ${PROJECT_ROOT}/gcc-arm
+    ${PROJECT_ROOT}/logger
+    ${PROJECT_ROOT}/nordic
+    ${PROJECT_ROOT}/nordic/peripherals
+    ${PROJECT_ROOT}/segger
+    ${PROJECT_ROOT}/utility
+    ${PROJECT_ROOT}/nordic/sdk-lib      # for sdk_config.h
+ )
+
+target_include_directories(ble_central SYSTEM PRIVATE
+    ${BOOST_ROOT}
+
+    ${SDK_ROOT}/components/ble/common
+    ${SDK_ROOT}/components/ble/peer_manager
+    # ${SDK_ROOT}/components/drivers_nrf/hal
+    ${SDK_ROOT}/components/libraries/atomic
+    ${SDK_ROOT}/components/libraries/atomic_fifo
+    ${SDK_ROOT}/components/libraries/atomic_flags
+    ${SDK_ROOT}/components/libraries/crc16
+    ${SDK_ROOT}/components/libraries/crc32
+    ${SDK_ROOT}/components/libraries/experimental_section_vars
+    ${SDK_ROOT}/components/libraries/fds
+    ${SDK_ROOT}/components/libraries/fstorage
+    ${SDK_ROOT}/components/libraries/log
+    ${SDK_ROOT}/components/libraries/mutex
+    ${SDK_ROOT}/modules/nrfx/mdk
+
+    # These would be nice to dump:
+    ${SDK_ROOT}/components/libraries/strerror
+    ${SDK_ROOT}/components/libraries/util
+
+    ${SDK_ROOT}/components/softdevice/common
+    ${SDK_ROOT}/components/softdevice/s132/headers
+    ${SDK_ROOT}/components/softdevice/s132/headers/nrf52
+    ${SDK_ROOT}/components/toolchain
+    ${SDK_ROOT}/components/toolchain/cmsis/include
+
+    # These might be interesting, but not required:
+    # ${SDK_ROOT}/components/libraries/mutex
+    # ${SDK_ROOT}/components/libraries/queue
+    # ${SDK_ROOT}/components/libraries/hardfault
+    # ${SDK_ROOT}/components/libraries/ecc
+    # ${SDK_ROOT}/components/libraries/hci
+)
+
+target_link_directories(ble_central PRIVATE
+    ${PROJECT_ROOT}/ble_central
+    ${PROJECT_ROOT}/nordic
+)
+
+target_link_options(ble_central PRIVATE
+    -Wl,-Map=ble_central.map
+    --specs=nano.specs
+    -lc
+    -lnosys
+    -Wl,--gc-sections
+    -T ${CMAKE_CURRENT_SOURCE_DIR}/ble_central.ld
+)
+
+# Generate post-build files for the target: .hex, .lst, .symbols.txt
+include(${PROJECT_ROOT}/post_elf_build.cmake)
+add_firmware_postbuild(ble_central)

@@ -7,44 +7,44 @@
 # Tell make to use multiple jobs
 MAKE_JOBS := -j
 
-sub_make_files	= $(shell find . -maxdepth 2 -name Makefile -not \( -wholename ./Makefile -or -wholename ./external/Makefile \))
-sub_make_dirs	= $(patsubst %/Makefile,%,$(sub_make_files))
+sub_make_dirs := ./ble_peripheral ./ble_central ./nordic/tests ./unit_tests
 
-.PHONY:  all relink clean scrub info
+.PHONY: all external relink clean scrub info
 
-all:
-	make -C external
-	@for make_dir in $(sub_make_dirs); do		\
+all: external
+	@for make_dir in $(sub_make_dirs); do	\
 		printf "make -C $$make_dir: $@\n";	\
 		make -C $$make_dir $@ $(MAKE_JOBS);	\
 	done
-	make -C nordic/tests $@
+
+external:
+	make -C external
 
 checks:
-	@for make_dir in $(sub_make_dirs); do		\
+	@for make_dir in $(sub_make_dirs); do	\
 		printf "make -C $$make_dir: $@\n";	\
 		make -C $$make_dir $@ $(MAKE_JOBS);	\
 	done
 	make -C nordic/tests $@
 
 clean-checks:
-	@for make_dir in $(sub_make_dirs); do		\
+	@for make_dir in $(sub_make_dirs); do	\
 		printf "make -C $$make_dir: $@\n";	\
 		make -C $$make_dir $@ $(MAKE_JOBS);	\
 	done
 	make -C nordic/tests $@
 
 relink:
-	@for make_dir in $(sub_make_dirs); do		\
+	@for make_dir in $(sub_make_dirs); do	\
 		printf "make -C $$make_dir: $@\n";	\
 		make -C $$make_dir $@ $(MAKE_JOBS);	\
 	done
 	make -C nordic/tests $@
 
 clean:
-	@for make_dir in $(sub_make_dirs); do		\
+	@for make_dir in $(sub_make_dirs); do	\
 		printf "make -C $$make_dir: $@\n";	\
-		make -C $$make_dir $@;			\
+		make -C $$make_dir $@;				\
 	done
 	make -C nordic/tests $@
 
@@ -52,7 +52,5 @@ scrub: clean
 	make -C external $@
 
 info:
-	@printf "sub_make_files        = $(sub_make_files)\n"
-	@printf "sub_make_dirs         = $(sub_make_dirs)\n"
-	@printf "NUMBER_OF_PROCESSORS  = $(NUMBER_OF_PROCESSORS)\n"
-	@printf "MAKE_JOBS             = $(MAKE_JOBS)\n"
+	@echo "sub_make_dirs         = $(sub_make_dirs)"
+	@echo "MAKE_JOBS             = $(MAKE_JOBS)"

@@ -87,11 +87,13 @@ std::errc ble_gatts_operations::read_authorize_reply(
     uint16_t                connection_handle,
     uint16_t                attribute_handle,
     ble::att::error_code    error_code,
-    bool                    atttribute_update,
+    bool                    attribute_update,
     ble::att::length_t      offset,
     ble::att::length_t      length,
     void const*             data)
 {
+    (void)attribute_handle;
+    (void)attribute_update;
     ble_gatts_rw_authorize_reply_params_t const auth_reply = {
         .type = BLE_GATTS_AUTHORIZE_TYPE_READ,
         .params =
@@ -117,11 +119,13 @@ std::errc ble_gatts_operations::write_authorize_reply(
     uint16_t                connection_handle,
     uint16_t                attribute_handle,
     ble::att::error_code    error_code,
-    bool                    atttribute_update,
+    bool                    attribute_update,
     ble::att::length_t      offset,
     ble::att::length_t      length,
     void const*             data)
 {
+    (void)attribute_handle;
+    (void)attribute_update;
     ble_gatts_rw_authorize_reply_params_t const auth_reply = {
         .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
         .params =
@@ -163,4 +167,3 @@ std::errc ble_gatts_operations::service_add(
 }
 
 } // namespace nordic
-

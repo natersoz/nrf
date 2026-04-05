@@ -37,7 +37,12 @@ OBJ_C	= $(OBJ_CXX:.c=.o)
 OBJ_O	= $(OBJ_C:%.o=$(BUILD_PATH)/%.o)
 DEPS	= $(OBJ_C:%.o=$(BUILD_PATH)/%.dep)
 
+.PHONY: all run clean relink info
+
+
 all: $(BUILD_PATH) $(BUILD_PATH)/$(TARGET_NAME)
+
+run: $(BUILD_PATH) $(BUILD_PATH)/$(TARGET_NAME)
 	$(BUILD_PATH)/$(TARGET_NAME)
 
 clean:

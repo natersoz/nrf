@@ -166,7 +166,7 @@ static bool twim_regs_in_use(struct twim_control_block_t const *twim_control)
     return bool(twim_control->twim_registers->ENABLE & TWIM_ENABLE_ENABLE_Msk);
 }
 
-static struct twim_control_block_t* const twim_control_block(twi_port_t twi_port)
+static struct twim_control_block_t* twim_control_block(twi_port_t twi_port)
 {
     if (twi_port < std::size(twim_instances))
     {
@@ -539,11 +539,11 @@ static void irq_handler_twim(struct twim_control_block_t* twim_control)
         uint32_t const error_source = twim_control->twim_registers->ERRORSRC;
 
         event.type |= (error_source & TWI_ERRORSRC_ANACK_Msk) ?
-            twim_event_addr_nack : 0u;
+            twim_event_addr_nack : twi_event_none;
         event.type |= (error_source & TWI_ERRORSRC_DNACK_Msk) ?
-            twi_event_data_nack : 0u;
+            twi_event_data_nack : twi_event_none;
         event.type |= (error_source & TWI_ERRORSRC_OVERRUN_Msk) ?
-            twi_event_rx_overrun : 0u;
+            twi_event_rx_overrun : twi_event_none;
 
         event.xfer.tx_bytes = twim_control->twim_registers->TXD.AMOUNT;
         event.xfer.rx_bytes = twim_control->twim_registers->RXD.AMOUNT;
@@ -558,4 +558,3 @@ static void irq_handler_twim(struct twim_control_block_t* twim_control)
     }
     logger.debug("--- %s: 0x%04x", __func__, event.type);
 }
-

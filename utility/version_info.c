@@ -8,7 +8,7 @@
 
 struct version_info const version_info IN_SECTION(".version_info") =
 {
-    .version  = GIT_TAG,
-    .rfu      = {0},
-    .git_hash = {GIT_HASH}
+    /// @todo need actual implementation
+    .version  = "No Tag Implemented",
+    .git_hash = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 };

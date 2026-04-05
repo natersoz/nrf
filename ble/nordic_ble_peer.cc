@@ -112,6 +112,7 @@ void ble_peer_init()
 {
     ret_code_t error_code = pm_init();
     ASSERT(error_code == NRF_SUCCESS);
+    (void)error_code;
 
     ble_gap_sec_params_t sec_param;
     memset(&sec_param, 0, sizeof(ble_gap_sec_params_t));
@@ -136,4 +137,3 @@ void ble_peer_init()
     error_code = pm_register(pm_evt_handler);
     ASSERT(error_code == NRF_SUCCESS);
 }
-

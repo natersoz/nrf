@@ -15,26 +15,32 @@ namespace ble
 namespace common
 {
 
-void event_observer::memory_request(uint16_t            conection_handle,
+void event_observer::memory_request(uint16_t            connection_handle,
                                     memory_type         memory_type,
                                     size_t              length,
                                     uint16_t            alignment)
 {
-    logger::instance().debug("memory_request(0x%04x, %u)", conection_handle, memory_type);
+    (void)length;
+    (void)alignment;
+    logger::instance().debug("memory_request(0x%04x, %u)", connection_handle, memory_type);
 
-    uint32_t error_code = sd_ble_user_mem_reply(conection_handle, nullptr);
+    uint32_t error_code = sd_ble_user_mem_reply(connection_handle, nullptr);
     ASSERT(error_code == NRF_SUCCESS);
+    (void)error_code;
 }
 
-void event_observer::memory_release(uint16_t            conection_handle,
+void event_observer::memory_release(uint16_t            connection_handle,
                                     memory_type         memory_type,
                                     void*               memory_address,
                                     std::size_t         memory_length)
 {
+    (void)connection_handle;
+    (void)memory_type;
+    (void)memory_address;
+    (void)memory_length;
+
     logger::instance().error("memory_release(): unexpected call");
 }
 
 } // namespace common
 } // namespace ble
-
-

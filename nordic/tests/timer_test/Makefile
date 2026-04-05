@@ -1,137 +1,26 @@
 ###
-# Makefile for testing Nordic nRF52 Timer interface(s).
-# @copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
-###
-
-PROJECT_ROOT := ../../..
-SDK_ROOT     := $(PROJECT_ROOT)/sdk
-
-# The executable name
-TARGET_NAME = timer_test
-
-# Where the compiled files are built.
-BUILD_PATH = _build
-
-# Set for Debug or Release build types.
-BUILD_TYPE	?= Debug
-
-# Path to boot installation.
-BOOST_ROOT	= ../../../external/boost
-
-# It is important to list the more specialized source files first.
-# The ordering of searching for files - especially include files -
-# is dependent on which is listed first.
-# Some Nordic headers are intentionally replaced in the project.
-
-SOURCE_FILES =
-SOURCE_FILES += ./main.cc
-
-SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/gcc_startup_nrf52.s
-SOURCE_FILES += $(PROJECT_ROOT)/gcc-arm/gcc_stubs.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/rtc_debug.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/clocks.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/rtc.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/gpio.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/timer.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/leds_pca10040.cc
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/peripherals/buttons_pca10040.cc
-
-SOURCE_FILES += $(PROJECT_ROOT)/nordic/nordic_critical_section.cc
-
-SOURCE_FILES += $(PROJECT_ROOT)/utility/project_assert.cc
-SOURCE_FILES += $(PROJECT_ROOT)/utility/format_conversion.cc
-SOURCE_FILES += $(PROJECT_ROOT)/utility/int_to_string.cc
-SOURCE_FILES += $(PROJECT_ROOT)/utility/vwritef.cc
-SOURCE_FILES += $(PROJECT_ROOT)/utility/write_data.cc
-SOURCE_FILES += $(PROJECT_ROOT)/utility/std_stubs.cc
-SOURCE_FILES += $(PROJECT_ROOT)/logger/logger.cc
-SOURCE_FILES += $(PROJECT_ROOT)/logger/logger_c.cc
-SOURCE_FILES += $(PROJECT_ROOT)/logger/rtt_output_stream.cc
-SOURCE_FILES += $(PROJECT_ROOT)/segger/segger_rtt.cc
-
-# SDK source files:
-SOURCE_FILES += $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
-
-# Include folders:
-INCLUDE_PATHS =  .
-INCLUDE_PATHS += $(PROJECT_ROOT)/gcc-arm
-INCLUDE_PATHS += $(PROJECT_ROOT)/logger
-INCLUDE_PATHS += $(PROJECT_ROOT)/nordic
-INCLUDE_PATHS += $(PROJECT_ROOT)/nordic/peripherals
-INCLUDE_PATHS += $(PROJECT_ROOT)/segger
-INCLUDE_PATHS += $(PROJECT_ROOT)/utility
-
-INCLUDE_PATHS += ./config
-INCLUDE_PATHS += $(BOOST_ROOT)
-
-SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/modules/nrfx/mdk
-SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain
-SYSTEM_INCLUDE_PATHS += $(SDK_ROOT)/components/toolchain/cmsis/include
-
-###
-# Use the LD_PATHS to allow the linker to bring in common linker scripts
-# The assumption is that projects are at the saem dieectory level as common.
-###
-LD_PATHS   = $(PROJECT_ROOT)/nordic
-
-LIB_FILES +=
-
-# Nordic specific compiler definitions
-# NRF52840_XXAA		One of these types must be defined
-# NRF52832_XXAA		<- Only testing with this one to start.
-# NRF52832_XXAB
-# NRF52810_XXAA		Does not have FPU
-# NRF51
+# nrf/nordic/test/timer_test/Makefile
 #
-NORDIC_DEFS += -D NRF52832_XXAA
-NORDIC_DEFS += -D BOARD_PCA10040
-NORDIC_DEFS += -D FLOAT_ABI_HARD
+# Copyright (c) 2018, natersoz. Distributed under the Apache 2.0 license.
+###
 
-NORDIC_DEFS += -D CONFIG_GPIO_AS_PINRESET
-NORDIC_DEFS += -D SWI_DISABLE0
+# Note: TARGET_NAME is required for the jlink rules to work.
+TARGET_NAME			?= timer_test
+PROJECT_ROOT		?= $(shell git rev-parse --show-toplevel)
+BUILD_PATH			?= _build
 
-NORDIC_DEFS += -D TIMER1_ENABLED
-NORDIC_DEFS += -D TIMER2_ENABLED
-NORDIC_DEFS += -D RTC1_ENABLED
+.DEFAULT_GOAL := all
+TARGETS       := all relink clean
 
-CXXFLAGS    += $(NORDIC_DEFS)
-CFLAGS      += $(NORDIC_DEFS)
-ASFLAGS     += $(NORDIC_DEFS)
+.PHONY: $(TARGETS) info
 
-.PHONY:  all relink clean info
-
-# Building all targets
-all: 	$(BUILD_PATH)				\
-	$(BUILD_PATH)/$(TARGET_NAME).out	\
-	$(BUILD_PATH)/$(TARGET_NAME).bin	\
-	$(BUILD_PATH)/$(TARGET_NAME).hex	\
-	$(BUILD_PATH)/$(TARGET_NAME).lst	\
-	$(BUILD_PATH)/$(TARGET_NAME).dump.txt
-
-relink: $(BUILD_PATH)
-	$(RM) $(BUILD_PATH)/$(TARGET_NAME).*
-	make -C . all
-
-clean:
-	$(RM) $(BUILD_PATH)
+$(TARGETS):
+	cmake -S . -B $(BUILD_PATH) --toolchain $(PROJECT_ROOT)/Toolchain-gcc-arm-none-eabi.cmake
+	cmake --build $(BUILD_PATH) --target $@
 
 info:
-	@echo "BUILD_PATH         = $(BUILD_PATH)"
-	@echo "BUILD_TYPE         = $(BUILD_TYPE)"
-	@echo "LINKER_SCRIPT      = $(LINKER_SCRIPT)"
-	@echo "CFLAGS             = $(CFLAGS)"
-	@echo "CXXFLAGS           = $(CXXFLAGS)"
-	@echo "ASFLAGS            = $(ASFLAGS)"
-	@echo "LDFLAGS            = $(LDFLAGS)"
-	@echo "SDK_ROOT           = $(SDK_ROOT)"
-	@echo
-	@echo "SOURCE_FILES       = $(SOURCE_FILES)"
-	@echo
-	@echo "OBJECT_FILES       = $(OBJECT_FILES)"
-	@echo
-	@echo "DEPEND_FILES       = $(DEPEND_FILES)"
-	@echo
+	@echo "TARGET_NAME:  $(TARGET_NAME)"
+	@echo "PROJECT_ROOT: $(PROJECT_ROOT)"
+	@echo "BUILD_PATH:   $(BUILD_PATH)"
 
-include $(PROJECT_ROOT)/make_rules/arm_gcc_rules.mak
-include $(PROJECT_ROOT)/make_rules/checker_rules.mak
 include $(PROJECT_ROOT)/make_rules/jlink_rules.mak

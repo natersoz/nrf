@@ -41,7 +41,7 @@ void ble_gap_connection::connect(uint16_t                    connection_handle,
 
     this->operations().connection_parameter_update_request(
         this->get_connection_handle(), this->get_connection_parameters());
-    this->get_connecteable()->gattc()->exchange_mtu_request(
+    this->get_connectable()->gattc()->exchange_mtu_request(
         connection_handle, this->mtu_size_);
 }
 
@@ -60,12 +60,16 @@ void ble_gap_connection::timeout_expiration(
     uint16_t                    connection_handle,
     ble::gap::timeout_reason    reason)
 {
+    (void)connection_handle;
+    (void)reason;
 }
 
 void ble_gap_connection::connection_parameter_update(
     uint16_t                                connection_handle,
     ble::gap::connection_parameters const&  connection_parameters)
 {
+    (void)connection_handle;
+    (void)connection_parameters;
     this->get_negotiation_state().set_gap_connection_parameters_pending(false);
 }
 
@@ -73,6 +77,8 @@ void ble_gap_connection::connection_parameter_update_request(
     uint16_t                                connection_handle,
     ble::gap::connection_parameters const&  connection_parameters)
 {
+    (void)connection_handle;
+    (void)connection_parameters;
 }
 
 void ble_gap_connection::phy_update_request(
@@ -80,6 +86,9 @@ void ble_gap_connection::phy_update_request(
     ble::gap::phy_layer_parameters  phy_tx_preferred,
     ble::gap::phy_layer_parameters  phy_rx_preferred)
 {
+    (void)connection_handle;
+    (void)phy_tx_preferred;
+    (void)phy_rx_preferred;
 }
 
 void ble_gap_connection::phy_update(
@@ -88,6 +97,10 @@ void ble_gap_connection::phy_update(
     ble::gap::phy_layer_parameters  phy_tx,
     ble::gap::phy_layer_parameters  phy_rx)
 {
+    (void)connection_handle;
+    (void)status;
+    (void)phy_tx;
+    (void)phy_rx;
 }
 
 void ble_gap_connection::link_layer_update_request(
@@ -97,6 +110,11 @@ void ble_gap_connection::link_layer_update_request(
     uint16_t    tx_interval_usec_max,
     uint16_t    rx_interval_usec_max)
 {
+    (void)connection_handle;
+    (void)tx_length_max;
+    (void)rx_length_max;
+    (void)tx_interval_usec_max;
+    (void)rx_interval_usec_max;
 }
 
 void ble_gap_connection::link_layer_update(uint16_t    connection_handle,
@@ -105,6 +123,11 @@ void ble_gap_connection::link_layer_update(uint16_t    connection_handle,
                                            uint16_t    tx_interval_usec_max,
                                            uint16_t    rx_interval_usec_max)
 {
+    (void)connection_handle;
+    (void)tx_length_max;
+    (void)rx_length_max;
+    (void)tx_interval_usec_max;
+    (void)rx_interval_usec_max;
 }
 
 void ble_gap_connection::security_request(
@@ -112,13 +135,19 @@ void ble_gap_connection::security_request(
     bool                                                bonding,
     ble::gap::security::authentication_required const&  auth_req)
 {
+    (void)connection_handle;
+    (void)bonding;
+    (void)auth_req;
 }
 
 void ble_gap_connection::security_pairing_request(
-    uint16_t                                  connection_handle,
-    bool                                      bonding,
-    ble::gap::security::pairing_request const &pair_req)
+    uint16_t                                   connection_handle,
+    bool                                       bonding,
+    ble::gap::security::pairing_request const& pair_req)
 {
+    (void)connection_handle;
+    (void)bonding;
+    (void)pair_req;
 }
 
 void ble_gap_connection::security_authentication_key_request(
@@ -136,6 +165,10 @@ void ble_gap_connection::security_information_request(
     ble::gap::security::master_id const&        master_id,
     ble::gap::address const&                    peer_address)
 {
+    (void)connection_handle;
+    (void)key_dist;
+    (void)master_id;
+    (void)peer_address;
 }
 
 void ble_gap_connection::security_passkey_display(
@@ -143,12 +176,17 @@ void ble_gap_connection::security_passkey_display(
     ble::gap::security::pass_key const&     passkey,
     bool                                    match_request)
 {
+    (void)connection_handle;
+    (void)passkey;
+    (void)match_request;
 }
 
 void ble_gap_connection::security_key_pressed(
     uint16_t                            connection_handle,
     ble::gap::security::passkey_event   key_press_event)
 {
+    (void)connection_handle;
+    (void)key_press_event;
     logger::instance().info("gap::security_key_pressed: h: 0x%04x event: %u",
                             connection_handle, key_press_event);
 }
@@ -158,6 +196,9 @@ void ble_gap_connection::security_DH_key_calculation_request(
     ble::gap::security::pubk const&         public_key,
     bool                                    oob_required)
 {
+    (void)connection_handle;
+    (void)public_key;
+    (void)oob_required;
 }
 
 void ble_gap_connection::security_authentication_status(
@@ -170,6 +211,14 @@ void ble_gap_connection::security_authentication_status(
     ble::gap::security::key_distribution const& kdist_own,
     ble::gap::security::key_distribution const& kdist_peer)
 {
+    (void)connection_handle;
+    (void)pairing_status;
+    (void)error_source;
+    (void)is_bonded;
+    (void)sec_mode_1_levels;
+    (void)sec_mode_2_levels;
+    (void)kdist_own;
+    (void)kdist_peer;
 }
 
 void ble_gap_connection::connection_security_update(uint16_t connection_handle,
@@ -177,11 +226,17 @@ void ble_gap_connection::connection_security_update(uint16_t connection_handle,
                                                     uint8_t  security_level,
                                                     uint8_t  key_size)
 {
+    (void)connection_handle;
+    (void)security_mode;
+    (void)security_level;
+    (void)key_size;
 }
 
 void ble_gap_connection::rssi_update(uint16_t connection_handle,
                                      int8_t   rssi_dBm)
 {
+    (void)connection_handle;
+    (void)rssi_dBm;
 }
 
 static bool check_name(ble::gap::ltv_data const &ltv)
@@ -274,18 +329,22 @@ void ble_gap_connection::scan_report_request(
     ble::gap::address const&    peer_address,
     int8_t                      rssi_dBm)
 {
+    (void)connection_handle;
+    (void)peer_address;
+    (void)rssi_dBm;
 }
 
 /// @todo The following functions should be moved outside of
 /// the ble_gap_connection class and into the ble_central_controller class.
 void ble_gap_connection::negotiation_complete::notify(enum reason completion_reason)
 {
+    (void)completion_reason;
     logger& logger = logger::instance();
     logger.info("BLE GAP negotiation complete, starting service discovery");
 
-    this->ble_gap_connection_->get_connecteable()->service_builder()->discover_services(
+    this->ble_gap_connection_->get_connectable()->service_builder()->discover_services(
         this->ble_gap_connection_->get_connection_handle(),
-        this->ble_gap_connection_->get_connecteable()->service_container(),
+        this->ble_gap_connection_->get_connectable()->service_container(),
         ble::att::handle_minimum,
         ble::att::handle_maximum,
         &this->ble_gap_connection_->service_discovery_complete_);

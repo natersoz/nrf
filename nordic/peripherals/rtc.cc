@@ -88,7 +88,7 @@ struct rtc_control_block_t* const rtc_instances[] =
     rtc_instance_ptr_2,
 };
 
-/// The High frequnecy clock which drives the RTC prescaler.
+/// The High frequency clock which drives the RTC prescaler.
 static uint32_t const lfclk_frequency_Hz = 32768;
 
 /// The maximum prescaler allowed. The prescaler is an 11-bit unsigned value.
@@ -98,7 +98,7 @@ static uint32_t const prescaler_max = (1u << 11u);
 /// The RTC counter bit width.
 static size_t const rtc_counter_width = 24u;
 
-static struct rtc_control_block_t* const rtc_control_block(rtc_instance_t rtc_instance)
+static struct rtc_control_block_t* rtc_control_block(rtc_instance_t rtc_instance)
 {
     if (rtc_instance < std::size(rtc_instances))
     {
@@ -394,4 +394,3 @@ uint32_t rtc::msec_to_ticks(uint32_t msec) const
     msec64 /= 1000u;
     return static_cast<uint32_t>(msec64);
 }
-

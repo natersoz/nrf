@@ -26,8 +26,7 @@ enum version_index
 struct version_info
 {
     char const  version[32u];
-    uint8_t     rfu[4u];
-    uint8_t     git_hash[4u];
+    uint8_t     git_hash[8u];
 };
 
 extern struct version_info const version_info;

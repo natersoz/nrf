@@ -24,7 +24,7 @@ public:
     gap_advertising_params_t& operator=(gap_advertising_params_t const&) = default;
     gap_advertising_params_t& operator=(gap_advertising_params_t&&)      = default;
 
-    gap_advertising_params_t(uint16_t interval)
+    gap_advertising_params_t(uint16_t interval_)
     {
         memset(this, 0, sizeof(*this));
 
@@ -34,7 +34,7 @@ public:
 
         this->p_peer_addr                   = nullptr;
 
-        this->interval                      = interval;
+        this->interval                      = interval_;
         this->duration                      = interval_unlimited;
         this->max_adv_evts                  = interval_unlimited;
 
@@ -47,4 +47,3 @@ public:
 };
 
 } // namespace nordic
-

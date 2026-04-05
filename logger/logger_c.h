@@ -28,7 +28,7 @@ enum data_prefix
     data_prefix_address         ///< The data address.
 };
 
-int    logger_init();
+int    logger_init(void);
 
 size_t logger_write(enum logger_level log_level, char const *fmt, ...);
 //void   logger_process(void);    ///< @return the number of bytes pending output.
@@ -43,4 +43,3 @@ size_t logger_write_data(enum logger_level log_level,
 #ifdef __cplusplus
 }
 #endif
-

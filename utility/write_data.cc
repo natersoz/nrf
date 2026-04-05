@@ -128,6 +128,8 @@ size_t write_data(io::output_stream&    os,
                 n_write += os.write(&colon, sizeof(colon) - 1u);
             }
             break;
+        default:
+            break;
         }
 
         n_write += write_data_line(os,

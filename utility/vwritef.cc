@@ -25,7 +25,6 @@
 using signed_size_t = typename std::make_signed<size_t>::type;
 
 static size_t convert_char(io::output_stream&       os,
-                           format_conversion const& conversion,
                            va_list&                 args)
 {
     int const int_value = va_arg(args, int);
@@ -38,8 +37,7 @@ static size_t write_padding(io::output_stream& os, size_t length, char pad_value
     size_t n_written = 0u;
     for (; length > 0u; --length)
     {
-        char const space = ' ';
-        n_written += os.write(&space, sizeof(space));
+        n_written += os.write(&pad_value, sizeof(pad_value));
     }
 
     return n_written;
@@ -216,7 +214,7 @@ size_t vwritef(io::output_stream& os, char const* fmt, va_list& args)
                 break;
 
             case 'c':
-                n_write = convert_char(os, conversion, args);
+                n_write = convert_char(os, args);
                 break;
 
             case 's':

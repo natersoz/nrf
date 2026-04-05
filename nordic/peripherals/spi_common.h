@@ -43,7 +43,7 @@ enum spi_result_t
  * MISO, and Slave Select to specify that the given signal is not used and
  * therefore does not need to be connected to a pin.
  */
-#define spi_pin_not_used  ((gpio_pin_t) -1)
+#define spi_pin_not_used  UINT16_MAX
 
 enum spi_polarity_t
 {
@@ -132,7 +132,7 @@ struct spi_config_t
  *
  * @return uint32_t The 32-bit equivalent value.
  */
-static inline uint32_t spi_pin_sel(uint8_t pin_no)
+static inline uint32_t spi_pin_sel(gpio_pin_t pin_no)
 {
     uint32_t const pin_not_connected = UINT32_MAX;
     return (pin_no == spi_pin_not_used) ? pin_not_connected : pin_no;

@@ -197,6 +197,7 @@ void saadc_init(enum saadc_conversion_resolution_t  resolution,
                 void*                               context,
                 uint8_t                             irq_priority)
 {
+    (void)resolution;
     ASSERT(not saadc_is_enabled(&saadc_instance_0));
     ASSERT(interrupt_priority_is_valid(irq_priority));
 
@@ -285,6 +286,7 @@ void saadc_conversion_start(int16_t*              destination_pointer,
                             uint16_t              destination_length,
                             uint32_t volatile*    event_register)
 {
+    (void)destination_length;
     ASSERT(not saadc_conversion_in_progress());
     ASSERT(destination_pointer);
 
@@ -360,6 +362,7 @@ void saadc_conversion_start(int16_t*              destination_pointer,
 void saadc_queue_conversion_buffer(int16_t* destination_pointer,
                                    uint16_t destination_length)
 {
+    (void)destination_length;
     NRF_SAADC_Type *saadc_registers = saadc_instance_0.saadc_registers;
 
     ASSERT(destination_pointer);

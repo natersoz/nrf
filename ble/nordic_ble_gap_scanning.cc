@@ -34,6 +34,8 @@ ble_gap_scanning::ble_gap_scanning(uint16_t scanning_interval,
     ble::gap::scanning(),
     scan_parameters_()
 {
+    (void)scanning_interval;
+    (void)scanning_window;
     ble_gap_scanning::init_response_data();
 }
 
@@ -99,4 +101,3 @@ std::errc ble_gap_scanning::connect(
 }
 
 } // namespace nordic
-

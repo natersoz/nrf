@@ -22,7 +22,7 @@ static constexpr size_t array_uint8_conversion_size =
 
 /**
  * Into the user supplied buffer [begin, end) output the ascii string
- * represetation of the byte array. If the template parameter separator is
+ * representation of the byte array. If the template parameter separator is
  * zero (i.e. '\0' or 0x00) then no separator is placed in between bytes.
  * If the length of the user supplied buffer is sufficiently large a null
  * terminator will be appended.
@@ -61,7 +61,8 @@ std::to_chars_result to_chars(std::array<uint8_t, count> const&  data,
     --out_iter;                 // The last character was a separator.
     *out_iter++ = 0;            // Replace it with a null-terminator.
 
-    return std::to_chars_result(out_iter);
+    std::errc ec = std::errc{};
+    return std::to_chars_result(out_iter, ec);
 }
 
 } // namespace utility

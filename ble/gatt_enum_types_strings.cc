@@ -77,6 +77,8 @@ char const* to_string(ble::gatt::descriptor_type descriptor_type)
         return "environmental_sensing_trigger_setting";
     case descriptor_type::time_trigger_setting:
         return "time_trigger_setting";
+    default:
+        break;
     }
     return "descriptor_type undefined";
 };
@@ -163,6 +165,8 @@ char const* to_string(ble::gatt::service_type service_type)
         return "mesh_proxy_service";
     case service_type::reconnection_configuration:
         return "reconnection_configuration";
+    default:
+        break;
     }
     return "service_type undefined";
 }
@@ -603,6 +607,8 @@ char const* to_string(ble::gatt::characteristic_type characteristic_type)
         return "rc_settings";
     case characteristic_type::reconnection_configuration_control_point:
         return "reconnection_configuration_control_point";
+    default:
+        break;
     }
     return "characteristic_type undefined";
 };
@@ -851,6 +857,8 @@ char const* to_string(ble::gatt::units_type units_type)
         return "gram_per_second";
     case units_type::litre_per_second:
         return "litre_per_second";
+    default:
+        break;
     }
     return "units_type undefined";
 };

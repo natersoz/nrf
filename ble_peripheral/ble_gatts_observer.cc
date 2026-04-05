@@ -53,6 +53,9 @@ void ble_gatts_observer::read_authorization_request(uint16_t            connecti
                                                     ble::att::length_t  offset)
 {
     // reply with sd_ble_gatts_rw_authorize_reply
+    (void)connection_handle;
+    (void)attribute_handle;
+    (void)offset;
 }
 
 void ble_gatts_observer::write_authorization_request(uint16_t           connection_handle,
@@ -63,6 +66,13 @@ void ble_gatts_observer::write_authorization_request(uint16_t           connecti
                                                      ble::att::length_t length,
                                                      void const*        data)
 {
+    (void)connection_handle;
+    (void)attribute_handle;
+    (void)write_type;
+    (void)authorization_required;
+    (void)offset;
+    (void)length;
+    (void)data;
 }
 
 void ble_gatts_observer::service_change_confirmation(uint16_t connection_handle)

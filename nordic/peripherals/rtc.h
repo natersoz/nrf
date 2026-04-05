@@ -120,8 +120,8 @@ public:
     uint32_t msec_to_ticks(uint32_t msec) const;
 
     /**
-     * The rtc notificaiton virtual method for receiving callbacks when
-     * timer comaprator events happen. The default case is to do nothing.
+     * The rtc notification virtual method for receiving callbacks when
+     * timer comparator events happen. The default case is to do nothing.
      * Doing nothing allows for a simple polling timer within inheritance.
      *
      * @param cc_index The comparator index which triggered the event callback.
@@ -139,4 +139,3 @@ private:
 };
 
 #endif
-

@@ -187,6 +187,14 @@ void service_builder::relationship_discovered(
     ble::att::uuid const&       uuid,
     bool                        response_end)
 {
+    (void)connection_handle;
+    (void)gatt_error;
+    (void)gatt_handle_error;
+    (void)gatt_handle_first;
+    (void)gatt_handle_last;
+    (void)service_handle;
+    (void)uuid;
+    (void)response_end;
 }
 
 void service_builder::characteristic_discovered(
@@ -199,6 +207,7 @@ void service_builder::characteristic_discovered(
     ble::gatt::properties       properties,
     bool                        response_end)
 {
+    (void)properties;
     logger& logger = logger::instance();
 
     char uuid_char_buffer[ble::att::uuid::conversion_length];
@@ -570,4 +579,3 @@ void service_builder::trim_discovery_handle_range()
 
 } // namespace gattc
 } // namespace ble
-

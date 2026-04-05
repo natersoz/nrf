@@ -45,6 +45,7 @@ void lfclk_enable(enum lfclk_source source)
 
 void lfclk_disable(enum lfclk_source source)
 {
+    (void)source;
     NRF_CLOCK->TASKS_LFCLKSTOP = 1u;
 }
 

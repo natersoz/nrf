@@ -52,6 +52,7 @@ static void saadc_event_handler(saadc_event_type_t              event_type,
                                 union saadc_event_info_t const* event_info,
                                 void*                           context)
 {
+    (void)context;
     logger &logger = logger::instance();
 
     switch (event_type)
@@ -118,6 +119,7 @@ static void saadc_event_handler(saadc_event_type_t              event_type,
 
 static void temperature_measurement_handler(int32_t temperature_Cx4, void* context)
 {
+    (void)context;
     logger &logger = logger::instance();
     logger.info("Temperature: %d C", temperature_Cx4 / 4);
 }
@@ -204,4 +206,3 @@ int main()
         logger.flush();
     }
 }
-

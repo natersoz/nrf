@@ -20,7 +20,7 @@
 
 #include <cstring>
 
-static usart_port_t usart_port = 0u;
+static constexpr usart_port_t usart_port = 0u;
 
 class usart_test_timer: public timer_observer
 {
@@ -66,6 +66,7 @@ static const char test_data[] = {
 
 static void usart_event_handler(usart_event_t const* event, void* context)
 {
+    (void)context;
     logger& logger = logger::instance();
 
     switch (event->type)

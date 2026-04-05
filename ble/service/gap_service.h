@@ -36,11 +36,11 @@ public:
     {
     }
 
-    device_name(char const *device_name, att::length_t device_name_length):
+    device_name(char const *name, att::length_t name_length):
         gatt::characteristic(gatt::characteristic_type::device_name,
                              gatt::properties::read),
-        device_name_(device_name),
-        device_name_length_(device_name_length)
+        device_name_(name),
+        device_name_length_(name_length)
     {
     }
 
@@ -52,10 +52,10 @@ public:
         return this->device_name_length_;
     }
 
-    void set_device_name(char const *device_name, att::length_t device_name_length)
+    void set_device_name(char const *name, att::length_t name_length)
     {
-        this->device_name_ = device_name;
-        this->device_name_length_ = device_name_length;
+        this->device_name_ = name;
+        this->device_name_length_ = name_length;
     }
 
 private:
@@ -146,4 +146,3 @@ public:
 
 } // namespace service
 } // namespace ble
-

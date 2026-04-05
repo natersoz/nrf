@@ -67,17 +67,15 @@ struct address
     address& operator=(address const&)  = delete;
     address& operator=(address&&)       = delete;
 
-    address(std::array<uint8_t, octet_length> const& address, type addr_type)
+    address(std::array<uint8_t, octet_length> const& addr, type addr_type)
     :   type(addr_type),
-        octets{address[0], address[1], address[2],
-               address[3], address[4], msbyte(address[5])}
+        octets{addr[0], addr[1], addr[2], addr[3], addr[4], msbyte(addr[5])}
     {
     }
 
-    address(uint8_t const *address, uint8_t addr_type):
+    address(uint8_t const *addr, uint8_t addr_type):
         type(static_cast<enum type>(addr_type)),
-        octets{address[0], address[1], address[2],
-               address[3], address[4], msbyte(address[5])}
+        octets{addr[0], addr[1], addr[2], addr[3], addr[4], msbyte(addr[5])}
     {
     }
 

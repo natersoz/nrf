@@ -37,15 +37,15 @@ public:
 
     connectable_accessor(): connectable_(nullptr) {}
 
-    ble::profile::connectable const *get_connecteable() const {
+    ble::profile::connectable const *get_connectable() const {
         return this->connectable_;
     }
 
-    ble::profile::connectable *get_connecteable() {
+    ble::profile::connectable *get_connectable() {
         return this->connectable_;
     }
 
-    void set_connecteable(ble::profile::connectable *connectable) {
+    void set_connectable(ble::profile::connectable *connectable) {
         this->connectable_ = connectable;
     }
 

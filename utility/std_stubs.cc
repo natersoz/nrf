@@ -10,7 +10,6 @@
 
 // Under gcc using virtual destructors, even when no malloc is involved,
 // requires a delete operator to satisy the linker.
-void operator delete(void*, size_t) {}
 
 extern "C" {
 
@@ -30,6 +29,7 @@ int _open(const char *path, int oflag, ...)
 
 int _close(int fd)
 {
+    (void)fd;
     return -1;
 }
 
@@ -73,6 +73,12 @@ int _kill(pid_t pid, int sig)
  {
     (void)fd;
     return 0;
+ }
+
+ void _exit(int status)
+ {
+    (void)status;
+    while(1) {};
  }
 
 }  // extern "C"

@@ -11,13 +11,25 @@ extern "C" void __cxa_pure_virtual()
     while (true) {}
 }
 
-void operator delete(void *ptr)
+void operator delete(void*)
 {
     ASSERT(0);
     while (true) {}
 }
 
-void operator delete[] (void *ptr)
+void operator delete(void*, std::size_t)
+{
+    ASSERT(0);
+    while (true) {}
+}
+
+void operator delete[] (void*)
+{
+    ASSERT(0);
+    while (true) {}
+}
+
+void operator delete [](void*, std::size_t)
 {
     ASSERT(0);
     while (true) {}
@@ -33,5 +45,3 @@ void __throw_bad_function_call()
 }
 
 } // namespace std
-
-

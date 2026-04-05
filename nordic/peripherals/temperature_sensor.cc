@@ -65,6 +65,7 @@ bool temperature_sensor_take_measurement(
     temperature_sensor_event_handler_t  handler,
     void*                               context)
 {
+    (void)context;
     // The handler parameter is required.
     // What good is a measurement without a result?
     if (not handler) { return false; }
@@ -107,4 +108,3 @@ static void irq_handler_temp(struct temp_control_block_t* temp_control)
         temp_control->handler = nullptr;
     }
 }
-

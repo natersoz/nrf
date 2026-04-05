@@ -4,18 +4,25 @@
 # Makefile rules for executing JLinkExe commands.
 #
 # Parameters:
-#	BUILD_PATH	_build	The build output directory
-#	TARGET_NAME The binary file (elf) name,
-#	            determines the name of the .hex and .out files.
-#	SDK_ROOT
+#   PROJECT_ROOT	Uses git rev-parse to get the top level directory.
+#	BUILD_PATH		_build    The build output directory
+#	TARGET_NAME		The binary file (elf) name,
+#					determines the name of the .hex and .out files.
+#	SDK_ROOT		Obtained from PROJECT_ROOT
 #	SOFT_DEVICE	    s132    The nRF52 Softdevice
 #	NORDIC_DEVICE   NRF52   The NRF5x device name - for now only NRF52.
 #
 # Use target jlink-help for usage.
 ###
 
+-include .segger_sn
+
 # Determine the Operating System:
-OS_NAME				= $(shell 'uname')
+OS_NAME				:= $(shell 'uname')
+
+PROJECT_ROOT		?= $(shell git rev-parse --show-toplevel)
+BUILD_PATH			?= _build
+SDK_ROOT			?= $(PROJECT_ROOT)/external/nrf_sdk
 
 # By default do not print out the toolchain details.
 VERBOSE             ?= @
@@ -161,7 +168,7 @@ flash-app-invalid: $(BUILD_PATH)/flash_app_invalid.jlink
 	$(VERBOSE) $(RM) $^
 
 $(BUILD_PATH)/flash_target.jlink: $(BUILD_PATH)/$(TARGET_NAME).hex
-	$(VERBOSE) printf "Fashing $<\n"
+	$(VERBOSE) printf "Flashing $<\n"
 	$(VERBOSE) printf "if swd\n"                   > $@
 	$(VERBOSE) printf "speed $(SWD_SPEED)\n"      >> $@
 	$(VERBOSE) printf "device $(NORDIC_DEVICE)\n" >> $@

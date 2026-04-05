@@ -99,15 +99,15 @@ ble::gatt::properties to_att_properties(ble_gatt_char_props_t     props,
                                         ble_gatt_char_ext_props_t props_ext)
 {
     uint16_t const prop_bits =
-        (props.broadcast       ? ble::gatt::properties::broadcast              : 0u) |
-        (props.read            ? ble::gatt::properties::read                   : 0u) |
-        (props.write_wo_resp   ? ble::gatt::properties::write_without_response : 0u) |
-        (props.write           ? ble::gatt::properties::write                  : 0u) |
-        (props.notify          ? ble::gatt::properties::notify                 : 0u) |
-        (props.indicate        ? ble::gatt::properties::indicate               : 0u) |
-        (props.auth_signed_wr  ? ble::gatt::properties::write_with_signature   : 0u) |
-        (props_ext.reliable_wr ? ble::gatt::properties::write_reliable         : 0u) |
-        (props_ext.wr_aux      ? ble::gatt::properties::write_aux              : 0u) ;
+        (props.broadcast       ? ble::gatt::properties::broadcast              : ble::gatt::properties::none) |
+        (props.read            ? ble::gatt::properties::read                   : ble::gatt::properties::none) |
+        (props.write_wo_resp   ? ble::gatt::properties::write_without_response : ble::gatt::properties::none) |
+        (props.write           ? ble::gatt::properties::write                  : ble::gatt::properties::none) |
+        (props.notify          ? ble::gatt::properties::notify                 : ble::gatt::properties::none) |
+        (props.indicate        ? ble::gatt::properties::indicate               : ble::gatt::properties::none) |
+        (props.auth_signed_wr  ? ble::gatt::properties::write_with_signature   : ble::gatt::properties::none) |
+        (props_ext.reliable_wr ? ble::gatt::properties::write_reliable         : ble::gatt::properties::none) |
+        (props_ext.wr_aux      ? ble::gatt::properties::write_aux              : ble::gatt::properties::none) ;
 
     ble::gatt::properties const properties(prop_bits);
     return properties;
@@ -116,13 +116,13 @@ ble::gatt::properties to_att_properties(ble_gatt_char_props_t     props,
 ble::gatt::properties to_att_properties(ble_gatt_char_props_t props)
 {
     uint16_t const prop_bits =
-        (props.broadcast       ? ble::gatt::properties::broadcast              : 0u) |
-        (props.read            ? ble::gatt::properties::read                   : 0u) |
-        (props.write_wo_resp   ? ble::gatt::properties::write_without_response : 0u) |
-        (props.write           ? ble::gatt::properties::write                  : 0u) |
-        (props.notify          ? ble::gatt::properties::notify                 : 0u) |
-        (props.indicate        ? ble::gatt::properties::indicate               : 0u) |
-        (props.auth_signed_wr  ? ble::gatt::properties::write_with_signature   : 0u) ;
+        (props.broadcast       ? ble::gatt::properties::broadcast              : ble::gatt::properties::none) |
+        (props.read            ? ble::gatt::properties::read                   : ble::gatt::properties::none) |
+        (props.write_wo_resp   ? ble::gatt::properties::write_without_response : ble::gatt::properties::none) |
+        (props.write           ? ble::gatt::properties::write                  : ble::gatt::properties::none) |
+        (props.notify          ? ble::gatt::properties::notify                 : ble::gatt::properties::none) |
+        (props.indicate        ? ble::gatt::properties::indicate               : ble::gatt::properties::none) |
+        (props.auth_signed_wr  ? ble::gatt::properties::write_with_signature   : ble::gatt::properties::none) ;
 
     ble::gatt::properties const properties(prop_bits);
     return properties;

@@ -57,6 +57,7 @@ void ble_gap_advertising::start()
         &advertising_params);
 
     ASSERT(error_code == NRF_SUCCESS);
+    (void)error_code;
 
     /// @todo config_tag should be obtained from nordic::ble_stack.
     /// @note This must not be BLE_CONN_CFG_TAG_DEFAULT.
