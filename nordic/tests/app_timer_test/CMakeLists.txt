@@ -24,15 +24,19 @@ project(app_timer_test
     LANGUAGES CXX C ASM
 )
 
-if(NOT DEFINED PROJECT_ROOT)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+if(NOT PROJECT_ROOT)
     set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 endif()
 
-if(NOT DEFINED SDK_ROOT)
+if(NOT SDK_ROOT)
     set(SDK_ROOT ${PROJECT_ROOT}/sdk)
 endif()
 
-if(NOT DEFINED BOOST_ROOT)
+if(NOT BOOST_ROOT)
     set(BOOST_ROOT ${PROJECT_ROOT}/external/boost)
 endif()
 
@@ -42,6 +46,7 @@ endif()
 
 message(STATUS "----------------------------")
 message(STATUS "CMAKE_CURRENT_SOURCE_DIR    : ${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "CMAKE_BUILD_TYPE            : ${CMAKE_BUILD_TYPE}")
 message(DEBUG  "TOOLCHAIN                   : ${CMAKE_TOOLCHAIN_FILE}")
 message(DEBUG  "PROJECT_ROOT                : ${PROJECT_ROOT}")
 message(DEBUG  "BOOST_ROOT                  : ${BOOST_ROOT}")

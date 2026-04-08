@@ -33,9 +33,11 @@ set(CMAKE_ASM_COMPILER_VERSION, 13.2.0)
 
 # The only directory that a toolchain files knows about is its current
 # directory CMAKE_CURRENT_LIST_DIR.
-message(DEBUG "TOOLCHAIN                   : ${CMAKE_TOOLCHAIN_FILE}")
-message(DEBUG "TOOLCHAIN_PREFIX            : ${TOOLCHAIN_PREFIX}")
-message(DEBUG "CMAKE_CURRENT_LIST_DIR      : ${CMAKE_CURRENT_LIST_DIR}")
+message(DEBUG  "---------------------------- Toolchain")
+message(DEBUG  "TOOLCHAIN                   : ${CMAKE_TOOLCHAIN_FILE}")
+message(DEBUG  "TOOLCHAIN_PREFIX            : ${TOOLCHAIN_PREFIX}")
+message(DEBUG  "CMAKE_CURRENT_LIST_DIR      : ${CMAKE_CURRENT_LIST_DIR}")
+message(DEBUG  "CMAKE_BUILD_TYPE            : ${CMAKE_BUILD_TYPE}")
 
 # GCC typical compiler options
 add_compile_options(
@@ -98,25 +100,31 @@ add_link_options(${ARM_CPU_FLAGS})
 # NRF52832_XXAB
 # NRF52810_XXAA		Does not have FPU
 # NRF51
-add_compile_options(
-    "-D NRF52832_XXAA"
-    "-D BOARD_PCA10040"
-    "-D FLOAT_ABI_HARD"
+add_compile_definitions(
+    "NRF52832_XXAA"
+    "BOARD_PCA10040"
+    "FLOAT_ABI_HARD"
 
-    "-D NRF_SD_BLE_API_VERSION=6"
-    "-D S132"
-    "-D SOFTDEVICE_PRESENT=1"
+    "NRF_SD_BLE_API_VERSION=6"
+    "S132"
+    "SOFTDEVICE_PRESENT=1"
 
-    "-D CONFIG_GPIO_AS_PINRESET"
-    "-D SWI_DISABLE0"
+    "CONFIG_GPIO_AS_PINRESET"
+    "SWI_DISABLE0"
 
-    "-D RTC1_ENABLED"
-    "-D TIMER1_ENABLED"
+    "RTC1_ENABLED"
+    "TIMER1_ENABLED"
 )
 
-# set(COMPILER_OPTIMIZE_RELEASE    -g -O3)
-# set(COMPILER_OPTIMIZE_DEBUG      -g -O0)
-# set(COMPILER_OPTIMIZE_MINSIZEREL -g -Os)
+set(CMAKE_C_FLAGS_RELEASE_INIT      "-g  -O3")
+set(CMAKE_CXX_FLAGS_RELEASE_INIT    "-g  -O3")
+set(CMAKE_ASM_FLAGS_RELEASE_INIT    "-g  -O3")
+set(CMAKE_C_FLAGS_DEBUG_INIT        "-g3 -O0")
+set(CMAKE_CXX_FLAGS_DEBUG_INIT      "-g3 -O0")
+set(CMAKE_ASM_FLAGS_DEBUG_INIT      "-g3 -O0")
+set(CMAKE_C_FLAGS_MINSIZEREL_INIT   "-g  -Os")
+set(CMAKE_CXX_FLAGS_MINSIZEREL_INIT "-g  -Os")
+set(CMAKE_ASM_FLAGS_MINSIZEREL_INIT "-g  -Os")
 
 #set (CMAKE_EXE_LINKER_FLAGS
 #    --specs=nano.specs

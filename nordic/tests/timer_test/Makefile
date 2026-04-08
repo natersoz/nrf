@@ -8,15 +8,26 @@
 TARGET_NAME			?= timer_test
 PROJECT_ROOT		?= $(shell git rev-parse --show-toplevel)
 BUILD_PATH			?= _build
+BUILD_TYPE			?= Debug
+VERBOSE				?= 0
+
+ifeq ($(VERBOSE), 0)
+    BUILD_VERBOSE=""
+else
+    BUILD_VERBOSE="--verbose"
+endif
 
 .DEFAULT_GOAL := all
 TARGETS       := all relink clean
 
-.PHONY: $(TARGETS) info
+.PHONY: $(TARGETS) info scrub
 
 $(TARGETS):
-	cmake -S . -B $(BUILD_PATH) --toolchain $(PROJECT_ROOT)/Toolchain-gcc-arm-none-eabi.cmake
-	cmake --build $(BUILD_PATH) --target $@
+	cmake -S . -B $(BUILD_PATH) -D CMAKE_BUILD_TYPE=$(BUILD_TYPE) --toolchain $(PROJECT_ROOT)/Toolchain-gcc-arm-none-eabi.cmake
+	cmake --build $(BUILD_PATH) --target $@ $(BUILD_VERBOSE)
+
+scrub:
+	rm -rf $(BUILD_PATH)
 
 info:
 	@echo "TARGET_NAME:  $(TARGET_NAME)"
