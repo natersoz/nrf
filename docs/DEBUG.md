@@ -28,15 +28,15 @@ A script `nrf/scripts/jlink-nrf` provides a short cut for the command line invoc
 After running JLinkExe the JLinkRTTClient can be started and will find the telnet
 port to connect. Starting JLinkRTTClient first does not seem to work.
 
-If `JLinkExe` is terminated then `JLinkClient` will need to restart.
+If `JLinkExe` is terminated then `JLinkRTTClient` will need to restart.
 
 JLinkRTTLogger
 --------------
 
-`JLinkRTTLogger` works in a similar manner as `JLinkClient`, however
+`JLinkRTTLogger` works in a similar manner as `JLinkRTTClient`, however
 `JLinkRTTLogger` uses the default Segger RTT channel 1 and these projects
 use channel 0. `JLinkRTTLogger` seems to reconnect properly with the starting
-and stoppping of `JLinkExe`; unlike `JLinkClient`.
+and stopping of `JLinkExe`; unlike `JLinkRTTClient`.
 
 jlink_rules.mak
 ---------------
@@ -144,4 +144,3 @@ There is a work-around call monitor mode debugging.
 [Monitor Mode Debugging with J-Link and GDB/Eclipse](https://devzone.nordicsemi.com/b/blog/posts/monitor-mode-debugging-with-j-link-and-gdbeclipse)
 
 Disclaimer: I have yet to try this.
-

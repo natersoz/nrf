@@ -1,5 +1,4 @@
 target remote localhost:2331
-file _build/twi_test.out
+file _build/twi_test.elf
 load
 monitor reset
-

@@ -1,5 +1,4 @@
 target remote localhost:2331
-file _build/ble_peripheral.out
+file _build/ble_peripheral.elf
 load
 monitor reset
-

@@ -1,5 +1,4 @@
 target remote localhost:2331
-file _build/app_timer_test.out
+file _build/app_timer_test.elf
 load
 monitor reset
-
