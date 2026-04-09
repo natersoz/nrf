@@ -8,7 +8,6 @@
 #pragma once
 
 #include <climits>
-#include <cstdlib>
 #include <limits>
 #include <type_traits>
 
@@ -98,7 +97,7 @@ auto sign_extend(uint_type uint_value, bit_pos_t sign_pos) ->
         // The sign bit value is set to '1' since it has tested as negative.
         // Subtract 1 from the sign_bit_mask sets all bits below the sign
         // bit to '1'. Invert the mask and OR with the original value to
-        // set all bits above the sign bit to '1'.
+        // set all bits above, and including, the sign bit to '1'.
         uint_type negative_mask = sign_bit_mask - 1u;
         uint_value |= ~negative_mask;
     }
@@ -111,9 +110,9 @@ auto sign_extend(uint_type uint_value, bit_pos_t sign_pos) ->
  * specified by bit_width, bit_pos_lo.
  *
  * @param int_type     int_value The initial value.
- * @param int_set_type value_set The integer value which is emplaced within
- *                               the parameter int_value to form the resulting
- *                               return value.
+ * @param int_set_type value_insert
+ *        The integer value which is emplaced within the parameter int_value
+ *        to form the resulting return value.
  * @param bit_width  Specifies the bit range width.
  * @param bit_pos_lo Specifies the bit range LSbit position.
  *
@@ -122,7 +121,7 @@ auto sign_extend(uint_type uint_value, bit_pos_t sign_pos) ->
  */
 template <typename int_type, typename int_set_type> constexpr inline
 auto value_set(int_type     int_value,
-               int_set_type value_set,
+               int_set_type value_insert,
                bit_width_t  bit_width,
                bit_pos_t    bit_pos_lo) -> int_type
 {
@@ -131,23 +130,23 @@ auto value_set(int_type     int_value,
     // It is intentional that u_value_set is of type uint_type.
     // It is going to be shifted into position within the bounds of
     // u_value_origin so it needs to be the same.
-    uint_type uint_value     = static_cast<uint_type>(int_value);
-    uint_type uint_value_set = static_cast<uint_type>(value_set);
+    uint_type uint_value        = static_cast<uint_type>(int_value);
+    uint_type uint_value_insert = static_cast<uint_type>(value_insert);
 
     uint_type const mask = bit_mask<uint_type>(bit_width, bit_pos_lo);
     uint_value &= ~mask;
 
     if (bit_pos_lo < sizeof(uint_type) * CHAR_BIT)
     {
-        uint_value_set <<= bit_pos_lo;
+        uint_value_insert <<= bit_pos_lo;
     }
     else
     {
-        uint_value_set = 0u;
+        uint_value_insert = 0u;
     }
 
-    uint_value_set &= mask;
-    uint_value |= uint_value_set;
+    uint_value_insert &= mask;
+    uint_value |= uint_value_insert;
     return static_cast<int_type>(uint_value);
 }
 
@@ -187,8 +186,9 @@ auto value_get(int_type    int_value,
 
     if (std::is_signed<int_type>::value)
     {
-        bit_pos_t const sign_pos = bit_width - 1u;
-        uint_value               = sign_extend(uint_value, sign_pos);
+        bit_pos_t const sign_pos      = bit_width - 1u;
+        int_type  const int_value_ext = sign_extend(uint_value, sign_pos);
+        uint_value = static_cast<uint_type>(int_value_ext);
     }
 
     return static_cast<int_type>(uint_value);
@@ -196,12 +196,12 @@ auto value_get(int_type    int_value,
 
 #if defined __arm__
 
-inline uint16_t endian_swap_16(uint16_t value)
+constexpr inline uint16_t endian_swap_16(uint16_t value)
 {
     return __REV16(value);
 }
 
-inline uint16_t endian_swap_32(uint32_t value)
+constexpr inline uint16_t endian_swap_32(uint32_t value)
 {
     return __REV(value);
 }
@@ -213,7 +213,7 @@ constexpr inline uint16_t endian_swap_16(uint16_t value)
     return (value >> 8u) | (value << 8u);
 }
 
-constexpr inline uint16_t endian_swap_32(uint32_t value)
+constexpr inline uint32_t endian_swap_32(uint32_t value)
 {
     return ((value >> 24) & 0x000000ff) | ((value << 8) & 0x00ff0000) |
            ((value << 24) & 0xff000000) | ((value >> 8) & 0x0000ff00);
